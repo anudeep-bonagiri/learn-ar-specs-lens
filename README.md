@@ -5,6 +5,7 @@ Planned with the Devpost `plan-lens` skill and built by an AI coding agent using
 
 > Fill in each section below before submitting. Hackathon rules, dates, and setup are in [docs/HACKATHON.md](docs/HACKATHON.md).
 > Track progress with [docs/SUBMISSION_CHECKLIST.md](docs/SUBMISSION_CHECKLIST.md).
+> Past winners and idea strategy are in [docs/WINNING_RESEARCH.md](docs/WINNING_RESEARCH.md).
 
 ## Demo
 
