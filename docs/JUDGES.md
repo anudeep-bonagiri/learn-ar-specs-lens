@@ -1,78 +1,111 @@
 # Judges and how to tune for them
 
-Compiled 2026-10-16 from the Devpost page and public Devpost and LinkedIn listings. This uses professional roles only.
-"Likely values" are inferences from those roles, not statements either judge has made.
+Compiled 2026-10-16 from the Devpost page and public professional sources.
+LinkedIn itself couldn't be loaded from this environment, so profile details come from search snippets, Codecademy, CreateHER Fest and Devpost pages.
+The "likely values" notes are inferences from public roles and work, not statements either judge has made.
 
 ## The panel
 
-| Judge | Role | Relevant public track record |
-|---|---|---|
-| **Joe Holmes** | AI Learning Hackathon Architect, Devpost | Designs the Devpost Learn series and its skill packs. Judged Build With AI: Basics. Ran that event's whole process live. |
-| **Darlyze Calixte** | Developer Marketing Manager, Devpost | Runs developer marketing for hackathon registrations. Previously co-founded CreateHER Fest, which runs social-good hackathons with AI, blockchain and AR/VR tracks. Has judged Build With AI: Basics, #75HER, DIALED IN and CreateHER Fest. |
+Both judges work at Devpost. **No Snap judge is listed.**
 
-**The big change:** no Snap judge is listed. The council weighted Snap's consumer and launch-reel goals heavily.
-With a Devpost-only panel, the **Devpost Learn lens matters most**: process, teaching, a clear story and shareability.
-Snap's goals still matter as context, since Snap is the sponsor, but they don't hold the scorecard.
+### Joe Holmes, AI Learning Hackathon Architect, Devpost
 
-## What each likely values
+**Background:**
+- Designs the Devpost Learn series and its skill packs. His LinkedIn headline describes simplifying complex AI topics into accessible educational resources.
+- Was previously a Curriculum Developer in AI/ML at Codecademy. He is credited on "Intro to AI Agents" and "Learn How to Build AI Agents."
+- His Codecademy bio describes him as a self-taught developer and machine learning engineer.
+- He has also worked as a test-prep instructor, led an afterschool mentoring program, and freelanced as a journalist.
+- His personal site, joeholmes.dev, covers AI, learning and civic tech.
+- He ran the Build With AI: Basics process live and judged that event.
 
-**Joe Holmes, who architected the format being judged:**
-- Visible use of the skill pack the way it was designed:
-  - an approved design brief
-  - done criteria checkable in preview
-  - LEAF tests
-  - iteration through design notes
-  - honest logic-proven and feel-unproven labels
-- One spatial moment done well, rather than a big scope.
-- Good agentic coding habits: plan before building, verify with tests, and keep the agent's context clean between planning and building.
-- A project that could serve as the next worked example in the skill pack.
+**What his skill packs reveal about his values.** These come from his team's sister skill pack, learn-ai-basics:
+- **Learner-led by design.** The submission skill helps you prepare the video and repo, but says it **won't draft or rewrite your text**. You write the project name, description and submission fields yourself.
+- **Plan first, then build in verified, committed steps,** with hands-on review and a short learning wrap-up.
+- **Proof-of-concept sized.** "Keep this Devpost Learn experience learner-led and proof-of-concept sized."
+- **Reflection connects a real moment from your build to a reusable practice.**
+- **Hygiene:** check files and git history for secrets and private context before publishing.
 
-**Darlyze Calixte, who works in developer marketing:**
-- A story that is instantly relatable and shareable. It should make a good Devpost newsletter feature or social post. Winners get exactly that feature.
-- A clear "who it's for" and "why it matters", told in human terms.
-- Inclusive, real-world impact. This is inferred from a social-good hackathon background, so present it as an angle, not a gimmick.
-- A clean, confident video.
+**Likely values:**
+- Evidence that you learned the method, not just that a Lens exists.
+- A tight scope, an honest plan, tests and iteration.
+- Clear explanation. He comes from teaching, curriculum work and journalism, so a well-told "why" matters.
+- Civic and learning angles, given the topics on his personal site.
 
-## Tuning Walk the Talk for this panel
+### Darlyze Calixte, Developer Marketing Manager, Devpost
 
-Walk the Talk still fits best. It has a human story for marketing and a clean process for the curriculum lead.
-Call the Shot's edge was provability, which matters, but its story is the weakest for a marketing judge.
+**Background:**
+- Joined Devpost as Developer Marketing Manager in 2026.
+- Co-founder and Technical Director of CreateHER Fest, a launchpad for women in tech across more than 80 countries.
+- CreateHER Fest runs "Hack for Social Good" hackathons with AI, blockchain and AR/VR tracks.
+- Has judged:
+  - CreateHER Fest: Hack for Social Good
+  - #75HER Challenge 2026, where judges reviewed **commit history and README**
+  - DIALED IN Builder Challenge ("Communication, reimagined!")
+  - Build With AI: Basics
+- Hosted a Devpost livestream with Arize AI on tracing agents through the Phoenix MCP. That puts agent tooling and observability in her wheelhouse.
+- Listed as a speaker at the Blockchain Futurist Conference 2026. Studied at Kenzie Academy, a coding bootcamp.
 
-1. **Lead the video with the person, not the tech.** In the first 10 seconds, name the dreaded moment: a first job interview, a class presentation or a best-man toast.
-   Public speaking fear is nearly universal, which makes it a broad, shareable hook.
-2. **Add an inclusive audience line.** Name who benefits most: students giving their first presentation, people practicing in a second language, and anyone with speaking anxiety.
-   Keep it to one sentence, and only claim what the Lens actually does.
-3. **Make the process the second act.** Show 15 to 20 seconds of:
-   - the approved `devpost/design-brief.md`
-   - CLAD building through the Lens Studio MCP
-   - the LEAF tests going green
-   - one design-notes iteration, before and after with its reason
-   This is the part Joe designed the course to teach.
-4. **Keep the scope to one moment.** That moment is run 3 with no notes and one recovered stall. Cut extras such as a second talk if time is short.
-5. **Write the README like a case study:**
-   - problem
-   - audience
-   - the spatial moment
-   - a table of done criteria with their test status
-   - the logic-proven vs. feel-unproven table
-   - what changed in iteration and why
-   - next steps
-   That makes it easy to feature.
-6. **Make shareable assets.** Produce a clean 10-second clip of run 3 and one still of the end card ("0 peeks · no notes").
-   Developer marketing needs exactly these for a winner feature.
-7. **Use honest labels as a strength.** Say plainly that voice is a button stand-in in preview and that the real feel is unproven on glasses.
-   For this panel that reads as following the method, not as weakness.
+**Likely values:**
+- Social good and real-world impact, told as a human story.
+- Accessible, inclusive framing that welcomes newcomers.
+- A shareable project that makes a good newsletter feature or social post, since winners get exactly that.
+- **Commit history and README quality.** She judged an event that explicitly reviewed both.
+- Visible agent tooling. Her Arize livestream was about instrumenting agents through an MCP, so showing CLAD working through the Lens Studio MCP speaks her language.
+- **Communication as a theme.** She judged DIALED IN, a "Communication, reimagined" challenge, and Walk the Talk is a communication tool.
+
+## What this changes
+
+1. **The Devpost Learn lens now matters most.** The council weighted Snap's consumer goals heavily. With a Devpost-only panel, process, learning, story and shareability lead.
+2. **Walk the Talk still fits best.** It is a communication tool with a human, inclusive story, which suits Darlyze. It has a clean, testable, one-moment scope, which suits Joe.
+   Call the Shot stays the backup. It is strong on process, but it's the weakest story for a marketing judge.
+3. **Your own voice is a scoring factor.** The format is learner-led and its submission skill refuses to write your text.
+   Write the README, Devpost description and reflection **in your own words**. Use the repo templates as scaffolding only.
+4. **Commit history is judged.** Build in small, honest, dated commits during the submission window. Avoid one giant final commit.
+
+## Important: research docs in the public repo
+
+This repo's `docs/` folder holds AI-assisted research: winner analysis, idea scorecards and a council debate.
+For a learner-led format, a public repo full of pre-planned AI strategy could undercut the story that *you* led the `plan-lens` interview.
+
+**Recommendation:** before you make the repo public, move `docs/` (except `HACKATHON.md` and `SUBMISSION_CHECKLIST.md`) to a private repo or branch.
+Keep the public repo to these:
+- your Lens Studio project
+- `devpost/`, with the brief and design notes the skill pack writes
+- a README you wrote yourself
+
+Go into `plan-lens` with your thinking prepared, but answer its questions in your own words.
+
+## Tuning checklist
+
+- [ ] **Open with the person.** Name the dreaded speaking moment and who it's for in the first 10 seconds.
+- [ ] **Add an inclusive audience line.** For example: students giving a first presentation, people practicing in a second language, anyone with speaking anxiety. Claim only what the Lens does.
+- [ ] **Frame it as communication, reimagined.** Hands empty, eyes on your audience, notes that fade.
+- [ ] **Make process the second act.** Show the approved brief, CLAD building through the Lens Studio MCP, the LEAF tests going green, and one design-notes iteration with its reason.
+- [ ] **Keep it to one moment.** That is run 3 with no notes and one recovered stall. Cut extras before cutting polish.
+- [ ] **Write the README in your words, as a case study.** Cover the problem, the audience, the moment, the done criteria with test status, logic-proven vs. feel-unproven, what changed and why, and next steps.
+- [ ] **Keep commit history clean.** Make small dated commits, with no secrets and no private context.
+- [ ] **Make shareable assets.** A 10-second run-3 clip and one end-card still ("0 peeks · no notes").
+- [ ] **Use honest labels as a strength.** Voice is a button stand-in in preview, and the feel on glasses is unproven.
+- [ ] **Write a short reflection on one real build moment.** Connect it to a practice you'd reuse. That's the habit Joe's skill packs teach.
 
 ## Read their taste directly
 
-- **The same two judges judged Build With AI: Basics.** Its winners are due around Nov 4, five days before this deadline.
-  Study the top three: their READMEs, their videos and what they emphasized. Adjust before final recording.
-- **Go to the Nov 5 Live Project Review**, which assesses work in progress against the criteria. Bring the working run-3 loop and ask one question: "What would make this stronger on Design?"
-- **Ask in #specs-general** whether the judges weigh consumer use or craft more. Do it early, before Nov 1, while there's still time to switch to Call the Shot.
+- **Build With AI: Basics** had both of these judges. Its winners land around Nov 4. Study the top three READMEs and videos before your final recording.
+- **The Nov 5 Live Project Review** assesses work in progress against the criteria. Bring the run-3 loop and ask: "What would make this stronger on Design?"
+- **Ask in #specs-general** how judges weigh consumer use against craft. Do it before Nov 1, while there's still time to switch to Call the Shot.
 
 ## Sources
-- Judges list: https://learn-specs.devpost.com/
-- Build With AI: Basics, which lists both judges: https://learn-ai-basics.devpost.com/
-- Darlyze Calixte, LinkedIn: https://www.linkedin.com/in/darveloper/
+- Judges: https://learn-specs.devpost.com/
+- Build With AI: Basics, judged by both: https://learn-ai-basics.devpost.com/
+- Learn AI Basics skill pack: https://github.com/challengepost/learn-ai-basics
 - Joe Holmes, LinkedIn: https://www.linkedin.com/in/joe-holmes-ai-ml/
+- Joe Holmes, Codecademy: https://www.codecademy.com/pages/joe-holmes
+- Intro to AI Agents course: https://www.codecademy.com/learn/intro-to-ai-agents
+- Joe Holmes, personal site: https://joeholmes.dev/
+- Darlyze Calixte, LinkedIn: https://www.linkedin.com/in/darveloper/
+- CreateHER Fest about page: https://www.createherfest.com/about
+- CreateHER Fest newsletter on her Devpost role: https://newsletter.createherfest.com/p/okay-so-hire-me-then-if-i-m-so-qualified
 - CreateHER Fest: Hack for Social Good: https://createherfest.devpost.com/
+- #75HER Challenge 2026: https://75her-challenge.devpost.com/
+- DIALED IN Builder Challenge: https://dialedin.devpost.com/
+- Arize Phoenix MCP livestream: https://www.youtube.com/watch?v=QAe6MTunRwE
