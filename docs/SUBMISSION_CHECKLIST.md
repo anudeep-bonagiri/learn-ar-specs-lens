@@ -3,7 +3,7 @@
 Deadline: **Mon Nov 9, 2026, 5:00 PM EST**.
 
 ## Setup
-- [ ] Lens Studio installed (5.24.0 or newer) and signed in with a Snap/SPECS account
+- [ ] Lens Studio installed (5.22 or newer) and signed in with a Snap/SPECS account
 - [ ] Node.js and Git installed
 - [ ] SPECS project created from Base Template, `.esproj` at the repo root
 - [ ] CLAD plugin installed (`ls-clad@ls-extensions`)

@@ -20,6 +20,7 @@ You don't need the glasses. Everything runs in Lens Studio's preview on your lap
 | Live Build Session (recorded) | Thu Oct 22, 2026, 12:00 PM ET |
 | Live Project Review (projects judged in progress) | Thu Nov 5, 2026, 12:00 PM ET |
 | **Submission deadline** | **Mon Nov 9, 2026, 5:00 PM EST** |
+| Winners announced | Thu Nov 19, 2026 |
 
 ## Prizes ($2,500 cash)
 
@@ -57,11 +58,13 @@ Every eligible submission earns a Devpost Learn badge and a Discord role.
 - **Innovation / idea.** How creative and novel is the concept?
 - **Presentation.** Does the video show it working end to end? Does the pitch explain the problem, the audience, and why it matters?
 
-The concept video on the Devpost resources page covers the design ideas judges look for.
+The concept video covers the design ideas judges look for: AR that shares your view, draws in the world around you, and leaves your body free. See [IDEAS.md](IDEAS.md) for how to apply them.
+
+**Help:** ask in #specs-general on the Devpost Discord. Snap troubleshooting guides are on the Resources page.
 
 ## Requirements to set up
 
-- A computer that runs Lens Studio (5.24.0 or newer is recommended for CLAD).
+- A computer that runs Lens Studio (5.22 or newer, per the organizers).
 - A Snap/SPECS account signed in to Lens Studio.
 - Node.js and Git.
 - A coding agent that supports skills, such as Claude Code, Codex, or Cursor.
