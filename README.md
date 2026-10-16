@@ -7,6 +7,7 @@ Planned with the Devpost `plan-lens` skill and built by an AI coding agent using
 > Track progress with [docs/SUBMISSION_CHECKLIST.md](docs/SUBMISSION_CHECKLIST.md).
 > Past winners and idea strategy are in [docs/WINNING_RESEARCH.md](docs/WINNING_RESEARCH.md).
 > Idea scorecard and deep dives are in [docs/IDEAS.md](docs/IDEAS.md).
+> The stakeholder council debate and the final concept are in [docs/COUNCIL_DEBATE.md](docs/COUNCIL_DEBATE.md).
 
 ## Demo
 

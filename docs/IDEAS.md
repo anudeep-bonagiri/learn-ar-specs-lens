@@ -1,6 +1,8 @@
 # Idea deep dive
 
 Compiled 2026-10-16, after the organizers' welcome email.
+> **Superseded:** the stakeholder council debate in [COUNCIL_DEBATE.md](COUNCIL_DEBATE.md) revised this. Its recommendation is Walk the Talk, a talk-rehearsal version of Loci.
+
 Use this to walk into the `plan-lens` interview with a sharp answer to every question.
 The interview is learner-led, so treat these as your own prepared thinking, not a script to paste.
 
