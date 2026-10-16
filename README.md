@@ -49,7 +49,7 @@ _One or two sentences: what is the user doing, and what do they see when this Le
 
 ## Run it
 
-1. Clone this repo and open the `.esproj` file in Lens Studio 5.24.0 or newer.
+1. Clone this repo and open the `.esproj` file in Lens Studio 5.22 or newer.
 2. Pick the SPECS preview and switch to Interactive Preview.
 3. Move with WASD, Q and E for down and up, right-drag or Shift to look. A click acts as a pinch.
 
