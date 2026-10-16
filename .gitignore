@@ -1,0 +1,14 @@
+# Lens Studio generated / local files
+Cache/
+*.bak
+.DS_Store
+Thumbs.db
+
+# Local MCP config written by Lens Studio (machine-specific, may hold local ports/tokens)
+.mcp.json
+
+# Agent / editor local state
+.claude/settings.local.json
+.vscode/
+.idea/
+node_modules/
