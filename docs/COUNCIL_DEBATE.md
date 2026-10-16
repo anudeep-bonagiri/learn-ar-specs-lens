@@ -76,6 +76,8 @@ The four stakeholder roles were custom-written for this question. The Devil's Ad
 
 ## Synthesis
 
+> **Update:** the listed judges are both from Devpost, Joe Holmes and Darlyze Calixte. See [JUDGES.md](JUDGES.md) for how that shifts the weighting toward the Devpost Learn lens.
+
 **Shared starting points, to stress-test rather than trust:**
 - Every member converged on a few things:
   - Use one loop with escalating runs.

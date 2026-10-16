@@ -8,6 +8,7 @@ Planned with the Devpost `plan-lens` skill and built by an AI coding agent using
 > Past winners and idea strategy are in [docs/WINNING_RESEARCH.md](docs/WINNING_RESEARCH.md).
 > Idea scorecard and deep dives are in [docs/IDEAS.md](docs/IDEAS.md).
 > The stakeholder council debate and the final concept are in [docs/COUNCIL_DEBATE.md](docs/COUNCIL_DEBATE.md).
+> Who the judges are and how the concept is tuned for them is in [docs/JUDGES.md](docs/JUDGES.md).
 
 ## Demo
 
