@@ -267,9 +267,12 @@ Follow the "After the build" section at the bottom of the brief.
 1. **Move the private files out of the repo:** `AGENT_BRIEF.md`, plus everything in `docs/` except `HACKATHON.md` and `SUBMISSION_CHECKLIST.md`.
    Put them in a private repo or a folder outside this repo. Remove them from tracking:
    ```
-   mkdir -p ../walk-the-talk-private && git mv AGENT_BRIEF.md docs/WINNING_RESEARCH.md docs/IDEAS.md docs/COUNCIL_DEBATE.md docs/JUDGES.md docs/council ../walk-the-talk-private/ 2>/dev/null || true
+   mkdir -p ../walk-the-talk-private
+   cp -r AGENT_BRIEF.md docs/WINNING_RESEARCH.md docs/IDEAS.md docs/COUNCIL_DEBATE.md docs/JUDGES.md docs/council ../walk-the-talk-private/
+   git rm -r AGENT_BRIEF.md docs/WINNING_RESEARCH.md docs/IDEAS.md docs/COUNCIL_DEBATE.md docs/JUDGES.md docs/council
+   git commit -m "Move private research out of the public repo"
    ```
-   If `git mv` can't move files outside the repo, copy them out, then `git rm` them. Old commits still contain these files.
+   Also remove the README lines that link to the moved files. Old commits still contain these files.
    If that matters, publish from a fresh history: create a new repo from the current files, or squash the early research commits **before** making it public.
    Ask the builder which they prefer.
 2. **Scan for secrets and private context:**
