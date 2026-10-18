@@ -3,6 +3,7 @@
 An AR Lens for Snap SPECS, built for [Learn AR with SPECS](https://learn-specs.devpost.com/) on Devpost Learn.
 Planned with the Devpost `plan-lens` skill and built by an AI coding agent using CLAD and the Lens Studio MCP.
 
+> **Building this? Start with [AGENT_BRIEF.md](AGENT_BRIEF.md).**
 > Fill in each section below before submitting. Hackathon rules, dates, and setup are in [docs/HACKATHON.md](docs/HACKATHON.md).
 > Track progress with [docs/SUBMISSION_CHECKLIST.md](docs/SUBMISSION_CHECKLIST.md).
 > Past winners and idea strategy are in [docs/WINNING_RESEARCH.md](docs/WINNING_RESEARCH.md).
