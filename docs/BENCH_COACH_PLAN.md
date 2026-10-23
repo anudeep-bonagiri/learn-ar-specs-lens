@@ -107,7 +107,7 @@ All units cm (Lens Studio world units). The user starts 90 cm in front of the wh
 | Thorn hotspot | In the tire tread at 4 o'clock, inside face | 90 | 1 cm glint, invisible until the inspect step | Inspect step only |
 | Control bar | Body-locked, lower center, 45 cm out, 25 cm below eye line, `ContainerFrame` | 45 | Back 5 cm, Next 6 cm (brightest), Replay 5 cm; 2 cm gaps | Always |
 | Start card | In front of the wheel at 90 cm, light panel | 90 | 24 x 14 cm: "Fix a flat" + big Found it button (6 cm) + stand-in badge | Step 0 only |
-| Done card | Above the wheel, billboarded | 90 | 24 x 14 cm: result + "Next skill: brake pads" (not clickable in v1) | Last step only |
+| Done card | Above the wheel, billboarded | 90 | 24 x 14 cm: "Tube out, cause found. Ready for the new tube." + time + "Next skill: brake pads" (not clickable in v1) | Last step only |
 | Stand-in badge | Corner of the start card | 90 | "stand-in: wheel placed by pinch" | Step 0 |
 
 **Interactions (standard SIK only):**
@@ -137,7 +137,7 @@ All units cm (Lens Studio world units). The user starts 90 cm in front of the wh
 | 4 | Second lever and peel | Bead 5 cm along | "Hook the second lever, then slide it round" | Grab lever B, place, then drag along the rim arc | Bead segments peel up behind the lever with a zipper sound |
 | 5 | Pull the tube (far side) | Tube end at 6 o'clock, opposite the valve | "Start opposite the valve. Pull the tube out." | Walk around the stand; grab the tube end and pull 15 cm | Tube slides out of the tire; valve lifts out last |
 | 6 | Inspect | Tire inside face | "Find what caused it" | Walk the wheel; pinch the glint at 4 o'clock | Thorn highlights, label: "Thorn. Pull it out before the new tube goes in." |
-| 7 | Done | Done card | "Flat fixed in N:MM. Next skill: brake pads." | Pinch Try again to restart | Resets to step 0 |
+| 7 | Done | Done card | "Tube out, cause found. Ready for the new tube." (plus time N:MM and "Next skill: brake pads") | Pinch Try again to restart | Resets to step 0 |
 
 Back reverses one step and undoes its model change. Replay re-plays the current step's ghost animation.
 
