@@ -1,5 +1,7 @@
 # Agent brief: Learn AR with SPECS, "Walk the Talk"
 
+> **Direction change (Oct 22, 2026):** the team picked **Bench Coach** (bike flat repair). Read `docs/BENCH_COACH_PLAN.md` for the concept, design spec, done criteria, LEAF plan and workflow. Section 3 of this file (Walk the Talk) is superseded; the ground rules, setup and submission sections still apply.
+
 You are a coding agent (Claude Code, Codex or Cursor) running on the builder's own machine.
 This brief has everything you need to take the project from setup to submission.
 Read it fully before acting. Background research is in `docs/`. Read a file there only when this brief points you to it.
