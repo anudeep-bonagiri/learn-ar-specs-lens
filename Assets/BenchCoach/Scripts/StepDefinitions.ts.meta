@@ -1,20 +1,20 @@
-- !<AssetImportMetadata/4fea65ea-2b47-4b54-bf9e-549508962bc9>
+- !<AssetImportMetadata/0e260412-bc21-4653-8c76-e360ba5b69f4>
   ImportedAssetIds:
-    TypeScriptAsset: !<reference> bf0b3901-2b50-4d65-9e81-feb8d744a8e2
+    TypeScriptAsset: !<reference> 128d02c6-ec1e-48f2-9037-de5a1aff1929
   ImporterName: TypeScriptAssetImporter
-  PrimaryAsset: !<reference> bf0b3901-2b50-4d65-9e81-feb8d744a8e2
+  PrimaryAsset: !<reference> 128d02c6-ec1e-48f2-9037-de5a1aff1929
   PackageType: NotAPackage
   LegacyPackagePolicy: ~
   ExtraData:
     {}
   AssetDataMap:
-    TypeScriptAsset: !<own> d26c36c5-a186-4686-900d-e2067fb997fa
+    TypeScriptAsset: !<own> 6ba68b25-2537-483d-bb7e-4389d59ec7a5
   DependentFiles:
     []
   ImporterSettings: !<AssetImporterSettings>
     {}
   CompressionSettings: !<own> 00000000-0000-0000-0000-000000000000
-- !<TypeScriptAssetData/d26c36c5-a186-4686-900d-e2067fb997fa>
+- !<TypeScriptAssetData/6ba68b25-2537-483d-bb7e-4389d59ec7a5>
   SvgIcon: ""
   SetupScript:
     code: ""
@@ -24,11 +24,11 @@
   VersionPatch: 0
   VersionPrerelease: ""
   UpdateOrder: 0
-  ComponentUid: 23fb693f-d00d-4cf4-ab59-7e231f6e7a8d
+  ComponentUid: 9aeecacf-755e-4a38-bd5f-d28cea4e8ae2
   ExportUid: 00000000-0000-0000-0000-000000000000
   PackagePolicy: CanBeUnpacked
   ScriptInputsHidden:
-    buttonSize: false
+    {}
   ScriptTypesHidden:
     {}
   ReadMe: !<reference> 00000000-0000-0000-0000-000000000000
@@ -38,9 +38,10 @@
   Attachments:
     []
   DefaultScriptInputs:
-    - buttonSize: !<Vec3> {x: 8.000000, y: 4.000000, z: 1.000000}
+    -
+      {}
   ScriptTypes:
     -
       {}
   InputLines:
-    - '// @input vec3 buttonSize = {8,4,1} {"hint":"Button size in cm (x, y, z)"}'
+    []

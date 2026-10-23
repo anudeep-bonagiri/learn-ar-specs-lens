@@ -1,0 +1,60 @@
+- !<AssetImportMetadata/1f81cf2f-d9e1-4b37-b00e-f0655855e60e>
+  ImportedAssetIds:
+    TypeScriptAsset: !<reference> 1ea7781f-5c44-4c87-8bd8-0346a66502a0
+  ImporterName: TypeScriptAssetImporter
+  PrimaryAsset: !<reference> 1ea7781f-5c44-4c87-8bd8-0346a66502a0
+  PackageType: NotAPackage
+  LegacyPackagePolicy: ~
+  ExtraData:
+    {}
+  AssetDataMap:
+    TypeScriptAsset: !<own> f4a29720-d4cf-4f0a-985d-0b29bdd1dc53
+  DependentFiles:
+    []
+  ImporterSettings: !<AssetImporterSettings>
+    {}
+  CompressionSettings: !<own> 00000000-0000-0000-0000-000000000000
+- !<TypeScriptAssetData/f4a29720-d4cf-4f0a-985d-0b29bdd1dc53>
+  SvgIcon: ""
+  SetupScript:
+    code: ""
+  Description: ""
+  VersionMajor: 0
+  VersionMinor: 0
+  VersionPatch: 0
+  VersionPrerelease: ""
+  UpdateOrder: 0
+  ComponentUid: af70093d-6f46-4f98-a051-38999f22324e
+  ExportUid: 00000000-0000-0000-0000-000000000000
+  PackagePolicy: CanBeUnpacked
+  ScriptInputsHidden:
+    headerText: false
+    panelHeight: false
+    panelWidth: false
+    viewDistanceCm: false
+  ScriptTypesHidden:
+    {}
+  ReadMe: !<reference> 00000000-0000-0000-0000-000000000000
+  DeclarationFile: !<reference> 00000000-0000-0000-0000-000000000000
+  Tags:
+    []
+  Attachments:
+    []
+  DefaultScriptInputs:
+    - panelWidth: !<float> 20.000000
+      panelHeight: !<float> 10.000000
+      headerText: Tire levers
+      viewDistanceCm: !<float> 45.000000
+  ScriptTypes:
+    -
+      {}
+  InputLines:
+    - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">BenchCoachToolTrayUI – tool tray panel</span>"}'
+    - '// @ui {"widget":"separator"}'
+    - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">Settings</span>"}'
+    - '// @ui {"widget":"group_start", "label":"Settings"}'
+    - '// @input float panelWidth = 20 {"hint":"Panel width in cm", "widget":"slider", "min":10, "max":40, "step":0.5}'
+    - '// @input float panelHeight = 10 {"hint":"Panel height in cm", "widget":"slider", "min":5, "max":20, "step":0.5}'
+    - '// @input string headerText = "Tire levers" {"hint":"Header text along the top edge"}'
+    - '// @input float viewDistanceCm = 45 {"hint":"Viewing distance in cm; scales the type size", "widget":"slider", "min":30, "max":120, "step":1}'
+    - '// @ui {"widget":"group_end"}'

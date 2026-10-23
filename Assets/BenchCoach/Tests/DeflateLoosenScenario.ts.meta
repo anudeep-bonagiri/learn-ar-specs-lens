@@ -1,20 +1,20 @@
-- !<AssetImportMetadata/e65a22e1-d484-4206-9e63-6dabfd90b64b>
+- !<AssetImportMetadata/d026f72d-dd1a-40b8-a9d7-daad0ee3ac30>
   ImportedAssetIds:
-    TypeScriptAsset: !<reference> b7c928a2-61d3-4294-875c-d42abb1c62fd
+    TypeScriptAsset: !<reference> 5f535535-44d5-47e8-9be1-eb76a75b3b75
   ImporterName: TypeScriptAssetImporter
-  PrimaryAsset: !<reference> b7c928a2-61d3-4294-875c-d42abb1c62fd
+  PrimaryAsset: !<reference> 5f535535-44d5-47e8-9be1-eb76a75b3b75
   PackageType: NotAPackage
   LegacyPackagePolicy: ~
   ExtraData:
     {}
   AssetDataMap:
-    TypeScriptAsset: !<own> 457e246c-d1ec-4334-811b-4e48d1f04f02
+    TypeScriptAsset: !<own> f3919687-6d2e-4895-83a6-5315385a5f3d
   DependentFiles:
     []
   ImporterSettings: !<AssetImporterSettings>
     {}
   CompressionSettings: !<own> 00000000-0000-0000-0000-000000000000
-- !<TypeScriptAssetData/457e246c-d1ec-4334-811b-4e48d1f04f02>
+- !<TypeScriptAssetData/f3919687-6d2e-4895-83a6-5315385a5f3d>
   SvgIcon: ""
   SetupScript:
     code: ""
@@ -24,11 +24,11 @@
   VersionPatch: 0
   VersionPrerelease: ""
   UpdateOrder: 0
-  ComponentUid: 6697db12-1c77-4b89-a5a6-0405fffb710f
+  ComponentUid: 5de5c342-0359-4b1e-abc8-135f3cb20997
   ExportUid: 00000000-0000-0000-0000-000000000000
   PackagePolicy: CanBeUnpacked
   ScriptInputsHidden:
-    colliderSize: false
+    {}
   ScriptTypesHidden:
     {}
   ReadMe: !<reference> 00000000-0000-0000-0000-000000000000
@@ -38,9 +38,10 @@
   Attachments:
     []
   DefaultScriptInputs:
-    - colliderSize: !<Vec3> {x: 12.000000, y: 2.000000, z: 1.000000}
+    -
+      {}
   ScriptTypes:
     -
       {}
   InputLines:
-    - "// @input vec3 colliderSize = {12,2,1} {\"hint\":\"Box collider size in cm, in this object's local space\"}"
+    []

@@ -1,0 +1,112 @@
+- !<AssetImportMetadata/d4d76bf8-e97f-4b11-81a7-c6c5994157fe>
+  ImportedAssetIds:
+    TypeScriptAsset: !<reference> 0fcc4a93-574a-4b7e-b261-6564777c50ff
+  ImporterName: TypeScriptAssetImporter
+  PrimaryAsset: !<reference> 0fcc4a93-574a-4b7e-b261-6564777c50ff
+  PackageType: NotAPackage
+  LegacyPackagePolicy: ~
+  ExtraData:
+    {}
+  AssetDataMap:
+    TypeScriptAsset: !<own> 3e1e79d8-8627-4be9-9ede-e698b46adbfa
+  DependentFiles:
+    []
+  ImporterSettings: !<AssetImporterSettings>
+    {}
+  CompressionSettings: !<own> 00000000-0000-0000-0000-000000000000
+- !<TypeScriptAssetData/3e1e79d8-8627-4be9-9ede-e698b46adbfa>
+  SvgIcon: ""
+  SetupScript:
+    code: ""
+  Description: ""
+  VersionMajor: 0
+  VersionMinor: 0
+  VersionPatch: 0
+  VersionPrerelease: ""
+  UpdateOrder: 0
+  ComponentUid: 19c52545-e219-459a-b742-e1f1d58fb34b
+  ExportUid: 00000000-0000-0000-0000-000000000000
+  PackagePolicy: CanBeUnpacked
+  ScriptInputsHidden:
+    beadLiftCm: false
+    beadPushCm: false
+    beadRadiusCm: false
+    debugLogs: false
+    deflateScale: false
+    doneCard: false
+    ghost: false
+    labelOffsetCm: false
+    leverA: false
+    leverSocket: false
+    markerStandoffCm: false
+    stand: false
+    startCard: false
+    stepLabel: false
+    stepMarker: false
+    tire: false
+    toolTray: false
+    valve: false
+    wheel: false
+    wheelTargets: false
+  ScriptTypesHidden:
+    {}
+  ReadMe: !<reference> 00000000-0000-0000-0000-000000000000
+  DeclarationFile: !<reference> 00000000-0000-0000-0000-000000000000
+  Tags:
+    []
+  Attachments:
+    []
+  DefaultScriptInputs:
+    - wheel: !<reference.SceneObject> 00000000-0000-0000-0000-000000000000
+      stand: !<reference.SceneObject> 00000000-0000-0000-0000-000000000000
+      tire: !<reference.SceneObject> 00000000-0000-0000-0000-000000000000
+      valve: !<reference.SceneObject> 00000000-0000-0000-0000-000000000000
+      wheelTargets: !<MappingBased.AssignableType_1> 00000000-0000-0000-0000-000000000000
+      startCard: !<reference.SceneObject> 00000000-0000-0000-0000-000000000000
+      stepMarker: !<reference.SceneObject> 00000000-0000-0000-0000-000000000000
+      stepLabel: !<MappingBased.AssignableType_2> 00000000-0000-0000-0000-000000000000
+      toolTray: !<reference.SceneObject> 00000000-0000-0000-0000-000000000000
+      ghost: !<MappingBased.AssignableType_3> 00000000-0000-0000-0000-000000000000
+      leverSocket: !<reference.SceneObject> 00000000-0000-0000-0000-000000000000
+      leverA: !<MappingBased.AssignableType_4> 00000000-0000-0000-0000-000000000000
+      doneCard: !<MappingBased.AssignableType_5> 00000000-0000-0000-0000-000000000000
+      beadRadiusCm: 33.400002
+      markerStandoffCm: 1.500000
+      labelOffsetCm: !<float> 10.000000
+      deflateScale: 0.960000
+      beadPushCm: 0.500000
+      beadLiftCm: !<float> 1.000000
+      debugLogs: true
+  ScriptTypes:
+    -
+      {}
+  InputLines:
+    - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">RepairManager – step machine 0..7</span>"}'
+    - '// @ui {"widget":"separator"}'
+    - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">References</span>"}'
+    - '// @ui {"widget":"group_start", "label":"References"}'
+    - '// @input SceneObject wheel {"hint":"Wheel assembly root (hidden until Found it)"}'
+    - '// @input SceneObject stand {"hint":"Repair stand root (hidden until Found it)"}'
+    - '// @input SceneObject tire {"hint":"Tire group holding Bead_0..7 (scaled 4% down on deflate)"}'
+    - '// @input SceneObject valve {"hint":"Valve stem (step 1 marker anchor)"}'
+    - '// @input AssignableType_1 wheelTargets {"hint":"Pinch targets on the valve and beads"}'
+    - '// @input SceneObject startCard {"hint":"StartCard root (step 0 only)"}'
+    - '// @input SceneObject stepMarker {"hint":"The single StepMarker ring"}'
+    - '// @input AssignableType_2 stepLabel {"hint":"Step label panel"}'
+    - '// @input SceneObject toolTray {"hint":"ToolTray root (levers inside), shown from step 3"}'
+    - '// @input AssignableType_3 ghost {"hint":"Ghost lever animator (step 3)"}'
+    - '// @input SceneObject leverSocket {"hint":"LeverSocket: snap target on the bead at the valve"}'
+    - '// @input AssignableType_4 leverA {"hint":"Lever A placement controller"}'
+    - '// @input AssignableType_5 doneCard {"hint":"Done card (step 7 stub)"}'
+    - '// @ui {"widget":"group_end"}'
+    - '// @ui {"widget":"separator"}'
+    - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">Settings</span>"}'
+    - '// @ui {"widget":"group_start", "label":"Settings"}'
+    - '// @input float beadRadiusCm = 33.4 {"hint":"Bead major radius in cm (matches the Bead_i TorusArc)", "widget":"slider", "min":10, "max":60, "step":0.1}'
+    - '// @input float markerStandoffCm = 1.5 {"hint":"Marker stand-off in front of the part, in cm", "widget":"slider", "min":0, "max":10, "step":0.5}'
+    - '// @input float labelOffsetCm = 10 {"hint":"Label distance from its marker, in cm", "widget":"slider", "min":4, "max":30, "step":0.5}'
+    - '// @input float deflateScale = 0.96 {"hint":"Tire scale after deflating (0.96 = 4% smaller)", "widget":"slider", "min":0.8, "max":1, "step":0.01}'
+    - '// @input float beadPushCm = 0.5 {"hint":"How far each loosened bead shifts toward the rim center, in cm", "widget":"slider", "min":0.1, "max":3, "step":0.1}'
+    - '// @input float beadLiftCm = 1 {"hint":"How far Bead_0 lifts radially outward when lever A hooks, in cm", "widget":"slider", "min":0.2, "max":5, "step":0.1}'
+    - '// @input bool debugLogs = true {"hint":"Print step transitions to the log"}'
+    - '// @ui {"widget":"group_end"}'

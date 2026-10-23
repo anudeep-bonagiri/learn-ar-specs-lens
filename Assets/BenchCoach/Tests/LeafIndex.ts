@@ -1,19 +1,24 @@
 import {scenariosIndex} from "Leaf.lspkg/Scenarios/decorator/ScenarioIndexDecorator"
 import {ScenarioMetadata} from "Leaf.lspkg/Scenarios/scenario/ScenarioMetadata"
-import {VerifyButtonScenario} from "./VerifyButtonScenario"
-import {VerifyLeverDragScenario} from "./VerifyLeverDragScenario"
+import {StartScenario} from "./StartScenario"
+import {DeflateLoosenScenario} from "./DeflateLoosenScenario"
+import {LeverSnapScenario} from "./LeverSnapScenario"
 
 @component
 export class LeafIndex extends BaseScriptComponent {
   @scenariosIndex
   static scenariosIndex: ScenarioMetadata[] = [
     {
-      id: "verify-button",
-      typename: VerifyButtonScenario.getTypeName(),
+      id: "start",
+      typename: StartScenario.getTypeName(),
     },
     {
-      id: "verify-lever-drag",
-      typename: VerifyLeverDragScenario.getTypeName(),
+      id: "deflate-loosen",
+      typename: DeflateLoosenScenario.getTypeName(),
+    },
+    {
+      id: "lever-snap",
+      typename: LeverSnapScenario.getTypeName(),
     },
   ]
 }

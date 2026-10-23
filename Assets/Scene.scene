@@ -6,11 +6,10 @@
     - !<own> f5d74682-203a-4970-81ea-9fa7b88c96bb
     - !<own> 49df10c5-b0c8-402d-9882-4a75d579c629
     - !<own> 32ba4b33-674d-4969-a473-4523545d3108
-    - !<own> 387f0590-64ce-4dab-a82c-73ed2937973e
-    - !<own> bcb66206-1c45-4ccb-afb8-e0283566eacd
     - !<own> 8c4174a2-1414-4da7-9fab-f8f38088579f
     - !<own> cd01e95a-a883-4a1f-924c-43f791901407
     - !<own> 5135ccb9-f21b-4b31-805d-4ab254d133d2
+    - !<own> 832a9517-4460-40da-a8d5-9e05cd96d78b
   layers: !<Layers/267ee9a7-aff2-4f9d-9a49-f71214747d03>
     userLayers:
       - id: 1
@@ -391,6 +390,22 @@
   ScriptTypes:
     "":
       {}
+- !<SceneObject/08881f4b-c58d-498f-b7c9-2c4ba73cbe41>
+  PrefabRemaps:
+    []
+  Name: StepMarker
+  Enabled: true
+  Layers: 1
+  LocalTransform: !<TransformEntity>
+    Position: {x: 0.000000, y: 2.000000, z: -87.000000}
+    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
+    HasSegmentScaleCompensation: false
+  Children:
+    []
+  Components:
+    - !<own> 7e16d6ac-8f7b-488c-84b7-3a40c26bc3aa
+    - !<own> 4c3c4bb8-c5ee-4248-8767-00779494ba8a
 - !<SceneObject/08e3cc22-f2e1-49fb-9ddc-145fe6547ce3>
   PrefabRemaps:
     []
@@ -501,6 +516,21 @@
     - !<own> d90b4bdf-2fbf-4edc-afa1-d23c2d5ba257
   Components:
     []
+- !<SceneObject/0cfa516b-ecae-4e9f-be72-6b2bf6a88254>
+  PrefabRemaps:
+    []
+  Name: GhostMesh
+  Enabled: true
+  Layers: 1
+  LocalTransform: !<TransformEntity>
+    Position: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Scale: {x: 12.000000, y: 2.000000, z: 1.000000}
+    HasSegmentScaleCompensation: false
+  Children:
+    []
+  Components:
+    - !<own> 73c057b7-b336-45cc-a545-cb21be627d8a
 - !<SceneObject/0cffb60e-73f6-43c5-bb4f-286d39e0f1f6>
   PrefabRemaps:
     []
@@ -516,6 +546,21 @@
     []
   Components:
     []
+- !<SceneObject/0dac5123-7bcd-4645-bf2b-852897c73f9b>
+  PrefabRemaps:
+    []
+  Name: LeverMesh
+  Enabled: true
+  Layers: 1
+  LocalTransform: !<TransformEntity>
+    Position: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Scale: {x: 12.000000, y: 2.000000, z: 1.000000}
+    HasSegmentScaleCompensation: false
+  Children:
+    []
+  Components:
+    - !<own> 1a40b6cd-20af-4f1b-941c-435a4ef629a4
 - !<SceneObject/0e778a10-bd57-4a2a-b20a-b6f4326e8058>
   PrefabRemaps:
     []
@@ -546,22 +591,6 @@
     - !<own> 9e373d68-993f-4c8f-83a0-6644f1d9fefd
   Components:
     []
-- !<ScriptComponent/10dcf48a-75d7-4eb7-9236-233125657f2f>
-  PrefabRemaps:
-    []
-  Name: VerifyButtonUI
-  Enabled: true
-  ScriptAsset: !<reference> bf0b3901-2b50-4d65-9e81-feb8d744a8e2
-  ScriptInputsDefault:
-    buttonSize: true
-  ScriptTypesDefault:
-    {}
-  ScriptInputs:
-    "":
-      buttonSize: !<Vec3> {x: 8.000000, y: 4.000000, z: 1.000000}
-  ScriptTypes:
-    "":
-      {}
 - !<SceneObject/10f60da2-2196-40ad-9e72-8a6bc7e86f35>
   PrefabRemaps:
     []
@@ -619,6 +648,21 @@
   ScriptTypes:
     "":
       {}
+- !<SceneObject/126dd073-4c99-486f-a9f3-e4c26b2aed43>
+  PrefabRemaps:
+    []
+  Name: LeverMesh
+  Enabled: true
+  Layers: 1
+  LocalTransform: !<TransformEntity>
+    Position: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Scale: {x: 12.000000, y: 2.000000, z: 1.000000}
+    HasSegmentScaleCompensation: false
+  Children:
+    []
+  Components:
+    - !<own> 9266fd5c-9d63-44c3-b3ba-9c34de6ce761
 - !<SceneObject/126f3577-bc27-4a20-8d6e-a511bc459c49>
   PrefabRemaps:
     []
@@ -713,6 +757,26 @@
   ShadowDensity: 1.000000
   Materials:
     - !<reference> 53175c9e-5757-4b01-8cf9-59305f6cef6f
+  Mesh: !<reference> 6a757628-4f58-46af-851c-a5f393415bde
+  Skin: !<reference> 00000000-0000-0000-0000-000000000000
+  BlendShapesEnabled: true
+  BlendNormals: false
+  BlendShapes:
+    {}
+- !<RenderMeshVisual/1a40b6cd-20af-4f1b-941c-435a4ef629a4>
+  PrefabRemaps:
+    []
+  Name: Render Mesh Visual
+  Enabled: true
+  RenderOrder: 0
+  StretchMode: Stretch
+  VerticalAlignment: Center
+  HorizontalAlignment: Center
+  MeshShadowMode: None
+  ShadowColor: {x: 1.000000, y: 1.000000, z: 1.000000, w: 1.000000}
+  ShadowDensity: 1.000000
+  Materials:
+    - !<reference> 4b92179f-1b59-43f0-8963-c1b55007e532
   Mesh: !<reference> 6a757628-4f58-46af-851c-a5f393415bde
   Skin: !<reference> 00000000-0000-0000-0000-000000000000
   BlendShapesEnabled: true
@@ -814,6 +878,21 @@
     - !<own> 33c3b818-8a2f-4298-8659-2ea691615666
   Components:
     []
+- !<SceneObject/23bc356a-037d-4321-864c-7c07f5456b01>
+  PrefabRemaps:
+    []
+  Name: ToolTrayPanel
+  Enabled: true
+  Layers: 1
+  LocalTransform: !<TransformEntity>
+    Position: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
+    HasSegmentScaleCompensation: false
+  Children:
+    []
+  Components:
+    - !<own> 3092b01a-0260-4a73-84e7-99a235dbccb8
 - !<SceneObject/241be3d8-6f45-47d7-8b71-53778e375dc2>
   PrefabRemaps:
     []
@@ -829,6 +908,28 @@
     []
   Components:
     []
+- !<ScriptComponent/24460ad0-f260-4e7a-970c-05fcf6db9a81>
+  PrefabRemaps:
+    []
+  Name: BenchCoachStepLabelUI
+  Enabled: true
+  ScriptAsset: !<reference> ab3a3e31-cc7e-4a38-8c9b-140b59297992
+  ScriptInputsDefault:
+    panelWidth: true
+    panelHeight: true
+    viewDistanceCm: true
+    billboard: true
+  ScriptTypesDefault:
+    {}
+  ScriptInputs:
+    "":
+      panelWidth: !<float> 16.000000
+      panelHeight: !<float> 5.000000
+      viewDistanceCm: !<float> 90.000000
+      billboard: true
+  ScriptTypes:
+    "":
+      {}
 - !<SceneObject/264571d0-f879-411b-8deb-ff6d9921317f>
   PrefabRemaps:
     []
@@ -946,6 +1047,21 @@
     ring-3_end_end_end: !<reference> b93dfa60-41bd-4999-ac0f-4b2f1df2bdaf
     thumb-3_end_end_end_end: !<reference> 08e3cc22-f2e1-49fb-9ddc-145fe6547ce3
     pinky-3_end_end: !<reference> d08269e3-acd4-4156-b5b9-477ca259611d
+- !<SceneObject/2d5c1cee-f247-4136-b4ae-70ad7a843fae>
+  PrefabRemaps:
+    []
+  Name: StartCard
+  Enabled: true
+  Layers: 1
+  LocalTransform: !<TransformEntity>
+    Position: {x: 0.000000, y: -6.000000, z: -85.000000}
+    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
+    HasSegmentScaleCompensation: false
+  Children:
+    []
+  Components:
+    - !<own> caa8fc4f-6d45-4119-a6dd-457dd4b1ae9d
 - !<SceneObject/2dae2a27-8ce6-466a-8bff-622195c1b3a8>
   PrefabRemaps:
     []
@@ -961,6 +1077,36 @@
     - !<own> a7da4af4-3d84-4acd-a31e-920a56b4c5c8
   Components:
     []
+- !<SceneObject/2dece704-8730-4633-9db7-8435dc1b818c>
+  PrefabRemaps:
+    []
+  Name: StepLabel
+  Enabled: true
+  Layers: 1
+  LocalTransform: !<TransformEntity>
+    Position: {x: 0.000000, y: 12.000000, z: -86.000000}
+    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
+    HasSegmentScaleCompensation: false
+  Children:
+    []
+  Components:
+    - !<own> 24460ad0-f260-4e7a-970c-05fcf6db9a81
+- !<SceneObject/2e4f053d-3351-4a19-a25d-060737181e39>
+  PrefabRemaps:
+    []
+  Name: LeverB
+  Enabled: true
+  Layers: 1
+  LocalTransform: !<TransformEntity>
+    Position: {x: 0.000000, y: -2.600000, z: 1.500000}
+    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
+    HasSegmentScaleCompensation: false
+  Children:
+    - !<own> 0dac5123-7bcd-4645-bf2b-852897c73f9b
+  Components:
+    - !<own> cf095758-023e-4701-a1b3-cf12c5fbb53c
 - !<SceneObject/2ee0a4cf-ab9b-43ad-9b4e-2b8dd3c8c085>
   PrefabRemaps:
     []
@@ -976,6 +1122,43 @@
     []
   Components:
     - !<own> e16b9e01-7810-4ff4-a302-9e40f9593b6e
+- !<SceneObject/2fd3b1e6-b304-40ce-a98f-c3e05d5bafa1>
+  PrefabRemaps:
+    []
+  Name: LeverSocket
+  Enabled: true
+  Layers: 1
+  LocalTransform: !<TransformEntity>
+    Position: {x: 7.568000, y: 35.605000, z: 0.000000}
+    Rotation: {x: 0.000000, y: -25.000000, z: 78.000000}
+    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
+    HasSegmentScaleCompensation: false
+  Children:
+    []
+  Components:
+    []
+- !<ScriptComponent/3092b01a-0260-4a73-84e7-99a235dbccb8>
+  PrefabRemaps:
+    []
+  Name: BenchCoachToolTrayUI
+  Enabled: true
+  ScriptAsset: !<reference> 1ea7781f-5c44-4c87-8bd8-0346a66502a0
+  ScriptInputsDefault:
+    panelWidth: true
+    panelHeight: true
+    headerText: true
+    viewDistanceCm: true
+  ScriptTypesDefault:
+    {}
+  ScriptInputs:
+    "":
+      panelWidth: !<float> 20.000000
+      panelHeight: !<float> 10.000000
+      headerText: Tire levers
+      viewDistanceCm: !<float> 45.000000
+  ScriptTypes:
+    "":
+      {}
 - !<ScriptComponent/31d7dfee-7d5a-44cf-ac43-42f4f7b5a264>
   PrefabRemaps:
     []
@@ -989,6 +1172,25 @@
   ScriptInputs:
     "":
       {}
+  ScriptTypes:
+    "":
+      {}
+- !<ScriptComponent/322de4cf-0408-4c93-be6b-45c3f47f3be1>
+  PrefabRemaps:
+    []
+  Name: UIBindings
+  Enabled: true
+  ScriptAsset: !<reference> 7ac32ab5-71f8-433e-b1f5-6aa289755ebc
+  ScriptInputsDefault:
+    {}
+  ScriptTypesDefault:
+    {}
+  ScriptInputs:
+    "":
+      manager: !<MappingBased.AssignableType_1> 622db2cb-d0c7-4791-92af-926fab500a02
+      startCard: !<MappingBased.AssignableType_2> caa8fc4f-6d45-4119-a6dd-457dd4b1ae9d
+      controlBar: !<MappingBased.AssignableType_3> 88532baf-8d88-43c6-8552-dad8833e8b12
+      doneCard: !<MappingBased.AssignableType_4> 9c0325e9-10f9-46b0-9bc4-f9be0377eb1f
   ScriptTypes:
     "":
       {}
@@ -1010,8 +1212,10 @@
     - !<own> 3312dd34-fed6-48cb-97f9-1ac18984a343
     - !<own> 5e518710-9c7a-4d44-8251-1d5cf4411cd6
     - !<own> 988001d4-30af-4ad7-abab-0ee69baf3c40
+    - !<own> 2fd3b1e6-b304-40ce-a98f-c3e05d5bafa1
+    - !<own> cd4a1c29-63d5-4ae3-9f53-b907ee4def5c
   Components:
-    []
+    - !<own> 5b3351c9-54b6-430b-b69c-ba78f58c17e9
 - !<SceneObject/3312dd34-fed6-48cb-97f9-1ac18984a343>
   PrefabRemaps:
     []
@@ -1142,21 +1346,6 @@
     - !<own> 4051028a-c608-4a97-b3d5-1a3912a7c007
   Components:
     []
-- !<SceneObject/387f0590-64ce-4dab-a82c-73ed2937973e>
-  PrefabRemaps:
-    []
-  Name: VerifyButton
-  Enabled: true
-  Layers: 1
-  LocalTransform: !<TransformEntity>
-    Position: {x: 20.000000, y: -40.000000, z: -70.000000}
-    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
-    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
-    HasSegmentScaleCompensation: false
-  Children:
-    []
-  Components:
-    - !<own> 10dcf48a-75d7-4eb7-9236-233125657f2f
 - !<SceneObject/3a794764-c758-4d72-9d89-bf3ed978113f>
   PrefabRemaps:
     []
@@ -1364,6 +1553,29 @@
     []
   Components:
     []
+- !<ScriptComponent/4608f895-b41a-47c4-ac91-6f9477b3560a>
+  PrefabRemaps:
+    []
+  Name: LeverPlacement
+  Enabled: true
+  ScriptAsset: !<reference> b360604c-e1fa-4521-a9c5-87be7d517c06
+  ScriptInputsDefault:
+    colliderSize: true
+    snapRadiusCm: true
+    returnDurationSec: true
+    snapDurationSec: true
+  ScriptTypesDefault:
+    {}
+  ScriptInputs:
+    "":
+      socket: !<reference.SceneObject> 2fd3b1e6-b304-40ce-a98f-c3e05d5bafa1
+      colliderSize: !<Vec3> {x: 12.000000, y: 2.000000, z: 1.000000}
+      snapRadiusCm: !<float> 4.000000
+      returnDurationSec: 0.400000
+      snapDurationSec: 0.150000
+  ScriptTypes:
+    "":
+      {}
 - !<SceneObject/46b79537-a269-46f1-9483-500d7a4170d6>
   PrefabRemaps:
     []
@@ -1446,6 +1658,24 @@
     - !<own> 9c3a7929-faa9-4369-a85c-c75a6ab4eee7
   Components:
     []
+- !<ScriptComponent/4c3c4bb8-c5ee-4248-8767-00779494ba8a>
+  PrefabRemaps:
+    []
+  Name: StepMarker
+  Enabled: true
+  ScriptAsset: !<reference> 27534d9b-44e8-448e-ba13-5896014d2c61
+  ScriptInputsDefault:
+    pulseHz: true
+    pulseAmount: true
+  ScriptTypesDefault:
+    {}
+  ScriptInputs:
+    "":
+      pulseHz: 1.500000
+      pulseAmount: 0.150000
+  ScriptTypes:
+    "":
+      {}
 - !<SceneObject/4cb212ad-5246-4215-adf1-aaf3ccfc0e9c>
   PrefabRemaps:
     []
@@ -1461,22 +1691,6 @@
     []
   Components:
     - !<own> 5f153ad7-2baa-4fd9-a298-0dcfad86da3b
-- !<ScriptComponent/4e70d0c5-9a43-4abc-8aea-65fdcd7e130a>
-  PrefabRemaps:
-    []
-  Name: GrabbableLever
-  Enabled: true
-  ScriptAsset: !<reference> b7c928a2-61d3-4294-875c-d42abb1c62fd
-  ScriptInputsDefault:
-    colliderSize: true
-  ScriptTypesDefault:
-    {}
-  ScriptInputs:
-    "":
-      colliderSize: !<Vec3> {x: 12.000000, y: 2.000000, z: 1.000000}
-  ScriptTypes:
-    "":
-      {}
 - !<SceneObject/4ec1e843-3242-49e4-995e-58b020226cc6>
   PrefabRemaps:
     []
@@ -1553,6 +1767,21 @@
     - !<own> 46b79537-a269-46f1-9483-500d7a4170d6
   Components:
     []
+- !<SceneObject/548db8f2-de2a-4187-8fd8-5f9d8b8bf2db>
+  PrefabRemaps:
+    []
+  Name: LeverA
+  Enabled: true
+  Layers: 1
+  LocalTransform: !<TransformEntity>
+    Position: {x: 0.000000, y: 0.600000, z: 1.500000}
+    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
+    HasSegmentScaleCompensation: false
+  Children:
+    - !<own> 126dd073-4c99-486f-a9f3-e4c26b2aed43
+  Components:
+    - !<own> 4608f895-b41a-47c4-ac91-6f9477b3560a
 - !<SceneObject/5611a01d-6d60-49b5-9c72-fcf9afc3c8c1>
   PrefabRemaps:
     []
@@ -1598,6 +1827,30 @@
     []
   Components:
     - !<own> 49a7b7c2-3343-4187-9b9f-34ff002be37c
+- !<ScriptComponent/5b3351c9-54b6-430b-b69c-ba78f58c17e9>
+  PrefabRemaps:
+    []
+  Name: WheelTargets
+  Enabled: true
+  ScriptAsset: !<reference> 191c1664-5876-472b-8b9a-1d75a7f7b007
+  ScriptInputsDefault:
+    beadRadiusCm: true
+    beadSweepDeg: true
+    beadHitThicknessCm: true
+    valveHitSizeCm: true
+  ScriptTypesDefault:
+    {}
+  ScriptInputs:
+    "":
+      tire: !<reference.SceneObject> 3312dd34-fed6-48cb-97f9-1ac18984a343
+      valve: !<reference.SceneObject> 988001d4-30af-4ad7-abab-0ee69baf3c40
+      beadRadiusCm: 33.400002
+      beadSweepDeg: !<float> 45.000000
+      beadHitThicknessCm: !<float> 6.000000
+      valveHitSizeCm: !<Vec3> {x: 5.000000, y: 7.000000, z: 5.000000}
+  ScriptTypes:
+    "":
+      {}
 - !<ScriptComponent/5da56a5c-3085-49dd-805c-bc36720f9be7>
   PrefabRemaps:
     []
@@ -1664,6 +1917,47 @@
       mouseTargetingMode: !<float> 2.000000
       moveInDepth: false
       moveInDepthAmount: !<float> 5.000000
+  ScriptTypes:
+    "":
+      {}
+- !<ScriptComponent/622db2cb-d0c7-4791-92af-926fab500a02>
+  PrefabRemaps:
+    []
+  Name: RepairManager
+  Enabled: true
+  ScriptAsset: !<reference> 0fcc4a93-574a-4b7e-b261-6564777c50ff
+  ScriptInputsDefault:
+    beadRadiusCm: true
+    markerStandoffCm: true
+    labelOffsetCm: true
+    deflateScale: true
+    beadPushCm: true
+    beadLiftCm: true
+    debugLogs: true
+  ScriptTypesDefault:
+    {}
+  ScriptInputs:
+    "":
+      wheel: !<reference.SceneObject> 32ba4b33-674d-4969-a473-4523545d3108
+      stand: !<reference.SceneObject> 49df10c5-b0c8-402d-9882-4a75d579c629
+      tire: !<reference.SceneObject> 3312dd34-fed6-48cb-97f9-1ac18984a343
+      valve: !<reference.SceneObject> 988001d4-30af-4ad7-abab-0ee69baf3c40
+      wheelTargets: !<MappingBased.AssignableType_1> 5b3351c9-54b6-430b-b69c-ba78f58c17e9
+      startCard: !<reference.SceneObject> 2d5c1cee-f247-4136-b4ae-70ad7a843fae
+      stepMarker: !<reference.SceneObject> 08881f4b-c58d-498f-b7c9-2c4ba73cbe41
+      stepLabel: !<MappingBased.AssignableType_2> 24460ad0-f260-4e7a-970c-05fcf6db9a81
+      toolTray: !<reference.SceneObject> b6a059d6-e648-4d74-934e-1e937d6bc923
+      ghost: !<MappingBased.AssignableType_3> e96e1501-5868-4f3b-be46-c0f7fa4544a9
+      leverSocket: !<reference.SceneObject> 2fd3b1e6-b304-40ce-a98f-c3e05d5bafa1
+      leverA: !<MappingBased.AssignableType_4> 4608f895-b41a-47c4-ac91-6f9477b3560a
+      doneCard: !<MappingBased.AssignableType_5> 9c0325e9-10f9-46b0-9bc4-f9be0377eb1f
+      beadRadiusCm: 33.400002
+      markerStandoffCm: 1.500000
+      labelOffsetCm: !<float> 10.000000
+      deflateScale: 0.960000
+      beadPushCm: 0.500000
+      beadLiftCm: !<float> 1.000000
+      debugLogs: true
   ScriptTypes:
     "":
       {}
@@ -2018,6 +2312,26 @@
     []
   Components:
     - !<own> a1e2401b-2a68-4c39-bdf8-04900d1031d0
+- !<RenderMeshVisual/73c057b7-b336-45cc-a545-cb21be627d8a>
+  PrefabRemaps:
+    []
+  Name: Render Mesh Visual
+  Enabled: true
+  RenderOrder: 0
+  StretchMode: Stretch
+  VerticalAlignment: Center
+  HorizontalAlignment: Center
+  MeshShadowMode: None
+  ShadowColor: {x: 1.000000, y: 1.000000, z: 1.000000, w: 1.000000}
+  ShadowDensity: 1.000000
+  Materials:
+    - !<reference> 747e036c-f511-423c-8744-bc6b2e703bd6
+  Mesh: !<reference> 6a757628-4f58-46af-851c-a5f393415bde
+  Skin: !<reference> 00000000-0000-0000-0000-000000000000
+  BlendShapesEnabled: true
+  BlendNormals: false
+  BlendShapes:
+    {}
 - !<SceneObject/74d13517-1dbf-42e6-b536-27afc4909c65>
   PrefabRemaps:
     []
@@ -2127,6 +2441,29 @@
     []
   Components:
     - !<own> d7680636-7f60-4c82-a36a-2ea7e69e172d
+- !<ScriptComponent/7e16d6ac-8f7b-488c-84b7-3a40c26bc3aa>
+  PrefabRemaps:
+    []
+  Name: TorusArc
+  Enabled: true
+  ScriptAsset: !<reference> 07065aae-7a8b-432b-aac5-6f24cb652722
+  ScriptInputsDefault:
+    startDeg: true
+    sweepDeg: true
+  ScriptTypesDefault:
+    {}
+  ScriptInputs:
+    "":
+      majorRadius: 1.500000
+      tubeRadius: 0.300000
+      startDeg: !<float> 0.000000
+      sweepDeg: !<float> 360.000000
+      ringSegments: !<float> 32.000000
+      tubeSegments: !<float> 8.000000
+      material: !<reference.Material> 15b55a2d-25cd-4131-88ca-e7924cfbabd4
+  ScriptTypes:
+    "":
+      {}
 - !<SceneObject/7e2075c6-0882-4275-8365-16a03da73298>
   PrefabRemaps:
     []
@@ -2225,6 +2562,27 @@
     []
   Components:
     - !<own> 62967490-d66e-4479-8829-e5c9da5b5b57
+- !<SceneObject/832a9517-4460-40da-a8d5-9e05cd96d78b>
+  PrefabRemaps:
+    []
+  Name: BenchCoach
+  Enabled: true
+  Layers: 1
+  LocalTransform: !<TransformEntity>
+    Position: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
+    HasSegmentScaleCompensation: false
+  Children:
+    - !<own> 2d5c1cee-f247-4136-b4ae-70ad7a843fae
+    - !<own> afdaa241-a357-4b42-82be-bb6c6821a03b
+    - !<own> 08881f4b-c58d-498f-b7c9-2c4ba73cbe41
+    - !<own> 2dece704-8730-4633-9db7-8435dc1b818c
+    - !<own> b6a059d6-e648-4d74-934e-1e937d6bc923
+    - !<own> acff2cea-6a95-428d-96d0-3acf9f536497
+  Components:
+    - !<own> 622db2cb-d0c7-4791-92af-926fab500a02
+    - !<own> 322de4cf-0408-4c93-be6b-45c3f47f3be1
 - !<SceneObject/8363e9a6-cd83-4889-abd4-6521e394f244>
   PrefabRemaps:
     []
@@ -2310,6 +2668,30 @@
     - !<own> 1fc7fa3e-6910-4741-b8a7-1b6660a39a9d
   Components:
     - !<own> 28e05826-1521-46fa-a54c-80f2957ec80c
+- !<ScriptComponent/88532baf-8d88-43c6-8552-dad8833e8b12>
+  PrefabRemaps:
+    []
+  Name: BenchCoachControlBarUI
+  Enabled: true
+  ScriptAsset: !<reference> f7d81306-a581-4510-a7e5-35e67d74b1ba
+  ScriptInputsDefault:
+    backSize: true
+    nextSize: true
+    replaySize: true
+    gap: true
+    padding: true
+  ScriptTypesDefault:
+    {}
+  ScriptInputs:
+    "":
+      backSize: !<float> 5.000000
+      nextSize: !<float> 6.000000
+      replaySize: !<float> 5.000000
+      gap: !<float> 2.000000
+      padding: 1.250000
+  ScriptTypes:
+    "":
+      {}
 - !<SceneObject/8921ec71-76e1-419c-ac7c-4f7b3f4e00f4>
   PrefabRemaps:
     []
@@ -2460,6 +2842,26 @@
     - !<own> 8cb3dd13-6ebf-41e6-9a23-94a69dd96f87
   Components:
     []
+- !<RenderMeshVisual/9266fd5c-9d63-44c3-b3ba-9c34de6ce761>
+  PrefabRemaps:
+    []
+  Name: Render Mesh Visual
+  Enabled: true
+  RenderOrder: 0
+  StretchMode: Stretch
+  VerticalAlignment: Center
+  HorizontalAlignment: Center
+  MeshShadowMode: None
+  ShadowColor: {x: 1.000000, y: 1.000000, z: 1.000000, w: 1.000000}
+  ShadowDensity: 1.000000
+  Materials:
+    - !<reference> 4b92179f-1b59-43f0-8963-c1b55007e532
+  Mesh: !<reference> 6a757628-4f58-46af-851c-a5f393415bde
+  Skin: !<reference> 00000000-0000-0000-0000-000000000000
+  BlendShapesEnabled: true
+  BlendNormals: false
+  BlendShapes:
+    {}
 - !<ScriptComponent/933ac506-f82e-4973-88ef-c709b3f13c8a>
   PrefabRemaps:
     []
@@ -2542,6 +2944,30 @@
     - !<own> a4de4ce7-f468-4966-8a06-e29eea60c023
   Components:
     []
+- !<ScriptComponent/9c0325e9-10f9-46b0-9bc4-f9be0377eb1f>
+  PrefabRemaps:
+    []
+  Name: BenchCoachDoneCardUI
+  Enabled: true
+  ScriptAsset: !<reference> 7f03d572-8cdc-431a-bdca-0c5d2f1f8b72
+  ScriptInputsDefault:
+    panelWidth: true
+    panelHeight: true
+    viewDistanceCm: true
+    doneText: true
+    nextSkillText: true
+  ScriptTypesDefault:
+    {}
+  ScriptInputs:
+    "":
+      panelWidth: !<float> 24.000000
+      panelHeight: !<float> 14.000000
+      viewDistanceCm: !<float> 90.000000
+      doneText: "Tube out, cause found. Ready for the new tube."
+      nextSkillText: "Next skill: brake pads"
+  ScriptTypes:
+    "":
+      {}
 - !<SceneObject/9c3a7929-faa9-4369-a85c-c75a6ab4eee7>
   PrefabRemaps:
     []
@@ -2804,6 +3230,36 @@
     - !<own> f6687ab7-52ac-408d-a892-8a9559125450
   Components:
     []
+- !<SceneObject/acff2cea-6a95-428d-96d0-3acf9f536497>
+  PrefabRemaps:
+    []
+  Name: DoneCard
+  Enabled: true
+  Layers: 1
+  LocalTransform: !<TransformEntity>
+    Position: {x: 0.000000, y: 22.000000, z: -88.000000}
+    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
+    HasSegmentScaleCompensation: false
+  Children:
+    []
+  Components:
+    - !<own> 9c0325e9-10f9-46b0-9bc4-f9be0377eb1f
+- !<SceneObject/afdaa241-a357-4b42-82be-bb6c6821a03b>
+  PrefabRemaps:
+    []
+  Name: ControlBar
+  Enabled: true
+  Layers: 1
+  LocalTransform: !<TransformEntity>
+    Position: {x: 0.000000, y: -25.000000, z: -45.000000}
+    Rotation: {x: -30.000000, y: 0.000000, z: 0.000000}
+    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
+    HasSegmentScaleCompensation: false
+  Children:
+    []
+  Components:
+    - !<own> 88532baf-8d88-43c6-8552-dad8833e8b12
 - !<ScriptComponent/b0c9b7cc-b334-417b-9ac3-d226fc14ae64>
   PrefabRemaps:
     []
@@ -2948,6 +3404,23 @@
     - !<own> fcc185fc-4e88-4e9e-9c71-40bd83b1b0ed
   Components:
     []
+- !<SceneObject/b6a059d6-e648-4d74-934e-1e937d6bc923>
+  PrefabRemaps:
+    []
+  Name: ToolTray
+  Enabled: true
+  Layers: 1
+  LocalTransform: !<TransformEntity>
+    Position: {x: 16.000000, y: -25.000000, z: -40.000000}
+    Rotation: {x: -30.000000, y: 0.000000, z: 0.000000}
+    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
+    HasSegmentScaleCompensation: false
+  Children:
+    - !<own> 23bc356a-037d-4321-864c-7c07f5456b01
+    - !<own> 548db8f2-de2a-4187-8fd8-5f9d8b8bf2db
+    - !<own> 2e4f053d-3351-4a19-a25d-060737181e39
+  Components:
+    []
 - !<SceneObject/b786dabc-29e4-4cfa-8a84-f39604ffcbdd>
   PrefabRemaps:
     []
@@ -3053,41 +3526,6 @@
     - !<own> fe93d992-1114-4f1f-8bef-0a0bbd75747d
   Components:
     []
-- !<SceneObject/bcb66206-1c45-4ccb-afb8-e0283566eacd>
-  PrefabRemaps:
-    []
-  Name: LeverA
-  Enabled: true
-  Layers: 1
-  LocalTransform: !<TransformEntity>
-    Position: {x: -25.000000, y: -40.000000, z: -70.000000}
-    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
-    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
-    HasSegmentScaleCompensation: false
-  Children:
-    - !<own> dfca1743-e323-45c0-9065-ffd930b2a254
-  Components:
-    - !<own> 4e70d0c5-9a43-4abc-8aea-65fdcd7e130a
-- !<RenderMeshVisual/bd1688de-6986-4fa2-9908-a7a394821dad>
-  PrefabRemaps:
-    []
-  Name: Render Mesh Visual
-  Enabled: true
-  RenderOrder: 0
-  StretchMode: Stretch
-  VerticalAlignment: Center
-  HorizontalAlignment: Center
-  MeshShadowMode: None
-  ShadowColor: {x: 1.000000, y: 1.000000, z: 1.000000, w: 1.000000}
-  ShadowDensity: 1.000000
-  Materials:
-    - !<reference> 4b92179f-1b59-43f0-8963-c1b55007e532
-  Mesh: !<reference> 6a757628-4f58-46af-851c-a5f393415bde
-  Skin: !<reference> 00000000-0000-0000-0000-000000000000
-  BlendShapesEnabled: true
-  BlendNormals: false
-  BlendShapes:
-    {}
 - !<SceneObject/bf2095b6-c6f8-48c8-b840-e0a6cec0dc99>
   PrefabRemaps:
     []
@@ -3166,6 +3604,34 @@
     - !<own> 0a0e1d78-8246-4f5b-ab1a-fdc51837956d
   Components:
     []
+- !<ScriptComponent/caa8fc4f-6d45-4119-a6dd-457dd4b1ae9d>
+  PrefabRemaps:
+    []
+  Name: BenchCoachStartCardUI
+  Enabled: true
+  ScriptAsset: !<reference> 228de48b-4f19-40df-8bb2-3c9f56353f31
+  ScriptInputsDefault:
+    panelWidth: true
+    panelHeight: true
+    viewDistanceCm: true
+    title: true
+    subtitle: true
+    buttonLabel: true
+    badgeText: true
+  ScriptTypesDefault:
+    {}
+  ScriptInputs:
+    "":
+      panelWidth: !<float> 24.000000
+      panelHeight: !<float> 14.000000
+      viewDistanceCm: !<float> 85.000000
+      title: Fix a flat
+      subtitle: Pinch Found it when your wheel is in the stand.
+      buttonLabel: Found it
+      badgeText: "stand-in: wheel placed by pinch"
+  ScriptTypes:
+    "":
+      {}
 - !<SceneObject/cb63a8d9-324e-45c1-99c4-b8801865e70c>
   PrefabRemaps:
     []
@@ -3266,6 +3732,21 @@
     []
   Components:
     - !<own> b3147a4b-4c87-46ea-9586-ebd88c187ab0
+- !<SceneObject/cd4a1c29-63d5-4ae3-9f53-b907ee4def5c>
+  PrefabRemaps:
+    []
+  Name: GhostLever
+  Enabled: true
+  Layers: 1
+  LocalTransform: !<TransformEntity>
+    Position: {x: 7.568000, y: 35.605000, z: 0.000000}
+    Rotation: {x: 0.000000, y: -25.000000, z: 78.000000}
+    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
+    HasSegmentScaleCompensation: false
+  Children:
+    - !<own> 0cfa516b-ecae-4e9f-be72-6b2bf6a88254
+  Components:
+    - !<own> e96e1501-5868-4f3b-be46-c0f7fa4544a9
 - !<SceneObject/ce2213a1-7aa1-4201-a3c7-c2aaa06fd4ff>
   PrefabRemaps:
     []
@@ -3296,6 +3777,30 @@
     - !<own> 650dc0b4-8d22-4aab-87b4-d8e56fb59a67
   Components:
     - !<own> 0847d2bb-a13f-4c4a-a404-169f67308f6f
+- !<ScriptComponent/cf095758-023e-4701-a1b3-cf12c5fbb53c>
+  PrefabRemaps:
+    []
+  Name: LeverPlacement
+  Enabled: true
+  ScriptAsset: !<reference> b360604c-e1fa-4521-a9c5-87be7d517c06
+  ScriptInputsDefault:
+    socket: true
+    colliderSize: true
+    snapRadiusCm: true
+    returnDurationSec: true
+    snapDurationSec: true
+  ScriptTypesDefault:
+    {}
+  ScriptInputs:
+    "":
+      socket: !<reference.SceneObject> 00000000-0000-0000-0000-000000000000
+      colliderSize: !<Vec3> {x: 12.000000, y: 2.000000, z: 1.000000}
+      snapRadiusCm: !<float> 4.000000
+      returnDurationSec: 0.400000
+      snapDurationSec: 0.150000
+  ScriptTypes:
+    "":
+      {}
 - !<SceneObject/cfbcd4c2-d739-4871-be2c-633b1ccd9a43>
   PrefabRemaps:
     []
@@ -3583,21 +4088,6 @@
   ScriptTypes:
     "":
       {}
-- !<SceneObject/dfca1743-e323-45c0-9065-ffd930b2a254>
-  PrefabRemaps:
-    []
-  Name: LeverMesh
-  Enabled: true
-  Layers: 1
-  LocalTransform: !<TransformEntity>
-    Position: {x: 0.000000, y: 0.000000, z: 0.000000}
-    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
-    Scale: {x: 12.000000, y: 2.000000, z: 1.000000}
-    HasSegmentScaleCompensation: false
-  Children:
-    []
-  Components:
-    - !<own> bd1688de-6986-4fa2-9908-a7a394821dad
 - !<SceneObject/e08a10d9-2a09-470d-9cf2-12d908329c2e>
   PrefabRemaps:
     []
@@ -3745,6 +4235,27 @@
     []
   Components:
     - !<own> 9ca8bf6a-28e9-4f4c-ac5d-5d4f9a41debd
+- !<ScriptComponent/e96e1501-5868-4f3b-be46-c0f7fa4544a9>
+  PrefabRemaps:
+    []
+  Name: GhostAnimator
+  Enabled: true
+  ScriptAsset: !<reference> aaf133e5-dd07-4bab-a266-ef10683e9da8
+  ScriptInputsDefault:
+    durationSec: true
+    approachOffsetCm: true
+    approachTiltDeg: true
+  ScriptTypesDefault:
+    {}
+  ScriptInputs:
+    "":
+      socket: !<reference.SceneObject> 2fd3b1e6-b304-40ce-a98f-c3e05d5bafa1
+      durationSec: 0.800000
+      approachOffsetCm: !<float> 8.000000
+      approachTiltDeg: !<float> 35.000000
+  ScriptTypes:
+    "":
+      {}
 - !<RenderMeshVisual/e96fa241-3fac-465c-ad2e-b71442b16bde>
   PrefabRemaps:
     []
