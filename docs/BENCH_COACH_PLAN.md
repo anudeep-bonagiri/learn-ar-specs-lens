@@ -187,7 +187,7 @@ Order matters: Lens Studio first, then Claude Code from the project folder.
 2. `node -v`, `git --version` (both already used by the skill pack).
 3. From the project folder: `claude`. Trust the folder. Approve the `lens-studio` MCP server ("use this and all future MCP servers in this project").
 4. In Claude Code: `/plugin marketplace add https://github.com/lens-studio-devs/ls-extensions.git`, then `/plugin install ls-clad@ls-extensions`, then `/reload-plugins`.
-5. Verify: `/mcp` shows `lens-studio` connected; `/plugin` Installed lists CLAD. The skill pack is already installed (`skills-lock.json`); re-run `npx skills add challengepost/learn-specs --all -y` only if `plan-lens` is missing.
+5. Verify: `/mcp` shows `lens-studio` connected; `/plugin` Installed lists CLAD. The skill pack lives at `.claude/skills/plan-lens/` (moved there on Oct 23, 2026: the Lens Studio Agents-Docs plugin deletes any `.agents/` folder on every project load and save, so the default `npx skills add` location does not survive). If it is missing, `git checkout -- .claude/skills/plan-lens` restores it; do not re-run `npx skills add` into `.agents/`.
 6. Optional: Shift+Tab to auto mode to reduce permission prompts. A full CLAD build can take 30+ minutes.
 7. Preview: Interactive Preview Mode with the SPECS simulation so the additive display is shown. WASD/QE/mouse.
 
