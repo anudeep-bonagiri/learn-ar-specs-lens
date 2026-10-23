@@ -1,0 +1,67 @@
+- !<AssetImportMetadata/ca2ed2de-40a5-432c-9b37-f0c3cddcbbe0>
+  ImportedAssetIds:
+    TypeScriptAsset: !<reference> 7998e33c-7047-483e-b986-dad2015fd332
+  ImporterName: TypeScriptAssetImporter
+  PrimaryAsset: !<reference> 7998e33c-7047-483e-b986-dad2015fd332
+  PackageType: NotAPackage
+  LegacyPackagePolicy: ~
+  ExtraData:
+    {}
+  AssetDataMap:
+    TypeScriptAsset: !<own> 564e5375-fbdd-4ab3-bd3b-df11e65e4d68
+  DependentFiles:
+    []
+  ImporterSettings: !<AssetImporterSettings>
+    {}
+  CompressionSettings: !<own> 00000000-0000-0000-0000-000000000000
+- !<TypeScriptAssetData/564e5375-fbdd-4ab3-bd3b-df11e65e4d68>
+  SvgIcon: ""
+  SetupScript:
+    code: ""
+  Description: ""
+  VersionMajor: 0
+  VersionMinor: 0
+  VersionPatch: 0
+  VersionPrerelease: ""
+  UpdateOrder: 0
+  ComponentUid: af8ed6f6-b27c-40ff-a84a-c2b088d17c5d
+  ExportUid: 00000000-0000-0000-0000-000000000000
+  PackagePolicy: CanBeUnpacked
+  ScriptInputsHidden:
+    debugLogs: false
+    peelEndAngleDeg: false
+    segmentSweepDeg: false
+    slackDeg: false
+    wheel: false
+  ScriptTypesHidden:
+    {}
+  ReadMe: !<reference> 00000000-0000-0000-0000-000000000000
+  DeclarationFile: !<reference> 00000000-0000-0000-0000-000000000000
+  Tags:
+    []
+  Attachments:
+    []
+  DefaultScriptInputs:
+    - wheel: !<reference.SceneObject> 00000000-0000-0000-0000-000000000000
+      peelEndAngleDeg: !<float> 0.000000
+      segmentSweepDeg: !<float> 45.000000
+      slackDeg: !<float> 2.000000
+      debugLogs: false
+  ScriptTypes:
+    -
+      {}
+  InputLines:
+    - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">RimDrag – slide the hooked lever along the rim</span>"}'
+    - '// @ui {"widget":"separator"}'
+    - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">References</span>"}'
+    - '// @ui {"widget":"group_start", "label":"References"}'
+    - '// @input SceneObject wheel {"hint":"Wheel root: the drag circle lies in its local XY plane"}'
+    - '// @ui {"widget":"group_end"}'
+    - '// @ui {"widget":"separator"}'
+    - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">Settings</span>"}'
+    - '// @ui {"widget":"group_start", "label":"Settings"}'
+    - "// @input float peelEndAngleDeg = 90 {\"hint\":\"Absolute clockwise angle (deg from 12 o'clock) where the peel completes; 90 = 3 o'clock. Literal: @input defaults cannot reference imported constants.\", \"widget\":\"slider\", \"min\":45, \"max\":180, \"step\":1}"
+    - '// @input float segmentSweepDeg = 45 {"hint":"Sweep of each bead segment in degrees (Bead_i starts at i * sweep)", "widget":"slider", "min":10, "max":90, "step":1}'
+    - '// @input float slackDeg = 2 {"hint":"Degrees of slack before a segment or the end counts as reached", "widget":"slider", "min":0, "max":10, "step":0.5}'
+    - '// @input bool debugLogs {"hint":"Print drag progress to the log"}'
+    - '// @ui {"widget":"group_end"}'

@@ -1,0 +1,67 @@
+- !<AssetImportMetadata/d0b9de2d-b89a-4946-8238-99f9346fb5eb>
+  ImportedAssetIds:
+    TypeScriptAsset: !<reference> a3c4414a-cbb6-47eb-aeb3-39be8b5db81d
+  ImporterName: TypeScriptAssetImporter
+  PrimaryAsset: !<reference> a3c4414a-cbb6-47eb-aeb3-39be8b5db81d
+  PackageType: NotAPackage
+  LegacyPackagePolicy: ~
+  ExtraData:
+    {}
+  AssetDataMap:
+    TypeScriptAsset: !<own> f9d2ef01-db7b-457e-86bd-5ea239eaec3e
+  DependentFiles:
+    []
+  ImporterSettings: !<AssetImporterSettings>
+    {}
+  CompressionSettings: !<own> 00000000-0000-0000-0000-000000000000
+- !<TypeScriptAssetData/f9d2ef01-db7b-457e-86bd-5ea239eaec3e>
+  SvgIcon: ""
+  SetupScript:
+    code: ""
+  Description: ""
+  VersionMajor: 0
+  VersionMinor: 0
+  VersionPatch: 0
+  VersionPrerelease: ""
+  UpdateOrder: 0
+  ComponentUid: f9b775bf-6be6-431b-8267-ae8b72e36059
+  ExportUid: 00000000-0000-0000-0000-000000000000
+  PackagePolicy: CanBeUnpacked
+  ScriptInputsHidden:
+    chime: false
+    chimeVolume: false
+    spatial: false
+    zipper: false
+    zipperVolume: false
+  ScriptTypesHidden:
+    {}
+  ReadMe: !<reference> 00000000-0000-0000-0000-000000000000
+  DeclarationFile: !<reference> 00000000-0000-0000-0000-000000000000
+  Tags:
+    []
+  Attachments:
+    []
+  DefaultScriptInputs:
+    - zipper: !<reference.AudioComponent> 00000000-0000-0000-0000-000000000000
+      chime: !<reference.AudioComponent> 00000000-0000-0000-0000-000000000000
+      zipperVolume: 0.350000
+      chimeVolume: 0.400000
+      spatial: true
+  ScriptTypes:
+    -
+      {}
+  InputLines:
+    - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">BenchCoachAudio – cue player</span>"}'
+    - '// @ui {"widget":"separator"}'
+    - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">References</span>"}'
+    - '// @ui {"widget":"group_start", "label":"References"}'
+    - '// @input Component.AudioComponent zipper {"hint":"Zipper cue (bead peel), on Audio/Zipper"}'
+    - '// @input Component.AudioComponent chime {"hint":"Chime cue (far-side marker), on Audio/Chime"}'
+    - '// @ui {"widget":"group_end"}'
+    - '// @ui {"widget":"separator"}'
+    - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">Settings</span>"}'
+    - '// @ui {"widget":"group_start", "label":"Settings"}'
+    - '// @input float zipperVolume = 0.35 {"hint":"Zipper volume (kept low; it retriggers per bead segment)", "widget":"slider", "min":0, "max":1, "step":0.05}'
+    - '// @input float chimeVolume = 0.4 {"hint":"Chime volume", "widget":"slider", "min":0, "max":1, "step":0.05}'
+    - '// @input bool spatial = true {"hint":"Play the cues from their world position (spatial audio)"}'
+    - '// @ui {"widget":"group_end"}'
