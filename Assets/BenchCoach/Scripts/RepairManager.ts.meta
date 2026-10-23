@@ -28,6 +28,7 @@
   ExportUid: 00000000-0000-0000-0000-000000000000
   PackagePolicy: CanBeUnpacked
   ScriptInputsHidden:
+    audio: false
     beadLiftCm: false
     beadPushCm: false
     beadRadiusCm: false
@@ -37,14 +38,19 @@
     ghost: false
     labelOffsetCm: false
     leverA: false
+    leverB: false
     leverSocket: false
+    leverSocketB: false
     markerStandoffCm: false
+    rimDrag: false
     stand: false
     startCard: false
     stepLabel: false
     stepMarker: false
     tire: false
     toolTray: false
+    tubeEnd: false
+    tubePull: false
     valve: false
     wheel: false
     wheelTargets: false
@@ -69,7 +75,13 @@
       ghost: !<MappingBased.AssignableType_3> 00000000-0000-0000-0000-000000000000
       leverSocket: !<reference.SceneObject> 00000000-0000-0000-0000-000000000000
       leverA: !<MappingBased.AssignableType_4> 00000000-0000-0000-0000-000000000000
-      doneCard: !<MappingBased.AssignableType_5> 00000000-0000-0000-0000-000000000000
+      leverSocketB: !<reference.SceneObject> 00000000-0000-0000-0000-000000000000
+      leverB: !<MappingBased.AssignableType_5> 00000000-0000-0000-0000-000000000000
+      rimDrag: !<MappingBased.AssignableType_6> 00000000-0000-0000-0000-000000000000
+      tubePull: !<MappingBased.AssignableType_7> 00000000-0000-0000-0000-000000000000
+      tubeEnd: !<reference.SceneObject> 00000000-0000-0000-0000-000000000000
+      audio: !<MappingBased.AssignableType_8> 00000000-0000-0000-0000-000000000000
+      doneCard: !<MappingBased.AssignableType_9> 00000000-0000-0000-0000-000000000000
       beadRadiusCm: 33.400002
       markerStandoffCm: 1.500000
       labelOffsetCm: !<float> 10.000000
@@ -97,7 +109,13 @@
     - '// @input AssignableType_3 ghost {"hint":"Ghost lever animator (step 3)"}'
     - '// @input SceneObject leverSocket {"hint":"LeverSocket: snap target on the bead at the valve"}'
     - '// @input AssignableType_4 leverA {"hint":"Lever A placement controller"}'
-    - '// @input AssignableType_5 doneCard {"hint":"Done card (step 7 stub)"}'
+    - '// @input SceneObject leverSocketB {"hint":"LeverSocketB: snap target 5 cm along the rim from socket A"}'
+    - '// @input AssignableType_5 leverB {"hint":"Lever B placement controller"}'
+    - '// @input AssignableType_6 rimDrag {"hint":"Rim drag controller on lever B"}'
+    - '// @input AssignableType_7 tubePull {"hint":"Tube pull controller on TubeEnd"}'
+    - '// @input SceneObject tubeEnd {"hint":"TubeEnd (step 5 marker anchor)"}'
+    - '// @input AssignableType_8 audio {"hint":"Cue player (zipper)"}'
+    - '// @input AssignableType_9 doneCard {"hint":"Done card (step 7 stub)"}'
     - '// @ui {"widget":"group_end"}'
     - '// @ui {"widget":"separator"}'
     - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">Settings</span>"}'

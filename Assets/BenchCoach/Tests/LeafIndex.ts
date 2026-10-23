@@ -3,6 +3,8 @@ import {ScenarioMetadata} from "Leaf.lspkg/Scenarios/scenario/ScenarioMetadata"
 import {StartScenario} from "./StartScenario"
 import {DeflateLoosenScenario} from "./DeflateLoosenScenario"
 import {LeverSnapScenario} from "./LeverSnapScenario"
+import {PeelAndPullScenario} from "./PeelAndPullScenario"
+import {JumpToStepScenario} from "./JumpToStepScenario"
 
 @component
 export class LeafIndex extends BaseScriptComponent {
@@ -19,6 +21,15 @@ export class LeafIndex extends BaseScriptComponent {
     {
       id: "lever-snap",
       typename: LeverSnapScenario.getTypeName(),
+    },
+    {
+      id: "peel-and-pull",
+      typename: PeelAndPullScenario.getTypeName(),
+    },
+    {
+      id: "jump-to-step",
+      typename: JumpToStepScenario.getTypeName(),
+      parameters: {step: "5"},
     },
   ]
 }

@@ -7,7 +7,8 @@ import {LeverPlacement} from "../Scripts/LeverPlacement"
 
 /**
  * Criterion 3: dropping lever A 10 cm from the ghost rejects it (back to the
- * tray); dropping it on the ghost snaps it, locks it, lifts Bead_0 and hides the ghost.
+ * tray); dropping it on the ghost snaps it, locks it, lifts Bead_0 and moves the
+ * ghost on to the second socket (step 4).
  */
 @component
 export class LeverSnapScenario extends Scenario {
@@ -59,7 +60,12 @@ export class LeverSnapScenario extends Scenario {
     print(`[LeverSnapScenario] Bead_0 lift (${lift.x.toFixed(2)}, ${lift.y.toFixed(2)}, ${lift.z.toFixed(2)})`)
     expect(lift.length, "Bead_0 lifted 1 cm radially").toBeCloseTo(1.0, 1)
     expect(lift.y, "Bead_0 y raised").toBeGreaterThan(0.8)
-    expect(ghost.enabled, "ghost hidden after the snap").toBe(false)
+    // Step 4 re-shows the ghost at the second socket (5 cm along the rim), so it
+    // must have left socket A rather than vanished.
+    expect(ghost.enabled, "ghost re-shown for the second lever").toBe(true)
+    const ghostFromSocketA = ghost.getTransform().getWorldPosition().distance(socketPos)
+    print(`[LeverSnapScenario] ghost now ${ghostFromSocketA.toFixed(2)} cm from socket A`)
+    expect(ghostFromSocketA, "ghost moved on to socket B").toBeGreaterThan(3.0)
     expect(manager.getState().step, "advanced to step 4").toBe(4)
   }
 }

@@ -2,17 +2,24 @@
  * RepairManager — the step machine (steps 0..7) for the flat-fix procedure.
  * Owns: state {step, subStep, startTime}, which authored objects are visible per
  * step, the StepMarker / StepLabel placement, and every model change (tire
- * deflate, bead push, bead lift) plus its undo on Back / reset.
- * Reads: StepDefinitions. Listens to: WheelTargets, LeverPlacement.
+ * deflate, bead push, bead lift, bead peel) plus its undo on Back / reset. The
+ * tube pull animation is owned by TubePull; this script arms it and restores it.
+ * Reads: StepDefinitions. Listens to: WheelTargets, LeverPlacement (A and B),
+ * RimDrag, TubePull. Next and jumpToStep() apply a step's model state directly.
  * Must not: author UI — cards and labels are passive views driven via setters.
+ * Size note: above 400 lines on purpose — the per-step complete / undo / apply
+ * tables are one state machine and are easier to audit side by side than split.
  * Note: step-0 visibility is applied on the first Update so every authored
  * component (UIKit plates, buttons, levers) initializes while enabled.
  */
 import Event, {PublicApi} from "SpectaclesInteractionKit.lspkg/Utils/Event"
-import {LAST_STEP, LOOSEN_BEADS, STEPS, StepDef, SOCKET_ANGLE_DEG} from "./StepDefinitions"
+import {LAST_STEP, LOOSEN_BEADS, STEPS, SOCKET_B_ANGLE_DEG} from "./StepDefinitions"
 import {WheelTargets} from "./WheelTargets"
 import {LeverPlacement} from "./LeverPlacement"
 import {GhostAnimator} from "./GhostAnimator"
+import {RimDrag} from "./RimDrag"
+import {TubePull} from "./TubePull"
+import {BenchCoachAudio} from "./BenchCoachAudio"
 import {BenchCoachStepLabelUI} from "./BenchCoachStepLabelUI"
 import {BenchCoachDoneCardUI} from "./BenchCoachDoneCardUI"
 
@@ -78,6 +85,30 @@ export class RepairManager extends BaseScriptComponent {
   leverA: LeverPlacement
 
   @input
+  @hint("LeverSocketB: snap target 5 cm along the rim from socket A")
+  leverSocketB: SceneObject
+
+  @input
+  @hint("Lever B placement controller")
+  leverB: LeverPlacement
+
+  @input
+  @hint("Rim drag controller on lever B")
+  rimDrag: RimDrag
+
+  @input
+  @hint("Tube pull controller on TubeEnd")
+  tubePull: TubePull
+
+  @input
+  @hint("TubeEnd (step 5 marker anchor)")
+  tubeEnd: SceneObject
+
+  @input
+  @hint("Cue player (zipper)")
+  audio: BenchCoachAudio
+
+  @input
   @hint("Done card (step 7 stub)")
   doneCard: BenchCoachDoneCardUI
   @ui.group_end
@@ -124,7 +155,9 @@ export class RepairManager extends BaseScriptComponent {
   private subStep = 0
   private startTime = 0
   private loosened: number[] = []
+  private peeled: number[] = []
   private leverPlaced = false
+  private leverBPlaced = false
   private initialized = false
 
   private _onStepChanged = new Event<number>()
@@ -141,6 +174,10 @@ export class RepairManager extends BaseScriptComponent {
 
   getLoosenedBeads(): number[] {
     return this.loosened.slice()
+  }
+
+  getPeeledBeads(): number[] {
+    return this.peeled.slice()
   }
 
   onAwake(): void {
@@ -168,6 +205,12 @@ export class RepairManager extends BaseScriptComponent {
       ["ghost", this.ghost],
       ["leverSocket", this.leverSocket],
       ["leverA", this.leverA],
+      ["leverSocketB", this.leverSocketB],
+      ["leverB", this.leverB],
+      ["rimDrag", this.rimDrag],
+      ["tubePull", this.tubePull],
+      ["tubeEnd", this.tubeEnd],
+      ["audio", this.audio],
       ["doneCard", this.doneCard],
     ]
     for (const [name, value] of refs) if (!value) missing.push(name)
@@ -178,6 +221,10 @@ export class RepairManager extends BaseScriptComponent {
     this.wheelTargets.onValvePinched.add(() => this.onValvePinched())
     this.wheelTargets.onBeadPinched.add((i) => this.onBeadPinched(i))
     this.leverA.onPlaced.add(() => this.onLeverPlaced())
+    this.leverB.onPlaced.add(() => this.onLeverBPlaced())
+    this.rimDrag.onSegmentPassed.add((i) => this.onSegmentPeeled(i))
+    this.rimDrag.onPeelComplete.add(() => this.onPeelComplete())
+    this.tubePull.onPullComplete.add(() => this.onTubePulled())
   }
 
   // ── Public actions (UIBindings + tests) ────────────────────────────────────
@@ -187,29 +234,42 @@ export class RepairManager extends BaseScriptComponent {
     this.goTo(1)
   }
 
+  /** Next applies the current step's model change (as if the user did it), then advances. */
   next(): void {
     if (this.step === 0) {
       this.foundIt()
       return
     }
     if (this.step >= LAST_STEP) return
+    this.completeStep(this.step)
     this.goTo(this.step + 1)
   }
 
+  /** Back drops any partial work on the current step, then undoes the previous one. */
   back(): void {
     if (this.step <= 0) return
+    this.undoStep(this.step)
     this.undoStep(this.step - 1)
     this.goTo(this.step - 1)
   }
 
   replay(): void {
-    if (this.step === 3 && this.ghost) this.ghost.play()
+    const def = STEPS[this.step]
+    if (def.showGhost && this.ghost && this.ghost.sceneObject.enabled) this.ghost.play()
   }
 
   reset(): void {
     for (let s = LAST_STEP; s >= 0; s--) this.undoStep(s)
     this.startTime = 0
     this.goTo(0)
+  }
+
+  /** Debug / test entry: reset, apply the model state of steps 0..n-1, enter step n. */
+  jumpToStep(n: number): void {
+    this.reset()
+    const target = Math.max(0, Math.min(LAST_STEP, n))
+    for (let s = 0; s < target; s++) this.completeStep(s)
+    this.goTo(target)
   }
 
   // ── Completion handlers ────────────────────────────────────────────────────
@@ -236,11 +296,100 @@ export class RepairManager extends BaseScriptComponent {
 
   private onLeverPlaced(): void {
     if (this.step !== 3) return
-    this.leverPlaced = true
-    this.setBeadOffset(0, this.beadLiftCm - (this.loosened.indexOf(0) >= 0 ? this.beadPushCm : 0))
-    if (this.ghost) this.ghost.sceneObject.enabled = false
+    this.applyLeverA()
     this.log("lever A placed: Bead_0 lifted")
     this.goTo(4)
+  }
+
+  private onLeverBPlaced(): void {
+    if (this.step !== 4 || this.leverBPlaced) return
+    this.leverBPlaced = true
+    this.subStep = 1
+    if (this.ghost) this.ghost.sceneObject.enabled = false
+    this.rimDrag.arm(this.leverSocketB, SOCKET_B_ANGLE_DEG)
+    this.log("lever B hooked: slide it round")
+  }
+
+  private onSegmentPeeled(i: number): void {
+    if (this.step !== 4) return
+    this.liftBead(i)
+    if (this.peeled.indexOf(i) < 0) this.peeled.push(i)
+    this.subStep = 1 + this.peeled.length
+    if (this.audio && this.leverB) this.audio.playZipperAt(this.leverB.sceneObject.getTransform().getWorldPosition())
+    this.log(`Bead_${i} peeled`)
+  }
+
+  private onPeelComplete(): void {
+    if (this.step !== 4) return
+    this.log("bead peeled to 3 o'clock")
+    this.goTo(5)
+  }
+
+  private onTubePulled(): void {
+    if (this.step !== 5) return
+    this.log("tube out")
+    this.goTo(6)
+  }
+
+  // ── Model changes shared by user actions, Next and jumpToStep ─────────────
+  private applyLeverA(): void {
+    this.leverPlaced = true
+    this.liftBead(0)
+    if (this.ghost) this.ghost.sceneObject.enabled = false
+  }
+
+  /** Raise Bead_i 1 cm radially outward (on top of its loosen push, if any). */
+  private liftBead(i: number): void {
+    this.setBeadOffset(i, this.beadLiftCm - (this.loosened.indexOf(i) >= 0 ? this.beadPushCm : 0))
+  }
+
+  private lowerBead(i: number): void {
+    this.setBeadOffset(i, this.loosened.indexOf(i) >= 0 ? -this.beadPushCm : 0)
+  }
+
+  /** Apply the model state that completing `step` produces, without the user action. */
+  private completeStep(step: number): void {
+    switch (step) {
+      case 0:
+        if (this.startTime === 0) this.startTime = getTime()
+        break
+      case 1:
+        this.setDeflated(true)
+        break
+      case 2:
+        for (const i of LOOSEN_BEADS) {
+          if (this.loosened.indexOf(i) < 0) {
+            this.setBeadOffset(i, -this.beadPushCm)
+            this.loosened.push(i)
+          }
+        }
+        break
+      case 3:
+        if (!this.leverPlaced) {
+          if (this.leverA) this.leverA.placeInstant()
+          this.applyLeverA()
+        }
+        break
+      case 4:
+        if (!this.leverBPlaced) {
+          if (this.leverB) this.leverB.placeInstant()
+          this.leverBPlaced = true
+          if (this.ghost) this.ghost.sceneObject.enabled = false
+        }
+        if (this.rimDrag) {
+          this.rimDrag.completeInstant(this.leverSocketB, SOCKET_B_ANGLE_DEG)
+          for (const i of this.rimDrag.getPassedSegments()) {
+            this.liftBead(i)
+            if (this.peeled.indexOf(i) < 0) this.peeled.push(i)
+          }
+        }
+        break
+      case 5:
+        if (this.tubePull) this.tubePull.completeInstant()
+        break
+      default:
+        break
+    }
   }
 
   // ── Step transitions ───────────────────────────────────────────────────────
@@ -266,10 +415,20 @@ export class RepairManager extends BaseScriptComponent {
         break
       case 3:
         if (this.leverPlaced) {
-          this.setBeadOffset(0, this.loosened.indexOf(0) >= 0 ? -this.beadPushCm : 0)
+          this.lowerBead(0)
           this.leverPlaced = false
         }
         if (this.leverA) this.leverA.returnHome(true)
+        break
+      case 4:
+        if (this.rimDrag) this.rimDrag.disarm()
+        for (const i of this.peeled) this.lowerBead(i)
+        this.peeled = []
+        this.leverBPlaced = false
+        if (this.leverB) this.leverB.returnHome(true)
+        break
+      case 5:
+        if (this.tubePull) this.tubePull.restore()
         break
       default:
         break
@@ -286,6 +445,14 @@ export class RepairManager extends BaseScriptComponent {
     if (this.doneCard) this.setEnabled(this.doneCard.sceneObject, def.showDoneCard)
     if (def.showDoneCard && this.doneCard) this.doneCard.setElapsed(this.getState().elapsedSec)
 
+    // Lever B only snaps during step 4 (before it is hooked); the tube end only pulls in step 5.
+    if (this.leverB) this.leverB.snapEnabled = this.step === 4 && !this.leverBPlaced
+    if (this.rimDrag && this.step !== 4) this.rimDrag.disarm()
+    if (this.tubePull) {
+      if (this.step === 5) this.tubePull.arm()
+      else this.tubePull.disarm()
+    }
+
     const showMarker = def.markerAnchor !== "none"
     this.setEnabled(this.stepMarker, showMarker)
     if (this.stepLabel) this.setEnabled(this.stepLabel.sceneObject, showMarker)
@@ -293,7 +460,10 @@ export class RepairManager extends BaseScriptComponent {
       this.stepLabel.setText(def.label)
       this.placeMarkerAndLabel()
     }
-    if (def.showGhost && this.ghost) this.ghost.play()
+    if (def.showGhost && this.ghost) {
+      this.ghost.setSocket(def.ghostSocket === "B" ? this.leverSocketB : this.leverSocket)
+      this.ghost.play()
+    }
     this.log(`step ${this.step} (${def.name})`)
   }
 
@@ -316,8 +486,11 @@ export class RepairManager extends BaseScriptComponent {
       radius = local.length
       angleDeg = 0
     } else if (def.markerAnchor === "socket") {
-      angleDeg = SOCKET_ANGLE_DEG
+      angleDeg = def.markerAngleDeg
       markerPos = wheelMat.multiplyPoint(this.radial(angleDeg, radius, this.markerStandoffCm + 2))
+    } else if (def.markerAnchor === "tubeEnd" && this.tubeEnd) {
+      markerPos = this.tubeEnd.getTransform().getWorldPosition().add(new vec3(0, 0, this.markerStandoffCm))
+      angleDeg = 180
     } else {
       markerPos = wheelMat.multiplyPoint(this.radial(angleDeg, radius, this.markerStandoffCm + 2))
     }

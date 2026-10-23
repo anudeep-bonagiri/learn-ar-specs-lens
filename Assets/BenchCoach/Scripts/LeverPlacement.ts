@@ -4,7 +4,9 @@
  * socket: within snapRadiusCm it snaps to the socket pose, locks, and fires
  * onPlaced; otherwise it tweens back to its tray (home) pose.
  * Owns: the lever's own transform, lock state. Must not: change the wheel.
- * Expects: @input socket (optional for LeverB in this pass).
+ * Expects: @input socket (LeverSocket for A, LeverSocketB for B). RepairManager
+ * gates snapping with `snapEnabled`; RimDrag re-activates manipulation after a
+ * lock via setManipulationActive(true) to drag the hooked lever along the rim.
  */
 import Event, {PublicApi} from "SpectaclesInteractionKit.lspkg/Utils/Event"
 import {Interactable} from "SpectaclesInteractionKit.lspkg/Components/Interaction/Interactable/Interactable"
@@ -46,6 +48,8 @@ export class LeverPlacement extends BaseScriptComponent {
   @ui.group_end
 
   isLocked: boolean = false
+  /** When false a release never snaps (lever B outside step 4): it always returns home. */
+  snapEnabled: boolean = true
   grabCount: number = 0
   releaseCount: number = 0
 
@@ -116,6 +120,27 @@ export class LeverPlacement extends BaseScriptComponent {
     this.homeRecorded = true
   }
 
+  /** Snap to the socket immediately, locked, without firing onPlaced (jumpToStep / Next). */
+  placeInstant(): void {
+    if (!this.socket) return
+    const st = this.socket.getTransform()
+    const tr = this.sceneObject.getTransform()
+    tr.setWorldPosition(st.getWorldPosition())
+    tr.setWorldRotation(st.getWorldRotation())
+    this.tweening = false
+    this.isLocked = true
+    this.setManipulationEnabled(false)
+  }
+
+  /** Let another controller (RimDrag) re-enable or disable grabbing while locked. */
+  setManipulationActive(on: boolean): void {
+    this.setManipulationEnabled(on)
+  }
+
+  getManipulation(): InteractableManipulation | null {
+    return this.manipulation
+  }
+
   /** Back / reset: unlock and return the lever to the tray. */
   returnHome(instant: boolean = false): void {
     this.isLocked = false
@@ -133,7 +158,7 @@ export class LeverPlacement extends BaseScriptComponent {
   private onReleased(): void {
     if (this.isLocked || !this.homeRecorded) return
     const d = this.distanceToSocket()
-    if (this.socket && d <= this.snapRadiusCm) {
+    if (this.socket && this.snapEnabled && d <= this.snapRadiusCm) {
       const st = this.socket.getTransform()
       this.startTween(st.getWorldPosition(), st.getWorldRotation(), this.snapDurationSec, true)
       print(`[LeverPlacement] ${this.sceneObject.name} snapped (${d.toFixed(1)} cm from socket)`)

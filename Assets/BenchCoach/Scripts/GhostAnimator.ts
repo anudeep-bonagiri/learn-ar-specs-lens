@@ -2,7 +2,8 @@
  * GhostAnimator — plays the ghost lever's hooking motion: from a raised, tilted
  * approach pose into the exact socket pose over `durationSec` with ease-in-out.
  * Owns: the ghost's transform while playing. play() is called on step entry and Replay.
- * Expects: @input socket = LeverSocket (the target pose).
+ * Expects: @input socket = LeverSocket (the target pose); RepairManager retargets it
+ * with setSocket() for the second socket.
  */
 @component
 export class GhostAnimator extends BaseScriptComponent {
@@ -35,6 +36,11 @@ export class GhostAnimator extends BaseScriptComponent {
   @ui.group_end
 
   playCount: number = 0
+
+  /** Retarget the ghost (socket A for step 3, socket B for step 4) before play(). */
+  setSocket(socket: SceneObject): void {
+    this.socket = socket
+  }
 
   private playing = false
   private elapsed = 0
