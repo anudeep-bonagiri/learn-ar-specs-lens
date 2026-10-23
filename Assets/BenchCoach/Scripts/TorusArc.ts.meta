@@ -1,0 +1,64 @@
+- !<AssetImportMetadata/fe5ffc2d-1077-4875-9fbe-950a50772c94>
+  ImportedAssetIds:
+    TypeScriptAsset: !<reference> 07065aae-7a8b-432b-aac5-6f24cb652722
+  ImporterName: TypeScriptAssetImporter
+  PrimaryAsset: !<reference> 07065aae-7a8b-432b-aac5-6f24cb652722
+  PackageType: NotAPackage
+  LegacyPackagePolicy: ~
+  ExtraData:
+    {}
+  AssetDataMap:
+    TypeScriptAsset: !<own> b6b652a6-bc18-438b-96b4-15a0cd9ca814
+  DependentFiles:
+    []
+  ImporterSettings: !<AssetImporterSettings>
+    {}
+  CompressionSettings: !<own> 00000000-0000-0000-0000-000000000000
+- !<TypeScriptAssetData/b6b652a6-bc18-438b-96b4-15a0cd9ca814>
+  SvgIcon: ""
+  SetupScript:
+    code: ""
+  Description: ""
+  VersionMajor: 0
+  VersionMinor: 0
+  VersionPatch: 0
+  VersionPrerelease: ""
+  UpdateOrder: 0
+  ComponentUid: 0566792e-b144-465c-b1d5-6c908bb58506
+  ExportUid: 00000000-0000-0000-0000-000000000000
+  PackagePolicy: CanBeUnpacked
+  ScriptInputsHidden:
+    majorRadius: false
+    material: false
+    ringSegments: false
+    startDeg: false
+    sweepDeg: false
+    tubeRadius: false
+    tubeSegments: false
+  ScriptTypesHidden:
+    {}
+  ReadMe: !<reference> 00000000-0000-0000-0000-000000000000
+  DeclarationFile: !<reference> 00000000-0000-0000-0000-000000000000
+  Tags:
+    []
+  Attachments:
+    []
+  DefaultScriptInputs:
+    - majorRadius: !<float> 31.000000
+      tubeRadius: 1.600000
+      startDeg: !<float> 0.000000
+      sweepDeg: !<float> 360.000000
+      ringSegments: !<float> 24.000000
+      tubeSegments: !<float> 12.000000
+      material: !<reference.Material> 00000000-0000-0000-0000-000000000000
+  ScriptTypes:
+    -
+      {}
+  InputLines:
+    - '// @input float majorRadius = 31 {"hint":"Distance from the wheel center to the center of the tube, in cm"}'
+    - '// @input float tubeRadius = 1.6 {"hint":"Radius of the tube cross-section, in cm"}'
+    - "// @input float startDeg {\"hint\":\"Start angle in degrees, 0 = 12 o'clock, clockwise\"}"
+    - '// @input float sweepDeg = 360 {"hint":"Sweep in degrees (360 for a full ring)"}'
+    - // @input float ringSegments = 24
+    - // @input float tubeSegments = 12
+    - // @input Asset.Material material
