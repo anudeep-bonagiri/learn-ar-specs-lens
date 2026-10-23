@@ -1,0 +1,63 @@
+- !<AssetImportMetadata/e0bc2461-7fe7-45b2-a184-d3c95b24f5dd>
+  ImportedAssetIds:
+    TypeScriptAsset: !<reference> f7d81306-a581-4510-a7e5-35e67d74b1ba
+  ImporterName: TypeScriptAssetImporter
+  PrimaryAsset: !<reference> f7d81306-a581-4510-a7e5-35e67d74b1ba
+  PackageType: NotAPackage
+  LegacyPackagePolicy: ~
+  ExtraData:
+    {}
+  AssetDataMap:
+    TypeScriptAsset: !<own> 537dfd92-ae66-4ac3-bbb3-9b52cb3c7a12
+  DependentFiles:
+    []
+  ImporterSettings: !<AssetImporterSettings>
+    {}
+  CompressionSettings: !<own> 00000000-0000-0000-0000-000000000000
+- !<TypeScriptAssetData/537dfd92-ae66-4ac3-bbb3-9b52cb3c7a12>
+  SvgIcon: ""
+  SetupScript:
+    code: ""
+  Description: ""
+  VersionMajor: 0
+  VersionMinor: 0
+  VersionPatch: 0
+  VersionPrerelease: ""
+  UpdateOrder: 0
+  ComponentUid: 1f34fcfd-f357-4bb9-8678-dd09ece4219c
+  ExportUid: 00000000-0000-0000-0000-000000000000
+  PackagePolicy: CanBeUnpacked
+  ScriptInputsHidden:
+    backSize: false
+    gap: false
+    nextSize: false
+    padding: false
+    replaySize: false
+  ScriptTypesHidden:
+    {}
+  ReadMe: !<reference> 00000000-0000-0000-0000-000000000000
+  DeclarationFile: !<reference> 00000000-0000-0000-0000-000000000000
+  Tags:
+    []
+  Attachments:
+    []
+  DefaultScriptInputs:
+    - backSize: !<float> 5.000000
+      nextSize: !<float> 6.000000
+      replaySize: !<float> 5.000000
+      gap: !<float> 2.000000
+      padding: 1.250000
+  ScriptTypes:
+    -
+      {}
+  InputLines:
+    - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">BenchCoachControlBarUI – Back / Next / Replay</span>"}'
+    - '// @ui {"widget":"separator"}'
+    - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">Settings</span>"}'
+    - '// @ui {"widget":"group_start", "label":"Settings"}'
+    - '// @input float backSize = 5 {"hint":"Back button size in cm", "widget":"slider", "min":3, "max":10, "step":0.5}'
+    - '// @input float nextSize = 6 {"hint":"Next button size in cm (the brightest, largest target)", "widget":"slider", "min":3, "max":10, "step":0.5}'
+    - '// @input float replaySize = 5 {"hint":"Replay button size in cm", "widget":"slider", "min":3, "max":10, "step":0.5}'
+    - '// @input float gap = 2 {"hint":"Gap between buttons in cm", "widget":"slider", "min":0.5, "max":5, "step":0.5}'
+    - '// @input float padding = 1.25 {"hint":"Panel padding around the buttons in cm", "widget":"slider", "min":0.5, "max":4, "step":0.25}'
+    - '// @ui {"widget":"group_end"}'

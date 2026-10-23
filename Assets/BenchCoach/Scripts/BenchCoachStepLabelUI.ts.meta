@@ -1,0 +1,60 @@
+- !<AssetImportMetadata/02203ed6-b87c-4b6b-8d08-d25cc1bb3534>
+  ImportedAssetIds:
+    TypeScriptAsset: !<reference> ab3a3e31-cc7e-4a38-8c9b-140b59297992
+  ImporterName: TypeScriptAssetImporter
+  PrimaryAsset: !<reference> ab3a3e31-cc7e-4a38-8c9b-140b59297992
+  PackageType: NotAPackage
+  LegacyPackagePolicy: ~
+  ExtraData:
+    {}
+  AssetDataMap:
+    TypeScriptAsset: !<own> 7ee46c47-a122-4f51-b1a8-9f28e4d1f48b
+  DependentFiles:
+    []
+  ImporterSettings: !<AssetImporterSettings>
+    {}
+  CompressionSettings: !<own> 00000000-0000-0000-0000-000000000000
+- !<TypeScriptAssetData/7ee46c47-a122-4f51-b1a8-9f28e4d1f48b>
+  SvgIcon: ""
+  SetupScript:
+    code: ""
+  Description: ""
+  VersionMajor: 0
+  VersionMinor: 0
+  VersionPatch: 0
+  VersionPrerelease: ""
+  UpdateOrder: 0
+  ComponentUid: 9001b255-014c-47cb-a09d-1fea5db8b01f
+  ExportUid: 00000000-0000-0000-0000-000000000000
+  PackagePolicy: CanBeUnpacked
+  ScriptInputsHidden:
+    billboard: false
+    panelHeight: false
+    panelWidth: false
+    viewDistanceCm: false
+  ScriptTypesHidden:
+    {}
+  ReadMe: !<reference> 00000000-0000-0000-0000-000000000000
+  DeclarationFile: !<reference> 00000000-0000-0000-0000-000000000000
+  Tags:
+    []
+  Attachments:
+    []
+  DefaultScriptInputs:
+    - panelWidth: !<float> 16.000000
+      panelHeight: !<float> 5.000000
+      viewDistanceCm: !<float> 90.000000
+      billboard: true
+  ScriptTypes:
+    -
+      {}
+  InputLines:
+    - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">BenchCoachStepLabelUI – one-line step label</span>"}'
+    - '// @ui {"widget":"separator"}'
+    - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">Settings</span>"}'
+    - '// @ui {"widget":"group_start", "label":"Settings"}'
+    - '// @input float panelWidth = 16 {"hint":"Panel width in cm", "widget":"slider", "min":8, "max":30, "step":0.5}'
+    - '// @input float panelHeight = 5 {"hint":"Panel height in cm", "widget":"slider", "min":2, "max":12, "step":0.5}'
+    - '// @input float viewDistanceCm = 90 {"hint":"Viewing distance in cm; scales the type size", "widget":"slider", "min":40, "max":160, "step":1}'
+    - '// @input bool billboard = true {"hint":"Turn to face the user (SIK Billboard, yaw only)"}'
+    - '// @ui {"widget":"group_end"}'

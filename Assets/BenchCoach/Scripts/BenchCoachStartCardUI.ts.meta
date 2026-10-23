@@ -1,0 +1,69 @@
+- !<AssetImportMetadata/8cf62bb9-4bf5-4f3a-a5e5-ef82ea84e79f>
+  ImportedAssetIds:
+    TypeScriptAsset: !<reference> 228de48b-4f19-40df-8bb2-3c9f56353f31
+  ImporterName: TypeScriptAssetImporter
+  PrimaryAsset: !<reference> 228de48b-4f19-40df-8bb2-3c9f56353f31
+  PackageType: NotAPackage
+  LegacyPackagePolicy: ~
+  ExtraData:
+    {}
+  AssetDataMap:
+    TypeScriptAsset: !<own> 62455ff1-61e0-4308-ad75-39713dc3b6f8
+  DependentFiles:
+    []
+  ImporterSettings: !<AssetImporterSettings>
+    {}
+  CompressionSettings: !<own> 00000000-0000-0000-0000-000000000000
+- !<TypeScriptAssetData/62455ff1-61e0-4308-ad75-39713dc3b6f8>
+  SvgIcon: ""
+  SetupScript:
+    code: ""
+  Description: ""
+  VersionMajor: 0
+  VersionMinor: 0
+  VersionPatch: 0
+  VersionPrerelease: ""
+  UpdateOrder: 0
+  ComponentUid: cff31d95-a2af-45d1-979d-93725e2ea9a5
+  ExportUid: 00000000-0000-0000-0000-000000000000
+  PackagePolicy: CanBeUnpacked
+  ScriptInputsHidden:
+    badgeText: false
+    buttonLabel: false
+    panelHeight: false
+    panelWidth: false
+    subtitle: false
+    title: false
+    viewDistanceCm: false
+  ScriptTypesHidden:
+    {}
+  ReadMe: !<reference> 00000000-0000-0000-0000-000000000000
+  DeclarationFile: !<reference> 00000000-0000-0000-0000-000000000000
+  Tags:
+    []
+  Attachments:
+    []
+  DefaultScriptInputs:
+    - panelWidth: !<float> 24.000000
+      panelHeight: !<float> 14.000000
+      viewDistanceCm: !<float> 85.000000
+      title: Fix a flat
+      subtitle: Pinch Found it when your wheel is in the stand.
+      buttonLabel: Found it
+      badgeText: "stand-in: wheel placed by pinch"
+  ScriptTypes:
+    -
+      {}
+  InputLines:
+    - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">BenchCoachStartCardUI – step 0 start card</span>"}'
+    - '// @ui {"widget":"separator"}'
+    - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">Settings</span>"}'
+    - '// @ui {"widget":"group_start", "label":"Settings"}'
+    - '// @input float panelWidth = 24 {"hint":"Panel width in cm", "widget":"slider", "min":12, "max":40, "step":0.5}'
+    - '// @input float panelHeight = 14 {"hint":"Panel height in cm", "widget":"slider", "min":8, "max":30, "step":0.5}'
+    - '// @input float viewDistanceCm = 85 {"hint":"Viewing distance in cm; scales the type size", "widget":"slider", "min":40, "max":160, "step":1}'
+    - '// @input string title = "Fix a flat" {"hint":"Card title"}'
+    - '// @input string subtitle = "Pinch Found it when your wheel is in the stand." {"hint":"One-line instruction under the title"}'
+    - '// @input string buttonLabel = "Found it" {"hint":"Label on the big button"}'
+    - '// @input string badgeText = "stand-in: wheel placed by pinch" {"hint":"Stand-in badge text in the card corner"}'
+    - '// @ui {"widget":"group_end"}'

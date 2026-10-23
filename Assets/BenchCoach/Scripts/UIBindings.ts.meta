@@ -1,0 +1,60 @@
+- !<AssetImportMetadata/b8f0dfd5-0b85-4944-8bad-f0af1ccdf0e3>
+  ImportedAssetIds:
+    TypeScriptAsset: !<reference> 7ac32ab5-71f8-433e-b1f5-6aa289755ebc
+  ImporterName: TypeScriptAssetImporter
+  PrimaryAsset: !<reference> 7ac32ab5-71f8-433e-b1f5-6aa289755ebc
+  PackageType: NotAPackage
+  LegacyPackagePolicy: ~
+  ExtraData:
+    {}
+  AssetDataMap:
+    TypeScriptAsset: !<own> b4f82c31-49c4-415b-84b9-15671cdf39a9
+  DependentFiles:
+    []
+  ImporterSettings: !<AssetImporterSettings>
+    {}
+  CompressionSettings: !<own> 00000000-0000-0000-0000-000000000000
+- !<TypeScriptAssetData/b4f82c31-49c4-415b-84b9-15671cdf39a9>
+  SvgIcon: ""
+  SetupScript:
+    code: ""
+  Description: ""
+  VersionMajor: 0
+  VersionMinor: 0
+  VersionPatch: 0
+  VersionPrerelease: ""
+  UpdateOrder: 0
+  ComponentUid: 8727da42-fa44-4bc3-aaef-83b2110a204f
+  ExportUid: 00000000-0000-0000-0000-000000000000
+  PackagePolicy: CanBeUnpacked
+  ScriptInputsHidden:
+    controlBar: false
+    doneCard: false
+    manager: false
+    startCard: false
+  ScriptTypesHidden:
+    {}
+  ReadMe: !<reference> 00000000-0000-0000-0000-000000000000
+  DeclarationFile: !<reference> 00000000-0000-0000-0000-000000000000
+  Tags:
+    []
+  Attachments:
+    []
+  DefaultScriptInputs:
+    - manager: !<MappingBased.AssignableType_1> 00000000-0000-0000-0000-000000000000
+      startCard: !<MappingBased.AssignableType_2> 00000000-0000-0000-0000-000000000000
+      controlBar: !<MappingBased.AssignableType_3> 00000000-0000-0000-0000-000000000000
+      doneCard: !<MappingBased.AssignableType_4> 00000000-0000-0000-0000-000000000000
+  ScriptTypes:
+    -
+      {}
+  InputLines:
+    - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">UIBindings – buttons to RepairManager</span>"}'
+    - '// @ui {"widget":"separator"}'
+    - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">References</span>"}'
+    - '// @ui {"widget":"group_start", "label":"References"}'
+    - '// @input AssignableType_1 manager {"hint":"The step machine"}'
+    - '// @input AssignableType_2 startCard {"hint":"Start card (Found it)"}'
+    - '// @input AssignableType_3 controlBar {"hint":"Control bar (Back / Next / Replay)"}'
+    - '// @input AssignableType_4 doneCard {"hint":"Done card (Try again)"}'
+    - '// @ui {"widget":"group_end"}'

@@ -1,0 +1,70 @@
+- !<AssetImportMetadata/33e7769d-6474-4e86-a60b-72f3ac64aee0>
+  ImportedAssetIds:
+    TypeScriptAsset: !<reference> 191c1664-5876-472b-8b9a-1d75a7f7b007
+  ImporterName: TypeScriptAssetImporter
+  PrimaryAsset: !<reference> 191c1664-5876-472b-8b9a-1d75a7f7b007
+  PackageType: NotAPackage
+  LegacyPackagePolicy: ~
+  ExtraData:
+    {}
+  AssetDataMap:
+    TypeScriptAsset: !<own> e5e69771-f98c-4aaa-9f89-380f8963c878
+  DependentFiles:
+    []
+  ImporterSettings: !<AssetImporterSettings>
+    {}
+  CompressionSettings: !<own> 00000000-0000-0000-0000-000000000000
+- !<TypeScriptAssetData/e5e69771-f98c-4aaa-9f89-380f8963c878>
+  SvgIcon: ""
+  SetupScript:
+    code: ""
+  Description: ""
+  VersionMajor: 0
+  VersionMinor: 0
+  VersionPatch: 0
+  VersionPrerelease: ""
+  UpdateOrder: 0
+  ComponentUid: 5c09746b-1f99-458a-bff7-23d8d42a5385
+  ExportUid: 00000000-0000-0000-0000-000000000000
+  PackagePolicy: CanBeUnpacked
+  ScriptInputsHidden:
+    beadHitThicknessCm: false
+    beadRadiusCm: false
+    beadSweepDeg: false
+    tire: false
+    valve: false
+    valveHitSizeCm: false
+  ScriptTypesHidden:
+    {}
+  ReadMe: !<reference> 00000000-0000-0000-0000-000000000000
+  DeclarationFile: !<reference> 00000000-0000-0000-0000-000000000000
+  Tags:
+    []
+  Attachments:
+    []
+  DefaultScriptInputs:
+    - tire: !<reference.SceneObject> 00000000-0000-0000-0000-000000000000
+      valve: !<reference.SceneObject> 00000000-0000-0000-0000-000000000000
+      beadRadiusCm: 33.400002
+      beadSweepDeg: !<float> 45.000000
+      beadHitThicknessCm: !<float> 6.000000
+      valveHitSizeCm: !<Vec3> {x: 5.000000, y: 7.000000, z: 5.000000}
+  ScriptTypes:
+    -
+      {}
+  InputLines:
+    - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">WheelTargets – pinch targets on valve and beads</span>"}'
+    - '// @ui {"widget":"separator"}'
+    - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">References</span>"}'
+    - '// @ui {"widget":"group_start", "label":"References"}'
+    - '// @input SceneObject tire {"hint":"Tire group holding Bead_0..7"}'
+    - '// @input SceneObject valve {"hint":"Valve stem object"}'
+    - '// @ui {"widget":"group_end"}'
+    - '// @ui {"widget":"separator"}'
+    - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">Settings</span>"}'
+    - '// @ui {"widget":"group_start", "label":"Settings"}'
+    - '// @input float beadRadiusCm = 33.4 {"hint":"Bead major radius in cm (matches the Bead_i TorusArc)", "widget":"slider", "min":10, "max":60, "step":0.1}'
+    - '// @input float beadSweepDeg = 45 {"hint":"Sweep of each bead segment in degrees", "widget":"slider", "min":10, "max":90, "step":1}'
+    - '// @input float beadHitThicknessCm = 6 {"hint":"Bead hit box thickness (radial and depth) in cm", "widget":"slider", "min":2, "max":12, "step":0.5}'
+    - '// @input vec3 valveHitSizeCm = {5,7,5} {"hint":"Valve hit box size in world cm"}'
+    - '// @ui {"widget":"group_end"}'
