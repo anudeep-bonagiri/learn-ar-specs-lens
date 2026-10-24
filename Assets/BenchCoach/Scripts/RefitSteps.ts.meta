@@ -32,6 +32,7 @@
     beadRadiusCm: false
     debugLogs: false
     deflateScale: false
+    feedback: false
     highlighter: false
     inflateHoldSec: false
     leverA: false
@@ -72,6 +73,7 @@
       wheelTargets: !<MappingBased.AssignableType_6> 00000000-0000-0000-0000-000000000000
       highlighter: !<MappingBased.AssignableType_7> 00000000-0000-0000-0000-000000000000
       audio: !<MappingBased.AssignableType_8> 00000000-0000-0000-0000-000000000000
+      feedback: !<MappingBased.AssignableType_9> 00000000-0000-0000-0000-000000000000
       beadRadiusCm: 33.400002
       markerStandoffCm: 1.500000
       deflateScale: 0.960000
@@ -100,6 +102,7 @@
     - '// @input AssignableType_6 wheelTargets {"hint":"Pinch targets on the valve and beads"}'
     - '// @input AssignableType_7 highlighter {"hint":"Pulsing glow on the parts the step wants touched"}'
     - '// @input AssignableType_8 audio {"hint":"Cue player (click, nope, pump loop)"}'
+    - '// @input AssignableType_9 feedback {"hint":"Mistake feedback: a new tube end released away from the valve hole"}'
     - '// @ui {"widget":"group_end"}'
     - '// @ui {"widget":"separator"}'
     - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">Settings</span>"}'

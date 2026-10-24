@@ -10,6 +10,10 @@ import {TickMarksScenario} from "./TickMarksScenario"
 import {SceneDressingScenario} from "./SceneDressingScenario"
 import {RefitTubeScenario} from "./RefitTubeScenario"
 import {SeatInflateScenario} from "./SeatInflateScenario"
+import {ProgressIdleScenario} from "./ProgressIdleScenario"
+import {WhatsThisScenario} from "./WhatsThisScenario"
+import {MistakesScenario} from "./MistakesScenario"
+import {FlatCausesScenario} from "./FlatCausesScenario"
 
 @component
 export class LeafIndex extends BaseScriptComponent {
@@ -52,9 +56,25 @@ export class LeafIndex extends BaseScriptComponent {
       typename: SeatInflateScenario.getTypeName(),
     },
     {
+      id: "whats-this",
+      typename: WhatsThisScenario.getTypeName(),
+    },
+    {
+      id: "mistakes",
+      typename: MistakesScenario.getTypeName(),
+    },
+    {
+      id: "flat-causes",
+      typename: FlatCausesScenario.getTypeName(),
+    },
+    {
+      id: "progress-idle",
+      typename: ProgressIdleScenario.getTypeName(),
+    },
+    {
       id: "jump-to-step",
       typename: JumpToStepScenario.getTypeName(),
-      parameters: {step: "5", pullCm: "0", fit: "0", inflate: "0"},
+      parameters: {step: "5", pullCm: "0", fit: "0", inflate: "0", cause: "", find: "0", part: "", mistake: "", idle: "0"},
     },
   ]
 }

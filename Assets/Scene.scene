@@ -9,8 +9,8 @@
     - !<own> 8c4174a2-1414-4da7-9fab-f8f38088579f
     - !<own> 5135ccb9-f21b-4b31-805d-4ab254d133d2
     - !<own> 832a9517-4460-40da-a8d5-9e05cd96d78b
-    - !<own> 4857eb0d-da65-4161-a6f3-cce986c3bf69
     - !<own> 38128195-5d72-4fa8-b0dc-b49b04211ea8
+    - !<own> bc9727ed-f366-4fef-aa9f-ddb27643878a
   layers: !<Layers/267ee9a7-aff2-4f9d-9a49-f71214747d03>
     userLayers:
       - id: 1
@@ -199,6 +199,31 @@
     - !<own> 276368e3-f687-4cc6-947d-24de3a78c9af
   Components:
     []
+- !<ScriptComponent/023a8db5-0252-4f26-8ad5-33397ac46b1d>
+  PrefabRemaps:
+    []
+  Name: ProgressRail
+  Enabled: true
+  ScriptAsset: !<reference> d3a53819-70b0-476b-98d4-0d3a57082d7d
+  ScriptInputsDefault:
+    dotSizeCm: true
+    spacingCm: true
+    dimBrightness: true
+    pulseHz: true
+  ScriptTypesDefault:
+    {}
+  ScriptInputs:
+    "":
+      manager: !<MappingBased.AssignableType_1> 622db2cb-d0c7-4791-92af-926fab500a02
+      dotMesh: !<reference.RenderMesh> 2907b2f2-061c-41d4-a0bf-24432fd5a44d
+      material: !<reference.Material> 15b55a2d-25cd-4131-88ca-e7924cfbabd4
+      dotSizeCm: 0.800000
+      spacingCm: !<float> 2.000000
+      dimBrightness: 0.500000
+      pulseHz: 1.500000
+  ScriptTypes:
+    "":
+      {}
 - !<SceneObject/0451d993-a1f7-464e-9b69-32c0d9af8ed7>
   PrefabRemaps:
     []
@@ -440,6 +465,22 @@
     - !<own> 6a99bdcf-c194-46c1-ba16-945f1d48a1dd
   Components:
     []
+- !<ScriptComponent/09a93ba7-d0b3-4df9-8b48-8d7cc64c040e>
+  PrefabRemaps:
+    []
+  Name: MessagingBridge
+  Enabled: true
+  ScriptAsset: !<reference> 9aa407db-2872-4afc-a162-cf7faf2a0f29
+  ScriptInputsDefault:
+    {}
+  ScriptTypesDefault:
+    {}
+  ScriptInputs:
+    "":
+      {}
+  ScriptTypes:
+    "":
+      {}
 - !<SceneObject/09cdeceb-7e24-4028-801b-9655cc342470>
   PrefabRemaps:
     []
@@ -735,6 +776,7 @@
       camera: !<reference.Camera> 00000000-0000-0065-0000-000000000065
       levers: !<MappingBased.AssignableType_1[]>
         []
+      tubeFit: !<MappingBased.AssignableType_2> 6879e97e-d703-4adb-ab7d-14b20dec44eb
       moveThresholdCm: !<float> 20.000000
       turnThresholdDeg: !<float> 35.000000
       smoothing: !<float> 6.000000
@@ -876,6 +918,35 @@
     []
   Components:
     - !<own> 3b1b7a58-3bfc-40a8-b471-22832b7df8f4
+- !<ScriptComponent/1d4ea802-2313-4544-a512-0af08fb7293b>
+  PrefabRemaps:
+    []
+  Name: PartInfo
+  Enabled: true
+  ScriptAsset: !<reference> bc65ce0c-1b5b-46c4-8c7f-46f412ba80ed
+  ScriptInputsDefault:
+    promptText: true
+    labelLiftCm: true
+  ScriptTypesDefault:
+    {}
+  ScriptInputs:
+    "":
+      manager: !<MappingBased.AssignableType_1> 622db2cb-d0c7-4791-92af-926fab500a02
+      stepLabel: !<MappingBased.AssignableType_2> 24460ad0-f260-4e7a-970c-05fcf6db9a81
+      wheel: !<reference.SceneObject> 32ba4b33-674d-4969-a473-4523545d3108
+      stand: !<reference.SceneObject> 49df10c5-b0c8-402d-9882-4a75d579c629
+      toolTray: !<reference.SceneObject> b6a059d6-e648-4d74-934e-1e937d6bc923
+      thorn: !<MappingBased.AssignableType_3> 21fb357a-ddf2-47ea-955f-575db2782408
+      leverA: !<MappingBased.AssignableType_4> 4608f895-b41a-47c4-ac91-6f9477b3560a
+      leverB: !<MappingBased.AssignableType_5> cf095758-023e-4701-a1b3-cf12c5fbb53c
+      tubeFit: !<MappingBased.AssignableType_6> 6879e97e-d703-4adb-ab7d-14b20dec44eb
+      tubePull: !<MappingBased.AssignableType_7> f0bc8453-5853-4488-afe1-0f9c99121ce7
+      audio: !<MappingBased.AssignableType_8> 7407431d-eeb9-4d5c-a25e-0c11394825cf
+      promptText: "What's this? Pinch any part."
+      labelLiftCm: !<float> 7.000000
+  ScriptTypes:
+    "":
+      {}
 - !<RenderMeshVisual/1f969daa-5809-4500-b314-98d91ccba131>
   PrefabRemaps:
     []
@@ -922,6 +993,12 @@
     hitSizeCm: true
     twinkleHz: true
     thornSizeCm: true
+    radiusCm: true
+    depthCm: true
+    shardTint: true
+    biteTint: true
+    biteDotCm: true
+    biteGapCm: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
@@ -930,10 +1007,18 @@
       glintMaterial: !<reference.Material> 15b55a2d-25cd-4131-88ca-e7924cfbabd4
       thornMesh: !<reference.RenderMesh> 973fbdf3-46b0-4938-81b5-fd42e6053242
       thornMaterial: !<reference.Material> b0a65dea-1a94-4c63-83e2-c66513f06daa
+      shardMesh: !<reference.RenderMesh> 6a757628-4f58-46af-851c-a5f393415bde
+      shardMaterial: !<reference.Material> 15b55a2d-25cd-4131-88ca-e7924cfbabd4
       glintSizeCm: !<float> 1.000000
       hitSizeCm: !<float> 5.000000
       twinkleHz: 0.700000
       thornSizeCm: !<Vec2> {x: 1.800000, y: 0.300000}
+      radiusCm: 34.200001
+      depthCm: !<float> 2.000000
+      shardTint: !<Vec4> {x: 0.850000, y: 0.970000, z: 1.000000, w: 1.000000}
+      biteTint: !<Vec4> {x: 1.000000, y: 0.800000, z: 0.500000, w: 1.000000}
+      biteDotCm: 0.700000
+      biteGapCm: 1.600000
   ScriptTypes:
     "":
       {}
@@ -1433,6 +1518,10 @@
       doneCard: !<MappingBased.AssignableType_4> 9c0325e9-10f9-46b0-9bc4-f9be0377eb1f
       finishCard: !<MappingBased.AssignableType_5> b9d8bd0a-08a3-4dfe-8246-79e007a87cef
       audio: !<MappingBased.AssignableType_6> 7407431d-eeb9-4d5c-a25e-0c11394825cf
+      idle: !<MappingBased.AssignableType_7> 68bc2d07-3d0b-4c20-a0de-646d168ada8e
+      stats: !<MappingBased.AssignableType_8> 7dc2f119-941e-4f70-bb4a-86205c919c86
+      partInfo: !<MappingBased.AssignableType_9> 1d4ea802-2313-4544-a512-0af08fb7293b
+      feedback: !<MappingBased.AssignableType_10> f8035567-f4fb-4cd8-851c-a22f0c3d9d41
   ScriptTypes:
     "":
       {}
@@ -2050,21 +2139,6 @@
   ScriptTypes:
     "":
       {}
-- !<SceneObject/4857eb0d-da65-4161-a6f3-cce986c3bf69>
-  PrefabRemaps:
-    []
-  Name: LEAF Plugin Bridge
-  Enabled: true
-  Layers: 1
-  LocalTransform: !<TransformEntity>
-    Position: {x: 0.000000, y: 0.000000, z: 0.000000}
-    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
-    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
-    HasSegmentScaleCompensation: false
-  Children:
-    []
-  Components:
-    - !<own> c2bfe337-3cf1-4fc1-b75b-a92b4ea34c97
 - !<RenderMeshVisual/49a7b7c2-3343-4187-9b9f-34ff002be37c>
   PrefabRemaps:
     []
@@ -2142,12 +2216,14 @@
   ScriptInputsDefault:
     pulseHz: true
     pulseAmount: true
+    boostFactor: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
     "":
       pulseHz: 1.500000
       pulseAmount: 0.150000
+      boostFactor: 2.500000
   ScriptTypes:
     "":
       {}
@@ -2565,6 +2641,7 @@
     beadLiftCm: true
     thornRevealSec: true
     causeId: true
+    forceCause: true
     debugLogs: true
   ScriptTypesDefault:
     {}
@@ -2597,6 +2674,7 @@
       refit: !<MappingBased.AssignableType_13> 80561524-0b2d-4432-85dd-1615c224a320
       finishCard: !<MappingBased.AssignableType_14> b9d8bd0a-08a3-4dfe-8246-79e007a87cef
       stats: !<MappingBased.AssignableType_15> 7dc2f119-941e-4f70-bb4a-86205c919c86
+      feedback: !<MappingBased.AssignableType_16> f8035567-f4fb-4cd8-851c-a22f0c3d9d41
       beadRadiusCm: 33.400002
       markerStandoffCm: 1.500000
       labelOffsetCm: !<float> 10.000000
@@ -2605,6 +2683,7 @@
       beadLiftCm: !<float> 1.000000
       thornRevealSec: 2.500000
       causeId: thorn
+      forceCause: ""
       debugLogs: true
   ScriptTypes:
     "":
@@ -2805,6 +2884,32 @@
       snapRadiusCm: !<float> 5.000000
       returnDurationSec: 0.400000
       snapDurationSec: 0.150000
+  ScriptTypes:
+    "":
+      {}
+- !<ScriptComponent/68bc2d07-3d0b-4c20-a0de-646d168ada8e>
+  PrefabRemaps:
+    []
+  Name: IdleHint
+  Enabled: true
+  ScriptAsset: !<reference> c4039807-e50a-4176-8941-28bbf79a04e2
+  ScriptInputsDefault:
+    idleSec: true
+    boostSec: true
+  ScriptTypesDefault:
+    {}
+  ScriptInputs:
+    "":
+      manager: !<MappingBased.AssignableType_1> 622db2cb-d0c7-4791-92af-926fab500a02
+      stepLabel: !<MappingBased.AssignableType_2> 24460ad0-f260-4e7a-970c-05fcf6db9a81
+      stepMarker: !<MappingBased.AssignableType_3> 4c3c4bb8-c5ee-4248-8767-00779494ba8a
+      audio: !<MappingBased.AssignableType_4> 7407431d-eeb9-4d5c-a25e-0c11394825cf
+      leverA: !<MappingBased.AssignableType_5> 4608f895-b41a-47c4-ac91-6f9477b3560a
+      leverB: !<MappingBased.AssignableType_6> cf095758-023e-4701-a1b3-cf12c5fbb53c
+      tubeFit: !<MappingBased.AssignableType_7> 6879e97e-d703-4adb-ab7d-14b20dec44eb
+      tubePull: !<MappingBased.AssignableType_8> f0bc8453-5853-4488-afe1-0f9c99121ce7
+      idleSec: !<float> 12.000000
+      boostSec: !<float> 4.000000
   ScriptTypes:
     "":
       {}
@@ -3292,7 +3397,6 @@
     "":
       leverA: !<MappingBased.AssignableType_1> 4608f895-b41a-47c4-ac91-6f9477b3560a
       leverB: !<MappingBased.AssignableType_2> cf095758-023e-4701-a1b3-cf12c5fbb53c
-      tubeFit: !<MappingBased.AssignableType_3> 6879e97e-d703-4adb-ab7d-14b20dec44eb
   ScriptTypes:
     "":
       {}
@@ -3416,6 +3520,7 @@
       wheelTargets: !<MappingBased.AssignableType_6> 5b3351c9-54b6-430b-b69c-ba78f58c17e9
       highlighter: !<MappingBased.AssignableType_7> 2426848f-f3ae-4e19-96d7-776281abb912
       audio: !<MappingBased.AssignableType_8> 7407431d-eeb9-4d5c-a25e-0c11394825cf
+      feedback: !<MappingBased.AssignableType_9> f8035567-f4fb-4cd8-851c-a22f0c3d9d41
       beadRadiusCm: 33.400002
       markerStandoffCm: 1.500000
       deflateScale: 0.960000
@@ -3508,6 +3613,9 @@
     - !<own> 2426848f-f3ae-4e19-96d7-776281abb912
     - !<own> 80561524-0b2d-4432-85dd-1615c224a320
     - !<own> 7dc2f119-941e-4f70-bb4a-86205c919c86
+    - !<own> 68bc2d07-3d0b-4c20-a0de-646d168ada8e
+    - !<own> 1d4ea802-2313-4544-a512-0af08fb7293b
+    - !<own> f8035567-f4fb-4cd8-851c-a22f0c3d9d41
 - !<SceneObject/83494271-437b-473d-b668-d88421587a4c>
   PrefabRemaps:
     []
@@ -3598,6 +3706,7 @@
       levers: !<MappingBased.AssignableType_1[]>
         - !<reference> 4608f895-b41a-47c4-ac91-6f9477b3560a
         - !<reference> cf095758-023e-4701-a1b3-cf12c5fbb53c
+      tubeFit: !<MappingBased.AssignableType_2> 6879e97e-d703-4adb-ab7d-14b20dec44eb
       moveThresholdCm: !<float> 20.000000
       turnThresholdDeg: !<float> 35.000000
       smoothing: !<float> 6.000000
@@ -3645,7 +3754,7 @@
   Enabled: true
   Layers: 1
   LocalTransform: !<TransformEntity>
-    Position: {x: 0.000000, y: 21.500000, z: -88.000000}
+    Position: {x: 0.000000, y: 17.000000, z: -88.000000}
     Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
     Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
     HasSegmentScaleCompensation: false
@@ -3681,8 +3790,10 @@
     backSize: true
     nextSize: true
     replaySize: true
+    whatsThisSize: true
     gap: true
     padding: true
+    railStripCm: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
@@ -3690,8 +3801,10 @@
       backSize: !<float> 5.000000
       nextSize: !<float> 6.000000
       replaySize: !<float> 5.000000
+      whatsThisSize: !<float> 5.000000
       gap: !<float> 2.000000
       padding: 1.250000
+      railStripCm: 1.600000
   ScriptTypes:
     "":
       {}
@@ -4092,7 +4205,6 @@
   ScriptAsset: !<reference> 7f03d572-8cdc-431a-bdca-0c5d2f1f8b72
   ScriptInputsDefault:
     panelWidth: true
-    panelHeight: true
     viewDistanceCm: true
     doneText: true
     nextSkillText: true
@@ -4103,7 +4215,7 @@
   ScriptInputs:
     "":
       panelWidth: !<float> 24.000000
-      panelHeight: !<float> 14.000000
+      panelHeight: !<float> 13.000000
       viewDistanceCm: !<float> 90.000000
       doneText: "Tube out, cause found. Ready for the new tube."
       nextSkillText: "Next skill: brake pads"
@@ -4436,7 +4548,7 @@
   Enabled: true
   Layers: 1
   LocalTransform: !<TransformEntity>
-    Position: {x: 0.000000, y: 25.000000, z: -88.000000}
+    Position: {x: -6.500000, y: 17.000000, z: -88.000000}
     Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
     Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
     HasSegmentScaleCompensation: false
@@ -4451,12 +4563,12 @@
   Enabled: true
   Layers: 1
   LocalTransform: !<TransformEntity>
-    Position: {x: 0.000000, y: -35.000000, z: -45.000000}
+    Position: {x: -3.500000, y: -35.630001, z: -44.509998}
     Rotation: {x: -38.000000, y: 0.000000, z: 0.000000}
     Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
     HasSegmentScaleCompensation: false
   Children:
-    []
+    - !<own> bb199397-4ab1-48fd-8205-05a05db021ae
   Components:
     - !<own> 88532baf-8d88-43c6-8552-dad8833e8b12
     - !<own> 13461785-a420-4c14-b2d3-552a5ce0909b
@@ -4708,8 +4820,6 @@
   Enabled: true
   ScriptAsset: !<reference> 0e2bda00-97be-443d-a091-f8b693738e1c
   ScriptInputsDefault:
-    panelWidth: true
-    panelHeight: true
     viewDistanceCm: true
     titleText: true
     restartLabel: true
@@ -4717,14 +4827,29 @@
     {}
   ScriptInputs:
     "":
-      panelWidth: !<float> 26.000000
-      panelHeight: !<float> 16.000000
+      panelWidth: !<float> 30.000000
+      panelHeight: !<float> 14.000000
       viewDistanceCm: !<float> 90.000000
       titleText: Flat fixed.
       restartLabel: Start over
   ScriptTypes:
     "":
       {}
+- !<SceneObject/bb199397-4ab1-48fd-8205-05a05db021ae>
+  PrefabRemaps:
+    []
+  Name: ProgressRail
+  Enabled: true
+  Layers: 1
+  LocalTransform: !<TransformEntity>
+    Position: {x: 0.000000, y: -4.250000, z: 0.700000}
+    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
+    HasSegmentScaleCompensation: false
+  Children:
+    []
+  Components:
+    - !<own> 023a8db5-0252-4f26-8ad5-33397ac46b1d
 - !<SceneObject/bb75b5ea-8baf-4d8d-bcf8-49bd79873881>
   PrefabRemaps:
     []
@@ -4785,6 +4910,21 @@
     - !<own> fe93d992-1114-4f1f-8bef-0a0bbd75747d
   Components:
     []
+- !<SceneObject/bc9727ed-f366-4fef-aa9f-ddb27643878a>
+  PrefabRemaps:
+    []
+  Name: LEAF Plugin Bridge
+  Enabled: true
+  Layers: 1
+  LocalTransform: !<TransformEntity>
+    Position: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
+    HasSegmentScaleCompensation: false
+  Children:
+    []
+  Components:
+    - !<own> 09a93ba7-d0b3-4df9-8b48-8d7cc64c040e
 - !<SceneObject/bf2095b6-c6f8-48c8-b840-e0a6cec0dc99>
   PrefabRemaps:
     []
@@ -4845,22 +4985,6 @@
     - !<own> 51936fad-8964-472c-be06-a0de44b64b35
   Components:
     - !<own> 94c67bdb-7192-48db-99b0-a98d0e67cd2f
-- !<ScriptComponent/c2bfe337-3cf1-4fc1-b75b-a92b4ea34c97>
-  PrefabRemaps:
-    []
-  Name: MessagingBridge
-  Enabled: true
-  ScriptAsset: !<reference> 9aa407db-2872-4afc-a162-cf7faf2a0f29
-  ScriptInputsDefault:
-    {}
-  ScriptTypesDefault:
-    {}
-  ScriptInputs:
-    "":
-      {}
-  ScriptTypes:
-    "":
-      {}
 - !<RenderMeshVisual/c53e270a-3ac9-4921-9258-17f42abd1ebd>
   PrefabRemaps:
     []
@@ -6355,6 +6479,24 @@
       treadDepth: 0.250000
       treadBlocksPerArc: !<float> 6.000000
       castShadows: true
+  ScriptTypes:
+    "":
+      {}
+- !<ScriptComponent/f8035567-f4fb-4cd8-851c-a22f0c3d9d41>
+  PrefabRemaps:
+    []
+  Name: CoachFeedback
+  Enabled: true
+  ScriptAsset: !<reference> 0fd191eb-dc6f-4bf9-b903-223b64da8270
+  ScriptInputsDefault:
+    showSec: true
+  ScriptTypesDefault:
+    {}
+  ScriptInputs:
+    "":
+      stepLabel: !<MappingBased.AssignableType_1> 24460ad0-f260-4e7a-970c-05fcf6db9a81
+      audio: !<MappingBased.AssignableType_2> 7407431d-eeb9-4d5c-a25e-0c11394825cf
+      showSec: 2.500000
   ScriptTypes:
     "":
       {}

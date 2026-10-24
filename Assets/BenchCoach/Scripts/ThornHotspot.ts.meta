@@ -28,10 +28,18 @@
   ExportUid: 00000000-0000-0000-0000-000000000000
   PackagePolicy: CanBeUnpacked
   ScriptInputsHidden:
+    biteDotCm: false
+    biteGapCm: false
+    biteTint: false
+    depthCm: false
     glintMaterial: false
     glintMesh: false
     glintSizeCm: false
     hitSizeCm: false
+    radiusCm: false
+    shardMaterial: false
+    shardMesh: false
+    shardTint: false
     thornMaterial: false
     thornMesh: false
     thornSizeCm: false
@@ -49,10 +57,18 @@
       glintMaterial: !<reference.Material> 00000000-0000-0000-0000-000000000000
       thornMesh: !<reference.RenderMesh> 00000000-0000-0000-0000-000000000000
       thornMaterial: !<reference.Material> 00000000-0000-0000-0000-000000000000
+      shardMesh: !<reference.RenderMesh> 00000000-0000-0000-0000-000000000000
+      shardMaterial: !<reference.Material> 00000000-0000-0000-0000-000000000000
       glintSizeCm: !<float> 1.000000
       hitSizeCm: !<float> 5.000000
       twinkleHz: 0.700000
       thornSizeCm: !<Vec2> {x: 1.800000, y: 0.300000}
+      radiusCm: 34.200001
+      depthCm: !<float> 2.000000
+      shardTint: !<Vec4> {x: 0.850000, y: 0.970000, z: 1.000000, w: 1.000000}
+      biteTint: !<Vec4> {x: 1.000000, y: 0.800000, z: 0.500000, w: 1.000000}
+      biteDotCm: 0.700000
+      biteGapCm: 1.600000
   ScriptTypes:
     -
       {}
@@ -65,6 +81,8 @@
     - '// @input Asset.Material glintMaterial {"hint":"Bright unlit material for the glint (no black on the additive display)"}'
     - '// @input Asset.RenderMesh thornMesh {"hint":"Unit cylinder mesh for the thorn spike"}'
     - '// @input Asset.Material thornMaterial {"hint":"Material for the revealed thorn"}'
+    - '// @input Asset.RenderMesh shardMesh {"hint":"Unit box mesh for the glass shard"}'
+    - '// @input Asset.Material shardMaterial {"hint":"Unlit material for the glass shard; a runtime copy is tinted with shardTint"}'
     - '// @ui {"widget":"group_end"}'
     - '// @ui {"widget":"separator"}'
     - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">Settings</span>"}'
@@ -73,4 +91,10 @@
     - '// @input float hitSizeCm = 5 {"hint":"Pinch hit box edge in cm (larger than the glint so the mouse can find it)", "widget":"slider", "min":1, "max":10, "step":0.5}'
     - '// @input float twinkleHz = 0.7 {"hint":"Twinkles per second while armed", "widget":"slider", "min":0.2, "max":4, "step":0.1}'
     - '// @input vec2 thornSizeCm = {1.8,0.3} {"hint":"Thorn spike length and thickness in cm"}'
+    - '// @input float radiusCm = 34.2 {"hint":"Radius of the hotspot from the wheel center, in cm (on the tire)", "widget":"slider", "min":25, "max":40, "step":0.1}'
+    - '// @input float depthCm = 2 {"hint":"Depth of the hotspot in front of the tire center, in cm", "widget":"slider", "min":0, "max":5, "step":0.1}'
+    - '// @input vec4 shardTint = "{0.85, 0.97, 1.0, 1.0}" {"hint":"Glass shard color (pale and bright: dark vanishes on the additive display)", "widget":"color"}'
+    - '// @input vec4 biteTint = "{1.0, 0.8, 0.5, 1.0}" {"hint":"Snakebite dot color (bright warm; drawn with a tinted copy of shardMaterial)", "widget":"color"}'
+    - '// @input float biteDotCm = 0.9 {"hint":"Diameter of each snakebite dot, in cm", "widget":"slider", "min":0.2, "max":2, "step":0.05}'
+    - '// @input float biteGapCm = 1.8 {"hint":"Distance between the two snakebite dots, in cm", "widget":"slider", "min":0.5, "max":4, "step":0.1}'
     - '// @ui {"widget":"group_end"}'

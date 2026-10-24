@@ -151,6 +151,10 @@ export class TubePull extends BaseScriptComponent {
   onPullComplete: PublicApi<void> = this._onPullComplete.publicApi()
   private _onRefitComplete = new Event<void>()
   onRefitComplete: PublicApi<void> = this._onRefitComplete.publicApi()
+  /** Step 4 only: the tube end was pinched before the peel finished (a mistake). */
+  private _onEarlyPinch = new Event<void>()
+  onEarlyPinch: PublicApi<void> = this._onEarlyPinch.publicApi()
+  private earlyPinchWanted = false
 
   onAwake(): void {
     const scale = this.sceneObject.getTransform().getLocalScale()
@@ -166,6 +170,9 @@ export class TubePull extends BaseScriptComponent {
       collider.shape = shape
     }
     this.interactable = this.sceneObject.createComponent(Interactable.getTypeName()) as Interactable
+    this.interactable.onTriggerEnd.add(() => {
+      if (this.earlyPinchWanted && !this.armed && !this.pulled && !this.removed && !this.refitting) this._onEarlyPinch.invoke()
+    })
     const manipulation = this.sceneObject.createComponent(
       InteractableManipulation.getTypeName()
     ) as InteractableManipulation
@@ -188,6 +195,23 @@ export class TubePull extends BaseScriptComponent {
 
     this.createEvent("OnStartEvent").bind(() => this.recordHomes())
     this.createEvent("UpdateEvent").bind(() => this.tick())
+  }
+
+  /** True while a hand holds the tube end. */
+  isHeld(): boolean {
+    return this.held
+  }
+
+  /**
+   * Step 4: the pinch target is on (no grab) so a pinch on the tube end before
+   * the peel can be caught as a mistake. Ignored once the pull is armed or done,
+   * or while the old tube is out for the refit; off goes through setPinchTarget,
+   * which waits for a held pinch to end.
+   */
+  setEarlyPinch(on: boolean): void {
+    this.earlyPinchWanted = on
+    if (this.armed || this.pulled || this.removed || this.refitting || this.animating) return
+    this.setPinchTarget(on)
   }
 
   /** Step 5 entry: let the user grab the tube end. */

@@ -25,6 +25,7 @@ import {TubeFit} from "./TubeFit"
 import {WheelTargets} from "./WheelTargets"
 import {Highlighter} from "./Highlighter"
 import {BenchCoachAudio} from "./BenchCoachAudio"
+import {CoachFeedback} from "./CoachFeedback"
 
 const FIT_STEP = 8
 const SEAT_STEP = 9
@@ -95,6 +96,11 @@ export class RefitSteps extends BaseScriptComponent implements StepModule {
   @input
   @hint("Cue player (click, nope, pump loop)")
   audio: BenchCoachAudio
+
+  @input
+  @allowUndefined
+  @hint("Mistake feedback: a new tube end released away from the valve hole")
+  feedback: CoachFeedback
   @ui.group_end
 
   @ui.separator
@@ -166,7 +172,11 @@ export class RefitSteps extends BaseScriptComponent implements StepModule {
       return
     }
     this.tubeFit.onFitted.add(() => this.onFitted())
-    this.tubeFit.onRejected.add(() => this.audio.playNopeAt(this.tubeFit.sceneObject.getTransform().getWorldPosition()))
+    this.tubeFit.onRejected.add(() => {
+      const pos = this.tubeFit.sceneObject.getTransform().getWorldPosition()
+      if (this.feedback) this.feedback.mistake("tubeFitMiss", pos)
+      else this.audio.playNopeAt(pos)
+    })
     this.tubePull.onRefitComplete.add(() => this.onRefitDone())
     this.wheelTargets.onBeadPinched.add((i) => this.onBeadPinched(i))
     this.wheelTargets.onValveDown.add(() => this.onValveDown())
@@ -185,7 +195,8 @@ export class RefitSteps extends BaseScriptComponent implements StepModule {
     if (step === FIT_STEP && !this.entered) this.enter(instant)
     if (this.tubeFit) this.tubeFit.setArmed(step === FIT_STEP && !this.fitted && !paused)
     this.setEnabled(this.newTube, STEPS[step].showNewTube && !this.fitted)
-    if (step === SEAT_STEP) this.wheelTargets.setActive(false, paused ? [] : SEAT_BEADS)
+    // Step 9: the valve is live too, so pinching it before the beads are seated is caught (inflateBeforeSeat).
+    if (step === SEAT_STEP) this.wheelTargets.setActive(!paused, paused ? [] : SEAT_BEADS)
     if (step === INFLATE_STEP) this.wheelTargets.setActive(!paused && !this.inflated, false)
     this.applyHighlight()
   }

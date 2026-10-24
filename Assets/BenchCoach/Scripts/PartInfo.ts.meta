@@ -1,0 +1,91 @@
+- !<AssetImportMetadata/d587f201-8143-462a-85f3-a9b48a4bcf21>
+  ImportedAssetIds:
+    TypeScriptAsset: !<reference> bc65ce0c-1b5b-46c4-8c7f-46f412ba80ed
+  ImporterName: TypeScriptAssetImporter
+  PrimaryAsset: !<reference> bc65ce0c-1b5b-46c4-8c7f-46f412ba80ed
+  PackageType: NotAPackage
+  LegacyPackagePolicy: ~
+  ExtraData:
+    {}
+  AssetDataMap:
+    TypeScriptAsset: !<own> 443a6fdc-6878-4da0-970b-37ba9f325ff5
+  DependentFiles:
+    []
+  ImporterSettings: !<AssetImporterSettings>
+    {}
+  CompressionSettings: !<own> 00000000-0000-0000-0000-000000000000
+- !<TypeScriptAssetData/443a6fdc-6878-4da0-970b-37ba9f325ff5>
+  SvgIcon: ""
+  SetupScript:
+    code: ""
+  Description: ""
+  VersionMajor: 0
+  VersionMinor: 0
+  VersionPatch: 0
+  VersionPrerelease: ""
+  UpdateOrder: 0
+  ComponentUid: 16b8fbec-de1e-4c3d-9d0e-be0c5faef4ad
+  ExportUid: 00000000-0000-0000-0000-000000000000
+  PackagePolicy: CanBeUnpacked
+  ScriptInputsHidden:
+    audio: false
+    labelLiftCm: false
+    leverA: false
+    leverB: false
+    manager: false
+    promptText: false
+    stand: false
+    stepLabel: false
+    thorn: false
+    toolTray: false
+    tubeFit: false
+    tubePull: false
+    wheel: false
+  ScriptTypesHidden:
+    {}
+  ReadMe: !<reference> 00000000-0000-0000-0000-000000000000
+  DeclarationFile: !<reference> 00000000-0000-0000-0000-000000000000
+  Tags:
+    []
+  Attachments:
+    []
+  DefaultScriptInputs:
+    - manager: !<MappingBased.AssignableType_1> 00000000-0000-0000-0000-000000000000
+      stepLabel: !<MappingBased.AssignableType_2> 00000000-0000-0000-0000-000000000000
+      wheel: !<reference.SceneObject> 00000000-0000-0000-0000-000000000000
+      stand: !<reference.SceneObject> 00000000-0000-0000-0000-000000000000
+      toolTray: !<reference.SceneObject> 00000000-0000-0000-0000-000000000000
+      thorn: !<MappingBased.AssignableType_3> 00000000-0000-0000-0000-000000000000
+      leverA: !<MappingBased.AssignableType_4> 00000000-0000-0000-0000-000000000000
+      leverB: !<MappingBased.AssignableType_5> 00000000-0000-0000-0000-000000000000
+      tubeFit: !<MappingBased.AssignableType_6> 00000000-0000-0000-0000-000000000000
+      tubePull: !<MappingBased.AssignableType_7> 00000000-0000-0000-0000-000000000000
+      audio: !<MappingBased.AssignableType_8> 00000000-0000-0000-0000-000000000000
+      promptText: "What's this? Pinch any part."
+      labelLiftCm: !<float> 7.000000
+  ScriptTypes:
+    -
+      {}
+  InputLines:
+    - "// @ui {\"widget\":\"label\", \"label\":\"<span style=\\\"color: #60A5FA;\\\">PartInfo – What's this? part facts</span>\"}"
+    - '// @ui {"widget":"separator"}'
+    - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">References</span>"}'
+    - '// @ui {"widget":"group_start", "label":"References"}'
+    - '// @input AssignableType_1 manager {"hint":"The step machine (pause, label restore, current cause)"}'
+    - '// @input AssignableType_2 stepLabel {"hint":"Step label panel (shows the prompt and the fact)"}'
+    - '// @input SceneObject wheel {"hint":"Wheel root: parts are found by name under it, the stand and the tray"}'
+    - '// @input SceneObject stand {"hint":"Stand root (StandPost, BikeFrame)"}'
+    - '// @input SceneObject toolTray {"hint":"Tool tray root (levers while they are in the tray)"}'
+    - '// @input AssignableType_3 thorn {"hint":"Flat-cause hotspot: its box exists only once the cause is found"}'
+    - '// @input AssignableType_4 leverA {"hint":"Lever A: wait while it is grabbed or tweening"}'
+    - '// @input AssignableType_5 leverB {"hint":"Lever B: wait while it is grabbed or tweening"}'
+    - '// @input AssignableType_6 tubeFit {"hint":"New tube end: wait while it is held"}'
+    - '// @input AssignableType_7 tubePull {"hint":"Tube end: wait while it is held"}'
+    - '// @input AssignableType_8 audio {"hint":"Cue player (click on a part)"}'
+    - '// @ui {"widget":"group_end"}'
+    - '// @ui {"widget":"separator"}'
+    - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">Settings</span>"}'
+    - '// @ui {"widget":"group_start", "label":"Settings"}'
+    - "// @input string promptText = \"What's this? Pinch any part.\" {\"hint\":\"Label text while the mode is on and no part is picked\"}"
+    - '// @input float labelLiftCm = 7 {"hint":"How far above the picked part the label sits, in cm", "widget":"slider", "min":2, "max":20, "step":0.5}'
+    - '// @ui {"widget":"group_end"}'

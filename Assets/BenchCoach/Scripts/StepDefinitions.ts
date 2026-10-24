@@ -33,6 +33,10 @@ export interface StepDef {
   name: string
   /** One-line instruction shown on StepLabel (step 0 and 7 show their card instead). */
   label: string
+  /** Idle hint (IdleHint shows it on the label after idleSec without progress). */
+  hint: string
+  /** True if the step has a dot on the progress rail (the cards 0, 7 and 11 do not). */
+  railDot: boolean
   /** What the user must do to complete the step (Next always works too). */
   action: StepAction
   /** Where the StepMarker sits. */
@@ -107,16 +111,101 @@ export const THORN_FOUND_LABEL = "Thorn. Pull it out before the new tube goes in
 /** Beads lifted by the levers (Bead_0 at socket A, Bead_1..3 by the peel): step 9 seats them. */
 export const SEAT_BEADS: number[] = [0, 1, 2, 3]
 
-/**
- * Flat causes: what the Finish card names and how to prevent it. Pass 9 has the
- * thorn only; pass 8 adds the glass shard and the snakebite (with their angles).
- */
-export const FLAT_CAUSES: {[id: string]: {label: string; tip: string; angleDeg: number}} = {
+/** A flat cause: where it sits in the tire, what the reveal looks like, what the cards say. */
+export interface FlatCause {
+  /** Short name for the Finish card ("Cause: glass shard"). */
+  label: string
+  /** Step label once it is found on the inspect step. */
+  foundLabel: string
+  /** Prevention tip on the Finish card ("Next time: ..."). */
+  tip: string
+  /** What's this? fact for the revealed cause. */
+  fact: string
+  /** Clockwise angle from 12 o'clock (deg) of the hotspot in the tire. */
+  angleDeg: number
+  /** Reveal shape built by ThornHotspot. */
+  shape: "spike" | "shard" | "dots"
+}
+
+/** Flat causes; RepairManager.foundIt() picks one at random unless forceCause is set. */
+export const FLAT_CAUSES: {[id: string]: FlatCause} = {
   thorn: {
     label: "thorn",
+    foundLabel: THORN_FOUND_LABEL,
     tip: "run a hand round inside the tire before fitting a tube.",
+    fact: "Thorn: went through tire and tube.",
     angleDeg: THORN_ANGLE_DEG,
+    shape: "spike",
   },
+  glass: {
+    label: "glass shard",
+    foundLabel: "Glass shard. Pick it out of the tire.",
+    tip: "check the tread for glass after riding through debris.",
+    fact: "Glass: a sliver cut through the tread.",
+    // 8 o'clock (the thorn's mirror). Not 200: the body-locked control bar covers the
+    // bottom of the wheel from the start pose, so the found label would sit behind it.
+    angleDeg: 240,
+    shape: "shard",
+  },
+  snakebite: {
+    label: "snakebite",
+    foundLabel: "Snakebite: two slits from a rim pinch.",
+    tip: "keep the tire pumped to its rated pressure.",
+    fact: "Snakebite: tube pinched on the rim.",
+    angleDeg: 300,
+    shape: "dots",
+  },
+}
+
+export const FLAT_CAUSE_IDS: string[] = ["thorn", "glass", "snakebite"]
+
+/** Mistake codes and the reason CoachFeedback shows on the label (short: one line on the label). */
+export const MISTAKES: {[code: string]: string} = {
+  beadBeforeDeflate: "Let the air out first. Pinch the valve.",
+  valveAlreadyDeflated: "It's already flat. Push the beads in.",
+  leverBBeforeA: "First lever first. Hook the other one.",
+  leverTooFar: "Too far. Drop the tip on the ghost.",
+  tubeBeforePeel: "Peel the bead off first, then the tube.",
+  tubeFitMiss: "Start at the valve hole at the top.",
+  inflateBeforeSeat: "Seat the bead first, or the tube pinches.",
+}
+
+/**
+ * What's this? facts. `target` is the SceneObject the pinch box follows (found by
+ * name under the wheel, stand and tray); `offset` is in the target's rotated frame,
+ * in cm; `size` is the box in cm (a little larger than any collider it encloses, so
+ * the info box takes the ray first). `cause`: the fact text comes from the current
+ * flat cause and the box exists only once it is found. `frameT`: the box sits on
+ * RearTriangle's seat tube at that fraction.
+ */
+export interface PartFact {
+  id: string
+  target: string
+  title: string
+  fact: string
+  offset: number[]
+  size: number[]
+  cause?: boolean
+  frameT?: number
+}
+
+export const PART_FACTS: PartFact[] = [
+  {id: "Rim", target: "Wheel", title: "Rim", fact: "hoop the tire bead hooks onto.", offset: [-21.2, -21.2, 0], size: [5, 5, 3.4]},
+  {id: "Hub", target: "Wheel", title: "Hub", fact: "the center. It spins on the axle.", offset: [0, 0, 0], size: [7, 7, 9]},
+  {id: "Spoke", target: "Spoke_2", title: "Spoke", fact: "holds the rim true under load.", offset: [0, 0, 0], size: [2.5, 16, 2.5]},
+  {id: "Tire", target: "Wheel", title: "Tire", fact: "grips the road. Beads hold it on.", offset: [29.4, 17, 0], size: [5, 5, 4.5]},
+  {id: "Tube", target: "TubeEnd", title: "Tube", fact: "holds the air. Easy to puncture.", offset: [0, 0, 0], size: [8, 8, 8]},
+  {id: "Valve", target: "Valve", title: "Valve", fact: "unscrew the tip, then press.", offset: [0, 0, 0], size: [6, 8, 6]},
+  {id: "LeverA", target: "LeverA", title: "Lever", fact: "lifts the bead over the rim.", offset: [0, 0, 0], size: [13, 3, 2]},
+  {id: "LeverB", target: "LeverB", title: "Lever", fact: "lifts the bead over the rim.", offset: [0, 0, 0], size: [13, 3, 2]},
+  {id: "Stand", target: "StandPost", title: "Stand", fact: "holds the wheel at work height.", offset: [0, 0, 0], size: [8, 131, 8]},
+  {id: "Cause", target: "ThornHotspot", title: "Cause", fact: "", offset: [0, 0, 0], size: [5, 5, 5], cause: true},
+  {id: "Frame", target: "BikeFrame", title: "Frame", fact: "the wheel clamps into its dropouts.", offset: [0, 0, 0], size: [3, 6, 5], frameT: 0.45},
+]
+
+/** Rail dots: the steps with railDot, in order. */
+export function railSteps(): number[] {
+  return STEPS.filter((d) => d.railDot).map((d) => d.id)
 }
 
 export const STEPS: StepDef[] = [
@@ -124,6 +213,8 @@ export const STEPS: StepDef[] = [
     id: 0,
     name: "Start",
     label: "Fix a flat. Pinch Found it when your wheel is in the stand.",
+    hint: "Pinch Found it on the card to start.",
+    railDot: false,
     action: "foundIt",
     markerAnchor: "none",
     markerAngleDeg: 0,
@@ -141,6 +232,8 @@ export const STEPS: StepDef[] = [
     id: 1,
     name: "Deflate",
     label: "Unthread the tip and press to deflate",
+    hint: "Pinch the brass valve at the top.",
+    railDot: true,
     action: "valve",
     markerAnchor: "valve",
     markerAngleDeg: 0,
@@ -158,6 +251,8 @@ export const STEPS: StepDef[] = [
     id: 2,
     name: "Loosen the bead",
     label: "Push the bead toward the rim center",
+    hint: "Pinch each glowing bead.",
+    railDot: true,
     action: "beads",
     markerAnchor: "bead",
     markerAngleDeg: 22.5,
@@ -176,6 +271,8 @@ export const STEPS: StepDef[] = [
     id: 3,
     name: "First lever",
     label: "Hook the lever under the bead",
+    hint: "Drag a blue lever onto the ghost.",
+    railDot: true,
     action: "leverA",
     markerAnchor: "socket",
     markerAngleDeg: SOCKET_ANGLE_DEG,
@@ -193,6 +290,8 @@ export const STEPS: StepDef[] = [
     id: 4,
     name: "Second lever and peel",
     label: "Hook the second lever, then slide it round to 5 o'clock",
+    hint: "Hook lever B, then slide it down.",
+    railDot: true,
     action: "leverB",
     markerAnchor: "socket",
     markerAngleDeg: SOCKET_B_ANGLE_DEG,
@@ -211,6 +310,8 @@ export const STEPS: StepDef[] = [
     id: 5,
     name: "Pull the tube",
     label: "Start opposite the valve. Pull the tube out.",
+    hint: "Grab the tube end at 6 o'clock. Pull.",
+    railDot: true,
     action: "tubePull",
     markerAnchor: "tubeEnd",
     markerAngleDeg: 180,
@@ -228,6 +329,8 @@ export const STEPS: StepDef[] = [
     id: 6,
     name: "Inspect",
     label: "Find what caused it",
+    hint: "Look for a glint on the tire. Pinch it.",
+    railDot: true,
     action: "thorn",
     markerAnchor: "inspect",
     markerAngleDeg: THORN_ANGLE_DEG,
@@ -245,6 +348,8 @@ export const STEPS: StepDef[] = [
     id: 7,
     name: "Done",
     label: "Tube out, cause found. Ready for the new tube.",
+    hint: "Pinch Fit the new tube to go on.",
+    railDot: false,
     action: "tryAgain",
     markerAnchor: "none",
     markerAngleDeg: 0,
@@ -262,6 +367,8 @@ export const STEPS: StepDef[] = [
     id: 8,
     name: "Fit the new tube",
     label: "Start at the valve. Feed the new tube in.",
+    hint: "Drag the brass valve end to the top.",
+    railDot: true,
     action: "tubeFit",
     markerAnchor: "module",
     markerAngleDeg: 0,
@@ -280,6 +387,8 @@ export const STEPS: StepDef[] = [
     id: 9,
     name: "Seat the bead",
     label: "Push the bead back over the rim",
+    hint: "Pinch each glowing bead.",
+    railDot: true,
     action: "seat",
     markerAnchor: "module",
     markerAngleDeg: 22.5,
@@ -298,6 +407,8 @@ export const STEPS: StepDef[] = [
     id: 10,
     name: "Inflate",
     label: "Pinch and hold the valve to inflate",
+    hint: "Pinch the valve and keep holding.",
+    railDot: true,
     action: "inflate",
     markerAnchor: "module",
     markerAngleDeg: 0,
@@ -316,6 +427,8 @@ export const STEPS: StepDef[] = [
     id: 11,
     name: "Done",
     label: "Flat fixed.",
+    hint: "Pinch Start over to go again.",
+    railDot: false,
     action: "restart",
     markerAnchor: "none",
     markerAngleDeg: 0,

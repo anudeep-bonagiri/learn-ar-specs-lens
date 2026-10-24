@@ -4,6 +4,10 @@ import {expect} from "Leaf.lspkg/Utils/common/Expect"
 import {findSceneObjectByName, sleep} from "Leaf.lspkg/Utils/common/Utils"
 import {getRepairManager} from "./BenchCoachLeafInteractor"
 import {RefitSteps} from "../Scripts/RefitSteps"
+import {PartInfo} from "../Scripts/PartInfo"
+import {CoachFeedback} from "../Scripts/CoachFeedback"
+import {IdleHint} from "../Scripts/IdleHint"
+import {BenchCoachLeafInteractor} from "./BenchCoachLeafInteractor"
 
 /**
  * Helper, not a criterion: jumps the Lens to step `step` (parameter, default 5)
@@ -13,6 +17,10 @@ import {RefitSteps} from "../Scripts/RefitSteps"
  * holds the tube end that far past the rim (segment-by-segment pull, mid-way).
  * On step 8, `fit` = 1 runs the live fit (new tube back in the tire) but stays on
  * step 8; on step 10, `inflate` (0..1) holds the tire part-inflated.
+ * Pass 8 screenshot helpers (all optional, strings): `cause` forces the flat cause
+ * for this jump; `find` = 1 on step 6 pinches the hotspot and holds the reveal for
+ * 30 s; `part` turns What's this? on and pinches InfoHit_<part>; `mistake` shows
+ * that mistake code's reason for 30 s; `idle` = 1 fires the idle hint.
  */
 @component
 export class JumpToStepScenario extends Scenario {
@@ -21,9 +29,18 @@ export class JumpToStepScenario extends Scenario {
     const pullCm = config?.getNumber("pullCm") ?? 0
     const fit = config?.getNumber("fit") ?? 0
     const inflate = config?.getNumber("inflate") ?? 0
+    const cause = config?.get("cause") ?? ""
+    const find = config?.getNumber("find") ?? 0
+    const part = config?.get("part") ?? ""
+    const mistake = config?.get("mistake") ?? ""
+    const idleOn = config?.getNumber("idle") ?? 0
     await sleep(500)
     const manager = getRepairManager()
+    const root = findSceneObjectByName("BenchCoach")
+    const savedForce = manager.forceCause
+    if (cause) manager.forceCause = cause
     manager.jumpToStep(step)
+    manager.forceCause = savedForce
     await sleep(1200)
     expect(manager.getState().step, `landed on step ${step}`).toBe(step)
     if (step === 5 && pullCm > 0) {
@@ -44,6 +61,35 @@ export class JumpToStepScenario extends Scenario {
     if (step === 10 && inflate > 0 && refit) {
       refit.setInflateProgress(inflate)
       await sleep(200)
+    }
+    const interactor = new BenchCoachLeafInteractor()
+    if (step === 6 && find > 0) {
+      const saved = manager.thornRevealSec
+      manager.thornRevealSec = 30
+      await interactor.tap("ThornHotspot")
+      manager.thornRevealSec = saved
+    }
+    if (mistake) {
+      const fb = root.getComponent(CoachFeedback.getTypeName()) as CoachFeedback
+      const saved = fb.showSec
+      fb.showSec = 30
+      fb.mistake(mistake, findSceneObjectByName("StepMarker").getTransform().getWorldPosition())
+      fb.showSec = saved
+    }
+    if (idleOn > 0) {
+      const idle = root.getComponent(IdleHint.getTypeName()) as IdleHint
+      const saved = idle.idleSec
+      idle.idleSec = 1
+      idle.touch()
+      await sleep(1400)
+      idle.idleSec = saved
+    }
+    if (part) {
+      const info = root.getComponent(PartInfo.getTypeName()) as PartInfo
+      await interactor.tap("BtnWhatsThis")
+      await sleep(300)
+      await interactor.tap(`InfoHit_${part}`)
+      print(`[JumpToStep] What's this? ${info.lastText}`)
     }
     for (const name of ["LeverA", "LeverB", "StepMarker", "TubeEnd", "EdgeArrow", "NewTubeEnd"]) {
       const so = findSceneObjectByName(name)

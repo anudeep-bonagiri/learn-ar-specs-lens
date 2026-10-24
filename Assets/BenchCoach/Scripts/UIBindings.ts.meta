@@ -31,9 +31,13 @@
     audio: false
     controlBar: false
     doneCard: false
+    feedback: false
     finishCard: false
+    idle: false
     manager: false
+    partInfo: false
     startCard: false
+    stats: false
   ScriptTypesHidden:
     {}
   ReadMe: !<reference> 00000000-0000-0000-0000-000000000000
@@ -49,6 +53,10 @@
       doneCard: !<MappingBased.AssignableType_4> 00000000-0000-0000-0000-000000000000
       finishCard: !<MappingBased.AssignableType_5> 00000000-0000-0000-0000-000000000000
       audio: !<MappingBased.AssignableType_6> 00000000-0000-0000-0000-000000000000
+      idle: !<MappingBased.AssignableType_7> 00000000-0000-0000-0000-000000000000
+      stats: !<MappingBased.AssignableType_8> 00000000-0000-0000-0000-000000000000
+      partInfo: !<MappingBased.AssignableType_9> 00000000-0000-0000-0000-000000000000
+      feedback: !<MappingBased.AssignableType_10> 00000000-0000-0000-0000-000000000000
   ScriptTypes:
     -
       {}
@@ -63,4 +71,8 @@
     - '// @input AssignableType_4 doneCard {"hint":"Done card (Continue, Start over)"}'
     - '// @input AssignableType_5 finishCard {"hint":"Finish card (Restart)"}'
     - '// @input AssignableType_6 audio {"hint":"Cue player (tick)"}'
+    - '// @input AssignableType_7 idle {"hint":"Idle hints: every press starts a new quiet spell; each hint counts on RunStats"}'
+    - '// @input AssignableType_8 stats {"hint":"Run counters (hints from IdleHint.onHint, mistakes from CoachFeedback.onMistake)"}'
+    - "// @input AssignableType_9 partInfo {\"hint\":\"What's this? mode (BtnWhatsThis toggles it)\"}"
+    - '// @input AssignableType_10 feedback {"hint":"Mistake feedback (each mistake counts on RunStats and starts a new idle spell)"}'
     - '// @ui {"widget":"group_end"}'

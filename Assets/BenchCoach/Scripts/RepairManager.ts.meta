@@ -37,7 +37,9 @@
     deflateScale: false
     doneCard: false
     environment: false
+    feedback: false
     finishCard: false
+    forceCause: false
     ghost: false
     highlighter: false
     labelOffsetCm: false
@@ -100,6 +102,7 @@
       refit: !<MappingBased.AssignableType_13> 00000000-0000-0000-0000-000000000000
       finishCard: !<MappingBased.AssignableType_14> 00000000-0000-0000-0000-000000000000
       stats: !<MappingBased.AssignableType_15> 00000000-0000-0000-0000-000000000000
+      feedback: !<MappingBased.AssignableType_16> 00000000-0000-0000-0000-000000000000
       beadRadiusCm: 33.400002
       markerStandoffCm: 1.500000
       labelOffsetCm: !<float> 10.000000
@@ -108,6 +111,7 @@
       beadLiftCm: !<float> 1.000000
       thornRevealSec: 2.500000
       causeId: thorn
+      forceCause: ""
       debugLogs: true
   ScriptTypes:
     -
@@ -144,6 +148,7 @@
     - '// @input AssignableType_13 refit {"hint":"StepModule for steps 8..10 (fit the new tube, seat the bead, inflate)"}'
     - '// @input AssignableType_14 finishCard {"hint":"Finish card (step 11): time, stats, prevention tip"}'
     - '// @input AssignableType_15 stats {"hint":"Run counters shown on the Finish card"}'
+    - '// @input AssignableType_16 feedback {"hint":"Mistake feedback (nope plus a reason on the label)"}'
     - '// @ui {"widget":"group_end"}'
     - '// @ui {"widget":"separator"}'
     - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">Settings</span>"}'
@@ -155,6 +160,7 @@
     - '// @input float beadPushCm = 0.5 {"hint":"How far each loosened bead shifts toward the rim center, in cm", "widget":"slider", "min":0.1, "max":3, "step":0.1}'
     - '// @input float beadLiftCm = 1 {"hint":"How far Bead_0 lifts radially outward when lever A hooks, in cm", "widget":"slider", "min":0.2, "max":5, "step":0.1}'
     - '// @input float thornRevealSec = 2.5 {"hint":"Seconds the found thorn and its label stay up before the Done card", "widget":"slider", "min":0, "max":6, "step":0.1}'
-    - '// @input string causeId = "thorn" {"hint":"Flat cause named on the Finish card (pass 8 picks one at random)"}'
+    - '// @input string causeId = "thorn" {"hint":"Default flat cause after reset / jumpToStep (Found it picks one at random)"}'
+    - '// @input string forceCause {"hint":"Force this flat cause every run (thorn, glass, snakebite); empty = random on Found it"}'
     - '// @input bool debugLogs = true {"hint":"Print step transitions to the log"}'
     - '// @ui {"widget":"group_end"}'
