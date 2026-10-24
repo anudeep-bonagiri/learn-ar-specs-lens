@@ -1,6 +1,6 @@
 # Bench Coach: team task list
 
-Status as of Oct 24, 2026. Branch `Sujeeth-AR-SPECS-WORK` is the integration branch. Full design: `docs/PASSES_7_TO_10_PLAN.md`. Build history and pitfalls: `devpost/design-notes.md` (read its "Findings" lists before touching code).
+Status as of Oct 24, 2026. **Current order of work: `docs/INTEGRATION_PLAN.md`** (pass 10, spikes, pass 11, conditional pass 12). Branch `Sujeeth-AR-SPECS-WORK` is the integration branch. Full design: `docs/PASSES_7_TO_10_PLAN.md`. Build history and pitfalls: `devpost/design-notes.md` (read its "Findings" lists before touching code).
 
 Done: criteria 1 to 5, six LEAF scenarios green (`start`, `deflate-loosen`, `lever-snap`, `peel-and-pull`, `inspect-done`, `step-ticks`).
 
