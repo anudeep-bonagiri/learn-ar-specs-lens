@@ -5,20 +5,24 @@
  * Owns: step ids, labels, marker anchors, visibility flags, completion action.
  * Must not: touch the scene.
  */
-export type StepAction = "foundIt" | "valve" | "beads" | "leverA" | "leverB" | "tubePull" | "next" | "tryAgain"
+export type StepAction = "foundIt" | "valve" | "beads" | "leverA" | "leverB" | "tubePull" | "thorn" | "tryAgain"
 
-export type MarkerAnchor = "none" | "valve" | "bead" | "socket" | "tubeEnd" | "tread"
+/**
+ * "inspect" is the search step: the label sits above the wheel and no ring is
+ * shown until the thorn is found (a ring on the answer would make it a card, not a search).
+ */
+export type MarkerAnchor = "none" | "valve" | "bead" | "socket" | "tubeEnd" | "inspect"
 
 export interface StepDef {
   id: number
   name: string
   /** One-line instruction shown on StepLabel (step 0 and 7 show their card instead). */
   label: string
-  /** What the user must do to complete the step. "next" = Next button only (stub). */
+  /** What the user must do to complete the step (Next always works too). */
   action: StepAction
   /** Where the StepMarker sits. */
   markerAnchor: MarkerAnchor
-  /** Clockwise angle from 12 o'clock for bead/tread anchors, in degrees. */
+  /** Clockwise angle from 12 o'clock for bead / inspect anchors, in degrees (inspect: where the thorn is). */
   markerAngleDeg: number
   showStartCard: boolean
   showWheel: boolean
@@ -43,6 +47,12 @@ export const SOCKET_B_ANGLE_DEG = SOCKET_ANGLE_DEG + (5 / BEAD_RADIUS_CM) * (180
 
 /** Absolute clockwise angle (deg) where the rim drag completes: lever B at 3 o'clock. */
 export const PEEL_END_ANGLE_DEG = 90
+
+/** Clockwise angle (deg) of the thorn in the tire: 4 o'clock. */
+export const THORN_ANGLE_DEG = 120
+
+/** Label shown on the thorn once it is found, before the Done card. */
+export const THORN_FOUND_LABEL = "Thorn. Pull it out before the new tube goes in."
 
 export const STEPS: StepDef[] = [
   {
@@ -133,9 +143,9 @@ export const STEPS: StepDef[] = [
     id: 6,
     name: "Inspect",
     label: "Find what caused it",
-    action: "next",
-    markerAnchor: "tread",
-    markerAngleDeg: 120,
+    action: "thorn",
+    markerAnchor: "inspect",
+    markerAngleDeg: THORN_ANGLE_DEG,
     showStartCard: false,
     showWheel: true,
     showTray: false,

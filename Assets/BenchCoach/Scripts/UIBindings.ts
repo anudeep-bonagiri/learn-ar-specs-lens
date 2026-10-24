@@ -1,12 +1,14 @@
 /**
  * UIBindings — subscribes to every UI module's button events and calls
  * RepairManager. Owns: nothing but the subscriptions.
- * Expects: @inputs manager, startCard, controlBar, doneCard (wired in the scene).
+ * Plays the tick cue from the pressed panel.
+ * Expects: @inputs manager, startCard, controlBar, doneCard, audio (wired in the scene).
  */
 import {RepairManager} from "./RepairManager"
 import {BenchCoachStartCardUI} from "./BenchCoachStartCardUI"
 import {BenchCoachControlBarUI} from "./BenchCoachControlBarUI"
 import {BenchCoachDoneCardUI} from "./BenchCoachDoneCardUI"
+import {BenchCoachAudio} from "./BenchCoachAudio"
 
 @component
 export class UIBindings extends BaseScriptComponent {
@@ -29,6 +31,10 @@ export class UIBindings extends BaseScriptComponent {
   @input
   @hint("Done card (Try again)")
   doneCard: BenchCoachDoneCardUI
+
+  @input
+  @hint("Cue player (tick)")
+  audio: BenchCoachAudio
   @ui.group_end
 
   onAwake(): void {
@@ -37,11 +43,16 @@ export class UIBindings extends BaseScriptComponent {
         print("[UIBindings] ERROR: missing @input refs")
         return
       }
-      this.startCard.onFoundIt.add(() => this.manager.foundIt())
-      this.controlBar.onBack.add(() => this.manager.back())
-      this.controlBar.onNext.add(() => this.manager.next())
-      this.controlBar.onReplay.add(() => this.manager.replay())
-      this.doneCard.onTryAgain.add(() => this.manager.reset())
+      this.startCard.onFoundIt.add(() => this.press(this.startCard, () => this.manager.foundIt()))
+      this.controlBar.onBack.add(() => this.press(this.controlBar, () => this.manager.back()))
+      this.controlBar.onNext.add(() => this.press(this.controlBar, () => this.manager.next()))
+      this.controlBar.onReplay.add(() => this.press(this.controlBar, () => this.manager.replay()))
+      this.doneCard.onTryAgain.add(() => this.press(this.doneCard, () => this.manager.reset()))
     })
+  }
+
+  private press(panel: BaseScriptComponent, action: () => void): void {
+    if (this.audio) this.audio.playTickAt(panel.sceneObject.getTransform().getWorldPosition())
+    action()
   }
 }

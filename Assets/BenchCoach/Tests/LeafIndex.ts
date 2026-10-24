@@ -4,6 +4,7 @@ import {StartScenario} from "./StartScenario"
 import {DeflateLoosenScenario} from "./DeflateLoosenScenario"
 import {LeverSnapScenario} from "./LeverSnapScenario"
 import {PeelAndPullScenario} from "./PeelAndPullScenario"
+import {InspectDoneScenario} from "./InspectDoneScenario"
 import {JumpToStepScenario} from "./JumpToStepScenario"
 
 @component
@@ -25,6 +26,10 @@ export class LeafIndex extends BaseScriptComponent {
     {
       id: "peel-and-pull",
       typename: PeelAndPullScenario.getTypeName(),
+    },
+    {
+      id: "inspect-done",
+      typename: InspectDoneScenario.getTypeName(),
     },
     {
       id: "jump-to-step",

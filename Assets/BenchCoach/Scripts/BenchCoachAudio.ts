@@ -1,9 +1,9 @@
 /**
  * BenchCoachAudio — the cue player. Owns the AudioComponents authored under
- * Audio/ (Zipper, Chime): sets LowLatency playback, volumes and spatialization,
+ * Audio/ (Zipper, Chime, Tick, Click, Nope, Done): sets LowLatency playback, volumes and spatialization,
  * and moves each emitter to the world position a cue should come from.
- * Must not: decide when a cue fires — RepairManager / EdgeHint call it.
- * Expects: @inputs zipper, chime (AudioComponents on child objects).
+ * Must not: decide when a cue fires — RepairManager / EdgeHint / UIBindings call it.
+ * Expects: @inputs zipper, chime, tick, click, nope, done (AudioComponents on child objects).
  */
 @component
 export class BenchCoachAudio extends BaseScriptComponent {
@@ -18,6 +18,22 @@ export class BenchCoachAudio extends BaseScriptComponent {
   @input
   @hint("Chime cue (far-side marker), on Audio/Chime")
   chime: AudioComponent
+
+  @input
+  @hint("Tick cue (any button), on Audio/Tick")
+  tick: AudioComponent
+
+  @input
+  @hint("Click cue (lever snaps into its socket), on Audio/Click")
+  click: AudioComponent
+
+  @input
+  @hint("Nope cue (lever released far from the socket), on Audio/Nope")
+  nope: AudioComponent
+
+  @input
+  @hint("Done cue (repair finished), on Audio/Done")
+  done: AudioComponent
   @ui.group_end
 
   @ui.separator
@@ -34,16 +50,39 @@ export class BenchCoachAudio extends BaseScriptComponent {
   chimeVolume: number = 0.4
 
   @input
+  @hint("Tick volume (quietest: it plays on every button)")
+  @widget(new SliderWidget(0, 1, 0.05))
+  tickVolume: number = 0.25
+
+  @input
+  @hint("Click and nope volume")
+  @widget(new SliderWidget(0, 1, 0.05))
+  feedbackVolume: number = 0.4
+
+  @input
+  @hint("Done volume")
+  @widget(new SliderWidget(0, 1, 0.05))
+  doneVolume: number = 0.45
+
+  @input
   @hint("Play the cues from their world position (spatial audio)")
   spatial: boolean = true
   @ui.group_end
 
   zipperPlays: number = 0
   chimePlays: number = 0
+  tickPlays: number = 0
+  clickPlays: number = 0
+  nopePlays: number = 0
+  donePlays: number = 0
 
   onAwake(): void {
     this.configure(this.zipper, this.zipperVolume)
     this.configure(this.chime, this.chimeVolume)
+    this.configure(this.tick, this.tickVolume)
+    this.configure(this.click, this.feedbackVolume)
+    this.configure(this.nope, this.feedbackVolume)
+    this.configure(this.done, this.doneVolume)
   }
 
   playZipperAt(worldPos: vec3): void {
@@ -54,6 +93,26 @@ export class BenchCoachAudio extends BaseScriptComponent {
   playChimeAt(worldPos: vec3): void {
     this.chimePlays += 1
     this.playAt(this.chime, worldPos)
+  }
+
+  playTickAt(worldPos: vec3): void {
+    this.tickPlays += 1
+    this.playAt(this.tick, worldPos)
+  }
+
+  playClickAt(worldPos: vec3): void {
+    this.clickPlays += 1
+    this.playAt(this.click, worldPos)
+  }
+
+  playNopeAt(worldPos: vec3): void {
+    this.nopePlays += 1
+    this.playAt(this.nope, worldPos)
+  }
+
+  playDoneAt(worldPos: vec3): void {
+    this.donePlays += 1
+    this.playAt(this.done, worldPos)
   }
 
   private configure(a: AudioComponent | null, volume: number): void {

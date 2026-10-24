@@ -1,0 +1,76 @@
+- !<AssetImportMetadata/5175c5d8-64fe-4a76-9e3c-8d4967802eab>
+  ImportedAssetIds:
+    TypeScriptAsset: !<reference> f3d2e9bd-3b39-4691-9bfe-39717f0ebd47
+  ImporterName: TypeScriptAssetImporter
+  PrimaryAsset: !<reference> f3d2e9bd-3b39-4691-9bfe-39717f0ebd47
+  PackageType: NotAPackage
+  LegacyPackagePolicy: ~
+  ExtraData:
+    {}
+  AssetDataMap:
+    TypeScriptAsset: !<own> f76c555b-990a-4435-a1e7-1967d7919339
+  DependentFiles:
+    []
+  ImporterSettings: !<AssetImporterSettings>
+    {}
+  CompressionSettings: !<own> 00000000-0000-0000-0000-000000000000
+- !<TypeScriptAssetData/f76c555b-990a-4435-a1e7-1967d7919339>
+  SvgIcon: ""
+  SetupScript:
+    code: ""
+  Description: ""
+  VersionMajor: 0
+  VersionMinor: 0
+  VersionPatch: 0
+  VersionPrerelease: ""
+  UpdateOrder: 0
+  ComponentUid: e1e6de95-9a37-4d93-8b45-a4325ecb7714
+  ExportUid: 00000000-0000-0000-0000-000000000000
+  PackagePolicy: CanBeUnpacked
+  ScriptInputsHidden:
+    glintMaterial: false
+    glintMesh: false
+    glintSizeCm: false
+    hitSizeCm: false
+    thornMaterial: false
+    thornMesh: false
+    thornSizeCm: false
+    twinkleHz: false
+  ScriptTypesHidden:
+    {}
+  ReadMe: !<reference> 00000000-0000-0000-0000-000000000000
+  DeclarationFile: !<reference> 00000000-0000-0000-0000-000000000000
+  Tags:
+    []
+  Attachments:
+    []
+  DefaultScriptInputs:
+    - glintMesh: !<reference.RenderMesh> 00000000-0000-0000-0000-000000000000
+      glintMaterial: !<reference.Material> 00000000-0000-0000-0000-000000000000
+      thornMesh: !<reference.RenderMesh> 00000000-0000-0000-0000-000000000000
+      thornMaterial: !<reference.Material> 00000000-0000-0000-0000-000000000000
+      glintSizeCm: !<float> 1.000000
+      hitSizeCm: !<float> 5.000000
+      twinkleHz: 0.700000
+      thornSizeCm: !<Vec2> {x: 1.800000, y: 0.300000}
+  ScriptTypes:
+    -
+      {}
+  InputLines:
+    - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">ThornHotspot – inspect step glint and thorn</span>"}'
+    - '// @ui {"widget":"separator"}'
+    - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">References</span>"}'
+    - '// @ui {"widget":"group_start", "label":"References"}'
+    - '// @input Asset.RenderMesh glintMesh {"hint":"Unit sphere mesh for the glint"}'
+    - '// @input Asset.Material glintMaterial {"hint":"Bright unlit material for the glint (no black on the additive display)"}'
+    - '// @input Asset.RenderMesh thornMesh {"hint":"Unit cylinder mesh for the thorn spike"}'
+    - '// @input Asset.Material thornMaterial {"hint":"Material for the revealed thorn"}'
+    - '// @ui {"widget":"group_end"}'
+    - '// @ui {"widget":"separator"}'
+    - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">Settings</span>"}'
+    - '// @ui {"widget":"group_start", "label":"Settings"}'
+    - '// @input float glintSizeCm = 1 {"hint":"Glint diameter in cm", "widget":"slider", "min":0.3, "max":4, "step":0.1}'
+    - '// @input float hitSizeCm = 5 {"hint":"Pinch hit box edge in cm (larger than the glint so the mouse can find it)", "widget":"slider", "min":1, "max":10, "step":0.5}'
+    - '// @input float twinkleHz = 0.7 {"hint":"Twinkles per second while armed", "widget":"slider", "min":0.2, "max":4, "step":0.1}'
+    - '// @input vec2 thornSizeCm = {1.8,0.3} {"hint":"Thorn spike length and thickness in cm"}'
+    - '// @ui {"widget":"group_end"}'

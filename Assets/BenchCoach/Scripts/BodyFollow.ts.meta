@@ -1,0 +1,68 @@
+- !<AssetImportMetadata/4eebd5ff-da4b-450a-9b20-f20a55faf43a>
+  ImportedAssetIds:
+    TypeScriptAsset: !<reference> 4269e27f-88dd-4b32-82b5-2d5ae3949e6b
+  ImporterName: TypeScriptAssetImporter
+  PrimaryAsset: !<reference> 4269e27f-88dd-4b32-82b5-2d5ae3949e6b
+  PackageType: NotAPackage
+  LegacyPackagePolicy: ~
+  ExtraData:
+    {}
+  AssetDataMap:
+    TypeScriptAsset: !<own> 8e79e5d2-f457-457b-bd89-96de1f16a2d6
+  DependentFiles:
+    []
+  ImporterSettings: !<AssetImporterSettings>
+    {}
+  CompressionSettings: !<own> 00000000-0000-0000-0000-000000000000
+- !<TypeScriptAssetData/8e79e5d2-f457-457b-bd89-96de1f16a2d6>
+  SvgIcon: ""
+  SetupScript:
+    code: ""
+  Description: ""
+  VersionMajor: 0
+  VersionMinor: 0
+  VersionPatch: 0
+  VersionPrerelease: ""
+  UpdateOrder: 0
+  ComponentUid: fe71b8db-fee6-4fa7-90a6-4af239e48999
+  ExportUid: 00000000-0000-0000-0000-000000000000
+  PackagePolicy: CanBeUnpacked
+  ScriptInputsHidden:
+    camera: false
+    levers: false
+    moveThresholdCm: false
+    smoothing: false
+    turnThresholdDeg: false
+  ScriptTypesHidden:
+    {}
+  ReadMe: !<reference> 00000000-0000-0000-0000-000000000000
+  DeclarationFile: !<reference> 00000000-0000-0000-0000-000000000000
+  Tags:
+    []
+  Attachments:
+    []
+  DefaultScriptInputs:
+    - camera: !<reference.Camera> 00000000-0000-0000-0000-000000000000
+      levers: !<MappingBased.AssignableType_1[]>
+        []
+      moveThresholdCm: !<float> 20.000000
+      turnThresholdDeg: !<float> 35.000000
+      smoothing: !<float> 6.000000
+  ScriptTypes:
+    -
+      {}
+  InputLines:
+    - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">BodyFollow – lazy body-locked panel</span>"}'
+    - '// @ui {"widget":"separator"}'
+    - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">References</span>"}'
+    - '// @ui {"widget":"group_start", "label":"References"}'
+    - "// @input Component.Camera camera {\"hint\":\"The user's camera\"}"
+    - '// @input AssignableType_1[] levers = {} {"hint":"Levers to wait for: no following while one is grabbed or tweening"}'
+    - '// @ui {"widget":"group_end"}'
+    - '// @ui {"widget":"separator"}'
+    - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">Settings</span>"}'
+    - '// @ui {"widget":"group_start", "label":"Settings"}'
+    - '// @input float moveThresholdCm = 20 {"hint":"Start gliding once the target is this far from the panel, in cm", "widget":"slider", "min":2, "max":80, "step":1}'
+    - '// @input float turnThresholdDeg = 35 {"hint":"Start gliding once the user has turned this far from the panel, in degrees", "widget":"slider", "min":5, "max":90, "step":1}'
+    - '// @input float smoothing = 6 {"hint":"Glide speed (higher is snappier)", "widget":"slider", "min":1, "max":20, "step":0.5}'
+    - '// @ui {"widget":"group_end"}'
