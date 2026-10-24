@@ -119,6 +119,12 @@ export class InspectDoneScenario extends Scenario {
     expect(findSceneObjectByName("StartCard").enabled, "start card back").toBe(true)
     expect(thorn.found, "thorn hidden again").toBe(false)
 
+    // ── The tube end's pinch target is off before the pull (it overlaps Bead_4's) ──
+    manager.jumpToStep(2)
+    await sleep(300)
+    const tubeEndTarget = findSceneObjectByName("TubeEnd").getComponent(Interactable.getTypeName()) as Interactable
+    expect(tubeEndTarget.enabled, "TubeEnd takes no pinches on the loosen step").toBe(false)
+
     // ── Back at every step restores exactly the previous step's model ───────
     for (let n = 1; n <= 7; n++) {
       manager.jumpToStep(n - 1)

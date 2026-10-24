@@ -87,6 +87,9 @@ export class TubePull extends BaseScriptComponent {
   animating: boolean = false
 
   private manipulation: InteractableManipulation | null = null
+  private interactable: Interactable | null = null
+  private held = false
+  private pinchTargetWanted = false
   private segments: SceneObject[] = []
   private segmentHomes: vec3[] = []
   private endHome = vec3.zero()
@@ -110,14 +113,22 @@ export class TubePull extends BaseScriptComponent {
       )
       collider.shape = shape
     }
-    this.sceneObject.createComponent(Interactable.getTypeName()) as Interactable
+    this.interactable = this.sceneObject.createComponent(Interactable.getTypeName()) as Interactable
     const manipulation = this.sceneObject.createComponent(
       InteractableManipulation.getTypeName()
     ) as InteractableManipulation
     manipulation.setCanRotate(false)
     manipulation.setCanScale(false)
+    manipulation.onManipulationStart.add(() => {
+      this.held = true
+    })
+    manipulation.onManipulationEnd.add(() => {
+      this.held = false
+      this.applyPinchTarget()
+    })
     this.manipulation = manipulation
     this.setManipulationEnabled(false)
+    this.setPinchTarget(false)
 
     this.createEvent("OnStartEvent").bind(() => this.recordHomes())
     this.createEvent("UpdateEvent").bind(() => this.tick())
@@ -129,8 +140,10 @@ export class TubePull extends BaseScriptComponent {
     this.recordHomes()
     this.armed = true
     this.setManipulationEnabled(true)
+    this.setPinchTarget(true)
   }
 
+  /** Leaving step 5 after the pull: grabbing stops, but the pinch target stays (see setPinchTarget). */
   disarm(): void {
     this.armed = false
     this.setManipulationEnabled(false)
@@ -142,6 +155,7 @@ export class TubePull extends BaseScriptComponent {
     this.animating = false
     this.pulled = false
     this.setManipulationEnabled(false)
+    this.setPinchTarget(false)
     if (!this.homesRecorded) return
     for (let i = 0; i < this.segments.length; i++) {
       this.segments[i].getTransform().setLocalPosition(this.segmentHomes[i])
@@ -156,6 +170,7 @@ export class TubePull extends BaseScriptComponent {
     this.armed = false
     this.animating = false
     this.setManipulationEnabled(false)
+    this.setPinchTarget(true)
     for (let i = 0; i < this.segments.length; i++) {
       this.segments[i].getTransform().setLocalPosition(this.segmentHomes[i].add(this.segmentOffset()))
     }
@@ -243,6 +258,24 @@ export class TubePull extends BaseScriptComponent {
     if (!this.manipulation) return
     this.manipulation.enabled = on
     this.manipulation.setCanTranslate(on)
+  }
+
+  /**
+   * The pinch target is off until step 5: a live 7 cm box at 6 o'clock would
+   * swallow pinches on Bead_4 in step 2. It stays on from the pull onward
+   * (the pulled end hangs clear of everything) and goes off again only on
+   * restore. Turning the Interactable off under a hand that is still pinching
+   * strands that pinch, so a disable waits for the release.
+   */
+  private setPinchTarget(on: boolean): void {
+    this.pinchTargetWanted = on
+    this.applyPinchTarget()
+  }
+
+  private applyPinchTarget(): void {
+    if (!this.interactable) return
+    if (!this.pinchTargetWanted && this.held) return
+    this.interactable.enabled = this.pinchTargetWanted
   }
 
   private log(msg: string): void {

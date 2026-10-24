@@ -99,6 +99,16 @@ export class RimDrag extends BaseScriptComponent {
     const wasArmed = this.armed
     this.armed = false
     if (wasArmed && this.placement) this.placement.setManipulationActive(false)
+    this.releaseManipulation()
+  }
+
+  /** Give rotate and scale back so the lever grabs normally again from the tray (Back / Try again). */
+  private releaseManipulation(): void {
+    const m = this.placement ? this.placement.getManipulation() : null
+    if (m) {
+      m.setCanRotate(true)
+      m.setCanScale(true)
+    }
   }
 
   /** Jump straight to the completed pose without emitting events (jumpToStep / Next). */
@@ -111,6 +121,7 @@ export class RimDrag extends BaseScriptComponent {
     this.complete = true
     this.armed = false
     this.placement.setManipulationActive(false)
+    this.releaseManipulation()
   }
 
   getPassedSegments(): number[] {
