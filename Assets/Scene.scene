@@ -826,6 +826,21 @@
   BlendNormals: false
   BlendShapes:
     {}
+- !<SceneObject/1a0dd6cf-4a8f-4f59-a470-8797bb2cf3c2>
+  PrefabRemaps:
+    []
+  Name: Pump
+  Enabled: true
+  Layers: 1
+  LocalTransform: !<TransformEntity>
+    Position: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
+    HasSegmentScaleCompensation: false
+  Children:
+    []
+  Components:
+    - !<own> 42918d01-ea83-4878-afbb-03d8744c8b6a
 - !<RenderMeshVisual/1a40b6cd-20af-4f1b-941c-435a4ef629a4>
   PrefabRemaps:
     []
@@ -922,6 +937,21 @@
   ScriptTypes:
     "":
       {}
+- !<SceneObject/229a05cc-4527-42d6-9cc5-20dffc5de595>
+  PrefabRemaps:
+    []
+  Name: ValveSocket
+  Enabled: true
+  Layers: 1
+  LocalTransform: !<TransformEntity>
+    Position: {x: 0.000000, y: 27.000000, z: 0.000000}
+    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
+    HasSegmentScaleCompensation: false
+  Children:
+    []
+  Components:
+    []
 - !<SceneObject/22e02df9-97da-443e-8ca9-4cdfe4c45d70>
   PrefabRemaps:
     []
@@ -974,7 +1004,7 @@
   Enabled: true
   Layers: 1
   LocalTransform: !<TransformEntity>
-    Position: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Position: {x: 0.000000, y: -2.000000, z: 0.000000}
     Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
     Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
     HasSegmentScaleCompensation: false
@@ -1121,7 +1151,6 @@
   ScriptInputsDefault:
     sizeCm: true
     brightness: true
-    poolSize: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
@@ -1130,7 +1159,7 @@
       markerMaterial: !<reference.Material> 15b55a2d-25cd-4131-88ca-e7924cfbabd4
       sizeCm: 1.600000
       brightness: 0.450000
-      poolSize: !<float> 6.000000
+      poolSize: !<float> 9.000000
   ScriptTypes:
     "":
       {}
@@ -1270,6 +1299,8 @@
     - !<own> d8d6b076-456e-41fd-bcd8-2843075dd70b
     - !<own> 4a883d6c-a08f-453e-8f21-b406b6473015
     - !<own> 2bbd8579-8ab9-49f0-88bc-df65cfcda5f2
+    - !<own> 1a0dd6cf-4a8f-4f59-a470-8797bb2cf3c2
+    - !<own> f4159267-aac4-4b3e-aaf6-1feff341b1b1
   Components:
     - !<own> 7407431d-eeb9-4d5c-a25e-0c11394825cf
 - !<SceneObject/2dae2a27-8ce6-466a-8bff-622195c1b3a8>
@@ -1356,16 +1387,14 @@
   ScriptAsset: !<reference> 1ea7781f-5c44-4c87-8bd8-0346a66502a0
   ScriptInputsDefault:
     panelWidth: true
-    panelHeight: true
-    headerText: true
     viewDistanceCm: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
     "":
       panelWidth: !<float> 20.000000
-      panelHeight: !<float> 10.000000
-      headerText: Tire levers
+      panelHeight: !<float> 14.000000
+      headerText: Tools
       viewDistanceCm: !<float> 45.000000
   ScriptTypes:
     "":
@@ -1402,7 +1431,8 @@
       startCard: !<MappingBased.AssignableType_2> caa8fc4f-6d45-4119-a6dd-457dd4b1ae9d
       controlBar: !<MappingBased.AssignableType_3> 88532baf-8d88-43c6-8552-dad8833e8b12
       doneCard: !<MappingBased.AssignableType_4> 9c0325e9-10f9-46b0-9bc4-f9be0377eb1f
-      audio: !<MappingBased.AssignableType_5> 7407431d-eeb9-4d5c-a25e-0c11394825cf
+      finishCard: !<MappingBased.AssignableType_5> b9d8bd0a-08a3-4dfe-8246-79e007a87cef
+      audio: !<MappingBased.AssignableType_6> 7407431d-eeb9-4d5c-a25e-0c11394825cf
   ScriptTypes:
     "":
       {}
@@ -1427,6 +1457,7 @@
     - !<own> 2fd3b1e6-b304-40ce-a98f-c3e05d5bafa1
     - !<own> cd4a1c29-63d5-4ae3-9f53-b907ee4def5c
     - !<own> 32c99f14-0fae-47a5-96d9-9c36af9d1714
+    - !<own> 229a05cc-4527-42d6-9cc5-20dffc5de595
   Components:
     - !<own> 5b3351c9-54b6-430b-b69c-ba78f58c17e9
 - !<SceneObject/32c99f14-0fae-47a5-96d9-9c36af9d1714>
@@ -1581,6 +1612,23 @@
     - !<own> cec12eef-3a06-4b4a-b0ba-3de212ca34dc
   Components:
     []
+- !<AudioComponent/37df28f5-4f3f-4959-b6ca-e585113a3852>
+  PrefabRemaps:
+    []
+  Name: Audio
+  Enabled: true
+  AudioTrack: !<reference> 9736cb66-757d-4721-9443-3d1541bb1655
+  EnableAutoplayLoop: false
+  Volume: 1.000000
+  EnableMixToSnap: false
+  RecordVolume: 1.000000
+  EnableSpatialAudio: false
+  EnableDistanceEffect: false
+  CurveType: Logarithm
+  MinDistance: 0.000000
+  MaxDistance: 100.000000
+  EnableDirectivityEffect: false
+  EnablePositionEffect: false
 - !<SceneObject/38128195-5d72-4fa8-b0dc-b49b04211ea8>
   PrefabRemaps:
     []
@@ -1892,6 +1940,23 @@
     []
   Components:
     - !<own> 1f969daa-5809-4500-b314-98d91ccba131
+- !<AudioComponent/42918d01-ea83-4878-afbb-03d8744c8b6a>
+  PrefabRemaps:
+    []
+  Name: Audio
+  Enabled: true
+  AudioTrack: !<reference> 9818e836-57e5-4e0c-9761-6a49c673540a
+  EnableAutoplayLoop: false
+  Volume: 1.000000
+  EnableMixToSnap: false
+  RecordVolume: 1.000000
+  EnableSpatialAudio: false
+  EnableDistanceEffect: false
+  CurveType: Logarithm
+  MinDistance: 0.000000
+  MaxDistance: 100.000000
+  EnableDirectivityEffect: false
+  EnablePositionEffect: false
 - !<SceneObject/44097eaf-01da-45fb-8973-3bd8172618de>
   PrefabRemaps:
     []
@@ -2232,6 +2297,21 @@
   MaxDistance: 100.000000
   EnableDirectivityEffect: false
   EnablePositionEffect: false
+- !<SceneObject/51936fad-8964-472c-be06-a0de44b64b35>
+  PrefabRemaps:
+    []
+  Name: NewTubeEnd
+  Enabled: true
+  Layers: 1
+  LocalTransform: !<TransformEntity>
+    Position: {x: 2.600000, y: 0.000000, z: 0.300000}
+    Rotation: {x: 0.000000, y: 0.000000, z: -90.000000}
+    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
+    HasSegmentScaleCompensation: false
+  Children:
+    - !<own> aaa92bc7-bcf1-483a-9e72-6b3d71213154
+  Components:
+    - !<own> 6879e97e-d703-4adb-ab7d-14b20dec44eb
 - !<SceneObject/52ecefe4-5642-445a-ad16-52ce818076bc>
   PrefabRemaps:
     []
@@ -2484,6 +2564,7 @@
     beadPushCm: true
     beadLiftCm: true
     thornRevealSec: true
+    causeId: true
     debugLogs: true
   ScriptTypesDefault:
     {}
@@ -2513,6 +2594,9 @@
       ticks: !<MappingBased.AssignableType_11> 27bb9353-73e1-454d-9f03-dde1497d9825
       highlighter: !<MappingBased.AssignableType_12> 2426848f-f3ae-4e19-96d7-776281abb912
       tube: !<reference.SceneObject> 5e518710-9c7a-4d44-8251-1d5cf4411cd6
+      refit: !<MappingBased.AssignableType_13> 80561524-0b2d-4432-85dd-1615c224a320
+      finishCard: !<MappingBased.AssignableType_14> b9d8bd0a-08a3-4dfe-8246-79e007a87cef
+      stats: !<MappingBased.AssignableType_15> 7dc2f119-941e-4f70-bb4a-86205c919c86
       beadRadiusCm: 33.400002
       markerStandoffCm: 1.500000
       labelOffsetCm: !<float> 10.000000
@@ -2520,6 +2604,7 @@
       beadPushCm: 0.500000
       beadLiftCm: !<float> 1.000000
       thornRevealSec: 2.500000
+      causeId: thorn
       debugLogs: true
   ScriptTypes:
     "":
@@ -2700,6 +2785,29 @@
   BlendNormals: false
   BlendShapes:
     {}
+- !<ScriptComponent/6879e97e-d703-4adb-ab7d-14b20dec44eb>
+  PrefabRemaps:
+    []
+  Name: TubeFit
+  Enabled: true
+  ScriptAsset: !<reference> ab07804f-5674-430e-81a7-5f8d03a66893
+  ScriptInputsDefault:
+    colliderSize: true
+    snapRadiusCm: true
+    returnDurationSec: true
+    snapDurationSec: true
+  ScriptTypesDefault:
+    {}
+  ScriptInputs:
+    "":
+      socket: !<reference.SceneObject> 229a05cc-4527-42d6-9cc5-20dffc5de595
+      colliderSize: !<Vec3> {x: 3.000000, y: 4.000000, z: 3.000000}
+      snapRadiusCm: !<float> 5.000000
+      returnDurationSec: 0.400000
+      snapDurationSec: 0.150000
+  ScriptTypes:
+    "":
+      {}
 - !<SceneObject/6a7a67db-5675-49bb-8f31-ba0588e3cffc>
   PrefabRemaps:
     []
@@ -2945,6 +3053,8 @@
     feedbackVolume: true
     doneVolume: true
     hissVolume: true
+    pumpVolume: true
+    finishVolume: true
     spatial: true
   ScriptTypesDefault:
     {}
@@ -2957,12 +3067,16 @@
       nope: !<reference.AudioComponent> 0ffbc09d-c4d5-42cb-9a0f-43acf543901d
       done: !<reference.AudioComponent> d3f80074-f1f5-4faa-aec6-43e7d3c8f885
       hiss: !<reference.AudioComponent> 28a6b096-63cb-48ed-a7b8-b9dcd06cbc74
+      pump: !<reference.AudioComponent> 42918d01-ea83-4878-afbb-03d8744c8b6a
+      finish: !<reference.AudioComponent> 37df28f5-4f3f-4959-b6ca-e585113a3852
       zipperVolume: 0.350000
       chimeVolume: 0.400000
       tickVolume: 0.250000
       feedbackVolume: 0.400000
       doneVolume: 0.450000
       hissVolume: 0.350000
+      pumpVolume: 0.400000
+      finishVolume: 0.500000
       spatial: true
   ScriptTypes:
     "":
@@ -2986,6 +3100,26 @@
     - !<own> 4ec75e78-1e69-4f90-aa6e-2515fd554361
   Components:
     []
+- !<RenderMeshVisual/74a04d78-344d-4fcd-b5b5-78fea89aeb7d>
+  PrefabRemaps:
+    []
+  Name: Render Mesh Visual
+  Enabled: true
+  RenderOrder: 0
+  StretchMode: Stretch
+  VerticalAlignment: Center
+  HorizontalAlignment: Center
+  MeshShadowMode: None
+  ShadowColor: {x: 1.000000, y: 1.000000, z: 1.000000, w: 1.000000}
+  ShadowDensity: 1.000000
+  Materials:
+    - !<reference> b0a65dea-1a94-4c63-83e2-c66513f06daa
+  Mesh: !<reference> 973fbdf3-46b0-4938-81b5-fd42e6053242
+  Skin: !<reference> 00000000-0000-0000-0000-000000000000
+  BlendShapesEnabled: true
+  BlendNormals: false
+  BlendShapes:
+    {}
 - !<SceneObject/74d13517-1dbf-42e6-b536-27afc4909c65>
   PrefabRemaps:
     []
@@ -3144,6 +3278,24 @@
     - !<own> 40f8093b-bd84-42e9-8ae1-ed855ae565ab
   Components:
     []
+- !<ScriptComponent/7dc2f119-941e-4f70-bb4a-86205c919c86>
+  PrefabRemaps:
+    []
+  Name: RunStats
+  Enabled: true
+  ScriptAsset: !<reference> 13c4bc47-b9e4-4728-b2e8-1a3e6a4d36ad
+  ScriptInputsDefault:
+    {}
+  ScriptTypesDefault:
+    {}
+  ScriptInputs:
+    "":
+      leverA: !<MappingBased.AssignableType_1> 4608f895-b41a-47c4-ac91-6f9477b3560a
+      leverB: !<MappingBased.AssignableType_2> cf095758-023e-4701-a1b3-cf12c5fbb53c
+      tubeFit: !<MappingBased.AssignableType_3> 6879e97e-d703-4adb-ab7d-14b20dec44eb
+  ScriptTypes:
+    "":
+      {}
 - !<ScriptComponent/7e16d6ac-8f7b-488c-84b7-3a40c26bc3aa>
   PrefabRemaps:
     []
@@ -3233,6 +3385,45 @@
     - !<own> 052b8709-3290-4765-869b-a43fee99cb12
   Components:
     []
+- !<ScriptComponent/80561524-0b2d-4432-85dd-1615c224a320>
+  PrefabRemaps:
+    []
+  Name: RefitSteps
+  Enabled: true
+  ScriptAsset: !<reference> 43313a34-d3ae-47e6-a82a-5b9e6ac34b3e
+  ScriptInputsDefault:
+    beadRadiusCm: true
+    markerStandoffCm: true
+    deflateScale: true
+    inflateHoldSec: true
+    debugLogs: true
+  ScriptTypesDefault:
+    {}
+  ScriptInputs:
+    "":
+      wheel: !<reference.SceneObject> 32ba4b33-674d-4969-a473-4523545d3108
+      tire: !<reference.SceneObject> 3312dd34-fed6-48cb-97f9-1ac18984a343
+      tube: !<reference.SceneObject> 5e518710-9c7a-4d44-8251-1d5cf4411cd6
+      valve: !<reference.SceneObject> 988001d4-30af-4ad7-abab-0ee69baf3c40
+      valveSocket: !<reference.SceneObject> 229a05cc-4527-42d6-9cc5-20dffc5de595
+      newTube: !<reference.SceneObject> c0c3df3b-327e-4d37-a81e-90311edc3fcf
+      tubeFit: !<MappingBased.AssignableType_1> 6879e97e-d703-4adb-ab7d-14b20dec44eb
+      tubePull: !<MappingBased.AssignableType_2> f0bc8453-5853-4488-afe1-0f9c99121ce7
+      leverA: !<MappingBased.AssignableType_3> 4608f895-b41a-47c4-ac91-6f9477b3560a
+      leverB: !<MappingBased.AssignableType_4> cf095758-023e-4701-a1b3-cf12c5fbb53c
+      rimDrag: !<MappingBased.AssignableType_5> cad47ed9-9b60-4ca4-ba6e-2ab3198c2b20
+      leverSocketB: !<reference.SceneObject> 32c99f14-0fae-47a5-96d9-9c36af9d1714
+      wheelTargets: !<MappingBased.AssignableType_6> 5b3351c9-54b6-430b-b69c-ba78f58c17e9
+      highlighter: !<MappingBased.AssignableType_7> 2426848f-f3ae-4e19-96d7-776281abb912
+      audio: !<MappingBased.AssignableType_8> 7407431d-eeb9-4d5c-a25e-0c11394825cf
+      beadRadiusCm: 33.400002
+      markerStandoffCm: 1.500000
+      deflateScale: 0.960000
+      inflateHoldSec: 2.500000
+      debugLogs: true
+  ScriptTypes:
+    "":
+      {}
 - !<SceneObject/80574bd1-697b-4bb5-b9ce-13b340146d82>
   PrefabRemaps:
     []
@@ -3309,11 +3500,14 @@
     - !<own> b6a059d6-e648-4d74-934e-1e937d6bc923
     - !<own> acff2cea-6a95-428d-96d0-3acf9f536497
     - !<own> 2d6eb9ea-2bc3-461d-9a1d-240256edaecc
+    - !<own> 86d4713a-1235-4f5e-bcc4-9b7994e012d8
   Components:
     - !<own> 622db2cb-d0c7-4791-92af-926fab500a02
     - !<own> 322de4cf-0408-4c93-be6b-45c3f47f3be1
     - !<own> 991b4638-62b1-41f8-a713-9115f5fc6bd0
     - !<own> 2426848f-f3ae-4e19-96d7-776281abb912
+    - !<own> 80561524-0b2d-4432-85dd-1615c224a320
+    - !<own> 7dc2f119-941e-4f70-bb4a-86205c919c86
 - !<SceneObject/83494271-437b-473d-b668-d88421587a4c>
   PrefabRemaps:
     []
@@ -3444,6 +3638,21 @@
     - !<own> 6c1f70d7-86d0-4972-b203-29780f8798e6
   Components:
     []
+- !<SceneObject/86d4713a-1235-4f5e-bcc4-9b7994e012d8>
+  PrefabRemaps:
+    []
+  Name: FinishCard
+  Enabled: true
+  Layers: 1
+  LocalTransform: !<TransformEntity>
+    Position: {x: 0.000000, y: 21.500000, z: -88.000000}
+    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
+    HasSegmentScaleCompensation: false
+  Children:
+    []
+  Components:
+    - !<own> b9d8bd0a-08a3-4dfe-8246-79e007a87cef
 - !<SceneObject/879ce45b-bd5e-40ff-a3fe-d821523427e4>
   PrefabRemaps:
     []
@@ -3771,6 +3980,35 @@
     - !<own> e9454e66-5d09-4a8a-bcd7-dea762326a48
   Components:
     []
+- !<ScriptComponent/94c67bdb-7192-48db-99b0-a98d0e67cd2f>
+  PrefabRemaps:
+    []
+  Name: TorusArc
+  Enabled: true
+  ScriptAsset: !<reference> 07065aae-7a8b-432b-aac5-6f24cb652722
+  ScriptInputsDefault:
+    startDeg: true
+    sweepDeg: true
+    treadDepth: true
+    treadBlocksPerArc: true
+    castShadows: true
+  ScriptTypesDefault:
+    {}
+  ScriptInputs:
+    "":
+      majorRadius: !<float> 2.000000
+      tubeRadius: 0.420000
+      startDeg: !<float> 0.000000
+      sweepDeg: !<float> 360.000000
+      ringSegments: !<float> 32.000000
+      tubeSegments: !<float> 10.000000
+      material: !<reference.Material> 8066c1a7-6591-45cd-ab28-657d7270e937
+      treadDepth: !<float> 0.000000
+      treadBlocksPerArc: !<float> 0.000000
+      castShadows: false
+  ScriptTypes:
+    "":
+      {}
 - !<SceneObject/953775fc-84ee-4948-9478-d6097d38db4d>
   PrefabRemaps:
     []
@@ -3858,6 +4096,8 @@
     viewDistanceCm: true
     doneText: true
     nextSkillText: true
+    continueLabel: true
+    restartLabel: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
@@ -3867,6 +4107,8 @@
       viewDistanceCm: !<float> 90.000000
       doneText: "Tube out, cause found. Ready for the new tube."
       nextSkillText: "Next skill: brake pads"
+      continueLabel: Fit the new tube
+      restartLabel: Start over
   ScriptTypes:
     "":
       {}
@@ -4157,6 +4399,21 @@
     []
   Components:
     - !<own> 11c4bb09-7c38-4023-9802-74f9f28709a9
+- !<SceneObject/aaa92bc7-bcf1-483a-9e72-6b3d71213154>
+  PrefabRemaps:
+    []
+  Name: NewTubeStem
+  Enabled: true
+  Layers: 1
+  LocalTransform: !<TransformEntity>
+    Position: {x: 0.000000, y: 1.400000, z: 0.000000}
+    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Scale: {x: 0.800000, y: 2.800000, z: 0.800000}
+    HasSegmentScaleCompensation: false
+  Children:
+    []
+  Components:
+    - !<own> 74a04d78-344d-4fcd-b5b5-78fea89aeb7d
 - !<SceneObject/abfa4c71-3560-46f0-9471-90e212f21185>
   PrefabRemaps:
     []
@@ -4364,6 +4621,7 @@
     - !<own> 23bc356a-037d-4321-864c-7c07f5456b01
     - !<own> 548db8f2-de2a-4187-8fd8-5f9d8b8bf2db
     - !<own> 2e4f053d-3351-4a19-a25d-060737181e39
+    - !<own> c0c3df3b-327e-4d37-a81e-90311edc3fcf
   Components:
     - !<own> 840b21db-d89b-4149-b2a3-97fbff912d7f
 - !<SceneObject/b786dabc-29e4-4cfa-8a84-f39604ffcbdd>
@@ -4443,6 +4701,30 @@
     - !<own> 11ac73c9-b802-4eb6-abf5-f73054ca7e20
   Components:
     []
+- !<ScriptComponent/b9d8bd0a-08a3-4dfe-8246-79e007a87cef>
+  PrefabRemaps:
+    []
+  Name: BenchCoachFinishCardUI
+  Enabled: true
+  ScriptAsset: !<reference> 0e2bda00-97be-443d-a091-f8b693738e1c
+  ScriptInputsDefault:
+    panelWidth: true
+    panelHeight: true
+    viewDistanceCm: true
+    titleText: true
+    restartLabel: true
+  ScriptTypesDefault:
+    {}
+  ScriptInputs:
+    "":
+      panelWidth: !<float> 26.000000
+      panelHeight: !<float> 16.000000
+      viewDistanceCm: !<float> 90.000000
+      titleText: Flat fixed.
+      restartLabel: Start over
+  ScriptTypes:
+    "":
+      {}
 - !<SceneObject/bb75b5ea-8baf-4d8d-bcf8-49bd79873881>
   PrefabRemaps:
     []
@@ -4518,6 +4800,51 @@
     []
   Components:
     []
+- !<ScriptComponent/bf274de9-584a-4c90-9626-a9477834abb5>
+  PrefabRemaps:
+    []
+  Name: TorusArc
+  Enabled: true
+  ScriptAsset: !<reference> 07065aae-7a8b-432b-aac5-6f24cb652722
+  ScriptInputsDefault:
+    startDeg: true
+    sweepDeg: true
+    treadDepth: true
+    treadBlocksPerArc: true
+    castShadows: true
+  ScriptTypesDefault:
+    {}
+  ScriptInputs:
+    "":
+      majorRadius: 1.650000
+      tubeRadius: 0.380000
+      startDeg: !<float> 0.000000
+      sweepDeg: !<float> 360.000000
+      ringSegments: !<float> 32.000000
+      tubeSegments: !<float> 10.000000
+      material: !<reference.Material> 8066c1a7-6591-45cd-ab28-657d7270e937
+      treadDepth: !<float> 0.000000
+      treadBlocksPerArc: !<float> 0.000000
+      castShadows: false
+  ScriptTypes:
+    "":
+      {}
+- !<SceneObject/c0c3df3b-327e-4d37-a81e-90311edc3fcf>
+  PrefabRemaps:
+    []
+  Name: NewTube
+  Enabled: true
+  Layers: 1
+  LocalTransform: !<TransformEntity>
+    Position: {x: -1.000000, y: -6.400000, z: 1.200000}
+    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
+    HasSegmentScaleCompensation: false
+  Children:
+    - !<own> f3094b12-e6d1-4dd0-ac80-59f8e2546096
+    - !<own> 51936fad-8964-472c-be06-a0de44b64b35
+  Components:
+    - !<own> 94c67bdb-7192-48db-99b0-a98d0e67cd2f
 - !<ScriptComponent/c2bfe337-3cf1-4fc1-b75b-a92b4ea34c97>
   PrefabRemaps:
     []
@@ -5654,6 +5981,9 @@
     tweenSec: true
     valveLiftCm: true
     valveTweenSec: true
+    refitStaggerSec: true
+    refitTweenSec: true
+    refitFromCm: true
     debugLogs: true
   ScriptTypesDefault:
     {}
@@ -5673,6 +6003,9 @@
       tweenSec: 0.500000
       valveLiftCm: !<float> 6.000000
       valveTweenSec: 0.400000
+      refitStaggerSec: 0.120000
+      refitTweenSec: 0.300000
+      refitFromCm: !<float> 4.000000
       debugLogs: false
   ScriptTypes:
     "":
@@ -5692,6 +6025,21 @@
     []
   Components:
     - !<own> 5da56a5c-3085-49dd-805c-bc36720f9be7
+- !<SceneObject/f3094b12-e6d1-4dd0-ac80-59f8e2546096>
+  PrefabRemaps:
+    []
+  Name: NewTubeCoil
+  Enabled: true
+  Layers: 1
+  LocalTransform: !<TransformEntity>
+    Position: {x: 0.350000, y: -0.250000, z: 0.550000}
+    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
+    HasSegmentScaleCompensation: false
+  Children:
+    []
+  Components:
+    - !<own> bf274de9-584a-4c90-9626-a9477834abb5
 - !<SceneObject/f36287fd-ed56-442d-ba20-78f9ef6f3502>
   PrefabRemaps:
     []
@@ -5728,6 +6076,21 @@
   BlendNormals: false
   BlendShapes:
     {}
+- !<SceneObject/f4159267-aac4-4b3e-aaf6-1feff341b1b1>
+  PrefabRemaps:
+    []
+  Name: Finish
+  Enabled: true
+  Layers: 1
+  LocalTransform: !<TransformEntity>
+    Position: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
+    HasSegmentScaleCompensation: false
+  Children:
+    []
+  Components:
+    - !<own> 37df28f5-4f3f-4959-b6ca-e585113a3852
 - !<SceneObject/f57d6b98-92b0-4ee2-b14c-c0ee821f1b41>
   PrefabRemaps:
     []

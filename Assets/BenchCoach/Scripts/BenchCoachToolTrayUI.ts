@@ -1,7 +1,9 @@
 /**
- * BenchCoachToolTrayUI — the tool tray panel (20 x 10 cm) with a small header.
- * Owns: only the panel surface and header text. The levers are sibling
- * SceneObjects (LeverA, LeverB) authored under ToolTray, not children of this panel.
+ * BenchCoachToolTrayUI — the tool tray panel (20 x 14 cm) with a small header.
+ * Owns: only the panel surface and header text. The levers and the new tube coil
+ * are sibling SceneObjects (LeverA, LeverB, NewTube) authored under ToolTray, not
+ * children of this panel. The panel sits 2 cm low (ToolTrayPanel y -2) so the
+ * coil fits under the levers without moving them.
  */
 import {FlexAlign, FlexJustify} from "SpectaclesUIKit.lspkg/Scripts/Components/Layout2D/Flex/FlexTypes"
 import {addColumnText, backPlatePanel, flexColumn} from "./UIHelpers"
@@ -20,11 +22,11 @@ export class BenchCoachToolTrayUI extends BaseScriptComponent {
   @input
   @hint("Panel height in cm")
   @widget(new SliderWidget(5, 20, 0.5))
-  panelHeight: number = 10
+  panelHeight: number = 14
 
   @input
   @hint("Header text along the top edge")
-  headerText: string = "Tire levers"
+  headerText: string = "Tools"
 
   @input
   @hint("Viewing distance in cm; scales the type size")

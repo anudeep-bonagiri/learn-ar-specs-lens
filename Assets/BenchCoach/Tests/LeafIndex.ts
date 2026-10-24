@@ -4,10 +4,12 @@ import {StartScenario} from "./StartScenario"
 import {DeflateLoosenScenario} from "./DeflateLoosenScenario"
 import {LeverSnapScenario} from "./LeverSnapScenario"
 import {PeelAndPullScenario} from "./PeelAndPullScenario"
-import {InspectDoneScenario} from "./InspectDoneScenario"
+import {InspectFinishScenario} from "./InspectFinishScenario"
 import {JumpToStepScenario} from "./JumpToStepScenario"
-import {StepTicksScenario} from "./StepTicksScenario"
+import {TickMarksScenario} from "./TickMarksScenario"
 import {SceneDressingScenario} from "./SceneDressingScenario"
+import {RefitTubeScenario} from "./RefitTubeScenario"
+import {SeatInflateScenario} from "./SeatInflateScenario"
 
 @component
 export class LeafIndex extends BaseScriptComponent {
@@ -31,20 +33,28 @@ export class LeafIndex extends BaseScriptComponent {
     },
     {
       id: "inspect-done",
-      typename: InspectDoneScenario.getTypeName(),
+      typename: InspectFinishScenario.getTypeName(),
     },
     {
       id: "step-ticks",
-      typename: StepTicksScenario.getTypeName(),
+      typename: TickMarksScenario.getTypeName(),
     },
     {
       id: "scene-dressing",
       typename: SceneDressingScenario.getTypeName(),
     },
     {
+      id: "refit-tube",
+      typename: RefitTubeScenario.getTypeName(),
+    },
+    {
+      id: "seat-inflate",
+      typename: SeatInflateScenario.getTypeName(),
+    },
+    {
       id: "jump-to-step",
       typename: JumpToStepScenario.getTypeName(),
-      parameters: {step: "5", pullCm: "0"},
+      parameters: {step: "5", pullCm: "0", fit: "0", inflate: "0"},
     },
   ]
 }

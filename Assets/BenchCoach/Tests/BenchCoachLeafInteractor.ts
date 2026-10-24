@@ -20,6 +20,27 @@ export class BenchCoachLeafInteractor extends DefaultLeafInteractor {
     await sleep(250)
   }
 
+  /**
+   * Pinch and hold `name` for `ms` milliseconds, then let go (hover, select,
+   * wait, release), like trigger() with a hold in the middle.
+   */
+  async holdOn(name: string, ms: number): Promise<void> {
+    const target = findInteractablesByName(name, undefined, true)[0]
+    if (!target) throw new Error(`Interactable "${name}" not found or not enabled`)
+    const started = awaitEventOnce(target.onTriggerStart)
+    await this.enterHover(target)
+    await nextFrame()
+    this["overrideTrigger"] = InteractorTriggerType.Select
+    await started
+    await sleep(ms)
+    const ended = awaitEventOnce(target.onTriggerEnd)
+    this["overrideTrigger"] = InteractorTriggerType.None
+    await nextFrame()
+    await ended
+    await this.exitHover()
+    await sleep(250)
+  }
+
   async dragTo(
     target: Interactable,
     goal: vec3,

@@ -1,9 +1,10 @@
 /**
  * BenchCoachAudio — the cue player. Owns the AudioComponents authored under
- * Audio/ (Zipper, Chime, Tick, Click, Nope, Done, Hiss): sets LowLatency playback, volumes and spatialization,
+ * Audio/ (Zipper, Chime, Tick, Click, Nope, Done, Hiss, Pump, Finish): sets LowLatency playback, volumes and spatialization,
  * and moves each emitter to the world position a cue should come from.
  * Must not: decide when a cue fires — RepairManager / EdgeHint / UIBindings call it.
- * Expects: @inputs zipper, chime, tick, click, nope, done, hiss (AudioComponents on child objects).
+ * Pump is the one loop: startPumpAt() loops it while the valve is held, stopPump() ends it.
+ * Expects: @inputs zipper, chime, tick, click, nope, done, hiss, pump, finish (AudioComponents on child objects).
  */
 @component
 export class BenchCoachAudio extends BaseScriptComponent {
@@ -38,6 +39,16 @@ export class BenchCoachAudio extends BaseScriptComponent {
   @input
   @hint("Hiss cue (valve pressed on the deflate step), on Audio/Hiss")
   hiss: AudioComponent
+
+  @input
+  @hint("Pump loop (valve held on the inflate step), on Audio/Pump")
+  @allowUndefined
+  pump: AudioComponent
+
+  @input
+  @hint("Finish cue (flat fixed, step 11), on Audio/Finish")
+  @allowUndefined
+  finish: AudioComponent
   @ui.group_end
 
   @ui.separator
@@ -74,6 +85,16 @@ export class BenchCoachAudio extends BaseScriptComponent {
   hissVolume: number = 0.35
 
   @input
+  @hint("Pump loop volume")
+  @widget(new SliderWidget(0, 1, 0.05))
+  pumpVolume: number = 0.4
+
+  @input
+  @hint("Finish cue volume")
+  @widget(new SliderWidget(0, 1, 0.05))
+  finishVolume: number = 0.5
+
+  @input
   @hint("Play the cues from their world position (spatial audio)")
   spatial: boolean = true
   @ui.group_end
@@ -85,6 +106,9 @@ export class BenchCoachAudio extends BaseScriptComponent {
   nopePlays: number = 0
   donePlays: number = 0
   hissPlays: number = 0
+  pumpPlays: number = 0
+  finishPlays: number = 0
+  pumping: boolean = false
 
   onAwake(): void {
     this.configure(this.zipper, this.zipperVolume)
@@ -94,6 +118,8 @@ export class BenchCoachAudio extends BaseScriptComponent {
     this.configure(this.nope, this.feedbackVolume)
     this.configure(this.done, this.doneVolume)
     this.configure(this.hiss, this.hissVolume)
+    this.configure(this.pump, this.pumpVolume)
+    this.configure(this.finish, this.finishVolume)
   }
 
   playZipperAt(worldPos: vec3): void {
@@ -129,6 +155,27 @@ export class BenchCoachAudio extends BaseScriptComponent {
   playHissAt(worldPos: vec3): void {
     this.hissPlays += 1
     this.playAt(this.hiss, worldPos)
+  }
+
+  playFinishAt(worldPos: vec3): void {
+    this.finishPlays += 1
+    this.playAt(this.finish, worldPos)
+  }
+
+  /** Start the pump loop at the valve (counts one play per hold). */
+  startPumpAt(worldPos: vec3): void {
+    this.pumpPlays += 1
+    this.pumping = true
+    const a = this.pump
+    if (!a || !a.audioTrack) return
+    a.getSceneObject().getTransform().setWorldPosition(worldPos)
+    if (a.isPlaying()) a.stop(false)
+    a.play(-1)
+  }
+
+  stopPump(): void {
+    this.pumping = false
+    if (this.pump && this.pump.isPlaying()) this.pump.stop(true)
   }
 
   private configure(a: AudioComponent | null, volume: number): void {

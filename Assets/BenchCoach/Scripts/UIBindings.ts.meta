@@ -31,6 +31,7 @@
     audio: false
     controlBar: false
     doneCard: false
+    finishCard: false
     manager: false
     startCard: false
   ScriptTypesHidden:
@@ -46,7 +47,8 @@
       startCard: !<MappingBased.AssignableType_2> 00000000-0000-0000-0000-000000000000
       controlBar: !<MappingBased.AssignableType_3> 00000000-0000-0000-0000-000000000000
       doneCard: !<MappingBased.AssignableType_4> 00000000-0000-0000-0000-000000000000
-      audio: !<MappingBased.AssignableType_5> 00000000-0000-0000-0000-000000000000
+      finishCard: !<MappingBased.AssignableType_5> 00000000-0000-0000-0000-000000000000
+      audio: !<MappingBased.AssignableType_6> 00000000-0000-0000-0000-000000000000
   ScriptTypes:
     -
       {}
@@ -58,6 +60,7 @@
     - '// @input AssignableType_1 manager {"hint":"The step machine"}'
     - '// @input AssignableType_2 startCard {"hint":"Start card (Found it)"}'
     - '// @input AssignableType_3 controlBar {"hint":"Control bar (Back / Next / Replay)"}'
-    - '// @input AssignableType_4 doneCard {"hint":"Done card (Try again)"}'
-    - '// @input AssignableType_5 audio {"hint":"Cue player (tick)"}'
+    - '// @input AssignableType_4 doneCard {"hint":"Done card (Continue, Start over)"}'
+    - '// @input AssignableType_5 finishCard {"hint":"Finish card (Restart)"}'
+    - '// @input AssignableType_6 audio {"hint":"Cue player (tick)"}'
     - '// @ui {"widget":"group_end"}'

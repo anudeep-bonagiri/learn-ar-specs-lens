@@ -8,6 +8,7 @@ import {ThornHotspot} from "../Scripts/ThornHotspot"
 import {GhostAnimator} from "../Scripts/GhostAnimator"
 import {BenchCoachAudio} from "../Scripts/BenchCoachAudio"
 import {Interactable} from "SpectaclesInteractionKit.lspkg/Components/Interaction/Interactable/Interactable"
+import {LAST_STEP} from "../Scripts/StepDefinitions"
 
 const MODEL_PARTS = [
   "Tire",
@@ -59,11 +60,12 @@ function worstDiff(a: Snapshot, b: Snapshot): {cm: number; part: string} {
  * Criterion 5: pinching the thorn on the inspect step reveals it, then the Done
  * card appears with the elapsed time and the done cue; Try again returns to
  * step 0. Back from every step n lands on step n-1 with exactly the model state
- * jumpToStep(n-1) produces (Bead_0 restored from step 4), and Replay does
+ * jumpToStep(n-1) produces (Bead_0 restored from step 4; levers back on the wheel
+ * and the old tube out again from step 8), up to LAST_STEP, and Replay does
  * something on every step (ghost on 3 and 4, glint flash on 6, cue elsewhere).
  */
 @component
-export class InspectDoneScenario extends Scenario {
+export class InspectFinishScenario extends Scenario {
   async run(): Promise<void> {
     await sleep(1000)
     const manager = getRepairManager()
@@ -102,14 +104,14 @@ export class InspectDoneScenario extends Scenario {
     expect(manager.getState().step, "thorn shown before Done").toBe(6)
     expect(marker.enabled, "ring highlights the found thorn").toBe(true)
     const ringToThorn = marker.getTransform().getWorldPosition().distance(thornObj.getTransform().getWorldPosition())
-    print(`[InspectDoneScenario] ring ${ringToThorn.toFixed(2)} cm from the thorn`)
+    print(`[InspectFinishScenario] ring ${ringToThorn.toFixed(2)} cm from the thorn`)
     expect(ringToThorn, "ring on the thorn").toBeLessThan(2.0)
 
     await sleep(3000) // thorn reveal, then Done
     expect(manager.getState().step, "Done after the reveal").toBe(7)
     expect(doneCard.enabled, "DoneCard enabled").toBe(true)
     const timeText = findSceneObjectByName("TimeText").getComponent("Component.Text") as Text
-    print(`[InspectDoneScenario] done card time: "${timeText.text}"`)
+    print(`[InspectFinishScenario] done card time: "${timeText.text}"`)
     expect(timeText.text.indexOf(":") >= 0, "time on the Done card contains ':'").toBe(true)
     expect(audio.donePlays, "done cue played once").toBe(donesBefore + 1)
 
@@ -126,7 +128,7 @@ export class InspectDoneScenario extends Scenario {
     expect(tubeEndTarget.enabled, "TubeEnd takes no pinches on the loosen step").toBe(false)
 
     // ── Back at every step restores exactly the previous step's model ───────
-    for (let n = 1; n <= 7; n++) {
+    for (let n = 1; n <= LAST_STEP; n++) {
       manager.jumpToStep(n - 1)
       await sleep(300)
       const expected = snapshot(manager, thorn)
@@ -137,7 +139,7 @@ export class InspectDoneScenario extends Scenario {
       await sleep(300)
       const actual = snapshot(manager, thorn)
       const diff = worstDiff(expected, actual)
-      print(`[InspectDoneScenario] Back from ${n}: step ${actual.step}, worst diff ${diff.cm.toFixed(3)} cm (${diff.part})`)
+      print(`[InspectFinishScenario] Back from ${n}: step ${actual.step}, worst diff ${diff.cm.toFixed(3)} cm (${diff.part})`)
       expect(actual.step, `Back from ${n} lands on ${n - 1}`).toBe(n - 1)
       expect(actual.thornFound, `thorn state after Back from ${n}`).toBe(expected.thornFound)
       expect(actual.leverParents, `lever parents after Back from ${n}`).toBe(expected.leverParents)
@@ -149,13 +151,13 @@ export class InspectDoneScenario extends Scenario {
     }
 
     // ── Replay does something on every step ──────────────────────────────────
-    for (let n = 1; n <= 7; n++) {
+    for (let n = 1; n <= LAST_STEP; n++) {
       manager.jumpToStep(n)
       await sleep(1000) // let any ghost motion finish
       const ghostBefore = ghost.playCount
       const ticksBefore = audio.tickPlays
       await interactor.tap("BtnReplay")
-      print(`[InspectDoneScenario] Replay on ${n}: replayCount ${manager.replayCount}, ghost +${ghost.playCount - ghostBefore}`)
+      print(`[InspectFinishScenario] Replay on ${n}: replayCount ${manager.replayCount}, ghost +${ghost.playCount - ghostBefore}`)
       expect(manager.replayCount, `Replay acted on step ${n}`).toBe(1)
       expect(audio.tickPlays, `tick on Replay at step ${n}`).toBe(ticksBefore + 1)
       if (n === 3 || n === 4) expect(ghost.playCount, `ghost replayed on step ${n}`).toBe(ghostBefore + 1)

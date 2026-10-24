@@ -2,12 +2,13 @@
  * UIBindings — subscribes to every UI module's button events and calls
  * RepairManager. Owns: nothing but the subscriptions.
  * Plays the tick cue from the pressed panel.
- * Expects: @inputs manager, startCard, controlBar, doneCard, audio (wired in the scene).
+ * Expects: @inputs manager, startCard, controlBar, doneCard, finishCard, audio (wired in the scene).
  */
 import {RepairManager} from "./RepairManager"
 import {BenchCoachStartCardUI} from "./BenchCoachStartCardUI"
 import {BenchCoachControlBarUI} from "./BenchCoachControlBarUI"
 import {BenchCoachDoneCardUI} from "./BenchCoachDoneCardUI"
+import {BenchCoachFinishCardUI} from "./BenchCoachFinishCardUI"
 import {BenchCoachAudio} from "./BenchCoachAudio"
 
 @component
@@ -29,8 +30,13 @@ export class UIBindings extends BaseScriptComponent {
   controlBar: BenchCoachControlBarUI
 
   @input
-  @hint("Done card (Try again)")
+  @hint("Done card (Continue, Start over)")
   doneCard: BenchCoachDoneCardUI
+
+  @input
+  @allowUndefined
+  @hint("Finish card (Restart)")
+  finishCard: BenchCoachFinishCardUI
 
   @input
   @hint("Cue player (tick)")
@@ -48,6 +54,10 @@ export class UIBindings extends BaseScriptComponent {
       this.controlBar.onNext.add(() => this.press(this.controlBar, () => this.manager.next()))
       this.controlBar.onReplay.add(() => this.press(this.controlBar, () => this.manager.replay()))
       this.doneCard.onTryAgain.add(() => this.press(this.doneCard, () => this.manager.reset()))
+      this.doneCard.onContinue.add(() => this.press(this.doneCard, () => this.manager.next()))
+      if (this.finishCard) {
+        this.finishCard.onRestart.add(() => this.press(this.finishCard, () => this.manager.reset()))
+      }
     })
   }
 
