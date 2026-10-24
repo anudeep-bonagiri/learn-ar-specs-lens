@@ -1,15 +1,21 @@
 /**
  * TubePull — the tube-end grab on step 5. Adds a collider, Interactable and
- * InteractableManipulation to TubeEnd (this SceneObject). While armed, once the
- * tube end is pullDistanceCm beyond the rim it tweens every TubeSeg_i out of the
- * tire (down and toward the user, staggered), then lifts the Valve out last and
- * emits onPullComplete. restore() puts everything back (Back / reset).
+ * InteractableManipulation to TubeEnd (this SceneObject). While armed, the pull
+ * distance past the rim drives the tube out segment by segment, starting at the
+ * tube end and working round to the valve (order PULL_ORDER): segment k-th in
+ * order has progress clamp((d - k * segmentLagCm) / segmentRunCm). Once the tube
+ * end is pullDistanceCm beyond the rim the staggered finish tweens every segment
+ * the rest of the way out (down and toward the user), then lifts the Valve out
+ * last and emits onPullComplete. restore() puts everything back (Back / reset).
  * Owns: TubeSeg_i, TubeEnd and Valve positions during and after the pull.
  * Expects: @input wheel, tube (group holding TubeSeg_0..7), valve.
  */
 import Event, {PublicApi} from "SpectaclesInteractionKit.lspkg/Utils/Event"
 import {Interactable} from "SpectaclesInteractionKit.lspkg/Components/Interaction/Interactable/Interactable"
 import {InteractableManipulation} from "SpectaclesInteractionKit.lspkg/Components/Interaction/InteractableManipulation/InteractableManipulation"
+
+/** TubeSeg indices in the order they leave the tire: from the tube end (6 o'clock) round to the valve. */
+const PULL_ORDER = [4, 3, 5, 2, 6, 1, 7, 0]
 
 @component
 export class TubePull extends BaseScriptComponent {
@@ -46,6 +52,16 @@ export class TubePull extends BaseScriptComponent {
   @hint("Tube major radius in cm (matches the TubeSeg_i TorusArc). Literal: @input defaults cannot reference imported constants.")
   @widget(new SliderWidget(10, 60, 0.1))
   rimRadiusCm: number = 33.4
+
+  @input
+  @hint("Pull distance past the rim between one segment starting and the next, in cm")
+  @widget(new SliderWidget(0, 5, 0.1))
+  segmentLagCm: number = 1.5
+
+  @input
+  @hint("Pull distance over which one segment goes from in the tire to fully out, in cm")
+  @widget(new SliderWidget(1, 20, 0.5))
+  segmentRunCm: number = 6
 
   @input
   @hint("How far each segment drops (wheel -Y) when the tube comes out, in cm")
@@ -96,6 +112,10 @@ export class TubePull extends BaseScriptComponent {
   private valveHome = vec3.zero()
   private homesRecorded = false
   private elapsed = 0
+  /** Per segment (same order as `segments`): how far out it is, 0..1, from the hand-driven pull. */
+  private progress: number[] = []
+  /** Progress each segment had when the staggered finish started. */
+  private finishFrom: number[] = []
 
   private _onPullComplete = new Event<void>()
   onPullComplete: PublicApi<void> = this._onPullComplete.publicApi()
@@ -119,6 +139,10 @@ export class TubePull extends BaseScriptComponent {
     ) as InteractableManipulation
     manipulation.setCanRotate(false)
     manipulation.setCanScale(false)
+    // No Z stretch: SIK clamps the stretch to the interactor's drag range, which
+    // yanked the tube end (about 1 m away) ~57 cm toward the user on grab and
+    // finished the pull before the hand moved. The pull is a drag past the rim.
+    manipulation.enableStretchZ = false
     manipulation.onManipulationStart.add(() => {
       this.held = true
     })
@@ -159,6 +183,7 @@ export class TubePull extends BaseScriptComponent {
     if (!this.homesRecorded) return
     for (let i = 0; i < this.segments.length; i++) {
       this.segments[i].getTransform().setLocalPosition(this.segmentHomes[i])
+      this.progress[i] = 0
     }
     this.sceneObject.getTransform().setLocalPosition(this.endHome)
     if (this.valve) this.valve.getTransform().setLocalPosition(this.valveHome)
@@ -173,6 +198,7 @@ export class TubePull extends BaseScriptComponent {
     this.setPinchTarget(true)
     for (let i = 0; i < this.segments.length; i++) {
       this.segments[i].getTransform().setLocalPosition(this.segmentHomes[i].add(this.segmentOffset()))
+      this.progress[i] = 1
     }
     this.sceneObject.getTransform().setLocalPosition(this.endHome.add(new vec3(0, -(this.pullDistanceCm + 2), 0)))
     if (this.valve) this.valve.getTransform().setLocalPosition(this.valveHome.add(new vec3(0, this.valveLiftCm, 0)))
@@ -199,6 +225,7 @@ export class TubePull extends BaseScriptComponent {
       if (child.name.indexOf("TubeSeg_") === 0) {
         this.segments.push(child)
         this.segmentHomes.push(child.getTransform().getLocalPosition())
+        this.progress.push(0)
       }
     }
     this.endHome = this.sceneObject.getTransform().getLocalPosition()
@@ -213,8 +240,34 @@ export class TubePull extends BaseScriptComponent {
     }
     if (!this.armed || this.pulled || !this.wheel) return
     const tubeScale = this.tube ? this.tube.getTransform().getWorldScale().x : 1
-    const threshold = this.rimRadiusCm * tubeScale + this.pullDistanceCm
-    if (this.distanceFromCenter() >= threshold) this.startPull()
+    const pastRim = this.distanceFromCenter() - this.rimRadiusCm * tubeScale
+    if (pastRim >= this.pullDistanceCm) {
+      this.startPull()
+      return
+    }
+    this.followPull(pastRim)
+  }
+
+  /** Index (0..7) of a segment in PULL_ORDER, from its TubeSeg_<n> name. */
+  private orderOf(i: number): number {
+    const n = parseInt(this.segments[i].name.substring("TubeSeg_".length))
+    const k = PULL_ORDER.indexOf(n)
+    return k >= 0 ? k : i
+  }
+
+  /** Before the threshold, each segment slides out in turn as the tube end is pulled. */
+  private followPull(pastRim: number): void {
+    const offset = this.segmentOffset()
+    for (let i = 0; i < this.segments.length; i++) {
+      const p = Math.max(0, Math.min(1, (pastRim - this.orderOf(i) * this.segmentLagCm) / Math.max(0.01, this.segmentRunCm)))
+      this.progress[i] = p
+      this.segments[i].getTransform().setLocalPosition(this.segmentHomes[i].add(offset.uniformScale(p)))
+    }
+  }
+
+  /** Progress of segment i, 0 (in the tire) .. 1 (out). For tests. */
+  getSegmentProgress(i: number): number {
+    return this.progress[i] !== undefined ? this.progress[i] : 0
   }
 
   private startPull(): void {
@@ -222,6 +275,7 @@ export class TubePull extends BaseScriptComponent {
     this.setManipulationEnabled(false)
     this.animating = true
     this.elapsed = 0
+    this.finishFrom = this.progress.slice()
     this.log(`pull started at ${this.distanceFromCenter().toFixed(1)} cm from the hub`)
   }
 
@@ -230,8 +284,12 @@ export class TubePull extends BaseScriptComponent {
     const offset = this.segmentOffset()
     const n = this.segments.length
     for (let i = 0; i < n; i++) {
-      const t = Math.max(0, Math.min(1, (this.elapsed - i * this.staggerSec) / Math.max(0.01, this.tweenSec)))
-      this.segments[i].getTransform().setLocalPosition(this.segmentHomes[i].add(offset.uniformScale(this.ease(t))))
+      // Staggered in pull order; each segment finishes from wherever the hand left it.
+      const t = Math.max(0, Math.min(1, (this.elapsed - this.orderOf(i) * this.staggerSec) / Math.max(0.01, this.tweenSec)))
+      const from = this.finishFrom[i] !== undefined ? this.finishFrom[i] : 0
+      const p = from + (1 - from) * this.ease(t)
+      this.progress[i] = p
+      this.segments[i].getTransform().setLocalPosition(this.segmentHomes[i].add(offset.uniformScale(p)))
     }
     const segmentsDone = Math.max(0, n - 1) * this.staggerSec + this.tweenSec
     const vt = Math.max(0, Math.min(1, (this.elapsed - segmentsDone) / Math.max(0.01, this.valveTweenSec)))

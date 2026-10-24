@@ -7,6 +7,8 @@
  * owned by TubePull and the glint by ThornHotspot; this script arms and restores them.
  * Reads: StepDefinitions. Listens to: WheelTargets, LeverPlacement (A and B),
  * RimDrag, TubePull, ThornHotspot. Next and jumpToStep() apply a step's model state directly.
+ * Also drives the Highlighter (valve on step 1, unloosened beads on step 2) and
+ * keeps the Tube hidden until a bead lifts (lever A placed, or step 4 onward).
  * Must not: author UI — cards and labels are passive views driven via setters.
  * Size note: above 400 lines on purpose — the per-step complete / undo / apply
  * tables are one state machine and are easier to audit side by side than split.
@@ -25,6 +27,7 @@ import {BenchCoachAudio} from "./BenchCoachAudio"
 import {BenchCoachStepLabelUI} from "./BenchCoachStepLabelUI"
 import {BenchCoachDoneCardUI} from "./BenchCoachDoneCardUI"
 import {StepTicks} from "./StepTicks"
+import {Highlighter} from "./Highlighter"
 
 export interface RepairState {
   step: number
@@ -123,6 +126,14 @@ export class RepairManager extends BaseScriptComponent {
   @hint("Dim ticks left on the parts of completed steps")
   @allowUndefined
   ticks: StepTicks
+
+  @input
+  @hint("Pulsing glow on the parts the current step wants touched")
+  highlighter: Highlighter
+
+  @input
+  @hint("Tube group (TubeSeg_0..7 and TubeEnd): hidden until a bead lifts")
+  tube: SceneObject
   @ui.group_end
 
   @ui.separator
@@ -236,6 +247,8 @@ export class RepairManager extends BaseScriptComponent {
       ["thorn", this.thorn],
       ["audio", this.audio],
       ["doneCard", this.doneCard],
+      ["highlighter", this.highlighter],
+      ["tube", this.tube],
     ]
     for (const [name, value] of refs) if (!value) missing.push(name)
     if (missing.length > 0) {
@@ -319,6 +332,7 @@ export class RepairManager extends BaseScriptComponent {
   // ── Completion handlers ────────────────────────────────────────────────────
   private onValvePinched(): void {
     if (this.step !== 1) return
+    if (this.audio) this.audio.playHissAt(this.valve.getTransform().getWorldPosition())
     this.setDeflated(true)
     this.log("valve pinched: tire deflated")
     this.goTo(2)
@@ -335,6 +349,7 @@ export class RepairManager extends BaseScriptComponent {
       this.goTo(3)
     } else {
       this.placeMarkerAndLabel()
+      this.applyHighlight()
     }
   }
 
@@ -367,7 +382,7 @@ export class RepairManager extends BaseScriptComponent {
 
   private onPeelComplete(): void {
     if (this.step !== 4) return
-    this.log("bead peeled to 3 o'clock")
+    this.log("bead peeled to 5 o'clock")
     this.goTo(5)
   }
 
@@ -542,6 +557,9 @@ export class RepairManager extends BaseScriptComponent {
       else this.thorn.disarm()
     }
     if (this.wheelTargets) this.wheelTargets.setActive(this.step === 1, this.step === 2)
+    // The tube shows once a bead lifts; TubePull keeps its homes while the group is off.
+    this.setEnabled(this.tube, this.step >= 4 || this.leverPlaced)
+    this.applyHighlight()
 
     const showLabel = def.markerAnchor !== "none"
     if (this.stepLabel) this.setEnabled(this.stepLabel.sceneObject, showLabel)
@@ -557,6 +575,24 @@ export class RepairManager extends BaseScriptComponent {
       this.ghost.play()
     }
     this.log(`step ${this.step} (${def.name})`)
+  }
+
+  /** Step 1 lights the valve, step 2 the beads still to loosen; every other step none. */
+  private applyHighlight(): void {
+    if (!this.highlighter) return
+    if (this.step === 1) {
+      this.highlighter.set([this.valve])
+    } else if (this.step === 2) {
+      const parts: SceneObject[] = []
+      for (const i of LOOSEN_BEADS) {
+        if (this.loosened.indexOf(i) >= 0) continue
+        const bead = this.findChild(this.tire, `Bead_${i}`)
+        if (bead) parts.push(bead)
+      }
+      this.highlighter.set(parts)
+    } else {
+      this.highlighter.clear()
+    }
   }
 
   // ── Marker and label placement ─────────────────────────────────────────────
@@ -627,7 +663,7 @@ export class RepairManager extends BaseScriptComponent {
   private setDeflated(on: boolean): void {
     const k = on ? this.deflateScale : 1
     if (this.tire) this.tire.getTransform().setLocalScale(new vec3(k, k, k))
-    const tube = this.findChild(this.wheel, "Tube")
+    const tube = this.tube ? this.tube : this.findChild(this.wheel, "Tube")
     if (tube) tube.getTransform().setLocalScale(new vec3(k, k, k))
   }
 

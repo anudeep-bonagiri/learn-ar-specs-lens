@@ -25,7 +25,9 @@ export class BenchCoachLeafInteractor extends DefaultLeafInteractor {
     goal: vec3,
     maxStepCm: number = 1.0,
     timeoutMs: number = 8000,
-    toleranceCm: number = 0.4
+    toleranceCm: number = 0.4,
+    stopOnArrive: boolean = false,
+    stopWhen?: () => boolean
   ): Promise<void> {
     const tr = target.getTransform()
     const unsubscribe = target.onDragUpdate.add(() => {
@@ -51,8 +53,12 @@ export class BenchCoachLeafInteractor extends DefaultLeafInteractor {
     while (getTime() * 1000 < startMs + timeoutMs) {
       await awaitEventOnce(target.onTriggerUpdate)
       if (tr.getWorldPosition().distance(goal) <= toleranceCm) break
+      if (stopWhen && stopWhen()) break
     }
     unsubscribe()
+    // LEAF keeps applying the last drag vector every frame until the release lands;
+    // stopOnArrive zeroes it so the target is let go where it arrived (no drift).
+    if (stopOnArrive) this.overrideDragVector = vec3.zero()
     this["overrideTrigger"] = InteractorTriggerType.None
     await dragEnded
     this.resetStartEndPoint()

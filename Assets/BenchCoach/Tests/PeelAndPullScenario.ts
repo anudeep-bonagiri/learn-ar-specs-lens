@@ -9,11 +9,13 @@ import {TubePull} from "../Scripts/TubePull"
 import {EdgeHint} from "../Scripts/EdgeHint"
 
 /**
- * Criterion 4: lever B snaps to the second socket, dragging it ~90 degrees along
- * the rim peels Bead_1 and Bead_2 (each raised 1 cm radially) and enters step 5;
- * the step-5 marker sits on TubeEnd (6 o'clock) and, because the default camera
- * faces the valve, the EdgeArrow is on; pulling TubeEnd 15 cm past the rim
- * slides every TubeSeg_i out of the tire and enters step 6.
+ * Criterion 4: lever B snaps to the second socket, dragging it round the rim to
+ * 5 o'clock (150 degrees) peels Bead_1..3 (each raised 1 cm radially) and enters
+ * step 5; the step-5 marker sits on TubeEnd (6 o'clock) and, because the default
+ * camera faces the valve, the EdgeArrow is on. Pulling TubeEnd about 8 cm past the
+ * rim brings the tube out segment by segment (TubeSeg_4 at the tube end is out,
+ * TubeSeg_0 at the valve has not moved); past 15 cm every TubeSeg_i slides out of
+ * the tire and the step advances to 6. Pass 7a.
  */
 @component
 export class PeelAndPullScenario extends Scenario {
@@ -29,6 +31,7 @@ export class PeelAndPullScenario extends Scenario {
     const ghost = findSceneObjectByName("GhostLever")
     const bead1 = findSceneObjectByName("Bead_1")
     const bead2 = findSceneObjectByName("Bead_2")
+    const bead3 = findSceneObjectByName("Bead_3")
     const marker = findSceneObjectByName("StepMarker")
     const tubeEnd = findSceneObjectByName("TubeEnd")
     const edgeArrow = findSceneObjectByName("EdgeArrow")
@@ -59,9 +62,9 @@ export class PeelAndPullScenario extends Scenario {
     expect(rimDrag.armed, "rim drag armed").toBe(true)
     expect(manager.getState().step, "still step 4 after hooking").toBe(4)
 
-    // ── Slide it round: waypoints on the rim circle up to 3 o'clock ─────────
-    const bead1Before = bead1.getTransform().getWorldPosition()
-    const bead2Before = bead2.getTransform().getWorldPosition()
+    // ── Slide it round: waypoints on the rim circle up to 5 o'clock ─────────
+    const beads = [bead1, bead2, bead3]
+    const beadsBefore = beads.map((b) => b.getTransform().getWorldPosition())
     const wheelMat = wheel.getTransform().getWorldTransform()
     const socketLocal = wheel.getTransform().getInvertedWorldTransform().multiplyPoint(socketPos)
     const radius = Math.sqrt(socketLocal.x * socketLocal.x + socketLocal.y * socketLocal.y)
@@ -69,19 +72,19 @@ export class PeelAndPullScenario extends Scenario {
       const a = (deg * Math.PI) / 180
       return wheelMat.multiplyPoint(new vec3(Math.sin(a) * radius, Math.cos(a) * radius, socketLocal.z))
     }
-    for (const deg of [35, 50, 65, 80, 90]) {
+    for (const deg of [35, 50, 65, 80, 95, 110, 125, 140, 150]) {
       await interactor.dragTo(lever, onRim(deg), 1.0, 4000, 1.5)
       print(`[PeelAndPullScenario] waypoint ${deg}: lever at ${rimDrag.currentAngleDeg.toFixed(1)} deg`)
       await sleep(150)
     }
     await sleep(500)
-    expect(rimDrag.complete, "rim drag reached 3 o'clock").toBe(true)
-    const lift1 = bead1.getTransform().getWorldPosition().sub(bead1Before).length
-    const lift2 = bead2.getTransform().getWorldPosition().sub(bead2Before).length
-    print(`[PeelAndPullScenario] Bead_1 lift ${lift1.toFixed(2)} cm, Bead_2 lift ${lift2.toFixed(2)} cm`)
-    expect(lift1, "Bead_1 raised 1 cm").toBeCloseTo(1.0, 1)
-    expect(lift2, "Bead_2 raised 1 cm").toBeCloseTo(1.0, 1)
-    expect(manager.getPeeledBeads().length, "two beads peeled").toBe(2)
+    expect(rimDrag.complete, "rim drag reached 5 o'clock").toBe(true)
+    for (let b = 0; b < beads.length; b++) {
+      const lift = beads[b].getTransform().getWorldPosition().sub(beadsBefore[b]).length
+      print(`[PeelAndPullScenario] ${beads[b].name} lift ${lift.toFixed(2)} cm`)
+      expect(lift, `${beads[b].name} raised 1 cm`).toBeCloseTo(1.0, 1)
+    }
+    expect(manager.getPeeledBeads().length, "three beads peeled").toBe(3)
     expect(manager.getState().step, "advanced to step 5").toBe(5)
 
     // ── Far-side marker and edge arrow ──────────────────────────────────────
@@ -115,7 +118,25 @@ export class PeelAndPullScenario extends Scenario {
     const endStart = tubeEnd.getTransform().getWorldPosition()
     const center = wheel.getTransform().getWorldPosition()
     const outward = endStart.sub(center).normalize()
-    await interactor.dragTo(tubeEndInteractable, endStart.add(outward.uniformScale(17.5)), 1.0, 8000, 3.0)
+
+    // Mid-pull: about 8 cm past the rim the tube-end segment is out, the valve one is not.
+    const rimCm = tubePull.rimRadiusCm * tube.getTransform().getWorldScale().x
+    const seg4 = segments.filter((so) => so.name === "TubeSeg_4")[0]
+    const seg0 = segments.filter((so) => so.name === "TubeSeg_0")[0]
+    const seg4Start = seg4.getTransform().getWorldPosition()
+    const seg0Start = seg0.getTransform().getWorldPosition()
+    await interactor.dragTo(tubeEndInteractable, center.add(outward.uniformScale(rimCm + 8)), 0.3, 8000, 0.5, true)
+    await sleep(300)
+    const past = tubeEnd.getTransform().getWorldPosition().distance(center) - rimCm
+    const seg4Moved = seg4.getTransform().getWorldPosition().distance(seg4Start)
+    const seg0Moved = seg0.getTransform().getWorldPosition().distance(seg0Start)
+    print(`[PeelAndPullScenario] mid-pull ${past.toFixed(1)} cm past the rim: TubeSeg_4 moved ${seg4Moved.toFixed(2)} cm, TubeSeg_0 ${seg0Moved.toFixed(2)} cm`)
+    expect(tubePull.pulled || tubePull.animating, "mid-pull has not finished the tube").toBe(false)
+    expect(seg4Moved, "TubeSeg_4 (at the tube end) moved first").toBeGreaterThan(2)
+    expect(seg0Moved, "TubeSeg_0 (at the valve) not moved yet").toBeLessThan(0.5)
+
+    // Past the 15 cm threshold the staggered finish takes every segment out.
+    await interactor.dragTo(tubeEndInteractable, center.add(outward.uniformScale(rimCm + 17.5)), 1.0, 8000, 0.5, false, () => tubePull.animating || tubePull.pulled)
     await sleep(2500) // staggered segment tweens + valve lift
     expect(tubePull.pulled, "tube pulled").toBe(true)
     const wheelCenter = wheel.getTransform().getWorldPosition()

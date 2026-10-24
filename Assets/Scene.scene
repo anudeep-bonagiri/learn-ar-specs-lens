@@ -126,7 +126,6 @@
   EnvMapRotation: 0.000000
   DiffuseEnvTexture: !<reference> 00000000-0000-0000-0000-000000000000
   SpecularEnvTexture: !<reference> 00000000-0000-0000-0000-000000000000
-  SpecularCubemapTexture: !<reference> 00000000-0000-0000-0000-000000000000
   Color: {x: 1.000000, y: 1.000000, z: 1.000000, w: 1.000000}
   ShadowColor: {x: 0.000000, y: 0.000000, z: 0.000000, w: 1.000000}
   DynamicEnvInputTexture: !<reference> 00000000-0000-0000-0000-000000000000
@@ -174,7 +173,6 @@
   EnvMapRotation: 0.000000
   DiffuseEnvTexture: !<reference> 2013a19b-93c1-4f21-b7ea-876a33550c7b
   SpecularEnvTexture: !<reference> d795fd46-e16b-4cb9-8dfb-4ef227298f7a
-  SpecularCubemapTexture: !<reference> 00000000-0000-0000-0000-000000000000
   Color: {x: 1.000000, y: 1.000000, z: 1.000000, w: 1.000000}
   ShadowColor: {x: 0.000000, y: 0.000000, z: 0.000000, w: 1.000000}
   DynamicEnvInputTexture: !<reference> 00000000-0000-0000-0000-000000000000
@@ -528,12 +526,13 @@
   LocalTransform: !<TransformEntity>
     Position: {x: 0.000000, y: 0.000000, z: 0.000000}
     Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
-    Scale: {x: 12.000000, y: 2.000000, z: 1.000000}
+    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
     HasSegmentScaleCompensation: false
   Children:
     []
   Components:
     - !<own> 73c057b7-b336-45cc-a545-cb21be627d8a
+    - !<own> 47dd1d5c-8a68-4dc6-9a5e-cf8c8a85ec8c
 - !<SceneObject/0cffb60e-73f6-43c5-bb4f-286d39e0f1f6>
   PrefabRemaps:
     []
@@ -558,12 +557,13 @@
   LocalTransform: !<TransformEntity>
     Position: {x: 0.000000, y: 0.000000, z: 0.000000}
     Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
-    Scale: {x: 12.000000, y: 2.000000, z: 1.000000}
+    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
     HasSegmentScaleCompensation: false
   Children:
     []
   Components:
     - !<own> 1a40b6cd-20af-4f1b-941c-435a4ef629a4
+    - !<own> fb10df11-3c35-4573-bd32-d00145e12532
 - !<SceneObject/0e778a10-bd57-4a2a-b20a-b6f4326e8058>
   PrefabRemaps:
     []
@@ -692,12 +692,13 @@
   LocalTransform: !<TransformEntity>
     Position: {x: 0.000000, y: 0.000000, z: 0.000000}
     Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
-    Scale: {x: 12.000000, y: 2.000000, z: 1.000000}
+    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
     HasSegmentScaleCompensation: false
   Children:
     []
   Components:
     - !<own> 9266fd5c-9d63-44c3-b3ba-9c34de6ce761
+    - !<own> eeb513df-76bc-48d5-ae10-613ec9ec14de
 - !<SceneObject/126f3577-bc27-4a20-8d6e-a511bc459c49>
   PrefabRemaps:
     []
@@ -993,6 +994,30 @@
     []
   Components:
     []
+- !<ScriptComponent/2426848f-f3ae-4e19-96d7-776281abb912>
+  PrefabRemaps:
+    []
+  Name: Highlighter
+  Enabled: true
+  ScriptAsset: !<reference> dc7bb9a5-4c73-4989-a9d4-6a92aefe7115
+  ScriptInputsDefault:
+    glowTint: true
+    glowStrength: true
+    minBlend: true
+    maxBlend: true
+    pulseHz: true
+  ScriptTypesDefault:
+    {}
+  ScriptInputs:
+    "":
+      glowTint: !<Vec4> {x: 0.600000, y: 1.000000, z: 1.000000, w: 1.000000}
+      glowStrength: 0.700000
+      minBlend: 0.500000
+      maxBlend: !<float> 1.000000
+      pulseHz: 1.200000
+  ScriptTypes:
+    "":
+      {}
 - !<ScriptComponent/24460ad0-f260-4e7a-970c-05fcf6db9a81>
   PrefabRemaps:
     []
@@ -1086,6 +1111,23 @@
   ScriptTypes:
     "":
       {}
+- !<AudioComponent/28a6b096-63cb-48ed-a7b8-b9dcd06cbc74>
+  PrefabRemaps:
+    []
+  Name: Audio
+  Enabled: true
+  AudioTrack: !<reference> c4c8134f-94cf-47dc-95f4-6a1a25ddac4a
+  EnableAutoplayLoop: false
+  Volume: 1.000000
+  EnableMixToSnap: false
+  RecordVolume: 1.000000
+  EnableSpatialAudio: false
+  EnableDistanceEffect: false
+  CurveType: Logarithm
+  MinDistance: 0.000000
+  MaxDistance: 100.000000
+  EnableDirectivityEffect: false
+  EnablePositionEffect: false
 - !<SceneObject/28c12414-80c9-4e5e-84df-8e942a94a2ce>
   PrefabRemaps:
     []
@@ -1156,6 +1198,21 @@
     ring-3_end_end_end: !<reference> b93dfa60-41bd-4999-ac0f-4b2f1df2bdaf
     thumb-3_end_end_end_end: !<reference> 08e3cc22-f2e1-49fb-9ddc-145fe6547ce3
     pinky-3_end_end: !<reference> d08269e3-acd4-4156-b5b9-477ca259611d
+- !<SceneObject/2bbd8579-8ab9-49f0-88bc-df65cfcda5f2>
+  PrefabRemaps:
+    []
+  Name: Hiss
+  Enabled: true
+  Layers: 1
+  LocalTransform: !<TransformEntity>
+    Position: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
+    HasSegmentScaleCompensation: false
+  Children:
+    []
+  Components:
+    - !<own> 28a6b096-63cb-48ed-a7b8-b9dcd06cbc74
 - !<SceneObject/2d5c1cee-f247-4136-b4ae-70ad7a843fae>
   PrefabRemaps:
     []
@@ -1189,6 +1246,7 @@
     - !<own> b24c21b4-ba39-4daf-bad2-6e6f22889623
     - !<own> d8d6b076-456e-41fd-bcd8-2843075dd70b
     - !<own> 4a883d6c-a08f-453e-8f21-b406b6473015
+    - !<own> 2bbd8579-8ab9-49f0-88bc-df65cfcda5f2
   Components:
     - !<own> 7407431d-eeb9-4d5c-a25e-0c11394825cf
 - !<SceneObject/2dae2a27-8ce6-466a-8bff-622195c1b3a8>
@@ -1414,6 +1472,8 @@
   ScriptAsset: !<reference> 07065aae-7a8b-432b-aac5-6f24cb652722
   ScriptInputsDefault:
     startDeg: true
+    treadDepth: true
+    treadBlocksPerArc: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
@@ -1425,6 +1485,8 @@
       ringSegments: !<float> 10.000000
       tubeSegments: !<float> 10.000000
       material: !<reference.Material> 8066c1a7-6591-45cd-ab28-657d7270e937
+      treadDepth: !<float> 0.000000
+      treadBlocksPerArc: !<float> 0.000000
   ScriptTypes:
     "":
       {}
@@ -1544,6 +1606,8 @@
       ringSegments: !<float> 10.000000
       tubeSegments: !<float> 12.000000
       material: !<reference.Material> 925ddf55-78fe-4bb2-b3d1-90c1146fd166
+      treadDepth: 0.250000
+      treadBlocksPerArc: !<float> 6.000000
   ScriptTypes:
     "":
       {}
@@ -1603,6 +1667,8 @@
       ringSegments: !<float> 10.000000
       tubeSegments: !<float> 12.000000
       material: !<reference.Material> 925ddf55-78fe-4bb2-b3d1-90c1146fd166
+      treadDepth: 0.250000
+      treadBlocksPerArc: !<float> 6.000000
   ScriptTypes:
     "":
       {}
@@ -1769,6 +1835,31 @@
     - !<own> 8fe2a532-9bf3-4cde-b598-04ce5470718d
   Components:
     []
+- !<ScriptComponent/47dd1d5c-8a68-4dc6-9a5e-cf8c8a85ec8c>
+  PrefabRemaps:
+    []
+  Name: LeverMesh
+  Enabled: true
+  ScriptAsset: !<reference> 7ccb3bc8-7c8a-4335-bf17-ce2c969bd03a
+  ScriptInputsDefault:
+    lengthCm: true
+    widthCm: true
+    thicknessCm: true
+    bowCm: true
+    lipCm: true
+  ScriptTypesDefault:
+    {}
+  ScriptInputs:
+    "":
+      material: !<reference.Material> 747e036c-f511-423c-8744-bc6b2e703bd6
+      lengthCm: !<float> 12.000000
+      widthCm: !<float> 2.000000
+      thicknessCm: !<float> 1.000000
+      bowCm: 0.500000
+      lipCm: 0.600000
+  ScriptTypes:
+    "":
+      {}
 - !<SceneObject/4857eb0d-da65-4161-a6f3-cce986c3bf69>
   PrefabRemaps:
     []
@@ -2107,7 +2198,8 @@
   Enabled: true
   ScriptAsset: !<reference> 07065aae-7a8b-432b-aac5-6f24cb652722
   ScriptInputsDefault:
-    {}
+    treadDepth: true
+    treadBlocksPerArc: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
@@ -2119,6 +2211,8 @@
       ringSegments: !<float> 10.000000
       tubeSegments: !<float> 10.000000
       material: !<reference.Material> 8066c1a7-6591-45cd-ab28-657d7270e937
+      treadDepth: !<float> 0.000000
+      treadBlocksPerArc: !<float> 0.000000
   ScriptTypes:
     "":
       {}
@@ -2209,6 +2303,8 @@
       audio: !<MappingBased.AssignableType_9> 7407431d-eeb9-4d5c-a25e-0c11394825cf
       doneCard: !<MappingBased.AssignableType_10> 9c0325e9-10f9-46b0-9bc4-f9be0377eb1f
       ticks: !<MappingBased.AssignableType_11> 27bb9353-73e1-454d-9f03-dde1497d9825
+      highlighter: !<MappingBased.AssignableType_12> 2426848f-f3ae-4e19-96d7-776281abb912
+      tube: !<reference.SceneObject> 5e518710-9c7a-4d44-8251-1d5cf4411cd6
       beadRadiusCm: 33.400002
       markerStandoffCm: 1.500000
       labelOffsetCm: !<float> 10.000000
@@ -2620,6 +2716,7 @@
     tickVolume: true
     feedbackVolume: true
     doneVolume: true
+    hissVolume: true
     spatial: true
   ScriptTypesDefault:
     {}
@@ -2631,11 +2728,13 @@
       click: !<reference.AudioComponent> 51747dd6-e651-40bf-9065-ae07f89900f8
       nope: !<reference.AudioComponent> 0ffbc09d-c4d5-42cb-9a0f-43acf543901d
       done: !<reference.AudioComponent> d3f80074-f1f5-4faa-aec6-43e7d3c8f885
+      hiss: !<reference.AudioComponent> 28a6b096-63cb-48ed-a7b8-b9dcd06cbc74
       zipperVolume: 0.350000
       chimeVolume: 0.400000
       tickVolume: 0.250000
       feedbackVolume: 0.400000
       doneVolume: 0.450000
+      hissVolume: 0.350000
       spatial: true
   ScriptTypes:
     "":
@@ -2758,6 +2857,8 @@
   ScriptInputsDefault:
     startDeg: true
     sweepDeg: true
+    treadDepth: true
+    treadBlocksPerArc: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
@@ -2769,6 +2870,8 @@
       ringSegments: !<float> 32.000000
       tubeSegments: !<float> 8.000000
       material: !<reference.Material> 15b55a2d-25cd-4131-88ca-e7924cfbabd4
+      treadDepth: !<float> 0.000000
+      treadBlocksPerArc: !<float> 0.000000
   ScriptTypes:
     "":
       {}
@@ -2852,6 +2955,8 @@
       ringSegments: !<float> 10.000000
       tubeSegments: !<float> 12.000000
       material: !<reference.Material> 925ddf55-78fe-4bb2-b3d1-90c1146fd166
+      treadDepth: 0.250000
+      treadBlocksPerArc: !<float> 6.000000
   ScriptTypes:
     "":
       {}
@@ -2894,6 +2999,7 @@
     - !<own> 622db2cb-d0c7-4791-92af-926fab500a02
     - !<own> 322de4cf-0408-4c93-be6b-45c3f47f3be1
     - !<own> 991b4638-62b1-41f8-a713-9115f5fc6bd0
+    - !<own> 2426848f-f3ae-4e19-96d7-776281abb912
 - !<SceneObject/8363e9a6-cd83-4889-abd4-6521e394f244>
   PrefabRemaps:
     []
@@ -2916,7 +3022,8 @@
   Enabled: true
   ScriptAsset: !<reference> 07065aae-7a8b-432b-aac5-6f24cb652722
   ScriptInputsDefault:
-    {}
+    treadDepth: true
+    treadBlocksPerArc: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
@@ -2928,6 +3035,8 @@
       ringSegments: !<float> 10.000000
       tubeSegments: !<float> 10.000000
       material: !<reference.Material> 8066c1a7-6591-45cd-ab28-657d7270e937
+      treadDepth: !<float> 0.000000
+      treadBlocksPerArc: !<float> 0.000000
   ScriptTypes:
     "":
       {}
@@ -3049,7 +3158,8 @@
   Enabled: true
   ScriptAsset: !<reference> 07065aae-7a8b-432b-aac5-6f24cb652722
   ScriptInputsDefault:
-    {}
+    treadDepth: true
+    treadBlocksPerArc: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
@@ -3061,6 +3171,8 @@
       ringSegments: !<float> 10.000000
       tubeSegments: !<float> 10.000000
       material: !<reference.Material> 8066c1a7-6591-45cd-ab28-657d7270e937
+      treadDepth: !<float> 0.000000
+      treadBlocksPerArc: !<float> 0.000000
   ScriptTypes:
     "":
       {}
@@ -3416,7 +3528,8 @@
   Enabled: true
   ScriptAsset: !<reference> 07065aae-7a8b-432b-aac5-6f24cb652722
   ScriptInputsDefault:
-    {}
+    treadDepth: true
+    treadBlocksPerArc: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
@@ -3428,6 +3541,8 @@
       ringSegments: !<float> 10.000000
       tubeSegments: !<float> 10.000000
       material: !<reference.Material> 8066c1a7-6591-45cd-ab28-657d7270e937
+      treadDepth: !<float> 0.000000
+      treadBlocksPerArc: !<float> 0.000000
   ScriptTypes:
     "":
       {}
@@ -3661,6 +3776,8 @@
       ringSegments: !<float> 10.000000
       tubeSegments: !<float> 12.000000
       material: !<reference.Material> 925ddf55-78fe-4bb2-b3d1-90c1146fd166
+      treadDepth: 0.250000
+      treadBlocksPerArc: !<float> 6.000000
   ScriptTypes:
     "":
       {}
@@ -4043,7 +4160,7 @@
   ScriptInputs:
     "":
       wheel: !<reference.SceneObject> 32ba4b33-674d-4969-a473-4523545d3108
-      peelEndAngleDeg: !<float> 90.000000
+      peelEndAngleDeg: !<float> 150.000000
       segmentSweepDeg: !<float> 45.000000
       slackDeg: !<float> 2.000000
       debugLogs: false
@@ -4337,7 +4454,8 @@
   Enabled: true
   ScriptAsset: !<reference> 07065aae-7a8b-432b-aac5-6f24cb652722
   ScriptInputsDefault:
-    {}
+    treadDepth: true
+    treadBlocksPerArc: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
@@ -4349,6 +4467,8 @@
       ringSegments: !<float> 10.000000
       tubeSegments: !<float> 10.000000
       material: !<reference.Material> 8066c1a7-6591-45cd-ab28-657d7270e937
+      treadDepth: !<float> 0.000000
+      treadBlocksPerArc: !<float> 0.000000
   ScriptTypes:
     "":
       {}
@@ -4523,6 +4643,8 @@
     startDeg: true
     sweepDeg: true
     tubeSegments: true
+    treadDepth: true
+    treadBlocksPerArc: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
@@ -4534,6 +4656,8 @@
       ringSegments: !<float> 64.000000
       tubeSegments: !<float> 12.000000
       material: !<reference.Material> 68b8edd6-f8e7-4050-9a73-a832c460f71e
+      treadDepth: !<float> 0.000000
+      treadBlocksPerArc: !<float> 0.000000
   ScriptTypes:
     "":
       {}
@@ -4599,7 +4723,8 @@
   Enabled: true
   ScriptAsset: !<reference> 07065aae-7a8b-432b-aac5-6f24cb652722
   ScriptInputsDefault:
-    {}
+    treadDepth: true
+    treadBlocksPerArc: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
@@ -4611,6 +4736,8 @@
       ringSegments: !<float> 10.000000
       tubeSegments: !<float> 10.000000
       material: !<reference.Material> 8066c1a7-6591-45cd-ab28-657d7270e937
+      treadDepth: !<float> 0.000000
+      treadBlocksPerArc: !<float> 0.000000
   ScriptTypes:
     "":
       {}
@@ -4748,6 +4875,8 @@
       ringSegments: !<float> 10.000000
       tubeSegments: !<float> 12.000000
       material: !<reference.Material> 925ddf55-78fe-4bb2-b3d1-90c1146fd166
+      treadDepth: 0.250000
+      treadBlocksPerArc: !<float> 6.000000
   ScriptTypes:
     "":
       {}
@@ -4806,6 +4935,31 @@
     []
   Components:
     - !<own> 8923c9a9-2c94-426c-972d-2b784a463d74
+- !<ScriptComponent/eeb513df-76bc-48d5-ae10-613ec9ec14de>
+  PrefabRemaps:
+    []
+  Name: LeverMesh
+  Enabled: true
+  ScriptAsset: !<reference> 7ccb3bc8-7c8a-4335-bf17-ce2c969bd03a
+  ScriptInputsDefault:
+    lengthCm: true
+    widthCm: true
+    thicknessCm: true
+    bowCm: true
+    lipCm: true
+  ScriptTypesDefault:
+    {}
+  ScriptInputs:
+    "":
+      material: !<reference.Material> 4b92179f-1b59-43f0-8963-c1b55007e532
+      lengthCm: !<float> 12.000000
+      widthCm: !<float> 2.000000
+      thicknessCm: !<float> 1.000000
+      bowCm: 0.500000
+      lipCm: 0.600000
+  ScriptTypes:
+    "":
+      {}
 - !<SceneObject/f0394c5d-4c44-4c65-a77c-e1c7e05ca905>
   PrefabRemaps:
     []
@@ -4856,6 +5010,8 @@
       ringSegments: !<float> 10.000000
       tubeSegments: !<float> 12.000000
       material: !<reference.Material> 925ddf55-78fe-4bb2-b3d1-90c1146fd166
+      treadDepth: 0.250000
+      treadBlocksPerArc: !<float> 6.000000
   ScriptTypes:
     "":
       {}
@@ -4868,6 +5024,8 @@
   ScriptInputsDefault:
     colliderSizeCm: true
     pullDistanceCm: true
+    segmentLagCm: true
+    segmentRunCm: true
     segmentDropCm: true
     segmentOutCm: true
     staggerSec: true
@@ -4885,6 +5043,8 @@
       colliderSizeCm: !<Vec3> {x: 7.000000, y: 7.000000, z: 7.000000}
       pullDistanceCm: !<float> 15.000000
       rimRadiusCm: 33.400002
+      segmentLagCm: 1.500000
+      segmentRunCm: !<float> 6.000000
       segmentDropCm: !<float> 22.000000
       segmentOutCm: !<float> 10.000000
       staggerSec: 0.100000
@@ -5207,6 +5367,8 @@
       ringSegments: !<float> 10.000000
       tubeSegments: !<float> 12.000000
       material: !<reference.Material> 925ddf55-78fe-4bb2-b3d1-90c1146fd166
+      treadDepth: 0.250000
+      treadBlocksPerArc: !<float> 6.000000
   ScriptTypes:
     "":
       {}
@@ -5230,6 +5392,8 @@
       ringSegments: !<float> 10.000000
       tubeSegments: !<float> 12.000000
       material: !<reference.Material> 925ddf55-78fe-4bb2-b3d1-90c1146fd166
+      treadDepth: 0.250000
+      treadBlocksPerArc: !<float> 6.000000
   ScriptTypes:
     "":
       {}
@@ -5270,7 +5434,8 @@
   Enabled: true
   ScriptAsset: !<reference> 07065aae-7a8b-432b-aac5-6f24cb652722
   ScriptInputsDefault:
-    {}
+    treadDepth: true
+    treadBlocksPerArc: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
@@ -5282,6 +5447,33 @@
       ringSegments: !<float> 10.000000
       tubeSegments: !<float> 10.000000
       material: !<reference.Material> 8066c1a7-6591-45cd-ab28-657d7270e937
+      treadDepth: !<float> 0.000000
+      treadBlocksPerArc: !<float> 0.000000
+  ScriptTypes:
+    "":
+      {}
+- !<ScriptComponent/fb10df11-3c35-4573-bd32-d00145e12532>
+  PrefabRemaps:
+    []
+  Name: LeverMesh
+  Enabled: true
+  ScriptAsset: !<reference> 7ccb3bc8-7c8a-4335-bf17-ce2c969bd03a
+  ScriptInputsDefault:
+    lengthCm: true
+    widthCm: true
+    thicknessCm: true
+    bowCm: true
+    lipCm: true
+  ScriptTypesDefault:
+    {}
+  ScriptInputs:
+    "":
+      material: !<reference.Material> 4b92179f-1b59-43f0-8963-c1b55007e532
+      lengthCm: !<float> 12.000000
+      widthCm: !<float> 2.000000
+      thicknessCm: !<float> 1.000000
+      bowCm: 0.500000
+      lipCm: 0.600000
   ScriptTypes:
     "":
       {}
