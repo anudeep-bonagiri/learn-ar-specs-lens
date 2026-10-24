@@ -4,7 +4,7 @@ Status as of Oct 24, 2026. Branch `Sujeeth-AR-SPECS-WORK` is the integration bra
 
 Done: criteria 1 to 5, six LEAF scenarios green (`start`, `deflate-loosen`, `lever-snap`, `peel-and-pull`, `inspect-done`, `step-ticks`).
 
-Done: **Pass 7a** (curved levers, tread, valve and bead glow, hiss, tube hidden until a bead lifts, peel to 5 o'clock, segment-by-segment pull). Eight LEAF scenarios green, adding `scene-dressing`. **Next up: B1 (pass 7b).**
+Done: **Pass 7a** (curved levers, tread, valve and bead glow, hiss, tube hidden until a bead lifts, peel to 5 o'clock, segment-by-segment pull). Eight LEAF scenarios green, adding `scene-dressing`. Done: **Pass 7b** (workbench, pegboard, toolbox, saddle, code-built bike frame, floor mat, key and fill lights with shadows on the mat). **Next up: B2 (pass 9).**
 
 ## Rules so we don't break each other
 
@@ -19,8 +19,8 @@ Done: **Pass 7a** (curved levers, tread, valve and bead glow, hiss, tube hidden 
 
 | # | Task | Depends on | Notes |
 | --- | --- | --- | --- |
-| B1 | **Pass 7b: scene dressing.** Text-to-3D workbench and pegboard (pale colors), MeshBuilder bike rear triangle from the hub, floor mat, key and fill lights with shadows on the mat, metallic rim and hub. Finish `scene-dressing` assertions (Environment and BikeFrame). | Ready now | Plan "Pass 7". Owns the scene file. |
-| B2 | **Pass 9: finish the repair.** Steps 8 to 11: halfway card with Continue, fit the new tube, seat the bead, pinch-and-hold inflate, Finish card with stats. `StepModule` seam, `RefitSteps.ts`, `TubeFit.ts`, `RunStats.ts`. LEAF `refit-tube`, `seat-inflate`. | B1 | Plan "Pass 9". Runs before pass 8 on purpose. |
+| B1 | **DONE.** **Pass 7b: scene dressing.** Text-to-3D workbench and pegboard (pale colors), MeshBuilder bike rear triangle from the hub, floor mat, key and fill lights with shadows on the mat, metallic rim and hub. Finish `scene-dressing` assertions (Environment and BikeFrame). | Ready now | Plan "Pass 7". Owns the scene file. |
+| B2 | **Pass 9: finish the repair.** Steps 8 to 11: halfway card with Continue, fit the new tube, seat the bead, pinch-and-hold inflate, Finish card with stats. `StepModule` seam, `RefitSteps.ts`, `TubeFit.ts`, `RunStats.ts`. LEAF `refit-tube`, `seat-inflate`. | B1 | Plan "Pass 9". Runs before pass 8 on purpose. Ready now. |
 | B3 | **Pass 8: learning layer.** "What's this?" mode, mistake feedback with reasons, random flat cause (thorn, glass, snakebite), progress rail, idle hints. LEAF `whats-this`, `mistakes`, `flat-causes`, `progress-idle`. | B2 | Plan "Pass 8". Cut "What's this?" first if late. |
 | B4 | **Pass 10: watch mode.** Auto-play demo from a Watch button, stoppable. LEAF `watch-mode`. Then run all scenarios and record results in design notes. | B3 | Plan "Pass 10". |
 

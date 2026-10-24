@@ -4,12 +4,15 @@ import {findSceneObjectByName, sleep} from "Leaf.lspkg/Utils/common/Utils"
 import {BenchCoachLeafInteractor, getRepairManager} from "./BenchCoachLeafInteractor"
 import {Highlighter} from "../Scripts/Highlighter"
 import {BenchCoachAudio} from "../Scripts/BenchCoachAudio"
+import {RearTriangle} from "../Scripts/RearTriangle"
 
 /**
  * Pass 7 scene dressing (code half, 7a): the Tube is hidden until a bead lifts
  * (off on step 2, on from step 4); the valve pinch on step 1 plays the hiss; the
  * Highlighter glows the valve on step 1 and exactly the not-yet-loosened beads on
  * step 2, and nothing once the step moves on.
+ * Scene half (7b): Environment and Stand/BikeFrame are hidden on step 0 and shown
+ * after Found it; the rear triangle's dropouts sit on the hub (within 1 cm).
  */
 @component
 export class SceneDressingScenario extends Scenario {
@@ -64,7 +67,28 @@ export class SceneDressingScenario extends Scenario {
     await sleep(300)
     expect(highlighter.current.length, "no highlight on step 3").toBe(0)
 
-    // pass 7b: Environment and BikeFrame assertions go here
+    // ── Pass 7b: workshop environment and bike frame ───────────────────────
+    const environment = findSceneObjectByName("Environment")
+    const bikeFrame = findSceneObjectByName("BikeFrame")
+    const hub = findSceneObjectByName("Hub")
+    expect(environment, "Environment exists").toBeTruthy()
+    expect(bikeFrame, "BikeFrame exists").toBeTruthy()
+    expect(hub, "Hub exists").toBeTruthy()
+    manager.reset()
+    await sleep(300)
+    expect(manager.getState().step, "reset returns to step 0").toBe(0)
+    expect(environment.isEnabledInHierarchy, "Environment hidden on step 0").toBe(false)
+    expect(bikeFrame.isEnabledInHierarchy, "BikeFrame hidden on step 0").toBe(false)
+    await interactor.tap("BtnFoundIt")
+    await sleep(300)
+    expect(manager.getState().step, "Found it enters step 1").toBe(1)
+    expect(environment.isEnabledInHierarchy, "Environment shown after Found it").toBe(true)
+    expect(bikeFrame.isEnabledInHierarchy, "BikeFrame shown after Found it").toBe(true)
+    const frame = bikeFrame.getComponent(RearTriangle.getTypeName()) as RearTriangle
+    expect(frame, "RearTriangle on BikeFrame").toBeTruthy()
+    const dropoutToHub = frame.dropoutWorldPos().distance(hub.getTransform().getWorldPosition())
+    print(`[SceneDressingScenario] dropout to hub ${dropoutToHub.toFixed(2)} cm`)
+    expect(dropoutToHub, "rear dropouts within 1 cm of the hub").toBeLessThan(1.0)
 
     manager.reset()
     await sleep(300)

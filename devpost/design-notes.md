@@ -207,3 +207,65 @@ Findings and deviations:
 - Visual check: on step 1 the valve is tinted toward cyan inside the ring and the tread shows on the tire's outer edge, with the tube hidden. On step 2 beads 0, 2, 4 and 6 glow and the odd beads stay grey. On step 4 the curved lever A sits in socket A. At the end of step 4, lever B is at 5 o'clock and Bead_1..3 are lifted with the tube showing underneath. At step 5 mid-pull, the segments by the tube end hang out, the next ones are partly out, and the valve-side segments are still in. `RunAndCollectLogsTool` shows no Lens errors (only editor-side `adb` device-probe warnings, no device attached).
 
 Left for 7b: `Environment` (Workbench, Pegboard, Toolbox, FloorMat), `Stand/BikeFrame` and `Saddle`, `StandClamp` move, lights and shadows, metallic Hub and Rim materials, and the `Environment` / `BikeFrame` assertions at the marker in `scene-dressing`.
+
+## 2026-10-24: Pass 7b, richer scene (scene half; plan `docs/PASSES_7_TO_10_PLAN.md`)
+
+Branch `Sujeeth-AR-SPECS-WORK`. Built by the CLAD Specs Experience Builder through the Lens Studio MCP, on top of 7a (7e0b75f). Scope: text-to-3D props, the code-built rear triangle and floor mat, layout, lights and shadows, metal materials, and the `scene-dressing` 7b assertions. Not committed.
+
+What was built:
+
+- **Text-to-3D props** (SPECS text-to-3D through `/build-mesh`, balanced quality, all four succeeded on the first job, each about 30 to 60 s): `Assets/GeneratedMeshes/Workbench.glb` (3,979 tris), `Pegboard.glb` (3,877), `Toolbox.glb` (3,949), `Saddle.glb` (3,767). All were already under 20k triangles, so `SimplifyMeshTool` was not needed. Sizes were baked into the GLBs with `normalize_glb.js` (no node scaling): Workbench 150 x 90.9 x 79.8 cm, grounded; Pegboard 120 x 100 x 24 cm (per-axis, a 13 percent stretch from the raw 100 x 94 x 29); Toolbox 45 x 37.7 x 28.9 cm, grounded; Saddle 21.5 x 27.5 x 28 cm, grounded (min-Y at the seatpost foot). Each instance (localScale 100) sits under a unit-scale wrapper named for the prop.
+- **`RearTriangle.ts`** on new `Stand/BikeFrame` (inputs `hub`, `material`; geometry inputs `chainStayCm` 42, `bbDropCm` 7, `seatTubeCm` 50, `seatAngleDeg` 73, `stayOffsetCm` 6). Built once in `onAwake` from the hub's position, read into BikeFrame's local space: BB 41.4 cm forward (-X) and 7 cm below the hub; seat cluster 50 cm up the seat tube, leaning back toward the wheel; two chain stays and two seat stays from dropouts at hub ± 6 cm Z; seat tube; BB shell; two dropout plates; a skewer through the hub. One mesh, 336 tris, `FrameMat` pale teal (0.45, 0.8, 0.8). `dropoutWorldPos()` is the midpoint of the dropouts, so it equals the hub by construction; `seatTubeWorldPos(t)` is also public. The seat tube clears the hub axis by 37.6 cm (tire outer radius about 35.3 cm).
+- **`FloorMat.ts`** on `Environment/FloorMat` at (0, -149.5, -90): 180 x 120 cm rounded rectangle (corner 10 cm), 7 cm pale blue border band and a 0.6 cm skirt (`MatBorderMat` 0.62, 0.78, 0.96) around a light grey field (`MatFieldMat` 0.82). Two runtime children (`FloorMatField`, `FloorMatBorder`), 180 tris, shadow receivers.
+- **`MeshKit.ts`**: small shared MeshBuilder helper (tube, disc, box, winding fixed from an outward hint) used by both scripts.
+- **Layout.** New root `Environment` (`FloorMat`, `Workbench` at (0, -150, -168) so its top is at y -59.1, `Pegboard` at (0, -5, -215) spanning y -55 to 45 with its front at z -203 just behind the bench's back edge at z -208, `Toolbox` on the floor at (70, -150, -120), yaw -20). `RepairManager` gained `@input @allowUndefined environment` and enables it with `showWheel`. `Stand/BikeFrame/Saddle` sits on the seat tube top at local (-27.95, 162, 20), tilted -17 degrees about Z to follow the seat tube; `SaddleModel` yaw -90 so the nose points forward (-X). `StandClamp` moved to grip the seat tube 40 percent up from the BB (local (-35.56, 137.13, 10.5), scale 5 x 5 x 23, reaching from the post at z 0 to the seat tube at z 20); `StandPost` and `StandBase` moved under it (post local x -35.56, y 4 to 135). Names unchanged. Nothing new sits between the user and the wheel; the only geometry in front of the wheel plane is the near-side chain stay and seat stay, 6 cm out, as on a real bike.
+- **Lighting.** `Lighting/Light` renamed `KeyLight`: directional, rotation (-68, -30, 0), shadows on (ShadowMap, density 0.35, blur 3, 1024 map). New `Lighting/FillLight`: directional, rotation (-20, 30, 0), intensity 0.4, no shadows. `Ambient Light` is now type EnvMap with the Pasadena diffuse and specular maps (`Assets/BenchCoach/Materials/Pasadena.hdr`), exposure 2. Casters: `Hub`, `Spoke_0..15`, `StandBase`, `StandPost`, `StandClamp`, the rear triangle, the workbench, toolbox and saddle visuals, and the `TorusArc` rim and beads through a new `TorusArc.castShadows` input (true on `Rim` and `Bead_0..7`). Receiver: the floor mat only.
+- **Materials.** New `HubMat` (base 0.95, metallic 0.45, roughness 0.3) on `Hub`. `RimMat` metallic 0.9, roughness 0.35. `TireMat` unchanged (0.5 grey).
+- **LEAF.** `scene-dressing` 7b block: after `reset`, step 0 has `Environment` and `BikeFrame` not enabled in hierarchy; after `BtnFoundIt`, step 1 has both enabled; `RearTriangle.dropoutWorldPos()` is within 1 cm of `Hub` (measured 0.00 cm). `BikeFrame` hides with `Stand`, so the test reads `isEnabledInHierarchy`, not its own flag.
+
+| Scenario | Result (serial, preview, camera reset before the run and again before `peel-and-pull`) |
+| --- | --- |
+| `start` | PASSED |
+| `deflate-loosen` | PASSED |
+| `lever-snap` | PASSED |
+| `peel-and-pull` | PASSED (lever B 0.00 cm from socket B; mid-pull 7.8 cm past the rim: TubeSeg_4 moved 23.20 cm, TubeSeg_0 0.00 cm) |
+| `inspect-done` | PASSED (Back from 1..7 worst diff 0.000 cm) |
+| `step-ticks` | PASSED (closest ticks steps 1/3, 7.15 cm) |
+| `scene-dressing` | PASSED (dropout to hub 0.00 cm) |
+| `jump-to-step` | PASSED |
+
+After the final recompile, all 372 `@input`s on BenchCoach scripts in the scene snapshot are non-null.
+
+Cost: about 16,100 new triangles (props 15,572, frame 336, mat 180) and 7 new draw calls (4 props, 1 frame, 2 mat), plus a shadow-map pass that redraws the casters (about 33 draws). Frame time was not profiled; the refresh logs show no Lens errors or performance warnings (only the editor's `adb` device-probe warnings, with no device attached).
+
+Deviations and why:
+
+- **Key light 68 degrees down, not 35.** At 35 degrees the wheel, 125 cm above the floor, throws its shadow about 180 cm back and to the right, past the mat, so there was nothing on the receiver. At 58 degrees it slid off the mat's right edge; at 68 it falls on the mat as a soft light-grey shape. Direction (from the front left) is unchanged.
+- **Hub metallic 0.45, not fully metallic.** At 0.9 (and 0.6) the hub cylinder rendered dark grey in the SPECS preview even with the env map; 0.45 with a 0.95 base reads as light metal. The rim keeps 0.9 / 0.35 and reads as mid-grey metal with a highlight.
+- **The specular env map needs an EnvMap-type light.** With the template's `Ambient` type the specular texture did nothing and the metal stayed near-black, so the ambient light was switched to EnvMap with both Pasadena maps, exposure 2.
+- **Pegboard tool handles were black.** One regeneration with an explicit light-colors prompt came back as crumpled, faceted geometry, so the first pegboard was kept and lightened instead: `emissiveFactor` 0.45 was baked into the GLB's glTF JSON, because edits to materials inside an imported GLB are not written to disk. Handles now read mid-grey and pale orange. The panel came with two short feet, which stand on the bench top.
+- **Pegboard placed at z -215 (not -200) and the bench at z -168 (not -175),** so the 80 cm deep bench and the 24 cm deep panel do not intersect.
+- No Blender on this machine, so `/build-mesh` could not render previews; completeness and facing were checked from runtime captures in Lens Studio instead (all four props whole; saddle yaw fixed from a top capture). The GLBs are not stamped canonical.
+
+Findings:
+
+- **`asset-graphql duplicateAsset` renamed the source asset instead of copying it** (it returned the source id, and `RimMat` / `StandMat` vanished from the list). Both were renamed back straight away; ids, scene references and file contents are unchanged (git shows no diff from that step). New materials were made as disk copies with fresh internal UUIDs instead.
+- **LEAF `run_leaf_scenario` overrides must be strings** (`{"step": "1"}`); a number fails with `Override "step" must be a string`.
+- **VirtualScene enum fields take numbers**: `lightType` 1 = Directional, 4 = EnvMap; `meshShadowMode` 1 = Caster; `shadowType` 2 = ShadowMap. Strings are rejected.
+- **Shadows need `shadowType` set on the light as well as `castsShadows`.**
+- **`MovePreviewCamera` and `SimplifyMeshTool` are reached through `IChatToolRegistry.execute()`**, like the LEAF tools.
+- Runtime capture ids are not editor ids; scene-mode captures (center and distance) work for close-ups.
+
+Left over: the tire still reads as dark grey under the new lighting (unchanged 0.5 `TireMat`, as the plan asks); a hands-on mouse walk of steps 2 to 7 with the new frame in view was not done (the near chain stay crosses in front of Bead_6's 9 o'clock region; it has no collider, so pinch rays are not blocked, but it is visually in front).
+
+## 2026-10-24: Pass 7b fix round, brightness on the additive display
+
+Review of the default-camera step 1 screenshot: the tire, rim, hub, seatpost and pegboard tool handles read near-black. Measured on screenshot pixels (sRGB luminance; the preview's see-through background is about 0.40, so anything near 0.40 is effectively invisible): tire 0.41 to 0.50, rim 0.40 to 0.48, darkest 2 percent of the pegboard tool area 0.43 to 0.53. Changes:
+
+- **`Ambient Light` back to the template's flat Ambient type** (intensity 1). The EnvMap diffuse at exposure 2 lit the wheel less than the flat ambient did. The Pasadena maps moved to a new `Lighting/EnvLight` (EnvMap type, exposure 1), so metal still gets reflections.
+- **`TireMat` 0.50 to 0.76 grey** (the plan's "mid-grey" was a material value; on screen it rendered at background level under the new lights).
+- **`RimMat` metallic 0.9 to 0.35, base 0.85 to 0.95; `HubMat` metallic 0.45 to 0.35.**
+- **`FillLight` intensity 0.4 to 0.6.**
+- **Emissive baked into the GLB JSON:** `Pegboard.glb` 0.45 to 0.65, `Saddle.glb` 0 to 0.4 (lifts the black seatpost).
+
+After (same camera and step): tire 0.54 to 0.74, rim 0.51 to 0.69 with highlights near 1.0, seatpost 0.82 to 0.87, darkest 2 percent of the pegboard tools 0.56 to 0.65. The wheel's shadow on the mat measures about 0.63 against 0.71 for open mat. Stand, spokes, frame, levers, ticks and the marker ring are unchanged or lighter. The ControlBar and ToolTray back plates are unlit UIKit panels and are not affected by lighting. A Lens Studio finding: material and light edits in the editor reset the running Lens, so every screenshot was retaken after `jump-to-step`. All 8 LEAF scenarios pass again, run serially from the default camera pose (camera reset before `peel-and-pull`).

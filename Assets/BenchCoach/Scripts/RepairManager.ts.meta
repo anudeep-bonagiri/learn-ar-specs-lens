@@ -35,6 +35,7 @@
     debugLogs: false
     deflateScale: false
     doneCard: false
+    environment: false
     ghost: false
     highlighter: false
     labelOffsetCm: false
@@ -70,6 +71,7 @@
   DefaultScriptInputs:
     - wheel: !<reference.SceneObject> 00000000-0000-0000-0000-000000000000
       stand: !<reference.SceneObject> 00000000-0000-0000-0000-000000000000
+      environment: !<reference.SceneObject> 00000000-0000-0000-0000-000000000000
       tire: !<reference.SceneObject> 00000000-0000-0000-0000-000000000000
       valve: !<reference.SceneObject> 00000000-0000-0000-0000-000000000000
       wheelTargets: !<MappingBased.AssignableType_1> 00000000-0000-0000-0000-000000000000
@@ -109,6 +111,7 @@
     - '// @ui {"widget":"group_start", "label":"References"}'
     - '// @input SceneObject wheel {"hint":"Wheel assembly root (hidden until Found it)"}'
     - '// @input SceneObject stand {"hint":"Repair stand root (hidden until Found it)"}'
+    - '// @input SceneObject environment {"hint":"Workshop dressing root (bench, pegboard, mat, props); shown with the wheel"}'
     - '// @input SceneObject tire {"hint":"Tire group holding Bead_0..7 (scaled 4% down on deflate)"}'
     - '// @input SceneObject valve {"hint":"Valve stem (step 1 marker anchor)"}'
     - '// @input AssignableType_1 wheelTargets {"hint":"Pinch targets on the valve and beads"}'
