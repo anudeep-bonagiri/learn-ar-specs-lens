@@ -53,6 +53,18 @@ export class WheelTargets extends BaseScriptComponent {
   onValvePinched: PublicApi<void> = this._onValvePinched.publicApi()
   onBeadPinched: PublicApi<number> = this._onBeadPinched.publicApi()
 
+  private valveTarget: Interactable | null = null
+  private beadTargets: Interactable[] = []
+
+  /**
+   * Only the current step's parts take pinches. A live bead hit box elsewhere
+   * swallows pinches meant for what is behind or inside it (the thorn sits in Bead_2's).
+   */
+  setActive(valve: boolean, beads: boolean): void {
+    if (this.valveTarget) this.valveTarget.enabled = valve
+    for (const t of this.beadTargets) t.enabled = beads
+  }
+
   onAwake(): void {
     if (!this.tire || !this.valve) {
       print("[WheelTargets] ERROR: tire / valve not assigned")
@@ -69,6 +81,7 @@ export class WheelTargets extends BaseScriptComponent {
     )
     const valveInteractable = this.valve.createComponent(Interactable.getTypeName()) as Interactable
     valveInteractable.onTriggerEnd.add(() => this._onValvePinched.invoke())
+    this.valveTarget = valveInteractable
 
     const chord = 2 * this.beadRadiusCm * Math.sin((this.beadSweepDeg * Math.PI) / 360)
     for (const i of LOOSEN_BEADS) {
@@ -85,6 +98,7 @@ export class WheelTargets extends BaseScriptComponent {
       const interactable = bead.createComponent(Interactable.getTypeName()) as Interactable
       const index = i
       interactable.onTriggerEnd.add(() => this._onBeadPinched.invoke(index))
+      this.beadTargets.push(interactable)
     }
   }
 

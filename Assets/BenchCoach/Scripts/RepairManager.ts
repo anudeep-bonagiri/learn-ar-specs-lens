@@ -535,6 +535,7 @@ export class RepairManager extends BaseScriptComponent {
       if (this.step === 6 && !this.thornFound) this.thorn.arm()
       else this.thorn.disarm()
     }
+    if (this.wheelTargets) this.wheelTargets.setActive(this.step === 1, this.step === 2)
 
     const showLabel = def.markerAnchor !== "none"
     if (this.stepLabel) this.setEnabled(this.stepLabel.sceneObject, showLabel)

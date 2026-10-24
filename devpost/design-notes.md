@@ -106,3 +106,29 @@ Findings that change the plan:
 - **Hidden panels have not followed yet.** The tray is disabled until step 3, so its first follow happens when it appears; the Back test compares levers in their parent's space for that reason.
 - **A ring on the answer would turn inspect into a card**, so the plan's "Marker on: tire inside face" became a label-only search with the ring as the reward.
 - **Scene edits made through the MCP are not on disk until the project is saved** (`Editor.Model.IModel.project.save()`).
+
+## 2026-10-24: Pass 5, placement and sizes (plan Section 4), checked by walking the preview
+
+Branch `Sudeep-Updates`. Measured every panel in the running preview from the start pose, then walked through steps 0 to 7 with the hand simulation and screenshots.
+
+Measured against Section 4 (all already to spec): control bar buttons Back 5 / Next 6 / Replay 5 cm with 2 cm gaps (centers 7.5 cm apart); start and Done cards 24 x 14 cm; step label panel 16 x 5 cm, placed 10 cm out from its marker along the wheel radius; tool tray 20 x 10 cm.
+
+Changed, with reasons:
+
+- **Control bar lowered from 25 to 35 cm below the eye line (still 45 cm out, tilted 38 degrees to face the eye).** At 25 cm below, the bar sat right over the bottom of the wheel, where step 5's tube end is, which breaks Section 4's own rule "No panel ever sits between the user and the wheel." The tire's lowest point is 34.4 degrees below the eye from the start pose; at 35 cm below, the bar's top edge is at 33.8 degrees, so only the outer edge of the tire's lowest point is still covered.
+- **Tool tray moved from (16, -25, -40) to (20, -30, -40), tilted 37 degrees.** The old spot covered the lower right of the wheel during steps 3 and 4.
+- **Step label type raised from Body to Headline2 and made to shrink for long lines.** At Body size the text filled about half the 16 cm panel, and the 47-character thorn label still ran past both edges. Labels now use Headline2 up to 32 characters and scale down beyond that (`BenchCoachStepLabelUI.fitChars`), so every label stays on one line inside the panel.
+- **The valve and bead pinch targets are live only on their own steps (1 and 2).** Walking the inspect step showed that neither the hand simulation nor a mouse click could pinch the thorn: Bead_2's 26 x 6 x 6 cm hit box stays live and covers the 4 o'clock glint, and on step 6 a bead pinch does nothing. LEAF `trigger` calls the target directly without a ray, so `inspect-done` had passed anyway. `WheelTargets.setActive(valve, beads)` is called from `RepairManager.applyStep`, and `inspect-done` now asserts that the valve and bead targets are off on step 6.
+
+| Criterion | LEAF scenario | Result |
+| --- | --- | --- |
+| 1 | `start` | PASSED |
+| 2 | `deflate-loosen` | PASSED |
+| 3 | `lever-snap` | PASSED |
+| 4 | `peel-and-pull` | PASSED (default camera pose) |
+| 5 | `inspect-done` | PASSED (with the new pinch-target assertion) |
+
+Findings:
+
+- **The preview hand simulation could not pinch targets on the wheel while their hit boxes overlapped,** and it reported `obstructed` on the valve because of the valve's own child hit box. A real pinch or click in the preview is the check that catches this; LEAF `trigger` cannot.
+- **Once pulled, the tube hangs as a ring in front of the lower wheel** through steps 6 and 7. It does not block the thorn.
