@@ -7,6 +7,9 @@
  * Expects: @input socket (LeverSocket for A, LeverSocketB for B). RepairManager
  * gates snapping with `snapEnabled`; RimDrag re-activates manipulation after a
  * lock via setManipulationActive(true) to drag the hooked lever along the rim.
+ * A locked lever is reparented to the socket's parent (the Wheel) so the tray can
+ * follow the user without carrying hooked levers along; its home pose is kept in
+ * the tray's local space for the same reason.
  */
 import Event, {PublicApi} from "SpectaclesInteractionKit.lspkg/Utils/Event"
 import {Interactable} from "SpectaclesInteractionKit.lspkg/Components/Interaction/Interactable/Interactable"
@@ -52,10 +55,12 @@ export class LeverPlacement extends BaseScriptComponent {
   snapEnabled: boolean = true
   grabCount: number = 0
   releaseCount: number = 0
+  grabbed: boolean = false
 
   private manipulation: InteractableManipulation | null = null
-  private homePos = vec3.zero()
-  private homeRot = quat.quatIdentity()
+  private homeParent: SceneObject | null = null
+  private homeLocalPos = vec3.zero()
+  private homeLocalRot = quat.quatIdentity()
   private homeRecorded = false
 
   private tweening = false
@@ -73,11 +78,22 @@ export class LeverPlacement extends BaseScriptComponent {
   onRejected: PublicApi<void> = this._onRejected.publicApi()
 
   getHomePosition(): vec3 {
-    return this.homePos
+    if (!this.homeParent) return this.homeLocalPos
+    return this.homeParent.getTransform().getWorldTransform().multiplyPoint(this.homeLocalPos)
+  }
+
+  getHomeRotation(): quat {
+    if (!this.homeParent) return this.homeLocalRot
+    return this.homeParent.getTransform().getWorldRotation().multiply(this.homeLocalRot)
   }
 
   distanceToHome(): number {
-    return this.sceneObject.getTransform().getWorldPosition().distance(this.homePos)
+    return this.sceneObject.getTransform().getWorldPosition().distance(this.getHomePosition())
+  }
+
+  /** Grabbed or mid-tween: a body-following tray must hold still. */
+  isBusy(): boolean {
+    return this.grabbed || this.tweening
   }
 
   distanceToSocket(): number {
@@ -103,9 +119,11 @@ export class LeverPlacement extends BaseScriptComponent {
       this.recordHome()
       manipulation.onManipulationStart.add(() => {
         this.grabCount += 1
+        this.grabbed = true
       })
       manipulation.onManipulationEnd.add(() => {
         this.releaseCount += 1
+        this.grabbed = false
         this.onReleased()
       })
     })
@@ -115,8 +133,9 @@ export class LeverPlacement extends BaseScriptComponent {
   /** Remember the current pose as the tray pose (called once at start; Phase A authored it). */
   recordHome(): void {
     const tr = this.sceneObject.getTransform()
-    this.homePos = tr.getWorldPosition()
-    this.homeRot = tr.getWorldRotation()
+    this.homeParent = this.sceneObject.getParent()
+    this.homeLocalPos = tr.getLocalPosition()
+    this.homeLocalRot = tr.getLocalRotation()
     this.homeRecorded = true
   }
 
@@ -130,6 +149,7 @@ export class LeverPlacement extends BaseScriptComponent {
     this.tweening = false
     this.isLocked = true
     this.setManipulationEnabled(false)
+    this.attachToSocketParent()
   }
 
   /** Let another controller (RimDrag) re-enable or disable grabbing while locked. */
@@ -144,15 +164,19 @@ export class LeverPlacement extends BaseScriptComponent {
   /** Back / reset: unlock and return the lever to the tray. */
   returnHome(instant: boolean = false): void {
     this.isLocked = false
+    this.grabbed = false
+    if (this.homeParent && this.sceneObject.getParent() !== this.homeParent) {
+      this.sceneObject.setParentPreserveWorldTransform(this.homeParent)
+    }
     if (instant) {
       const tr = this.sceneObject.getTransform()
-      tr.setWorldPosition(this.homePos)
-      tr.setWorldRotation(this.homeRot)
+      tr.setLocalPosition(this.homeLocalPos)
+      tr.setLocalRotation(this.homeLocalRot)
       this.tweening = false
       this.setManipulationEnabled(true)
       return
     }
-    this.startTween(this.homePos, this.homeRot, this.returnDurationSec, false)
+    this.startTween(this.getHomePosition(), this.getHomeRotation(), this.returnDurationSec, false)
   }
 
   private onReleased(): void {
@@ -163,7 +187,7 @@ export class LeverPlacement extends BaseScriptComponent {
       this.startTween(st.getWorldPosition(), st.getWorldRotation(), this.snapDurationSec, true)
       print(`[LeverPlacement] ${this.sceneObject.name} snapped (${d.toFixed(1)} cm from socket)`)
     } else {
-      this.startTween(this.homePos, this.homeRot, this.returnDurationSec, false)
+      this.startTween(this.getHomePosition(), this.getHomeRotation(), this.returnDurationSec, false)
       print(`[LeverPlacement] ${this.sceneObject.name} rejected (${d.toFixed(1)} cm from socket), returning to tray`)
       this._onRejected.invoke()
     }
@@ -195,11 +219,18 @@ export class LeverPlacement extends BaseScriptComponent {
       if (this.lockOnArrive) {
         this.isLocked = true
         this.setManipulationEnabled(false)
+        this.attachToSocketParent()
         this._onPlaced.invoke()
       } else {
         this.setManipulationEnabled(true)
       }
     }
+  }
+
+  /** Hooked levers belong to the wheel, not the (body-following) tray. */
+  private attachToSocketParent(): void {
+    const target = this.socket ? this.socket.getParent() : null
+    if (target && this.sceneObject.getParent() !== target) this.sceneObject.setParentPreserveWorldTransform(target)
   }
 
   private setManipulationEnabled(on: boolean): void {

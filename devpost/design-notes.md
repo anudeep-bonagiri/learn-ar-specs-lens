@@ -76,3 +76,33 @@ Findings that change the plan:
 - The generator script folder `tempAssetGen/` was removed after rendering; the recipes are described above.
 
 Left for criterion 5: thorn hotspot and inspect step, Done card timing and Try again, Back and Replay at every step under test, tick / click / nope / done sounds, body-locked follow for the control bar and tray.
+
+## 2026-10-24: Pass 4, criterion 5 (plan Section 7): inspect, Done, Back and Replay everywhere, cues, body-locked panels
+
+Branch `Sudeep-Updates`. Scope: step 6 and 7 behavior, Back and Replay on every step, the remaining cues, and lazy body-follow for the control bar and tool tray. The tube still leaves as one ring (segment-by-segment peel stays deferred).
+
+What was built:
+
+- `ThornHotspot` under `Tire` at 4 o'clock (local (29.62, -17.1, 2.0), rotation z -120 so local +Y points out of the tire) with `ThornHotspot.ts`: a 1 cm cyan `MarkerMat` glint (unit `Sphere.mesh`) that twinkles only while step 6 is armed, a 5 cm pinch box and `Interactable` that exist only while armed (the box overlaps `Bead_2`'s hit box), and a brass `ValveMat` thorn spike shown once found. `flash()` is the Replay hint.
+- Step 6 is a search: `StepDefinitions` marker anchor `inspect` puts the label above the wheel and shows no ring. Pinching the glint plays the click, moves the ring onto the thorn, swaps the label to "Thorn. Pull it out before the new tube goes in.", and after `thornRevealSec` (2.5 s) enters step 7. Back during that delay cancels it (generation counter).
+- Step 7 plays the new Done cue from the Done card; the card shows the elapsed time from Found it. Try again resets to step 0.
+- Replay on every step: ghost hook motion on 3 and 4, a bright glint flash on 6, the done cue on 7, and elsewhere the chime from the marker, so the user hears where the work is. `RepairManager.replayCount` exposes it for tests.
+- Back from step 6 hides the thorn again; from 7 it returns to an unsolved step 6.
+- Cues: `Assets/GeneratedSFX/Tick.wav`, `Click.wav`, `Nope.wav`, `Done.wav` from `/build-sfx` (algorithmic, license-clean), on new `Audio/Tick|Click|Nope|Done` emitters. Tick plays from the pressed panel on every button (`UIBindings`), click on each lever snap and on finding the thorn, nope when a lever is rejected.
+- `BodyFollow.ts` on `ControlBar` and `ToolTray`: the authored pose is read as an offset from the start pose (origin, facing -Z) and carried by the camera's position and yaw. It snaps to the user on its first frame, then only glides (exponential, speed 6) once the target is 20 cm away or 35 degrees off, and holds still while either lever is grabbed or tweening. Walking 60 cm right and turning 40 degrees put the bar 45 cm ahead and 25 cm below eye level on the new heading.
+- `LeverPlacement`: a hooked lever is reparented to the socket's parent (`Wheel`) so the following tray never drags it off the rim; home is stored in the tray's local space and the lever is reparented back on Back / reset.
+
+| Criterion | LEAF scenario | Result |
+| --- | --- | --- |
+| 1 | `start` | PASSED |
+| 2 | `deflate-loosen` | PASSED |
+| 3 | `lever-snap` | PASSED |
+| 4 | `peel-and-pull` | PASSED (from the default camera pose; see below) |
+| 5 | `inspect-done` | PASSED (ring 1.50 cm from the thorn; Done card "Time 0:03"; Back from steps 1 to 7 matches the `jumpToStep(n-1)` model exactly, 0.000 cm; Replay acted on all 7 steps, ghost replayed on 3 and 4) |
+
+Findings that change the plan:
+
+- **`peel-and-pull` depends on the preview camera pose.** With the preview camera left at z 78 cm (168 cm from the wheel) the 6 o'clock marker is inside the view and the edge arrow correctly stays off, failing the assertion. Reset the preview camera (`MovePreviewCamera reset`) before a test run.
+- **Hidden panels have not followed yet.** The tray is disabled until step 3, so its first follow happens when it appears; the Back test compares levers in their parent's space for that reason.
+- **A ring on the answer would turn inspect into a card**, so the plan's "Marker on: tire inside face" became a label-only search with the ring as the reward.
+- **Scene edits made through the MCP are not on disk until the project is saved** (`Editor.Model.IModel.project.save()`).

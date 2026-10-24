@@ -2,10 +2,11 @@
  * RepairManager — the step machine (steps 0..7) for the flat-fix procedure.
  * Owns: state {step, subStep, startTime}, which authored objects are visible per
  * step, the StepMarker / StepLabel placement, and every model change (tire
- * deflate, bead push, bead lift, bead peel) plus its undo on Back / reset. The
- * tube pull animation is owned by TubePull; this script arms it and restores it.
+ * deflate, bead push, bead lift, bead peel, thorn reveal) plus its undo on Back /
+ * reset, and which cue (click, nope, done) plays when. The tube pull animation is
+ * owned by TubePull and the glint by ThornHotspot; this script arms and restores them.
  * Reads: StepDefinitions. Listens to: WheelTargets, LeverPlacement (A and B),
- * RimDrag, TubePull. Next and jumpToStep() apply a step's model state directly.
+ * RimDrag, TubePull, ThornHotspot. Next and jumpToStep() apply a step's model state directly.
  * Must not: author UI — cards and labels are passive views driven via setters.
  * Size note: above 400 lines on purpose — the per-step complete / undo / apply
  * tables are one state machine and are easier to audit side by side than split.
@@ -13,12 +14,13 @@
  * component (UIKit plates, buttons, levers) initializes while enabled.
  */
 import Event, {PublicApi} from "SpectaclesInteractionKit.lspkg/Utils/Event"
-import {LAST_STEP, LOOSEN_BEADS, STEPS, SOCKET_B_ANGLE_DEG} from "./StepDefinitions"
+import {LAST_STEP, LOOSEN_BEADS, STEPS, SOCKET_B_ANGLE_DEG, THORN_FOUND_LABEL} from "./StepDefinitions"
 import {WheelTargets} from "./WheelTargets"
 import {LeverPlacement} from "./LeverPlacement"
 import {GhostAnimator} from "./GhostAnimator"
 import {RimDrag} from "./RimDrag"
 import {TubePull} from "./TubePull"
+import {ThornHotspot} from "./ThornHotspot"
 import {BenchCoachAudio} from "./BenchCoachAudio"
 import {BenchCoachStepLabelUI} from "./BenchCoachStepLabelUI"
 import {BenchCoachDoneCardUI} from "./BenchCoachDoneCardUI"
@@ -105,11 +107,15 @@ export class RepairManager extends BaseScriptComponent {
   tubeEnd: SceneObject
 
   @input
-  @hint("Cue player (zipper)")
+  @hint("ThornHotspot in the tire (step 6 search target)")
+  thorn: ThornHotspot
+
+  @input
+  @hint("Cue player (zipper, click, nope, done)")
   audio: BenchCoachAudio
 
   @input
-  @hint("Done card (step 7 stub)")
+  @hint("Done card (step 7)")
   doneCard: BenchCoachDoneCardUI
   @ui.group_end
 
@@ -147,6 +153,11 @@ export class RepairManager extends BaseScriptComponent {
   beadLiftCm: number = 1
 
   @input
+  @hint("Seconds the found thorn and its label stay up before the Done card")
+  @widget(new SliderWidget(0, 6, 0.1))
+  thornRevealSec: number = 2.5
+
+  @input
   @hint("Print step transitions to the log")
   debugLogs: boolean = true
   @ui.group_end
@@ -158,7 +169,13 @@ export class RepairManager extends BaseScriptComponent {
   private peeled: number[] = []
   private leverPlaced = false
   private leverBPlaced = false
+  private thornFound = false
+  /** Bumped whenever step 6 is undone, so a pending thorn-to-Done delay is dropped. */
+  private thornGeneration = 0
   private initialized = false
+
+  /** Times Replay did something on the current step (ghost, chime or glint flash). */
+  replayCount: number = 0
 
   private _onStepChanged = new Event<number>()
   onStepChanged: PublicApi<number> = this._onStepChanged.publicApi()
@@ -210,6 +227,7 @@ export class RepairManager extends BaseScriptComponent {
       ["rimDrag", this.rimDrag],
       ["tubePull", this.tubePull],
       ["tubeEnd", this.tubeEnd],
+      ["thorn", this.thorn],
       ["audio", this.audio],
       ["doneCard", this.doneCard],
     ]
@@ -225,6 +243,9 @@ export class RepairManager extends BaseScriptComponent {
     this.rimDrag.onSegmentPassed.add((i) => this.onSegmentPeeled(i))
     this.rimDrag.onPeelComplete.add(() => this.onPeelComplete())
     this.tubePull.onPullComplete.add(() => this.onTubePulled())
+    this.thorn.onFound.add(() => this.onThornFound())
+    this.leverA.onRejected.add(() => this.playNope(this.leverA))
+    this.leverB.onRejected.add(() => this.playNope(this.leverB))
   }
 
   // ── Public actions (UIBindings + tests) ────────────────────────────────────
@@ -253,9 +274,26 @@ export class RepairManager extends BaseScriptComponent {
     this.goTo(this.step - 1)
   }
 
+  /**
+   * Replay re-shows how to do the current step: the ghost's hooking motion on
+   * the lever steps, a bright glint flash on the inspect step, the done cue on
+   * the Done card, and elsewhere a chime from the marker so the user can hear
+   * where the work is.
+   */
   replay(): void {
     const def = STEPS[this.step]
-    if (def.showGhost && this.ghost && this.ghost.sceneObject.enabled) this.ghost.play()
+    if (def.showGhost && this.ghost && this.ghost.sceneObject.enabled) {
+      this.ghost.play()
+    } else if (def.markerAnchor === "inspect" && !this.thornFound) {
+      this.thorn.flash()
+    } else if (this.stepMarker.enabled) {
+      this.audio.playChimeAt(this.stepMarker.getTransform().getWorldPosition())
+    } else if (def.showDoneCard) {
+      this.audio.playDoneAt(this.doneCard.sceneObject.getTransform().getWorldPosition())
+    } else {
+      return
+    }
+    this.replayCount += 1
   }
 
   reset(): void {
@@ -296,6 +334,7 @@ export class RepairManager extends BaseScriptComponent {
 
   private onLeverPlaced(): void {
     if (this.step !== 3) return
+    this.playClick(this.leverA)
     this.applyLeverA()
     this.log("lever A placed: Bead_0 lifted")
     this.goTo(4)
@@ -305,6 +344,7 @@ export class RepairManager extends BaseScriptComponent {
     if (this.step !== 4 || this.leverBPlaced) return
     this.leverBPlaced = true
     this.subStep = 1
+    this.playClick(this.leverB)
     if (this.ghost) this.ghost.sceneObject.enabled = false
     this.rimDrag.arm(this.leverSocketB, SOCKET_B_ANGLE_DEG)
     this.log("lever B hooked: slide it round")
@@ -329,6 +369,31 @@ export class RepairManager extends BaseScriptComponent {
     if (this.step !== 5) return
     this.log("tube out")
     this.goTo(6)
+  }
+
+  /** The thorn is found: show it with its label for a moment, then the Done card. */
+  private onThornFound(): void {
+    if (this.step !== 6 || this.thornFound) return
+    this.thornFound = true
+    this.subStep = 1
+    this.playClick(this.thorn)
+    this.stepLabel.setText(THORN_FOUND_LABEL)
+    this.placeMarkerAndLabel()
+    this.log("thorn found")
+    const generation = this.thornGeneration
+    const delay = this.createEvent("DelayedCallbackEvent")
+    delay.bind(() => {
+      if (this.step === 6 && this.thornFound && generation === this.thornGeneration) this.goTo(7)
+    })
+    delay.reset(this.thornRevealSec)
+  }
+
+  private playClick(source: BaseScriptComponent): void {
+    if (this.audio) this.audio.playClickAt(source.sceneObject.getTransform().getWorldPosition())
+  }
+
+  private playNope(source: BaseScriptComponent): void {
+    if (this.audio) this.audio.playNopeAt(source.sceneObject.getTransform().getWorldPosition())
   }
 
   // ── Model changes shared by user actions, Next and jumpToStep ─────────────
@@ -387,6 +452,10 @@ export class RepairManager extends BaseScriptComponent {
       case 5:
         if (this.tubePull) this.tubePull.completeInstant()
         break
+      case 6:
+        this.thornFound = true
+        if (this.thorn) this.thorn.revealInstant()
+        break
       default:
         break
     }
@@ -394,9 +463,14 @@ export class RepairManager extends BaseScriptComponent {
 
   // ── Step transitions ───────────────────────────────────────────────────────
   private goTo(step: number): void {
+    const from = this.step
     this.step = Math.max(0, Math.min(LAST_STEP, step))
     this.subStep = 0
+    this.replayCount = 0
     this.applyStep()
+    if (this.step === LAST_STEP && from !== LAST_STEP && this.audio && this.doneCard) {
+      this.audio.playDoneAt(this.doneCard.sceneObject.getTransform().getWorldPosition())
+    }
     this._onStepChanged.invoke(this.step)
   }
 
@@ -430,6 +504,11 @@ export class RepairManager extends BaseScriptComponent {
       case 5:
         if (this.tubePull) this.tubePull.restore()
         break
+      case 6:
+        this.thornFound = false
+        this.thornGeneration += 1
+        if (this.thorn) this.thorn.reset()
+        break
       default:
         break
     }
@@ -452,13 +531,18 @@ export class RepairManager extends BaseScriptComponent {
       if (this.step === 5) this.tubePull.arm()
       else this.tubePull.disarm()
     }
+    if (this.thorn) {
+      if (this.step === 6 && !this.thornFound) this.thorn.arm()
+      else this.thorn.disarm()
+    }
 
-    const showMarker = def.markerAnchor !== "none"
-    this.setEnabled(this.stepMarker, showMarker)
-    if (this.stepLabel) this.setEnabled(this.stepLabel.sceneObject, showMarker)
-    if (showMarker) {
-      this.stepLabel.setText(def.label)
+    const showLabel = def.markerAnchor !== "none"
+    if (this.stepLabel) this.setEnabled(this.stepLabel.sceneObject, showLabel)
+    if (showLabel) {
+      this.stepLabel.setText(def.markerAnchor === "inspect" && this.thornFound ? THORN_FOUND_LABEL : def.label)
       this.placeMarkerAndLabel()
+    } else {
+      this.setEnabled(this.stepMarker, false)
     }
     if (def.showGhost && this.ghost) {
       this.ghost.setSocket(def.ghostSocket === "B" ? this.leverSocketB : this.leverSocket)
@@ -468,8 +552,10 @@ export class RepairManager extends BaseScriptComponent {
   }
 
   // ── Marker and label placement ─────────────────────────────────────────────
+  /** Places the ring and its label; on the inspect step the ring only appears on a found thorn. */
   private placeMarkerAndLabel(): void {
     const def = STEPS[this.step]
+    this.setEnabled(this.stepMarker, def.markerAnchor !== "inspect" || this.thornFound)
     const wheelTr = this.wheel.getTransform()
     const wheelMat = wheelTr.getWorldTransform()
     const center = wheelTr.getWorldPosition()
@@ -491,6 +577,10 @@ export class RepairManager extends BaseScriptComponent {
     } else if (def.markerAnchor === "tubeEnd" && this.tubeEnd) {
       markerPos = this.tubeEnd.getTransform().getWorldPosition().add(new vec3(0, 0, this.markerStandoffCm))
       angleDeg = 180
+    } else if (def.markerAnchor === "inspect" && this.thorn) {
+      markerPos = this.thorn.sceneObject.getTransform().getWorldPosition().add(new vec3(0, 0, this.markerStandoffCm))
+      // Searching: the label sits above the wheel, not next to the answer.
+      if (!this.thornFound) angleDeg = 0
     } else {
       markerPos = wheelMat.multiplyPoint(this.radial(angleDeg, radius, this.markerStandoffCm + 2))
     }
