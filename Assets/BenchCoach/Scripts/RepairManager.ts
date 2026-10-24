@@ -24,6 +24,7 @@ import {ThornHotspot} from "./ThornHotspot"
 import {BenchCoachAudio} from "./BenchCoachAudio"
 import {BenchCoachStepLabelUI} from "./BenchCoachStepLabelUI"
 import {BenchCoachDoneCardUI} from "./BenchCoachDoneCardUI"
+import {StepTicks} from "./StepTicks"
 
 export interface RepairState {
   step: number
@@ -117,6 +118,10 @@ export class RepairManager extends BaseScriptComponent {
   @input
   @hint("Done card (step 7)")
   doneCard: BenchCoachDoneCardUI
+
+  @input
+  @hint("Dim ticks left on the parts of completed steps")
+  ticks: StepTicks
   @ui.group_end
 
   @ui.separator
@@ -545,6 +550,7 @@ export class RepairManager extends BaseScriptComponent {
     } else {
       this.setEnabled(this.stepMarker, false)
     }
+    this.placeTicks()
     if (def.showGhost && this.ghost) {
       this.ghost.setSocket(def.ghostSocket === "B" ? this.leverSocketB : this.leverSocket)
       this.ghost.play()
@@ -557,39 +563,58 @@ export class RepairManager extends BaseScriptComponent {
   private placeMarkerAndLabel(): void {
     const def = STEPS[this.step]
     this.setEnabled(this.stepMarker, def.markerAnchor !== "inspect" || this.thornFound)
-    const wheelTr = this.wheel.getTransform()
-    const wheelMat = wheelTr.getWorldTransform()
-    const center = wheelTr.getWorldPosition()
+    const anchor = this.markerAnchorFor(this.step, true)
+    this.stepMarker.getTransform().setWorldPosition(anchor.pos)
+
+    // Searching: the label sits above the wheel, not next to the answer.
+    const angleDeg = def.markerAnchor === "inspect" && !this.thornFound ? 0 : anchor.angleDeg
+    const dir = new vec3(Math.sin((angleDeg * Math.PI) / 180), Math.cos((angleDeg * Math.PI) / 180), 0)
+    const labelPos = this.wheel
+      .getTransform()
+      .getWorldPosition()
+      .add(dir.uniformScale(anchor.radius + this.labelOffsetCm))
+      .add(new vec3(0, 0, 4))
+    this.stepLabel.sceneObject.getTransform().setWorldPosition(labelPos)
+  }
+
+  /** A small dim tick on the part of every completed step that has one. */
+  private placeTicks(): void {
+    if (!this.ticks) return
+    const positions: vec3[] = []
+    for (let s = 1; s < this.step; s++) {
+      if (STEPS[s].markerAnchor !== "none") positions.push(this.markerAnchorFor(s, false).pos)
+    }
+    this.ticks.setTicks(this.wheel.enabled ? positions : [])
+  }
+
+  /**
+   * Where a step's ring goes, and the wheel angle / radius its label hangs off.
+   * `live` follows the step's moving parts (the next lit bead, the pulled tube end);
+   * a completed step's tick stays where the work was done.
+   */
+  private markerAnchorFor(step: number, live: boolean): {pos: vec3; angleDeg: number; radius: number} {
+    const def = STEPS[step]
+    const wheelMat = this.wheel.getTransform().getWorldTransform()
     let angleDeg = def.markerAngleDeg
     let radius = this.beadRadiusCm * this.tire.getTransform().getLocalScale().x
-    if (def.markerAnchor === "bead" && this.step === 2) {
-      const nextBead = LOOSEN_BEADS.filter((i) => this.loosened.indexOf(i) < 0)[0]
-      angleDeg = nextBead === undefined ? def.markerAngleDeg : nextBead * 45 + 22.5
-    }
-    let markerPos: vec3
     if (def.markerAnchor === "valve") {
-      markerPos = this.valve.getTransform().getWorldPosition().add(new vec3(0, 0, this.markerStandoffCm))
-      const local = this.valve.getTransform().getLocalPosition()
-      radius = local.length
-      angleDeg = 0
-    } else if (def.markerAnchor === "socket") {
-      angleDeg = def.markerAngleDeg
-      markerPos = wheelMat.multiplyPoint(this.radial(angleDeg, radius, this.markerStandoffCm + 2))
-    } else if (def.markerAnchor === "tubeEnd" && this.tubeEnd) {
-      markerPos = this.tubeEnd.getTransform().getWorldPosition().add(new vec3(0, 0, this.markerStandoffCm))
-      angleDeg = 180
-    } else if (def.markerAnchor === "inspect" && this.thorn) {
-      markerPos = this.thorn.sceneObject.getTransform().getWorldPosition().add(new vec3(0, 0, this.markerStandoffCm))
-      // Searching: the label sits above the wheel, not next to the answer.
-      if (!this.thornFound) angleDeg = 0
-    } else {
-      markerPos = wheelMat.multiplyPoint(this.radial(angleDeg, radius, this.markerStandoffCm + 2))
+      const pos = this.valve.getTransform().getWorldPosition().add(new vec3(0, 0, this.markerStandoffCm))
+      return {pos, angleDeg: 0, radius: this.valve.getTransform().getLocalPosition().length}
     }
-    this.stepMarker.getTransform().setWorldPosition(markerPos)
-
-    const dir = new vec3(Math.sin((angleDeg * Math.PI) / 180), Math.cos((angleDeg * Math.PI) / 180), 0)
-    const labelPos = center.add(dir.uniformScale(radius + this.labelOffsetCm)).add(new vec3(0, 0, 4))
-    this.stepLabel.sceneObject.getTransform().setWorldPosition(labelPos)
+    if (def.markerAnchor === "tubeEnd" && this.tubeEnd && live) {
+      const pos = this.tubeEnd.getTransform().getWorldPosition().add(new vec3(0, 0, this.markerStandoffCm))
+      return {pos, angleDeg: 180, radius}
+    }
+    if (def.markerAnchor === "inspect" && this.thorn) {
+      const pos = this.thorn.sceneObject.getTransform().getWorldPosition().add(new vec3(0, 0, this.markerStandoffCm))
+      return {pos, angleDeg, radius}
+    }
+    if (!live && def.tickAngleDeg !== undefined) angleDeg = def.tickAngleDeg
+    if (def.markerAnchor === "bead" && step === 2 && live) {
+      const nextBead = LOOSEN_BEADS.filter((i) => this.loosened.indexOf(i) < 0)[0]
+      if (nextBead !== undefined) angleDeg = nextBead * 45 + 22.5
+    }
+    return {pos: wheelMat.multiplyPoint(this.radial(angleDeg, radius, this.markerStandoffCm + 2)), angleDeg, radius}
   }
 
   /** Deflate shrinks the tire AND the tube together so the tube stays inside the tire. */

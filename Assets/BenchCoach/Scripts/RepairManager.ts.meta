@@ -49,6 +49,7 @@
     stepMarker: false
     thorn: false
     thornRevealSec: false
+    ticks: false
     tire: false
     toolTray: false
     tubeEnd: false
@@ -85,6 +86,7 @@
       thorn: !<MappingBased.AssignableType_8> 00000000-0000-0000-0000-000000000000
       audio: !<MappingBased.AssignableType_9> 00000000-0000-0000-0000-000000000000
       doneCard: !<MappingBased.AssignableType_10> 00000000-0000-0000-0000-000000000000
+      ticks: !<MappingBased.AssignableType_11> 00000000-0000-0000-0000-000000000000
       beadRadiusCm: 33.400002
       markerStandoffCm: 1.500000
       labelOffsetCm: !<float> 10.000000
@@ -121,6 +123,7 @@
     - '// @input AssignableType_8 thorn {"hint":"ThornHotspot in the tire (step 6 search target)"}'
     - '// @input AssignableType_9 audio {"hint":"Cue player (zipper, click, nope, done)"}'
     - '// @input AssignableType_10 doneCard {"hint":"Done card (step 7)"}'
+    - '// @input AssignableType_11 ticks {"hint":"Dim ticks left on the parts of completed steps"}'
     - '// @ui {"widget":"group_end"}'
     - '// @ui {"widget":"separator"}'
     - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">Settings</span>"}'

@@ -6,6 +6,7 @@ import {LeverSnapScenario} from "./LeverSnapScenario"
 import {PeelAndPullScenario} from "./PeelAndPullScenario"
 import {InspectDoneScenario} from "./InspectDoneScenario"
 import {JumpToStepScenario} from "./JumpToStepScenario"
+import {StepTicksScenario} from "./StepTicksScenario"
 
 @component
 export class LeafIndex extends BaseScriptComponent {
@@ -30,6 +31,10 @@ export class LeafIndex extends BaseScriptComponent {
     {
       id: "inspect-done",
       typename: InspectDoneScenario.getTypeName(),
+    },
+    {
+      id: "step-ticks",
+      typename: StepTicksScenario.getTypeName(),
     },
     {
       id: "jump-to-step",

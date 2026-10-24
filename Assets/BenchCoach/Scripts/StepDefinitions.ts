@@ -24,6 +24,8 @@ export interface StepDef {
   markerAnchor: MarkerAnchor
   /** Clockwise angle from 12 o'clock for bead / inspect anchors, in degrees (inspect: where the thorn is). */
   markerAngleDeg: number
+  /** Where the dim tick sits once the step is done, if not at markerAngleDeg (where the work ended). */
+  tickAngleDeg?: number
   showStartCard: boolean
   showWheel: boolean
   showTray: boolean
@@ -90,6 +92,7 @@ export const STEPS: StepDef[] = [
     action: "beads",
     markerAnchor: "bead",
     markerAngleDeg: 22.5,
+    tickAngleDeg: 292.5, // the last lit bead (9 o'clock side), clear of the lever sockets
     showStartCard: false,
     showWheel: true,
     showTray: false,
@@ -118,6 +121,7 @@ export const STEPS: StepDef[] = [
     action: "leverB",
     markerAnchor: "socket",
     markerAngleDeg: SOCKET_B_ANGLE_DEG,
+    tickAngleDeg: 90, // the peel ends at 3 o'clock
     showStartCard: false,
     showWheel: true,
     showTray: true,
