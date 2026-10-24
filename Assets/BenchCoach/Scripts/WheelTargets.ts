@@ -1,14 +1,19 @@
 /**
- * WheelTargets — makes the Valve and the four loosen beads pinchable. Adds a
+ * WheelTargets — makes the Valve and all eight beads pinchable. Adds a
  * child box collider (fitted to each bead's chord / the valve stem) and an SIK
  * Interactable on the named part itself, so LEAF and the mouse find "Valve" and
  * "Bead_i" by name.
- * Owns: colliders + Interactables. Emits onValvePinched / onBeadPinched(i).
- * Must not: decide anything about steps — RepairManager does.
+ * Owns: colliders + Interactables. Emits onValvePinched / onBeadPinched(i), and
+ * onValveDown / onValveUp for the pinch-and-hold inflate (step 10).
+ * Must not: decide anything about steps — RepairManager / RefitSteps do, through setActive().
+ * A valve target switched off while a hand still holds it stays on until the
+ * release (turning an Interactable off under a held pinch strands the pinch).
  */
 import Event, {PublicApi} from "SpectaclesInteractionKit.lspkg/Utils/Event"
 import {Interactable} from "SpectaclesInteractionKit.lspkg/Components/Interaction/Interactable/Interactable"
 import {LOOSEN_BEADS} from "./StepDefinitions"
+
+const ALL_BEADS = [0, 1, 2, 3, 4, 5, 6, 7]
 
 @component
 export class WheelTargets extends BaseScriptComponent {
@@ -50,19 +55,48 @@ export class WheelTargets extends BaseScriptComponent {
 
   private _onValvePinched = new Event<void>()
   private _onBeadPinched = new Event<number>()
+  private _onValveDown = new Event<void>()
+  private _onValveUp = new Event<void>()
   onValvePinched: PublicApi<void> = this._onValvePinched.publicApi()
   onBeadPinched: PublicApi<number> = this._onBeadPinched.publicApi()
+  /** Valve pinch starts (hold-to-inflate). */
+  onValveDown: PublicApi<void> = this._onValveDown.publicApi()
+  /** Valve pinch ends or is cancelled. */
+  onValveUp: PublicApi<void> = this._onValveUp.publicApi()
+
+  /** True while a hand holds the valve. */
+  valveHeld: boolean = false
 
   private valveTarget: Interactable | null = null
+  private valveWanted = false
   private beadTargets: Interactable[] = []
+  private beadIndices: number[] = []
 
   /**
    * Only the current step's parts take pinches. A live bead hit box elsewhere
    * swallows pinches meant for what is behind or inside it (the thorn sits in Bead_2's).
+   * `beads`: true = the four loosen beads (step 2), false = none, or an explicit list.
    */
-  setActive(valve: boolean, beads: boolean): void {
-    if (this.valveTarget) this.valveTarget.enabled = valve
-    for (const t of this.beadTargets) t.enabled = beads
+  setActive(valve: boolean, beads: boolean | number[]): void {
+    this.valveWanted = valve
+    this.applyValve()
+    const list = beads === true ? LOOSEN_BEADS : beads === false ? [] : beads
+    for (let k = 0; k < this.beadTargets.length; k++) {
+      this.beadTargets[k].enabled = list.indexOf(this.beadIndices[k]) >= 0
+    }
+  }
+
+  private applyValve(): void {
+    if (!this.valveTarget) return
+    if (!this.valveWanted && this.valveHeld) return
+    this.valveTarget.enabled = this.valveWanted
+  }
+
+  private valveReleased(): void {
+    if (!this.valveHeld) return
+    this.valveHeld = false
+    this._onValveUp.invoke()
+    this.applyValve()
   }
 
   onAwake(): void {
@@ -80,11 +114,21 @@ export class WheelTargets extends BaseScriptComponent {
       new vec3(this.valveHitSizeCm.x / vs.x, this.valveHitSizeCm.y / vs.y, this.valveHitSizeCm.z / vs.z)
     )
     const valveInteractable = this.valve.createComponent(Interactable.getTypeName()) as Interactable
-    valveInteractable.onTriggerEnd.add(() => this._onValvePinched.invoke())
+    valveInteractable.onTriggerStart.add(() => {
+      this.valveHeld = true
+      this._onValveDown.invoke()
+    })
+    valveInteractable.onTriggerEnd.add(() => {
+      this._onValvePinched.invoke()
+      this.valveReleased()
+    })
+    valveInteractable.onTriggerCanceled.add(() => this.valveReleased())
+    // A pinch that drifts off the valve before letting go ends outside: still a release.
+    valveInteractable.onTriggerEndOutside.add(() => this.valveReleased())
     this.valveTarget = valveInteractable
 
     const chord = 2 * this.beadRadiusCm * Math.sin((this.beadSweepDeg * Math.PI) / 360)
-    for (const i of LOOSEN_BEADS) {
+    for (const i of ALL_BEADS) {
       const bead = this.findChild(this.tire, `Bead_${i}`)
       if (!bead) {
         print(`[WheelTargets] ERROR: Bead_${i} not found under ${this.tire.name}`)
@@ -98,7 +142,9 @@ export class WheelTargets extends BaseScriptComponent {
       const interactable = bead.createComponent(Interactable.getTypeName()) as Interactable
       const index = i
       interactable.onTriggerEnd.add(() => this._onBeadPinched.invoke(index))
+      interactable.enabled = false
       this.beadTargets.push(interactable)
+      this.beadIndices.push(index)
     }
   }
 

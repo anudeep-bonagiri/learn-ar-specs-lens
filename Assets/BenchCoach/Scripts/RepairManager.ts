@@ -1,5 +1,5 @@
 /**
- * RepairManager — the step machine (steps 0..7) for the flat-fix procedure.
+ * RepairManager — the step machine (steps 0..11) for the flat-fix procedure.
  * Owns: state {step, subStep, startTime}, which authored objects are visible per
  * step, the StepMarker / StepLabel placement, and every model change (tire
  * deflate, bead push, bead lift, bead peel, thorn reveal) plus its undo on Back /
@@ -14,9 +14,15 @@
  * tables are one state machine and are easier to audit side by side than split.
  * Note: step-0 visibility is applied on the first Update so every authored
  * component (UIKit plates, buttons, levers) initializes while enabled.
+ * Pass 9 seam: steps 8..10 belong to a StepModule (RefitSteps). The manager
+ * delegates them through the default branches of completeStep / undoStep, one
+ * call in applyStep (refit.apply, every step) and one in markerAnchorFor, and
+ * advances on refit.onStepComplete. Step 7 (halfway card) plays the Done cue;
+ * LAST_STEP (11, Finish card with time and RunStats) plays the Finish cue.
  */
 import Event, {PublicApi} from "SpectaclesInteractionKit.lspkg/Utils/Event"
-import {LAST_STEP, LOOSEN_BEADS, STEPS, SOCKET_B_ANGLE_DEG, THORN_FOUND_LABEL} from "./StepDefinitions"
+import {FLAT_CAUSES, LAST_STEP, LOOSEN_BEADS, STEPS, SOCKET_B_ANGLE_DEG, THORN_FOUND_LABEL} from "./StepDefinitions"
+import {beadMidDeg, findChild, setBeadOffset} from "./WheelMath"
 import {WheelTargets} from "./WheelTargets"
 import {LeverPlacement} from "./LeverPlacement"
 import {GhostAnimator} from "./GhostAnimator"
@@ -28,6 +34,9 @@ import {BenchCoachStepLabelUI} from "./BenchCoachStepLabelUI"
 import {BenchCoachDoneCardUI} from "./BenchCoachDoneCardUI"
 import {StepTicks} from "./StepTicks"
 import {Highlighter} from "./Highlighter"
+import {RefitSteps} from "./RefitSteps"
+import {BenchCoachFinishCardUI} from "./BenchCoachFinishCardUI"
+import {RunStats} from "./RunStats"
 
 export interface RepairState {
   step: number
@@ -38,7 +47,7 @@ export interface RepairState {
 
 @component
 export class RepairManager extends BaseScriptComponent {
-  @ui.label('<span style="color: #60A5FA;">RepairManager – step machine 0..7</span>')
+  @ui.label('<span style="color: #60A5FA;">RepairManager – step machine 0..11</span>')
   @ui.separator
   @ui.label('<span style="color: #60A5FA;">References</span>')
   @ui.group_start("References")
@@ -139,6 +148,21 @@ export class RepairManager extends BaseScriptComponent {
   @input
   @hint("Tube group (TubeSeg_0..7 and TubeEnd): hidden until a bead lifts")
   tube: SceneObject
+
+  @input
+  @allowUndefined
+  @hint("StepModule for steps 8..10 (fit the new tube, seat the bead, inflate)")
+  refit: RefitSteps
+
+  @input
+  @allowUndefined
+  @hint("Finish card (step 11): time, stats, prevention tip")
+  finishCard: BenchCoachFinishCardUI
+
+  @input
+  @allowUndefined
+  @hint("Run counters shown on the Finish card")
+  stats: RunStats
   @ui.group_end
 
   @ui.separator
@@ -180,6 +204,10 @@ export class RepairManager extends BaseScriptComponent {
   thornRevealSec: number = 2.5
 
   @input
+  @hint("Flat cause named on the Finish card (pass 8 picks one at random)")
+  causeId: string = "thorn"
+
+  @input
   @hint("Print step transitions to the log")
   debugLogs: boolean = true
   @ui.group_end
@@ -195,6 +223,8 @@ export class RepairManager extends BaseScriptComponent {
   /** Bumped whenever step 6 is undone, so a pending thorn-to-Done delay is dropped. */
   private thornGeneration = 0
   private initialized = false
+  /** True during Back / reset / jumpToStep: module entry changes snap instead of tweening. */
+  private instant = false
 
   /** Times Replay did something on the current step (ghost, chime or glint flash). */
   replayCount: number = 0
@@ -270,6 +300,15 @@ export class RepairManager extends BaseScriptComponent {
     this.thorn.onFound.add(() => this.onThornFound())
     this.leverA.onRejected.add(() => this.playNope(this.leverA))
     this.leverB.onRejected.add(() => this.playNope(this.leverB))
+    if (this.refit) {
+      this.refit.onStepComplete.add((s) => {
+        if (s === this.step) this.goTo(this.step + 1)
+      })
+      this.refit.onSubStep.add((n) => {
+        this.subStep = n
+        this.placeMarkerAndLabel()
+      })
+    }
   }
 
   // ── Public actions (UIBindings + tests) ────────────────────────────────────
@@ -293,9 +332,11 @@ export class RepairManager extends BaseScriptComponent {
   /** Back drops any partial work on the current step, then undoes the previous one. */
   back(): void {
     if (this.step <= 0) return
+    this.instant = true
     this.undoStep(this.step)
     this.undoStep(this.step - 1)
     this.goTo(this.step - 1)
+    this.instant = false
   }
 
   /**
@@ -306,7 +347,9 @@ export class RepairManager extends BaseScriptComponent {
    */
   replay(): void {
     const def = STEPS[this.step]
-    if (def.showGhost && this.ghost && this.ghost.sceneObject.enabled) {
+    if (this.refit && this.refit.ownsStep(this.step) && this.refit.replay(this.step)) {
+      // the module showed it
+    } else if (def.showGhost && this.ghost && this.ghost.sceneObject.enabled) {
       this.ghost.play()
     } else if (def.markerAnchor === "inspect" && !this.thornFound) {
       this.thorn.flash()
@@ -314,24 +357,33 @@ export class RepairManager extends BaseScriptComponent {
       this.audio.playChimeAt(this.stepMarker.getTransform().getWorldPosition())
     } else if (def.showDoneCard) {
       this.audio.playDoneAt(this.doneCard.sceneObject.getTransform().getWorldPosition())
+    } else if (def.showFinishCard && this.finishCard) {
+      this.audio.playFinishAt(this.finishCard.sceneObject.getTransform().getWorldPosition())
     } else {
       return
     }
     this.replayCount += 1
+    if (this.stats) this.stats.noteHint()
   }
 
   reset(): void {
+    const wasInstant = this.instant
+    this.instant = true
     for (let s = LAST_STEP; s >= 0; s--) this.undoStep(s)
     this.startTime = 0
+    if (this.stats) this.stats.reset()
     this.goTo(0)
+    this.instant = wasInstant
   }
 
   /** Debug / test entry: reset, apply the model state of steps 0..n-1, enter step n. */
   jumpToStep(n: number): void {
+    this.instant = true
     this.reset()
     const target = Math.max(0, Math.min(LAST_STEP, n))
     for (let s = 0; s < target; s++) this.completeStep(s)
     this.goTo(target)
+    this.instant = false
   }
 
   // ── Completion handlers ────────────────────────────────────────────────────
@@ -483,6 +535,7 @@ export class RepairManager extends BaseScriptComponent {
         if (this.thorn) this.thorn.revealInstant()
         break
       default:
+        if (this.refit && this.refit.ownsStep(step)) this.refit.complete(step)
         break
     }
   }
@@ -494,8 +547,11 @@ export class RepairManager extends BaseScriptComponent {
     this.subStep = 0
     this.replayCount = 0
     this.applyStep()
-    if (this.step === LAST_STEP && from !== LAST_STEP && this.audio && this.doneCard) {
+    if (this.step !== from && STEPS[this.step].showDoneCard && this.audio && this.doneCard) {
       this.audio.playDoneAt(this.doneCard.sceneObject.getTransform().getWorldPosition())
+    }
+    if (this.step === LAST_STEP && from !== LAST_STEP && this.audio && this.finishCard) {
+      this.audio.playFinishAt(this.finishCard.sceneObject.getTransform().getWorldPosition())
     }
     this._onStepChanged.invoke(this.step)
   }
@@ -536,6 +592,7 @@ export class RepairManager extends BaseScriptComponent {
         if (this.thorn) this.thorn.reset()
         break
       default:
+        if (this.refit && this.refit.ownsStep(step)) this.refit.undo(step)
         break
     }
   }
@@ -550,8 +607,12 @@ export class RepairManager extends BaseScriptComponent {
     if (this.ghost) this.setEnabled(this.ghost.sceneObject, def.showGhost)
     if (this.doneCard) this.setEnabled(this.doneCard.sceneObject, def.showDoneCard)
     if (def.showDoneCard && this.doneCard) this.doneCard.setElapsed(this.getState().elapsedSec)
+    if (this.finishCard) this.setEnabled(this.finishCard.sceneObject, def.showFinishCard)
+    if (def.showFinishCard && this.finishCard) this.pushFinishCard()
 
-    // Lever B only snaps during step 4 (before it is hooked); the tube end only pulls in step 5.
+    // Lever A only snaps up to step 3 (back home in the tray from step 8 it must not re-hook);
+    // lever B only during step 4 (before it is hooked); the tube end only pulls in step 5.
+    if (this.leverA) this.leverA.snapEnabled = this.step <= 3
     if (this.leverB) this.leverB.snapEnabled = this.step === 4 && !this.leverBPlaced
     if (this.rimDrag && this.step !== 4) this.rimDrag.disarm()
     if (this.tubePull) {
@@ -566,6 +627,8 @@ export class RepairManager extends BaseScriptComponent {
     // The tube shows once a bead lifts; TubePull keeps its homes while the group is off.
     this.setEnabled(this.tube, this.step >= 4 || this.leverPlaced)
     this.applyHighlight()
+    // Every step (owned or not): the module arms / disarms its parts and may override targets and glow.
+    if (this.refit) this.refit.apply(this.step, false, this.instant)
 
     const showLabel = def.markerAnchor !== "none"
     if (this.stepLabel) this.setEnabled(this.stepLabel.sceneObject, showLabel)
@@ -583,7 +646,18 @@ export class RepairManager extends BaseScriptComponent {
     this.log(`step ${this.step} (${def.name})`)
   }
 
-  /** Step 1 lights the valve, step 2 the beads still to loosen; every other step none. */
+  /** Pushes time, stats and the cause into the Finish card (step 11). */
+  private pushFinishCard(): void {
+    const cause = FLAT_CAUSES[this.causeId] || FLAT_CAUSES["thorn"]
+    const s = this.stats ? this.stats.snapshot() : {leverMisses: 0, hintsUsed: 0, mistakes: 0}
+    this.finishCard.setResult(
+      this.getState().elapsedSec,
+      `Lever misses ${s.leverMisses} · Hints ${s.hintsUsed} · Cause: ${cause.label}`,
+      cause.tip
+    )
+  }
+
+  /** Step 1 lights the valve, step 2 the beads still to loosen; every other step none (RefitSteps lights 8..10). */
   private applyHighlight(): void {
     if (!this.highlighter) return
     if (this.step === 1) {
@@ -592,7 +666,7 @@ export class RepairManager extends BaseScriptComponent {
       const parts: SceneObject[] = []
       for (const i of LOOSEN_BEADS) {
         if (this.loosened.indexOf(i) >= 0) continue
-        const bead = this.findChild(this.tire, `Bead_${i}`)
+        const bead = findChild(this.tire, `Bead_${i}`)
         if (bead) parts.push(bead)
       }
       this.highlighter.set(parts)
@@ -637,6 +711,10 @@ export class RepairManager extends BaseScriptComponent {
    */
   private markerAnchorFor(step: number, live: boolean): {pos: vec3; angleDeg: number; radius: number} {
     const def = STEPS[step]
+    if (def.markerAnchor === "module" && live && this.refit) {
+      const fromModule = this.refit.markerAnchor(step, live)
+      if (fromModule) return fromModule
+    }
     const wheelMat = this.wheel.getTransform().getWorldTransform()
     let angleDeg = def.markerAngleDeg
     let radius = this.beadRadiusCm * this.tire.getTransform().getLocalScale().x
@@ -660,7 +738,7 @@ export class RepairManager extends BaseScriptComponent {
     if (!live && def.tickAngleDeg !== undefined) angleDeg = def.tickAngleDeg
     if (def.markerAnchor === "bead" && step === 2 && live) {
       const nextBead = LOOSEN_BEADS.filter((i) => this.loosened.indexOf(i) < 0)[0]
-      if (nextBead !== undefined) angleDeg = nextBead * 45 + 22.5
+      if (nextBead !== undefined) angleDeg = beadMidDeg(nextBead)
     }
     return {pos: wheelMat.multiplyPoint(this.radial(angleDeg, radius, this.markerStandoffCm + 2)), angleDeg, radius}
   }
@@ -669,7 +747,7 @@ export class RepairManager extends BaseScriptComponent {
   private setDeflated(on: boolean): void {
     const k = on ? this.deflateScale : 1
     if (this.tire) this.tire.getTransform().setLocalScale(new vec3(k, k, k))
-    const tube = this.tube ? this.tube : this.findChild(this.wheel, "Tube")
+    const tube = this.tube ? this.tube : findChild(this.wheel, "Tube")
     if (tube) tube.getTransform().setLocalScale(new vec3(k, k, k))
   }
 
@@ -679,19 +757,7 @@ export class RepairManager extends BaseScriptComponent {
   }
 
   private setBeadOffset(i: number, radialCm: number): void {
-    const bead = this.findChild(this.tire, `Bead_${i}`)
-    if (!bead) return
-    const mid = ((i * 45 + 22.5) * Math.PI) / 180
-    bead.getTransform().setLocalPosition(new vec3(Math.sin(mid) * radialCm, Math.cos(mid) * radialCm, 0))
-  }
-
-  private findChild(parent: SceneObject, name: string): SceneObject | null {
-    const n = parent.getChildrenCount()
-    for (let c = 0; c < n; c++) {
-      const child = parent.getChild(c)
-      if (child.name === name) return child
-    }
-    return null
+    setBeadOffset(this.tire, i, radialCm)
   }
 
   private setEnabled(so: SceneObject | null, on: boolean): void {

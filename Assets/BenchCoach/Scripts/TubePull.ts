@@ -7,7 +7,12 @@
  * end is pullDistanceCm beyond the rim the staggered finish tweens every segment
  * the rest of the way out (down and toward the user), then lifts the Valve out
  * last and emits onPullComplete. restore() puts everything back (Back / reset).
- * Owns: TubeSeg_i, TubeEnd and Valve positions during and after the pull.
+ * Refit (step 8, pass 9): removeForRefit() takes the old tube away (segments off,
+ * tube-end and valve visuals hidden); refit() brings the SAME TubeSeg_i back home
+ * one by one from the valve round (REFIT_ORDER), valve first, then emits
+ * onRefitComplete; refitInstant() / unrefit() are the Next / Back versions.
+ * Owns: TubeSeg_i, TubeEnd and Valve positions (and the segments' enabled state)
+ * during and after the pull and the refit.
  * Expects: @input wheel, tube (group holding TubeSeg_0..7), valve.
  */
 import Event, {PublicApi} from "SpectaclesInteractionKit.lspkg/Utils/Event"
@@ -16,6 +21,9 @@ import {InteractableManipulation} from "SpectaclesInteractionKit.lspkg/Component
 
 /** TubeSeg indices in the order they leave the tire: from the tube end (6 o'clock) round to the valve. */
 const PULL_ORDER = [4, 3, 5, 2, 6, 1, 7, 0]
+
+/** TubeSeg indices in the order the new tube goes back in: from the valve (12 o'clock) round both ways. */
+const REFIT_ORDER = [0, 7, 1, 6, 2, 5, 3, 4]
 
 @component
 export class TubePull extends BaseScriptComponent {
@@ -94,6 +102,21 @@ export class TubePull extends BaseScriptComponent {
   valveTweenSec: number = 0.4
 
   @input
+  @hint("Refit: delay between consecutive segments going back in, in seconds")
+  @widget(new SliderWidget(0, 0.5, 0.01))
+  refitStaggerSec: number = 0.12
+
+  @input
+  @hint("Refit: per-segment slide-in length, in seconds")
+  @widget(new SliderWidget(0.05, 1, 0.05))
+  refitTweenSec: number = 0.3
+
+  @input
+  @hint("Refit: how far in front of the tire (wheel +Z) each segment starts its slide in, in cm")
+  @widget(new SliderWidget(0, 15, 0.5))
+  refitFromCm: number = 4
+
+  @input
   @hint("Print pull progress to the log")
   debugLogs: boolean = false
   @ui.group_end
@@ -101,6 +124,10 @@ export class TubePull extends BaseScriptComponent {
   armed: boolean = false
   pulled: boolean = false
   animating: boolean = false
+  /** The old tube is gone (step 8 before the fit). */
+  removed: boolean = false
+  /** The new tube is sliding in. */
+  refitting: boolean = false
 
   private manipulation: InteractableManipulation | null = null
   private interactable: Interactable | null = null
@@ -117,8 +144,13 @@ export class TubePull extends BaseScriptComponent {
   /** Progress each segment had when the staggered finish started. */
   private finishFrom: number[] = []
 
+  private refitElapsed = 0
+  private valveRefitFrom = vec3.zero()
+
   private _onPullComplete = new Event<void>()
   onPullComplete: PublicApi<void> = this._onPullComplete.publicApi()
+  private _onRefitComplete = new Event<void>()
+  onRefitComplete: PublicApi<void> = this._onRefitComplete.publicApi()
 
   onAwake(): void {
     const scale = this.sceneObject.getTransform().getLocalScale()
@@ -176,10 +208,13 @@ export class TubePull extends BaseScriptComponent {
   /** Back / reset: tube, tube end and valve back in the tire. */
   restore(): void {
     this.armed = false
+    this.refitting = false
+    this.removed = false
     this.animating = false
     this.pulled = false
     this.setManipulationEnabled(false)
     this.setPinchTarget(false)
+    this.showTube()
     if (!this.homesRecorded) return
     for (let i = 0; i < this.segments.length; i++) {
       this.segments[i].getTransform().setLocalPosition(this.segmentHomes[i])
@@ -203,6 +238,122 @@ export class TubePull extends BaseScriptComponent {
     this.sceneObject.getTransform().setLocalPosition(this.endHome.add(new vec3(0, -(this.pullDistanceCm + 2), 0)))
     if (this.valve) this.valve.getTransform().setLocalPosition(this.valveHome.add(new vec3(0, this.valveLiftCm, 0)))
     this.pulled = true
+  }
+
+  // ── Refit (pass 9) ─────────────────────────────────────────────────────────
+  /** Step 8 entry: the old tube goes in the bin. Segments off, tube-end and valve visuals hidden. */
+  removeForRefit(): void {
+    this.recordHomes()
+    this.refitting = false
+    this.removed = true
+    this.armed = false
+    this.setManipulationEnabled(false)
+    this.setPinchTarget(false)
+    for (const seg of this.segments) if (seg.enabled) seg.enabled = false
+    this.setVisual(this.sceneObject, false)
+    if (this.valve) this.setVisual(this.valve, false)
+  }
+
+  /** The new tube is in at the valve: valve home first, then the same TubeSeg_i slide back in, staggered. */
+  refit(): void {
+    this.recordHomes()
+    this.removed = false
+    this.refitting = true
+    this.refitElapsed = 0
+    this.animating = false
+    this.pulled = false
+    if (this.valve) {
+      this.valveRefitFrom = this.valve.getTransform().getLocalPosition()
+      this.setVisual(this.valve, true)
+    }
+    this.sceneObject.getTransform().setLocalPosition(this.endHome)
+    for (const seg of this.segments) if (seg.enabled) seg.enabled = false
+    this.log("refit started")
+  }
+
+  /** Jump to the refitted tube (Next / jumpToStep): everything home, visible, no events. */
+  refitInstant(): void {
+    this.recordHomes()
+    this.removed = false
+    this.refitting = false
+    this.animating = false
+    this.pulled = false
+    this.armed = false
+    this.setManipulationEnabled(false)
+    this.setPinchTarget(false)
+    for (let i = 0; i < this.segments.length; i++) {
+      this.segments[i].getTransform().setLocalPosition(this.segmentHomes[i])
+      this.progress[i] = 0
+    }
+    this.sceneObject.getTransform().setLocalPosition(this.endHome)
+    if (this.valve) this.valve.getTransform().setLocalPosition(this.valveHome)
+    this.showTube()
+  }
+
+  /** Back from step 8: the old tube is out again, hanging where the pull left it (as jumpToStep(7)). */
+  unrefit(): void {
+    this.removed = false
+    this.refitting = false
+    this.completeInstant()
+    this.showTube()
+  }
+
+  /** Largest distance of a TubeSeg_i from its home, in local cm. For tests. */
+  segmentHomeError(): number {
+    let worst = 0
+    for (let i = 0; i < this.segments.length; i++) {
+      worst = Math.max(worst, this.segments[i].getTransform().getLocalPosition().distance(this.segmentHomes[i]))
+    }
+    return worst
+  }
+
+  /** Distance of the valve from its home, in local cm. For tests. */
+  valveHomeError(): number {
+    if (!this.valve) return 0
+    return this.valve.getTransform().getLocalPosition().distance(this.valveHome)
+  }
+
+  /** Enabled TubeSeg_i count. For tests. */
+  enabledSegmentCount(): number {
+    let n = 0
+    for (const seg of this.segments) if (seg.enabled) n++
+    return n
+  }
+
+  private showTube(): void {
+    for (const seg of this.segments) if (!seg.enabled) seg.enabled = true
+    this.setVisual(this.sceneObject, true)
+    if (this.valve) this.setVisual(this.valve, true)
+  }
+
+  private setVisual(so: SceneObject, on: boolean): void {
+    const rmv = so.getComponent("Component.RenderMeshVisual") as RenderMeshVisual | null
+    if (rmv && rmv.enabled !== on) rmv.enabled = on
+  }
+
+  private animateRefit(): void {
+    this.refitElapsed += getDeltaTime()
+    const vt = Math.max(0, Math.min(1, this.refitElapsed / Math.max(0.01, this.valveTweenSec)))
+    if (this.valve) this.valve.getTransform().setLocalPosition(vec3.lerp(this.valveRefitFrom, this.valveHome, this.ease(vt)))
+    const segStart = this.valveTweenSec
+    const from = new vec3(0, 0, this.refitFromCm)
+    let last = 0
+    for (let i = 0; i < this.segments.length; i++) {
+      const n = parseInt(this.segments[i].name.substring("TubeSeg_".length))
+      const k = REFIT_ORDER.indexOf(n) >= 0 ? REFIT_ORDER.indexOf(n) : i
+      const t0 = segStart + k * this.refitStaggerSec
+      last = Math.max(last, t0 + this.refitTweenSec)
+      if (this.refitElapsed < t0) continue
+      if (!this.segments[i].enabled) this.segments[i].enabled = true
+      const t = Math.min(1, (this.refitElapsed - t0) / Math.max(0.01, this.refitTweenSec))
+      this.segments[i].getTransform().setLocalPosition(this.segmentHomes[i].add(from.uniformScale(1 - this.ease(t))))
+      this.progress[i] = 0
+    }
+    if (this.refitElapsed >= last && vt >= 1) {
+      this.refitInstant()
+      this.log("refit complete")
+      this._onRefitComplete.invoke()
+    }
   }
 
   /** Distance of the tube end from the wheel center, in world cm. */
@@ -234,6 +385,10 @@ export class TubePull extends BaseScriptComponent {
   }
 
   private tick(): void {
+    if (this.refitting) {
+      this.animateRefit()
+      return
+    }
     if (this.animating) {
       this.animate()
       return

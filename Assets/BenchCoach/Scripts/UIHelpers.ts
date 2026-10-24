@@ -258,11 +258,14 @@ export function addLabelButton(
   widthCM: number,
   heightCM: number,
   distanceCm: number,
-  onClick: () => void
+  onClick: () => void,
+  style?: string
 ): Button {
   let button: Button | null = null
   flexChild(parentFlex, {w: widthCM, h: heightCM, name}, (so) => {
     const btn = so.createComponent(Button.getTypeName()) as Button
+    // Optional UIKit style (e.g. "Primary"): must be set before the button initializes.
+    if (style) btn.setVariant({theme: "SnapOS2", style})
     btn.onInitialized.add(() => {
       btn.size = new vec3(widthCM, heightCM, 1)
     })

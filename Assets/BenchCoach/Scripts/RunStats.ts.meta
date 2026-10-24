@@ -1,0 +1,57 @@
+- !<AssetImportMetadata/aba5853d-2b83-4a6c-82cb-463c02f8bd06>
+  ImportedAssetIds:
+    TypeScriptAsset: !<reference> 13c4bc47-b9e4-4728-b2e8-1a3e6a4d36ad
+  ImporterName: TypeScriptAssetImporter
+  PrimaryAsset: !<reference> 13c4bc47-b9e4-4728-b2e8-1a3e6a4d36ad
+  PackageType: NotAPackage
+  LegacyPackagePolicy: ~
+  ExtraData:
+    {}
+  AssetDataMap:
+    TypeScriptAsset: !<own> cabf263e-425f-424e-873e-80363deb29f1
+  DependentFiles:
+    []
+  ImporterSettings: !<AssetImporterSettings>
+    {}
+  CompressionSettings: !<own> 00000000-0000-0000-0000-000000000000
+- !<TypeScriptAssetData/cabf263e-425f-424e-873e-80363deb29f1>
+  SvgIcon: ""
+  SetupScript:
+    code: ""
+  Description: ""
+  VersionMajor: 0
+  VersionMinor: 0
+  VersionPatch: 0
+  VersionPrerelease: ""
+  UpdateOrder: 0
+  ComponentUid: 96cc0130-0fd8-4ab4-b70c-642a18d433d8
+  ExportUid: 00000000-0000-0000-0000-000000000000
+  PackagePolicy: CanBeUnpacked
+  ScriptInputsHidden:
+    leverA: false
+    leverB: false
+    tubeFit: false
+  ScriptTypesHidden:
+    {}
+  ReadMe: !<reference> 00000000-0000-0000-0000-000000000000
+  DeclarationFile: !<reference> 00000000-0000-0000-0000-000000000000
+  Tags:
+    []
+  Attachments:
+    []
+  DefaultScriptInputs:
+    - leverA: !<MappingBased.AssignableType_1> 00000000-0000-0000-0000-000000000000
+      leverB: !<MappingBased.AssignableType_2> 00000000-0000-0000-0000-000000000000
+      tubeFit: !<MappingBased.AssignableType_3> 00000000-0000-0000-0000-000000000000
+  ScriptTypes:
+    -
+      {}
+  InputLines:
+    - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">RunStats – counts for the Finish card</span>"}'
+    - '// @ui {"widget":"separator"}'
+    - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">References</span>"}'
+    - '// @ui {"widget":"group_start", "label":"References"}'
+    - '// @input AssignableType_1 leverA {"hint":"Lever A placement (its misses count)"}'
+    - '// @input AssignableType_2 leverB {"hint":"Lever B placement (its misses count)"}'
+    - '// @input AssignableType_3 tubeFit {"hint":"New-tube fit handle (a miss counts as a mistake)"}'
+    - '// @ui {"widget":"group_end"}'

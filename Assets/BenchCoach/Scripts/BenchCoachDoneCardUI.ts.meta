@@ -28,10 +28,12 @@
   ExportUid: 00000000-0000-0000-0000-000000000000
   PackagePolicy: CanBeUnpacked
   ScriptInputsHidden:
+    continueLabel: false
     doneText: false
     nextSkillText: false
     panelHeight: false
     panelWidth: false
+    restartLabel: false
     viewDistanceCm: false
   ScriptTypesHidden:
     {}
@@ -47,11 +49,13 @@
       viewDistanceCm: !<float> 90.000000
       doneText: "Tube out, cause found. Ready for the new tube."
       nextSkillText: "Next skill: brake pads"
+      continueLabel: Fit the new tube
+      restartLabel: Start over
   ScriptTypes:
     -
       {}
   InputLines:
-    - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">BenchCoachDoneCardUI – step 7 done card (stub)</span>"}'
+    - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">BenchCoachDoneCardUI – step 7 halfway card</span>"}'
     - '// @ui {"widget":"separator"}'
     - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">Settings</span>"}'
     - '// @ui {"widget":"group_start", "label":"Settings"}'
@@ -60,4 +64,6 @@
     - '// @input float viewDistanceCm = 90 {"hint":"Viewing distance in cm; scales the type size", "widget":"slider", "min":40, "max":160, "step":1}'
     - '// @input string doneText = "Tube out, cause found. Ready for the new tube." {"hint":"Completion line"}'
     - '// @input string nextSkillText = "Next skill: brake pads" {"hint":"Next-skill line (not clickable in v1)"}'
+    - '// @input string continueLabel = "Fit the new tube" {"hint":"Label on the primary button (on to step 8)"}'
+    - '// @input string restartLabel = "Start over" {"hint":"Label on the restart button (BtnTryAgain)"}'
     - '// @ui {"widget":"group_end"}'

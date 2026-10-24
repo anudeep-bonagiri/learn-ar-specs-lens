@@ -34,9 +34,13 @@
     done: false
     doneVolume: false
     feedbackVolume: false
+    finish: false
+    finishVolume: false
     hiss: false
     hissVolume: false
     nope: false
+    pump: false
+    pumpVolume: false
     spatial: false
     tick: false
     tickVolume: false
@@ -58,12 +62,16 @@
       nope: !<reference.AudioComponent> 00000000-0000-0000-0000-000000000000
       done: !<reference.AudioComponent> 00000000-0000-0000-0000-000000000000
       hiss: !<reference.AudioComponent> 00000000-0000-0000-0000-000000000000
+      pump: !<reference.AudioComponent> 00000000-0000-0000-0000-000000000000
+      finish: !<reference.AudioComponent> 00000000-0000-0000-0000-000000000000
       zipperVolume: 0.350000
       chimeVolume: 0.400000
       tickVolume: 0.250000
       feedbackVolume: 0.400000
       doneVolume: 0.450000
       hissVolume: 0.350000
+      pumpVolume: 0.400000
+      finishVolume: 0.500000
       spatial: true
   ScriptTypes:
     -
@@ -80,6 +88,8 @@
     - '// @input Component.AudioComponent nope {"hint":"Nope cue (lever released far from the socket), on Audio/Nope"}'
     - '// @input Component.AudioComponent done {"hint":"Done cue (repair finished), on Audio/Done"}'
     - '// @input Component.AudioComponent hiss {"hint":"Hiss cue (valve pressed on the deflate step), on Audio/Hiss"}'
+    - '// @input Component.AudioComponent pump {"hint":"Pump loop (valve held on the inflate step), on Audio/Pump"}'
+    - '// @input Component.AudioComponent finish {"hint":"Finish cue (flat fixed, step 11), on Audio/Finish"}'
     - '// @ui {"widget":"group_end"}'
     - '// @ui {"widget":"separator"}'
     - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">Settings</span>"}'
@@ -90,5 +100,7 @@
     - '// @input float feedbackVolume = 0.4 {"hint":"Click and nope volume", "widget":"slider", "min":0, "max":1, "step":0.05}'
     - '// @input float doneVolume = 0.45 {"hint":"Done volume", "widget":"slider", "min":0, "max":1, "step":0.05}'
     - '// @input float hissVolume = 0.35 {"hint":"Hiss volume (quiet air release)", "widget":"slider", "min":0, "max":1, "step":0.05}'
+    - '// @input float pumpVolume = 0.4 {"hint":"Pump loop volume", "widget":"slider", "min":0, "max":1, "step":0.05}'
+    - '// @input float finishVolume = 0.5 {"hint":"Finish cue volume", "widget":"slider", "min":0, "max":1, "step":0.05}'
     - '// @input bool spatial = true {"hint":"Play the cues from their world position (spatial audio)"}'
     - '// @ui {"widget":"group_end"}'

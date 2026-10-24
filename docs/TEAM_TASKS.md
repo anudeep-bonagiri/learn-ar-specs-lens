@@ -4,7 +4,7 @@ Status as of Oct 24, 2026. Branch `Sujeeth-AR-SPECS-WORK` is the integration bra
 
 Done: criteria 1 to 5, six LEAF scenarios green (`start`, `deflate-loosen`, `lever-snap`, `peel-and-pull`, `inspect-done`, `step-ticks`).
 
-Done: **Pass 7a** (curved levers, tread, valve and bead glow, hiss, tube hidden until a bead lifts, peel to 5 o'clock, segment-by-segment pull). Eight LEAF scenarios green, adding `scene-dressing`. Done: **Pass 7b** (workbench, pegboard, toolbox, saddle, code-built bike frame, floor mat, key and fill lights with shadows on the mat). **Next up: B2 (pass 9).**
+Done: **Pass 7a** (curved levers, tread, valve and bead glow, hiss, tube hidden until a bead lifts, peel to 5 o'clock, segment-by-segment pull). Eight LEAF scenarios green, adding `scene-dressing`. Done: **Pass 7b** (workbench, pegboard, toolbox, saddle, code-built bike frame, floor mat, key and fill lights with shadows on the mat). Done: **Pass 9** (halfway card with Continue, fit the new tube, seat the bead, hold-to-inflate, Finish card with stats). Ten LEAF scenarios green. **Next up: B3 (pass 8).**
 
 ## Rules so we don't break each other
 
@@ -20,8 +20,8 @@ Done: **Pass 7a** (curved levers, tread, valve and bead glow, hiss, tube hidden 
 | # | Task | Depends on | Notes |
 | --- | --- | --- | --- |
 | B1 | **DONE.** **Pass 7b: scene dressing.** Text-to-3D workbench and pegboard (pale colors), MeshBuilder bike rear triangle from the hub, floor mat, key and fill lights with shadows on the mat, metallic rim and hub. Finish `scene-dressing` assertions (Environment and BikeFrame). | Ready now | Plan "Pass 7". Owns the scene file. |
-| B2 | **Pass 9: finish the repair.** Steps 8 to 11: halfway card with Continue, fit the new tube, seat the bead, pinch-and-hold inflate, Finish card with stats. `StepModule` seam, `RefitSteps.ts`, `TubeFit.ts`, `RunStats.ts`. LEAF `refit-tube`, `seat-inflate`. | B1 | Plan "Pass 9". Runs before pass 8 on purpose. Ready now. |
-| B3 | **Pass 8: learning layer.** "What's this?" mode, mistake feedback with reasons, random flat cause (thorn, glass, snakebite), progress rail, idle hints. LEAF `whats-this`, `mistakes`, `flat-causes`, `progress-idle`. | B2 | Plan "Pass 8". Cut "What's this?" first if late. |
+| B2 | **DONE.** **Pass 9: finish the repair.** Steps 8 to 11: halfway card with Continue, fit the new tube, seat the bead, pinch-and-hold inflate, Finish card with stats. `StepModule` seam, `RefitSteps.ts`, `TubeFit.ts`, `RunStats.ts`. LEAF `refit-tube`, `seat-inflate`. | B1 | Plan "Pass 9". Runs before pass 8 on purpose. Ready now. |
+| B3 | **Pass 8: learning layer.** "What's this?" mode, mistake feedback with reasons, random flat cause (thorn, glass, snakebite), progress rail, idle hints. LEAF `whats-this`, `mistakes`, `flat-causes`, `progress-idle`. | B2 | Plan "Pass 8". Cut "What's this?" first if late. Ready now. Do F1 first. |
 | B4 | **Pass 10: watch mode.** Auto-play demo from a Watch button, stoppable. LEAF `watch-mode`. Then run all scenarios and record results in design notes. | B3 | Plan "Pass 10". |
 
 ## Tasks that can run in parallel with the builds (no scene file)
@@ -44,3 +44,11 @@ Done: **Pass 7a** (curved levers, tread, valve and bead glow, hiss, tube hidden 
 | S2 | Move private docs out of the repo: `AGENT_BRIEF.md` and everything in `docs/` except `HACKATHON.md` and `SUBMISSION_CHECKLIST.md`. Confirm `.mcp.json` and `spk_debug_key.pem` are not tracked. | Before making the repo public. |
 | S3 | Merge the final work into `main`, make the repo public. | |
 | S4 | Fill the Devpost form with video and repo links. Submit by **Sat Nov 8**. Deadline Mon Nov 9, 5 PM ET. | |
+
+## Follow-ups from pass 9 (do before pass 8)
+
+| # | Task | Notes |
+| --- | --- | --- |
+| F1 | **Clear the Lens Studio cache.** Close Lens Studio, delete the project's `Cache/` folder, reopen. Since Oct 24 the cache blocks edits to `BodyFollow.ts`, `StepTicks.ts`, `ThornHotspot.ts` ("duplicate of the loaded id"), so changes to those files silently never run. Pass 8 edits `ThornHotspot.ts`, so this must happen first. | `Cache/` is not in git; deleting it is safe. |
+| F2 | **Tray holds still while the new tube is held.** After F1, add `NewTubeEnd` to `BodyFollow`'s list of held objects (same as the levers). | A few lines; see the Pass 9 entry in `devpost/design-notes.md`. |
+| F3 | **Halfway card height.** Its title and time sit just above the default view (buttons visible). Lowering it brings back the lever-A overlap fixed earlier; pick a position that clears both. | Visual check in the preview. |

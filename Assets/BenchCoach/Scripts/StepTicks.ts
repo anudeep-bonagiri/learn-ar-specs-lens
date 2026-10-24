@@ -36,7 +36,7 @@ export class StepTicks extends BaseScriptComponent {
 
   @input
   @hint("Most ticks shown at once")
-  poolSize: number = 6
+  poolSize: number = 9
   @ui.group_end
 
   private ticks: SceneObject[] = []
