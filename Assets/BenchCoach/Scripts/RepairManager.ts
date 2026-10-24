@@ -121,6 +121,7 @@ export class RepairManager extends BaseScriptComponent {
 
   @input
   @hint("Dim ticks left on the parts of completed steps")
+  @allowUndefined
   ticks: StepTicks
   @ui.group_end
 
@@ -598,8 +599,13 @@ export class RepairManager extends BaseScriptComponent {
     let angleDeg = def.markerAngleDeg
     let radius = this.beadRadiusCm * this.tire.getTransform().getLocalScale().x
     if (def.markerAnchor === "valve") {
-      const pos = this.valve.getTransform().getWorldPosition().add(new vec3(0, 0, this.markerStandoffCm))
-      return {pos, angleDeg: 0, radius: this.valve.getTransform().getLocalPosition().length}
+      // The valve lifts out with the tube in step 5; the deflate tick stays at the rim where the valve was.
+      const valveLocal = this.valve.getTransform().getLocalPosition()
+      const valveRadius = Math.sqrt(valveLocal.x * valveLocal.x + valveLocal.y * valveLocal.y)
+      const pos = live
+        ? this.valve.getTransform().getWorldPosition().add(new vec3(0, 0, this.markerStandoffCm))
+        : wheelMat.multiplyPoint(new vec3(0, valveRadius, valveLocal.z + this.markerStandoffCm))
+      return {pos, angleDeg: 0, radius: valveRadius}
     }
     if (def.markerAnchor === "tubeEnd" && this.tubeEnd && live) {
       const pos = this.tubeEnd.getTransform().getWorldPosition().add(new vec3(0, 0, this.markerStandoffCm))

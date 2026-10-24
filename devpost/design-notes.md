@@ -155,3 +155,19 @@ Built: **dim ticks for completed steps.** `StepTicks.ts` on a new `StepTicks` ob
 Findings:
 
 - **A recompile from any session resets the running Lens.** A parallel agent's compile check reset the preview mid-walk; one session should own the preview while another compiles.
+
+## 2026-10-24: Review fixes after pass 6
+
+A read-only review of every script change since `b1016c9` (a parallel agent, no preview access) found no high-severity bug and six small ones. Fixed:
+
+- **Lever B lost rotate and scale after Back / Try again.** `RimDrag.arm` turned them off for the rim-constrained drag and nothing turned them back on, so the second grab from the tray no longer rotated with the hand. `RimDrag` now restores both when it disarms or completes.
+- **The tube end's pinch target was live on every step.** Its 7 cm box at 6 o'clock sits in front of the end of `Bead_4`'s hit box, so a real pinch on that end of Bead_4 in step 2 would hit the tube end and do nothing (LEAF `trigger` skips the ray, so tests passed). The `Interactable` is now off until step 5 and stays on from the pull onward; `inspect-done` asserts it is off on step 2.
+- **The deflate tick followed the valve.** The valve lifts 6 cm with the tube in step 5; the completed tick now stays at the rim where the valve was.
+- **Lever A's tip crossed the Done card's lower corner** (card bottom at y 15, lever tip at y 15.9). The card moved up 3 cm, to (0, 25, -88).
+- `RepairManager.ticks` is marked `@allowUndefined` to match its null guard.
+
+Finding that cost a regression: **turning an `Interactable` off while a hand is still pinching it strands that pinch.** The first version of the tube-end fix turned the target off on the step change to 6, which happens while the pull drag is still held, and LEAF's `dragTo` never resolved (`peel-and-pull` timed out twice, after "tube out"). A disable now waits for the release, and the step-change path no longer touches the target at all.
+
+Not changed (coverage gaps the review listed): the Back loop in `inspect-done` builds every "from" state with `jumpToStep`, so Back after real input (partly loosened beads, a drag in progress, the thorn's pending Done delay) is reasoned about, not tested; the snapshot compares transforms and parents only, not interactable or manipulation flags.
+
+All six LEAF scenarios pass after the fixes, from the default camera pose.
