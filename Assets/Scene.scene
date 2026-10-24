@@ -1003,6 +1003,7 @@
     panelWidth: true
     panelHeight: true
     viewDistanceCm: true
+    fitChars: true
     billboard: true
   ScriptTypesDefault:
     {}
@@ -1011,6 +1012,7 @@
       panelWidth: !<float> 16.000000
       panelHeight: !<float> 5.000000
       viewDistanceCm: !<float> 90.000000
+      fitChars: !<float> 32.000000
       billboard: true
   ScriptTypes:
     "":
@@ -3606,8 +3608,8 @@
   Enabled: true
   Layers: 1
   LocalTransform: !<TransformEntity>
-    Position: {x: 0.000000, y: -25.000000, z: -45.000000}
-    Rotation: {x: -30.000000, y: 0.000000, z: 0.000000}
+    Position: {x: 0.000000, y: -35.000000, z: -45.000000}
+    Rotation: {x: -38.000000, y: 0.000000, z: 0.000000}
     Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
     HasSegmentScaleCompensation: false
   Children:
@@ -3765,8 +3767,8 @@
   Enabled: true
   Layers: 1
   LocalTransform: !<TransformEntity>
-    Position: {x: 16.000000, y: -25.000000, z: -40.000000}
-    Rotation: {x: -30.000000, y: 0.000000, z: 0.000000}
+    Position: {x: 20.000000, y: -30.000000, z: -40.000000}
+    Rotation: {x: -37.000000, y: 0.000000, z: 0.000000}
     Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
     HasSegmentScaleCompensation: false
   Children:

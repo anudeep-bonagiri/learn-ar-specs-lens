@@ -29,14 +29,22 @@ export class BenchCoachStepLabelUI extends BaseScriptComponent {
   viewDistanceCm: number = 90
 
   @input
+  @hint("Characters that fit on one line at full type size; longer labels shrink to stay on one line")
+  @widget(new SliderWidget(10, 60, 1))
+  fitChars: number = 32
+
+  @input
   @hint("Turn to face the user (SIK Billboard, yaw only)")
   billboard: boolean = true
   @ui.group_end
 
   private label: Text | null = null
+  private fullSize = 0
 
   setText(msg: string): void {
-    if (this.label) this.label.text = msg
+    if (!this.label) return
+    this.label.text = msg
+    this.label.size = this.fullSize * Math.min(1, this.fitChars / Math.max(1, msg.length))
   }
 
   onAwake(): void {
@@ -48,8 +56,9 @@ export class BenchCoachStepLabelUI extends BaseScriptComponent {
       justify: FlexJustify.Center,
       align: FlexAlign.Center,
     })
-    this.label = addColumnText(col, "LabelText", "", "Body", this.panelHeight - 1.2, {
+    this.label = addColumnText(col, "LabelText", "", "Headline2", this.panelHeight - 1.2, {
       distanceCm: this.viewDistanceCm,
     })
+    this.fullSize = this.label.size
   }
 }

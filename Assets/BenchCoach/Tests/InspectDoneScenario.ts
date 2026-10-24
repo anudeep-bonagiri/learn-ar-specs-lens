@@ -7,6 +7,7 @@ import {RepairManager} from "../Scripts/RepairManager"
 import {ThornHotspot} from "../Scripts/ThornHotspot"
 import {GhostAnimator} from "../Scripts/GhostAnimator"
 import {BenchCoachAudio} from "../Scripts/BenchCoachAudio"
+import {Interactable} from "SpectaclesInteractionKit.lspkg/Components/Interaction/Interactable/Interactable"
 
 const MODEL_PARTS = [
   "Tire",
@@ -84,6 +85,11 @@ export class InspectDoneScenario extends Scenario {
     expect(thorn.armed, "glint armed").toBe(true)
     expect(marker.enabled, "no ring on the answer while searching").toBe(false)
     expect(label.enabled, "inspect label shown").toBe(true)
+    // trigger() skips the ray; a live bead hit box around the thorn would swallow real pinches.
+    for (const name of ["Valve", "Bead_0", "Bead_2", "Bead_4", "Bead_6"]) {
+      const target = findSceneObjectByName(name).getComponent(Interactable.getTypeName()) as Interactable
+      expect(target.enabled, `${name} takes no pinches on the inspect step`).toBe(false)
+    }
     const flashesBefore = thorn.flashCount
     await interactor.tap("BtnReplay")
     expect(thorn.flashCount, "Replay flashes the glint").toBe(flashesBefore + 1)
