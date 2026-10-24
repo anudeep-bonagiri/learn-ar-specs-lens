@@ -1,0 +1,82 @@
+- !<AssetImportMetadata/ed252eb4-8a77-47b8-83ac-1d96a878457e>
+  ImportedAssetIds:
+    TypeScriptAsset: !<reference> c4039807-e50a-4176-8941-28bbf79a04e2
+  ImporterName: TypeScriptAssetImporter
+  PrimaryAsset: !<reference> c4039807-e50a-4176-8941-28bbf79a04e2
+  PackageType: NotAPackage
+  LegacyPackagePolicy: ~
+  ExtraData:
+    {}
+  AssetDataMap:
+    TypeScriptAsset: !<own> 095f3067-86c5-4316-8d01-56fe3e22b80c
+  DependentFiles:
+    []
+  ImporterSettings: !<AssetImporterSettings>
+    {}
+  CompressionSettings: !<own> 00000000-0000-0000-0000-000000000000
+- !<TypeScriptAssetData/095f3067-86c5-4316-8d01-56fe3e22b80c>
+  SvgIcon: ""
+  SetupScript:
+    code: ""
+  Description: ""
+  VersionMajor: 0
+  VersionMinor: 0
+  VersionPatch: 0
+  VersionPrerelease: ""
+  UpdateOrder: 0
+  ComponentUid: 5a956a7c-ba9c-47fb-b86d-2eafa739cdbd
+  ExportUid: 00000000-0000-0000-0000-000000000000
+  PackagePolicy: CanBeUnpacked
+  ScriptInputsHidden:
+    audio: false
+    boostSec: false
+    idleSec: false
+    leverA: false
+    leverB: false
+    manager: false
+    stepLabel: false
+    stepMarker: false
+    tubeFit: false
+    tubePull: false
+  ScriptTypesHidden:
+    {}
+  ReadMe: !<reference> 00000000-0000-0000-0000-000000000000
+  DeclarationFile: !<reference> 00000000-0000-0000-0000-000000000000
+  Tags:
+    []
+  Attachments:
+    []
+  DefaultScriptInputs:
+    - manager: !<MappingBased.AssignableType_1> 00000000-0000-0000-0000-000000000000
+      stepLabel: !<MappingBased.AssignableType_2> 00000000-0000-0000-0000-000000000000
+      stepMarker: !<MappingBased.AssignableType_3> 00000000-0000-0000-0000-000000000000
+      audio: !<MappingBased.AssignableType_4> 00000000-0000-0000-0000-000000000000
+      leverA: !<MappingBased.AssignableType_5> 00000000-0000-0000-0000-000000000000
+      leverB: !<MappingBased.AssignableType_6> 00000000-0000-0000-0000-000000000000
+      tubeFit: !<MappingBased.AssignableType_7> 00000000-0000-0000-0000-000000000000
+      tubePull: !<MappingBased.AssignableType_8> 00000000-0000-0000-0000-000000000000
+      idleSec: !<float> 12.000000
+      boostSec: !<float> 4.000000
+  ScriptTypes:
+    -
+      {}
+  InputLines:
+    - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">IdleHint – a hint after a quiet spell</span>"}'
+    - '// @ui {"widget":"separator"}'
+    - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">References</span>"}'
+    - '// @ui {"widget":"group_start", "label":"References"}'
+    - '// @input AssignableType_1 manager {"hint":"The step machine (step, sub-step, label restore)"}'
+    - '// @input AssignableType_2 stepLabel {"hint":"Step label panel (shows the hint)"}'
+    - '// @input AssignableType_3 stepMarker {"hint":"Marker ring (pulse boost)"}'
+    - '// @input AssignableType_4 audio {"hint":"Cue player (chime at the marker)"}'
+    - '// @input AssignableType_5 leverA {"hint":"Lever A: no idle while it is grabbed or tweening"}'
+    - '// @input AssignableType_6 leverB {"hint":"Lever B: no idle while it is grabbed or tweening"}'
+    - '// @input AssignableType_7 tubeFit {"hint":"New tube end: no idle while it is held"}'
+    - '// @input AssignableType_8 tubePull {"hint":"Tube end: no idle while it is held"}'
+    - '// @ui {"widget":"group_end"}'
+    - '// @ui {"widget":"separator"}'
+    - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">Settings</span>"}'
+    - '// @ui {"widget":"group_start", "label":"Settings"}'
+    - '// @input float idleSec = 12 {"hint":"Seconds without progress before the hint shows", "widget":"slider", "min":1, "max":60, "step":1}'
+    - '// @input float boostSec = 4 {"hint":"Seconds the marker pulses bigger after a hint", "widget":"slider", "min":0, "max":10, "step":0.5}'
+    - '// @ui {"widget":"group_end"}'

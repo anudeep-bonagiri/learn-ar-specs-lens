@@ -26,7 +26,7 @@ export class BenchCoachDoneCardUI extends BaseScriptComponent {
   @input
   @hint("Panel height in cm")
   @widget(new SliderWidget(8, 30, 0.5))
-  panelHeight: number = 14
+  panelHeight: number = 13
 
   @input
   @hint("Viewing distance in cm; scales the type size")
@@ -68,9 +68,9 @@ export class BenchCoachDoneCardUI extends BaseScriptComponent {
     this.sceneObject.createComponent(Billboard.getTypeName())
     const panel = backPlatePanel(this.sceneObject, this.panelWidth, this.panelHeight)
     const col = flexColumn(panel.content, this.panelWidth, this.panelHeight, {
-      gap: 0.4,
+      gap: 0.3,
       padX: 1.0,
-      padY: 0.8,
+      padY: 0.5,
       justify: FlexJustify.Center,
       align: FlexAlign.Center,
     })

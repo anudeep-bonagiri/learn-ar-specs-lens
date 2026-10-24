@@ -32,6 +32,7 @@
     levers: false
     moveThresholdCm: false
     smoothing: false
+    tubeFit: false
     turnThresholdDeg: false
   ScriptTypesHidden:
     {}
@@ -45,6 +46,7 @@
     - camera: !<reference.Camera> 00000000-0000-0000-0000-000000000000
       levers: !<MappingBased.AssignableType_1[]>
         []
+      tubeFit: !<MappingBased.AssignableType_2> 00000000-0000-0000-0000-000000000000
       moveThresholdCm: !<float> 20.000000
       turnThresholdDeg: !<float> 35.000000
       smoothing: !<float> 6.000000
@@ -58,6 +60,7 @@
     - '// @ui {"widget":"group_start", "label":"References"}'
     - "// @input Component.Camera camera {\"hint\":\"The user's camera\"}"
     - '// @input AssignableType_1[] levers = {} {"hint":"Levers to wait for: no following while one is grabbed or tweening"}'
+    - '// @input AssignableType_2 tubeFit {"hint":"New tube end in the tray: no following while it is grabbed or tweening"}'
     - '// @ui {"widget":"group_end"}'
     - '// @ui {"widget":"separator"}'
     - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">Settings</span>"}'

@@ -19,9 +19,15 @@
  * call in applyStep (refit.apply, every step) and one in markerAnchorFor, and
  * advances on refit.onStepComplete. Step 7 (halfway card) plays the Done cue;
  * LAST_STEP (11, Finish card with time and RunStats) plays the Finish cue.
+ * Pass 8: a flat cause per run (foundIt() picks one at random unless forceCause
+ * is set; reset / jumpToStep use forceCause or the default causeId, so tests are
+ * deterministic), ThornHotspot.setCause places it; mistakes go to CoachFeedback
+ * with a reason code; setInteractionsPaused(on) re-applies the step with every
+ * arm gated off (What's this?); refreshLabel() gives the label back after a hint,
+ * a mistake reason or a part fact.
  */
 import Event, {PublicApi} from "SpectaclesInteractionKit.lspkg/Utils/Event"
-import {FLAT_CAUSES, LAST_STEP, LOOSEN_BEADS, STEPS, SOCKET_B_ANGLE_DEG, THORN_FOUND_LABEL} from "./StepDefinitions"
+import {FLAT_CAUSE_IDS, FLAT_CAUSES, LAST_STEP, LOOSEN_BEADS, STEPS, SOCKET_B_ANGLE_DEG} from "./StepDefinitions"
 import {beadMidDeg, findChild, setBeadOffset} from "./WheelMath"
 import {WheelTargets} from "./WheelTargets"
 import {LeverPlacement} from "./LeverPlacement"
@@ -37,6 +43,9 @@ import {Highlighter} from "./Highlighter"
 import {RefitSteps} from "./RefitSteps"
 import {BenchCoachFinishCardUI} from "./BenchCoachFinishCardUI"
 import {RunStats} from "./RunStats"
+import {CoachFeedback} from "./CoachFeedback"
+
+const ALL_BEADS = [0, 1, 2, 3, 4, 5, 6, 7]
 
 export interface RepairState {
   step: number
@@ -163,6 +172,11 @@ export class RepairManager extends BaseScriptComponent {
   @allowUndefined
   @hint("Run counters shown on the Finish card")
   stats: RunStats
+
+  @input
+  @allowUndefined
+  @hint("Mistake feedback (nope plus a reason on the label)")
+  feedback: CoachFeedback
   @ui.group_end
 
   @ui.separator
@@ -204,8 +218,12 @@ export class RepairManager extends BaseScriptComponent {
   thornRevealSec: number = 2.5
 
   @input
-  @hint("Flat cause named on the Finish card (pass 8 picks one at random)")
+  @hint("Default flat cause after reset / jumpToStep (Found it picks one at random)")
   causeId: string = "thorn"
+
+  @input
+  @hint("Force this flat cause every run (thorn, glass, snakebite); empty = random on Found it")
+  forceCause: string = ""
 
   @input
   @hint("Print step transitions to the log")
@@ -226,11 +244,20 @@ export class RepairManager extends BaseScriptComponent {
   /** True during Back / reset / jumpToStep: module entry changes snap instead of tweening. */
   private instant = false
 
+  /** What's this? mode: every step interaction is gated off (setInteractionsPaused). */
+  interactionsPaused: boolean = false
+
+  /** The current run's flat cause (FLAT_CAUSES key). */
+  private cause = "thorn"
+
   /** Times Replay did something on the current step (ghost, chime or glint flash). */
   replayCount: number = 0
 
   private _onStepChanged = new Event<number>()
   onStepChanged: PublicApi<number> = this._onStepChanged.publicApi()
+  /** reset() finished (Start over, Restart, jumpToStep): What's this? turns itself off. */
+  private _onReset = new Event<void>()
+  onReset: PublicApi<void> = this._onReset.publicApi()
 
   getState(): RepairState {
     return {
@@ -298,8 +325,14 @@ export class RepairManager extends BaseScriptComponent {
     this.rimDrag.onPeelComplete.add(() => this.onPeelComplete())
     this.tubePull.onPullComplete.add(() => this.onTubePulled())
     this.thorn.onFound.add(() => this.onThornFound())
-    this.leverA.onRejected.add(() => this.playNope(this.leverA))
-    this.leverB.onRejected.add(() => this.playNope(this.leverB))
+    this.leverA.onRejected.add(() => this.onLeverRejected(this.leverA, false))
+    this.leverB.onRejected.add(() => this.onLeverRejected(this.leverB, true))
+    this.tubePull.onEarlyPinch.add(() => {
+      if (this.step === 4) this.mistake("tubeBeforePeel", this.tubeEnd.getTransform().getWorldPosition())
+    })
+    if (this.feedback) this.feedback.restoreLabel = () => this.refreshLabel()
+    this.cause = this.defaultCause()
+    this.thorn.setCause(this.cause)
     if (this.refit) {
       this.refit.onStepComplete.add((s) => {
         if (s === this.step) this.goTo(this.step + 1)
@@ -315,7 +348,31 @@ export class RepairManager extends BaseScriptComponent {
   foundIt(): void {
     if (this.step !== 0) return
     this.startTime = getTime()
+    this.setCause(this.forceCause ? this.forceCause : FLAT_CAUSE_IDS[Math.floor(Math.random() * FLAT_CAUSE_IDS.length)])
     this.goTo(1)
+  }
+
+  /** The current run's flat cause id. */
+  getCause(): string {
+    return this.cause
+  }
+
+  /** Set the flat cause (moves the hotspot); only takes effect before it is found. */
+  setCause(id: string): void {
+    this.cause = FLAT_CAUSES[id] ? id : "thorn"
+    if (this.thorn) this.thorn.setCause(this.cause)
+    if (this.initialized && STEPS[this.step].markerAnchor === "inspect") this.placeMarkerAndLabel()
+    this.log(`flat cause: ${this.cause}`)
+  }
+
+  /**
+   * What's this? mode: re-apply the current step with every interaction gated off
+   * (pinch targets, snapping, the tube end, the glint, the new tube) or back on.
+   */
+  setInteractionsPaused(on: boolean): void {
+    if (this.interactionsPaused === on) return
+    this.interactionsPaused = on
+    this.applyStep()
   }
 
   /** Next applies the current step's model change (as if the user did it), then advances. */
@@ -363,7 +420,6 @@ export class RepairManager extends BaseScriptComponent {
       return
     }
     this.replayCount += 1
-    if (this.stats) this.stats.noteHint()
   }
 
   reset(): void {
@@ -372,7 +428,9 @@ export class RepairManager extends BaseScriptComponent {
     for (let s = LAST_STEP; s >= 0; s--) this.undoStep(s)
     this.startTime = 0
     if (this.stats) this.stats.reset()
+    this.setCause(this.defaultCause())
     this.goTo(0)
+    this._onReset.invoke()
     this.instant = wasInstant
   }
 
@@ -386,8 +444,44 @@ export class RepairManager extends BaseScriptComponent {
     this.instant = false
   }
 
+  /** Put the current step's own label back (after a hint, a mistake reason or a part fact). */
+  refreshLabel(): void {
+    const def = STEPS[this.step]
+    if (!this.stepLabel || def.markerAnchor === "none" || this.interactionsPaused) return
+    this.stepLabel.setText(this.currentLabel())
+  }
+
+  private currentLabel(): string {
+    const def = STEPS[this.step]
+    return def.markerAnchor === "inspect" && this.thornFound ? this.causeDef().foundLabel : def.label
+  }
+
+  private causeDef() {
+    return FLAT_CAUSES[this.cause] ? FLAT_CAUSES[this.cause] : FLAT_CAUSES["thorn"]
+  }
+
+  private defaultCause(): string {
+    if (this.forceCause && FLAT_CAUSES[this.forceCause]) return this.forceCause
+    return FLAT_CAUSES[this.causeId] ? this.causeId : "thorn"
+  }
+
+  private mistake(code: string, pos: vec3): void {
+    if (this.feedback) this.feedback.mistake(code, pos)
+    else if (this.audio) this.audio.playNopeAt(pos)
+  }
+
+  /** A lever released away from its socket: the reason depends on the step. */
+  private onLeverRejected(lever: LeverPlacement, isB: boolean): void {
+    const pos = lever.sceneObject.getTransform().getWorldPosition()
+    if (this.step === 3) this.mistake(isB ? "leverBBeforeA" : "leverTooFar", pos)
+    else if (this.step === 4 && isB) this.mistake("leverTooFar", pos)
+    else this.playNope(lever)
+  }
+
   // ── Completion handlers ────────────────────────────────────────────────────
   private onValvePinched(): void {
+    if (this.step === 2) this.mistake("valveAlreadyDeflated", this.valve.getTransform().getWorldPosition())
+    if (this.step === 9) this.mistake("inflateBeforeSeat", this.valve.getTransform().getWorldPosition())
     if (this.step !== 1) return
     if (this.audio) this.audio.playHissAt(this.valve.getTransform().getWorldPosition())
     this.setDeflated(true)
@@ -396,6 +490,11 @@ export class RepairManager extends BaseScriptComponent {
   }
 
   private onBeadPinched(i: number): void {
+    if (this.step === 1) {
+      const bead = findChild(this.tire, `Bead_${i}`)
+      this.mistake("beadBeforeDeflate", bead ? bead.getTransform().getWorldPosition() : this.valve.getTransform().getWorldPosition())
+      return
+    }
     if (this.step !== 2) return
     if (LOOSEN_BEADS.indexOf(i) < 0 || this.loosened.indexOf(i) >= 0) return
     this.setBeadOffset(i, -this.beadPushCm)
@@ -455,7 +554,7 @@ export class RepairManager extends BaseScriptComponent {
     this.thornFound = true
     this.subStep = 1
     this.playClick(this.thorn)
-    this.stepLabel.setText(THORN_FOUND_LABEL)
+    this.stepLabel.setText(this.causeDef().foundLabel)
     this.placeMarkerAndLabel()
     this.log("thorn found")
     const generation = this.thornGeneration
@@ -546,6 +645,7 @@ export class RepairManager extends BaseScriptComponent {
     this.step = Math.max(0, Math.min(LAST_STEP, step))
     this.subStep = 0
     this.replayCount = 0
+    if (this.feedback) this.feedback.cancel()
     this.applyStep()
     if (this.step !== from && STEPS[this.step].showDoneCard && this.audio && this.doneCard) {
       this.audio.playDoneAt(this.doneCard.sceneObject.getTransform().getWorldPosition())
@@ -612,28 +712,37 @@ export class RepairManager extends BaseScriptComponent {
 
     // Lever A only snaps up to step 3 (back home in the tray from step 8 it must not re-hook);
     // lever B only during step 4 (before it is hooked); the tube end only pulls in step 5.
-    if (this.leverA) this.leverA.snapEnabled = this.step <= 3
-    if (this.leverB) this.leverB.snapEnabled = this.step === 4 && !this.leverBPlaced
+    // While paused (What's this?) every arm is gated off; un-pausing re-applies the step.
+    const live = !this.interactionsPaused
+    if (this.leverA) this.leverA.snapEnabled = live && this.step <= 3
+    if (this.leverB) this.leverB.snapEnabled = live && this.step === 4 && !this.leverBPlaced
     if (this.rimDrag && this.step !== 4) this.rimDrag.disarm()
     if (this.tubePull) {
-      if (this.step === 5) this.tubePull.arm()
+      if (this.step === 5 && live) this.tubePull.arm()
       else this.tubePull.disarm()
+      // Step 4: a pinch on the tube end before the peel is a mistake (tubeBeforePeel).
+      this.tubePull.setEarlyPinch(this.step === 4 && live)
     }
     if (this.thorn) {
-      if (this.step === 6 && !this.thornFound) this.thorn.arm()
+      if (this.step === 6 && !this.thornFound && live) this.thorn.arm()
       else this.thorn.disarm()
     }
-    if (this.wheelTargets) this.wheelTargets.setActive(this.step === 1, this.step === 2)
+    // Step 1 catches a bead pinch (bead before deflate); step 2 a second valve pinch.
+    if (this.wheelTargets) {
+      if (!live) this.wheelTargets.setActive(false, false)
+      else this.wheelTargets.setActive(this.step === 1 || this.step === 2, this.step === 1 ? ALL_BEADS : this.step === 2)
+    }
     // The tube shows once a bead lifts; TubePull keeps its homes while the group is off.
     this.setEnabled(this.tube, this.step >= 4 || this.leverPlaced)
     this.applyHighlight()
     // Every step (owned or not): the module arms / disarms its parts and may override targets and glow.
-    if (this.refit) this.refit.apply(this.step, false, this.instant)
+    if (this.refit) this.refit.apply(this.step, this.interactionsPaused, this.instant)
 
     const showLabel = def.markerAnchor !== "none"
     if (this.stepLabel) this.setEnabled(this.stepLabel.sceneObject, showLabel)
+    if (!showLabel && this.feedback) this.feedback.cancel()
     if (showLabel) {
-      this.stepLabel.setText(def.markerAnchor === "inspect" && this.thornFound ? THORN_FOUND_LABEL : def.label)
+      this.stepLabel.setText(this.currentLabel())
       this.placeMarkerAndLabel()
     } else {
       this.setEnabled(this.stepMarker, false)
@@ -648,11 +757,12 @@ export class RepairManager extends BaseScriptComponent {
 
   /** Pushes time, stats and the cause into the Finish card (step 11). */
   private pushFinishCard(): void {
-    const cause = FLAT_CAUSES[this.causeId] || FLAT_CAUSES["thorn"]
+    const cause = this.causeDef()
     const s = this.stats ? this.stats.snapshot() : {leverMisses: 0, hintsUsed: 0, mistakes: 0}
     this.finishCard.setResult(
       this.getState().elapsedSec,
-      `Lever misses ${s.leverMisses} · Hints ${s.hintsUsed} · Cause: ${cause.label}`,
+      `Lever misses ${s.leverMisses} · Mistakes ${s.mistakes} · Hints ${s.hintsUsed}`,
+      `Cause: ${cause.label}`,
       cause.tip
     )
   }
@@ -690,7 +800,8 @@ export class RepairManager extends BaseScriptComponent {
       .getTransform()
       .getWorldPosition()
       .add(dir.uniformScale(anchor.radius + this.labelOffsetCm))
-      .add(new vec3(0, 0, 4))
+      // On the inspect step the pulled tube hangs 10 cm in front of the wheel: the label goes in front of it.
+      .add(new vec3(0, 0, def.markerAnchor === "inspect" ? 16 : 4))
     this.stepLabel.sceneObject.getTransform().setWorldPosition(labelPos)
   }
 
@@ -733,7 +844,7 @@ export class RepairManager extends BaseScriptComponent {
     }
     if (def.markerAnchor === "inspect" && this.thorn) {
       const pos = this.thorn.sceneObject.getTransform().getWorldPosition().add(new vec3(0, 0, this.markerStandoffCm))
-      return {pos, angleDeg, radius}
+      return {pos, angleDeg: this.thorn.currentAngleDeg, radius}
     }
     if (!live && def.tickAngleDeg !== undefined) angleDeg = def.tickAngleDeg
     if (def.markerAnchor === "bead" && step === 2 && live) {

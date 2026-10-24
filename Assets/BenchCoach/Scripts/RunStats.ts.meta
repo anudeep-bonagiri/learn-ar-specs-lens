@@ -30,7 +30,6 @@
   ScriptInputsHidden:
     leverA: false
     leverB: false
-    tubeFit: false
   ScriptTypesHidden:
     {}
   ReadMe: !<reference> 00000000-0000-0000-0000-000000000000
@@ -42,7 +41,6 @@
   DefaultScriptInputs:
     - leverA: !<MappingBased.AssignableType_1> 00000000-0000-0000-0000-000000000000
       leverB: !<MappingBased.AssignableType_2> 00000000-0000-0000-0000-000000000000
-      tubeFit: !<MappingBased.AssignableType_3> 00000000-0000-0000-0000-000000000000
   ScriptTypes:
     -
       {}
@@ -53,5 +51,4 @@
     - '// @ui {"widget":"group_start", "label":"References"}'
     - '// @input AssignableType_1 leverA {"hint":"Lever A placement (its misses count)"}'
     - '// @input AssignableType_2 leverB {"hint":"Lever B placement (its misses count)"}'
-    - '// @input AssignableType_3 tubeFit {"hint":"New-tube fit handle (a miss counts as a mistake)"}'
     - '// @ui {"widget":"group_end"}'

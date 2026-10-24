@@ -180,7 +180,9 @@ export class LeverPlacement extends BaseScriptComponent {
   }
 
   private onReleased(): void {
-    if (this.isLocked || !this.homeRecorded) return
+    // SIK fires onManipulationEnd several times per release; only the first one decides
+    // (the snap / return tween is running for the rest), so a miss counts once.
+    if (this.isLocked || this.tweening || !this.homeRecorded) return
     const d = this.distanceToSocket()
     if (this.socket && this.snapEnabled && d <= this.snapRadiusCm) {
       const st = this.socket.getTransform()

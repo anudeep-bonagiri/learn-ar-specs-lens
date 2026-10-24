@@ -1,7 +1,9 @@
 /**
  * UIBindings — subscribes to every UI module's button events and calls
- * RepairManager. Owns: nothing but the subscriptions.
- * Plays the tick cue from the pressed panel.
+ * RepairManager, and wires the learning-layer events into RunStats (hints from
+ * IdleHint.onHint, mistakes from CoachFeedback.onMistake) and BtnWhatsThis into
+ * PartInfo. Owns: nothing but the subscriptions.
+ * Plays the tick cue from the pressed panel; every press touches IdleHint.
  * Expects: @inputs manager, startCard, controlBar, doneCard, finishCard, audio (wired in the scene).
  */
 import {RepairManager} from "./RepairManager"
@@ -10,6 +12,10 @@ import {BenchCoachControlBarUI} from "./BenchCoachControlBarUI"
 import {BenchCoachDoneCardUI} from "./BenchCoachDoneCardUI"
 import {BenchCoachFinishCardUI} from "./BenchCoachFinishCardUI"
 import {BenchCoachAudio} from "./BenchCoachAudio"
+import {IdleHint} from "./IdleHint"
+import {RunStats} from "./RunStats"
+import {PartInfo} from "./PartInfo"
+import {CoachFeedback} from "./CoachFeedback"
 
 @component
 export class UIBindings extends BaseScriptComponent {
@@ -41,6 +47,26 @@ export class UIBindings extends BaseScriptComponent {
   @input
   @hint("Cue player (tick)")
   audio: BenchCoachAudio
+
+  @input
+  @allowUndefined
+  @hint("Idle hints: every press starts a new quiet spell; each hint counts on RunStats")
+  idle: IdleHint
+
+  @input
+  @allowUndefined
+  @hint("Run counters (hints from IdleHint.onHint, mistakes from CoachFeedback.onMistake)")
+  stats: RunStats
+
+  @input
+  @allowUndefined
+  @hint("What's this? mode (BtnWhatsThis toggles it)")
+  partInfo: PartInfo
+
+  @input
+  @allowUndefined
+  @hint("Mistake feedback (each mistake counts on RunStats and starts a new idle spell)")
+  feedback: CoachFeedback
   @ui.group_end
 
   onAwake(): void {
@@ -55,6 +81,21 @@ export class UIBindings extends BaseScriptComponent {
       this.controlBar.onReplay.add(() => this.press(this.controlBar, () => this.manager.replay()))
       this.doneCard.onTryAgain.add(() => this.press(this.doneCard, () => this.manager.reset()))
       this.doneCard.onContinue.add(() => this.press(this.doneCard, () => this.manager.next()))
+      if (this.idle && this.stats) this.idle.onHint.add(() => this.stats.noteHint())
+      if (this.feedback) {
+        this.feedback.onMistake.add((m) => {
+          if (this.stats) this.stats.noteMistake(m.code)
+          if (this.idle) this.idle.touch()
+        })
+      }
+      if (this.partInfo) {
+        // The toggle look follows the mode (it may switch late while a lever is held).
+        this.partInfo.onActiveChanged.add((on) => this.controlBar.setWhatsThisLatched(on))
+        this.controlBar.onWhatsThis.add((on) => {
+          if (on === this.partInfo.wanted) return // a sync from setWhatsThisLatched, not a press
+          this.press(this.controlBar, () => this.partInfo.setActive(on))
+        })
+      }
       if (this.finishCard) {
         this.finishCard.onRestart.add(() => this.press(this.finishCard, () => this.manager.reset()))
       }
@@ -63,6 +104,7 @@ export class UIBindings extends BaseScriptComponent {
 
   private press(panel: BaseScriptComponent, action: () => void): void {
     if (this.audio) this.audio.playTickAt(panel.sceneObject.getTransform().getWorldPosition())
+    if (this.idle) this.idle.touch()
     action()
   }
 }

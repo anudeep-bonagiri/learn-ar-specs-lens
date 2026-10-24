@@ -4,11 +4,13 @@
  * origin facing -Z); each frame the target is that offset carried by the
  * camera's position and yaw. The panel stays put until the user walks or turns
  * past a threshold, then glides to the target, so it never chases small head motion.
- * Owns: this SceneObject's world pose. Holds still while any listed lever is
- * grabbed or tweening, so a lever is never moved out from under the hand.
- * Expects: @input camera; optional @input levers (LeverPlacement on the tray's levers).
+ * Owns: this SceneObject's world pose. Holds still while any listed lever, or the
+ * new tube end, is grabbed or tweening, so nothing is moved out from under the hand.
+ * Expects: @input camera; optional @input levers (LeverPlacement on the tray's
+ * levers) and tubeFit (the new tube end in the tray).
  */
 import {LeverPlacement} from "./LeverPlacement"
+import {TubeFit} from "./TubeFit"
 
 @component
 export class BodyFollow extends BaseScriptComponent {
@@ -24,6 +26,11 @@ export class BodyFollow extends BaseScriptComponent {
   @hint("Levers to wait for: no following while one is grabbed or tweening")
   @allowUndefined
   levers: LeverPlacement[] = []
+
+  @input
+  @hint("New tube end in the tray: no following while it is grabbed or tweening")
+  @allowUndefined
+  tubeFit: TubeFit
   @ui.group_end
 
   @ui.separator
@@ -100,6 +107,7 @@ export class BodyFollow extends BaseScriptComponent {
   }
 
   private isHeld(): boolean {
+    if (this.tubeFit && this.tubeFit.isBusy()) return true
     if (!this.levers) return false
     for (const lever of this.levers) if (lever && lever.isBusy()) return true
     return false

@@ -324,3 +324,63 @@ Findings:
 - The music and SFX generator scripts (`tempAssetGen/`) were removed after rendering; the recipes are described above.
 
 Left over: delete the project `Cache/` with Lens Studio closed, then re-apply the `BodyFollow` hold-still for the tube handle (discover `TubeFit` under the tray, as drafted in this pass) and re-run `step-ticks` / `inspect-done` from either file name; decide whether to lower the halfway card; a hands-on hand-tracking walk of steps 8 to 10 (the hand simulation cannot pinch the valve).
+
+## 2026-10-24: Pass 8, learning layer, plus pass 9 follow-ups F2 and F3 (plan `docs/PASSES_7_TO_10_PLAN.md`)
+
+Branch `Sujeeth-AR-SPECS-WORK`, on top of 9d214f6, after the Lens Studio cache was cleared (F1). Built by the CLAD Specs Experience Builder through the Lens Studio MCP, in two halves (8a, then 8b), each followed by a full scenario run. Not committed.
+
+The cache problem is gone: no "duplicate of the loaded id" line all session, and edits to `BodyFollow.ts` and `ThornHotspot.ts` reached the runtime (VirtualScene could wire the new `BodyFollow.tubeFit` input, and the new cause shapes render).
+
+What was built:
+
+- **Data (`StepDefinitions.ts`).** Every step 0..11 has a `hint` (one short line for the label) and `railDot`. Rail dots are steps 1..6 and 8..10 (nine dots); the cards (0 Start, 7 halfway, 11 Finish) have none. New tables: `FLAT_CAUSES` (thorn 120 degrees, glass 240, snakebite 300; each with label, found label, prevention tip, What's this? fact, reveal shape), `FLAT_CAUSE_IDS`, `MISTAKES` (seven codes with one-line reasons), `PART_FACTS` (Rim, Hub, Spoke, Tire, Tube, Valve, LeverA, LeverB, Stand, Cause, Frame: target object, title, fact, offset and box size), `railSteps()`.
+- **`ProgressRail.ts`** on new `ControlBar/ProgressRail` (body-follows with the bar): nine 0.8 cm dots in a strip under the buttons. Done dots use `MarkerMat`, the current one pulses (1.0 to 1.5 times), dots ahead use a runtime clone at 50 percent brightness. `setStep`, `dotCount`, `litCount`, `currentIndex`. `BenchCoachControlBarUI` gained `railStripCm` (1.6): the panel grows by the strip and the button row moves up inside it. The bar root moved 0.8 cm down its own tilted Y (to (.., -35.63, -44.51)) so its top edge, the one that matters for the wheel (pass 5), stays where it was.
+- **`BtnWhatsThis`** (icon `info`, imported with `IconSelector` to `Assets/Icons/info.png`) at the left end of the bar, a UIKit toggle (`setIsToggleable(true)`), so its latched look shows while the mode is on. To keep Back / Next / Replay where pass 5 put them, the bar root also moved 3.5 cm left (x -3.5); the right end stays clear of the tool tray.
+- **`IdleHint.ts`** on `BenchCoach`: `idleSec` 12, `boostSec` 4, `touch()`, `suspended`, `showing`, `hintCount`, `lastHintStep`, `onHint`. Fires once per quiet spell on steps with a visible label: the step's `hint` on the label, `StepMarker.pulseBoost(4)` (new: 2.5 times the swing, twice the rate), the chime at the marker. A step or sub-step change, any control-bar press (`UIBindings` calls `touch()`) or a mistake starts a new spell; a held or tweening lever, new tube end or tube end counts as activity, so a slow LEAF drag never looks idle. Suspended while What's this? pauses the step. `RepairManager.refreshLabel()` (new) puts the step label back.
+- **`CoachFeedback.ts`** on `BenchCoach`: `mistake(code, worldPos)` plays nope there, puts `MISTAKES[code]` on the label for `showSec` (2.5), then calls the restore callback the manager installs; `mistakeCount`, `lastCode`, `showing`, `onMistake`, `cancel()` on every step change. Callers: step 1 bead pinch (`beadBeforeDeflate`; `WheelTargets` now takes all eight beads plus the valve on step 1), step 2 valve pinch (`valveAlreadyDeflated`; the valve stays live on step 2), lever B released on step 3 (`leverBBeforeA`), a lever dropped away from its socket on step 3 or 4 (`leverTooFar`), the tube end pinched on step 4 (`tubeBeforePeel`; new `TubePull.setEarlyPinch` / `onEarlyPinch`: pinch target on, no grab), the new tube end released away from the valve hole on step 8 (`tubeFitMiss`, from `RefitSteps`), and the valve pinched on step 9 before the beads are seated (`inflateBeforeSeat`; the valve is live on step 9). Other lever rejections still just play nope.
+- **Flat causes.** `ThornHotspot.setCause(id)` moves the hotspot round the tire (radius 34.2 cm, local +Y outward) and picks the reveal: the existing spike (thorn), a pale shard of two thin tilted boxes (glass, a runtime copy of `MarkerMat` tinted (0.85, 0.97, 1)), or two warm dots side by side (snakebite, tinted (1, 0.8, 0.5)); `causeId`, `currentAngleDeg`. `RepairManager.foundIt()` picks a random cause unless `forceCause` is set; `reset()` and so `jumpToStep()` use `forceCause` or the default `causeId` ("thorn"), so every existing scenario still sees the thorn at 120 degrees. `getCause()`, `setCause()`. The found label comes from the cause; `markerAnchorFor` uses the hotspot's angle.
+- **Finish card** shows the cause and its tip: now 30 x 14 cm at (0, 17, -88), title and time on one row, `FinishCause` ("Cause: glass shard") and `FinishStats` ("Lever misses 0 · Mistakes 0 · Hints 0") on the next, then the tip and `BtnRestart`.
+- **`PartInfo.ts`** ("What's this?") on `BenchCoach`: `setActive(on)`, `active`, `wanted`, `lastPart`, `lastText`, `onActiveChanged`. Builds one `InfoHit_<id>` box collider and Interactable per fact under a new runtime `BenchCoach/InfoHits` (not under the parts, so no part's own Interactable claims the collider). Each box follows its part every frame and is a little larger than any collider it encloses (lever 13 x 3 x 2 against 12 x 2 x 1, valve 6 x 8 x 6 against 5 x 7 x 5, tube end 8 against 7), so it takes the ray first. Boxes for hidden parts are off; the cause box exists only once the cause is found and its fact comes from the cause. A pinch puts "Title: fact" on the label 7 cm above the part. Switching waits until no lever, new tube end or tube end is held or tweening. A reset (new `RepairManager.onReset`) turns the mode off.
+- **`RepairManager.setInteractionsPaused(on)`** re-runs `applyStep` with every arm gated: valve and bead targets off, lever snapping off, tube pull and early pinch off, glint disarmed, and `refit.apply(step, paused)` (new tube, seat beads, inflate valve off).
+- **`RunStats`**: hints now come from `IdleHint.onHint` and mistakes from `CoachFeedback.onMistake` (wired in `UIBindings`, which keeps `RunStats` free of imports that would loop back through `RepairManager`); lever codes are not counted as mistakes because they are already lever misses. Replay no longer counts as a hint; the new-tube miss is now the `tubeFitMiss` mistake.
+- **F2.** `BodyFollow` has `@input tubeFit` and holds still while the new tube end is grabbed or tweening; wired on both the tool tray and the control bar.
+- **F3.** The halfway card is 13 cm tall (gap 0.3, padding 0.5) at (-6.5, 17, -88): title and time inside the default view, right edge clear of lever A's tip, bottom clear of the valve.
+- **LEAF.** New `whats-this`, `mistakes`, `flat-causes`, `progress-idle`. `jump-to-step` takes `cause`, `find` (pinch the hotspot and hold the reveal 30 s), `part` (What's this? and pinch `InfoHit_<part>`), `mistake` (show that reason 30 s) and `idle` for screenshots.
+
+| Scenario | Result (serial, preview, camera reset before each run, final code) |
+| --- | --- |
+| `start` | PASSED |
+| `deflate-loosen` | PASSED |
+| `lever-snap` | PASSED (reject back to tray 0.00 cm; snap 0.00 cm) |
+| `peel-and-pull` | PASSED (mid-pull 7.8 cm past the rim: TubeSeg_4 moved 23.20 cm, TubeSeg_0 0.00 cm) |
+| `inspect-done` | PASSED (Back from 1..11 worst diff 0.000 cm) |
+| `step-ticks` | PASSED (closest pair steps 1/3, 7.15 cm; on step 11 steps 1/8, 6.71 cm) |
+| `scene-dressing` | PASSED |
+| `refit-tube` | PASSED |
+| `seat-inflate` | PASSED |
+| `whats-this` (new) | PASSED (valve fact on the label 8.1 cm from the valve; the switch waits while lever A is held; glass cause fact on the halfway card) |
+| `mistakes` (new) | PASSED (all seven codes: reason, nope, step unchanged; reason gone after 2.5 s; lever codes count as lever misses only) |
+| `flat-causes` (new) | PASSED (hotspot measured at 120.0, 240.0, 300.0 degrees; shapes, found labels, ring on the cause, Finish card cause and tip) |
+| `progress-idle` (new) | PASSED (9 dots; 3 lit and the fourth pulsing on step 4; one hint after a quiet second, shown once; Next clears it) |
+| `jump-to-step` | PASSED |
+
+Screenshots reviewed from the default pose (or the camera aimed at a cause): What's this? with "Valve: unscrew the tip, then press." above the valve and the toggle latched on the bar; a mistake reason on the label on step 1; thorn, glass and snakebite revealed with their labels in front of the hanging tube; the rail on step 4 (pixels: done dots 0.82, dim dots 0.47 on a 0.27 plate); the idle hint "Pinch each glowing bead." on step 2; the halfway card fully in view; the Finish card with "Cause: glass shard" and its tip fully in view above the tire. Glass shard pixels 0.96. After the final recompile all 491 BenchCoach script inputs in the scene are non-null; `RunAndCollectLogsTool` shows no Lens errors.
+
+Deviations and why:
+
+- **Glass at 240 degrees, not 200.** At 200 the found label hangs outward below the wheel, behind the body-locked control bar (pass 5 already notes the bar covers the bottom of the tire from the start pose). 240 mirrors the thorn and is 20 degrees clear of the near chain stay.
+- **The inspect-step label sits 16 cm in front of the wheel plane, not 4.** The pulled tube hangs 10 cm toward the user through steps 6 and 7 and cut through the found label (true for the thorn since pass 4 as well).
+- **Finish card 30 x 14 cm with two-up rows.** Adding the cause row made the old 26 cm wide column too tall: the title and time left the top of the view, and lowering it covered the tire.
+- **Halfway card moved 6.5 cm left** as well as down: no height between the top of the view and lever A's tip fits the card centered.
+- **Rail dots on 1..6 and 8..10.** The plan left `railDot` open; the cards are milestones, not work.
+- **Two extra mistake codes** for the new steps (`tubeFitMiss`, `inflateBeforeSeat`); the plan allowed it. `RunStats.mistakes` leaves the two lever codes out so a lever drop is not counted twice.
+- **`StepModule` and `IdleHint.suspended` are unchanged in shape**; `suspended` is there for pass 10's director.
+
+Findings:
+
+- **Lever misses were counted three times per drop.** SIK fires `onManipulationEnd` three times per release (pass 3 finding), and `LeverPlacement.onReleased` ran its reject path each time, so `onRejected` (nope, `leverMisses`) fired three times. It now returns while the snap or return tween is running, so a drop counts once. `mistakes` caught it (expected 3, got 5).
+- **A long batch of scenarios in one `ExecuteEditorCode` call outlives the MCP transport** (the call times out after about two minutes), but the editor keeps running it; starting another run meanwhile cancels the one in flight ("Scenario run cancelled"). Run one scenario per call.
+- **An OAuth token refresh in the editor reset the running Lens** mid-scenario (`flat-causes` stopped after the glass case; it passed on the rerun). Another reason to read results from the log.
+- `UIKit` toggles: `setIsToggleable(true)` after `onInitialized` works (with a one-line warning in the log); `onValueChange` fires for presses and for `isOn = ...`, so `UIBindings` ignores a change that matches the mode's requested state.
+
+Left over: the bar is now 29.5 cm wide; with the head pitched down 32 degrees from the start pose the What's this? button is at the left edge of the view (a hands-on check should decide whether to shrink the gaps). The idle-hint marker boost is checked by counters, not on a screenshot. A hands-on hand-tracking walk of What's this? and the mistake cases was not done (LEAF `trigger` skips the ray, so ray priority of the info boxes over the levers is reasoned from their sizes, not tested).
