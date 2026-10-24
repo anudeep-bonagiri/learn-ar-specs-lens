@@ -51,6 +51,11 @@ export class RepairManager extends BaseScriptComponent {
   stand: SceneObject
 
   @input
+  @allowUndefined
+  @hint("Workshop dressing root (bench, pegboard, mat, props); shown with the wheel")
+  environment: SceneObject
+
+  @input
   @hint("Tire group holding Bead_0..7 (scaled 4% down on deflate)")
   tire: SceneObject
 
@@ -540,6 +545,7 @@ export class RepairManager extends BaseScriptComponent {
     this.setEnabled(this.startCard, def.showStartCard)
     this.setEnabled(this.wheel, def.showWheel)
     this.setEnabled(this.stand, def.showWheel)
+    if (this.environment) this.setEnabled(this.environment, def.showWheel)
     this.setEnabled(this.toolTray, def.showTray)
     if (this.ghost) this.setEnabled(this.ghost.sceneObject, def.showGhost)
     if (this.doneCard) this.setEnabled(this.doneCard.sceneObject, def.showDoneCard)

@@ -43,6 +43,10 @@ export class TorusArc extends BaseScriptComponent {
   @hint("Tread blocks along this arc (0 = smooth); ring segments are raised to about 4 per block")
   treadBlocksPerArc: number = 0
 
+  @input
+  @hint("Cast shadows onto the floor mat")
+  castShadows: boolean = false
+
   private rmv: RenderMeshVisual | null = null
 
   onAwake(): void {
@@ -123,6 +127,7 @@ export class TorusArc extends BaseScriptComponent {
     if (this.material) {
       this.rmv.mainMaterial = this.material
     }
+    this.rmv.meshShadowMode = this.castShadows ? MeshShadowMode.Caster : MeshShadowMode.None
     builder.updateMesh()
   }
 

@@ -28,6 +28,7 @@
   ExportUid: 00000000-0000-0000-0000-000000000000
   PackagePolicy: CanBeUnpacked
   ScriptInputsHidden:
+    castShadows: false
     majorRadius: false
     material: false
     ringSegments: false
@@ -55,6 +56,7 @@
       material: !<reference.Material> 00000000-0000-0000-0000-000000000000
       treadDepth: !<float> 0.000000
       treadBlocksPerArc: !<float> 0.000000
+      castShadows: false
   ScriptTypes:
     -
       {}
@@ -68,3 +70,4 @@
     - // @input Asset.Material material
     - '// @input float treadDepth {"hint":"Tread block height in cm, pushed radially outward on the outer third of the cross-section (0 = smooth)"}'
     - '// @input float treadBlocksPerArc {"hint":"Tread blocks along this arc (0 = smooth); ring segments are raised to about 4 per block"}'
+    - '// @input bool castShadows {"hint":"Cast shadows onto the floor mat"}'
