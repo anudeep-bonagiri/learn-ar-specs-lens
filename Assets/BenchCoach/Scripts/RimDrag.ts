@@ -26,9 +26,9 @@ export class RimDrag extends BaseScriptComponent {
   @ui.label('<span style="color: #60A5FA;">Settings</span>')
   @ui.group_start("Settings")
   @input
-  @hint("Absolute clockwise angle (deg from 12 o'clock) where the peel completes; 90 = 3 o'clock. Literal: @input defaults cannot reference imported constants.")
+  @hint("Absolute clockwise angle (deg from 12 o'clock) where the peel completes; 150 = 5 o'clock. Literal: @input defaults cannot reference imported constants.")
   @widget(new SliderWidget(45, 180, 1))
-  peelEndAngleDeg: number = 90
+  peelEndAngleDeg: number = 150
 
   @input
   @hint("Sweep of each bead segment in degrees (Bead_i starts at i * sweep)")

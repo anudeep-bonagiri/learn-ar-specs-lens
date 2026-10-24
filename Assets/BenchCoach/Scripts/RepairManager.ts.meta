@@ -36,6 +36,7 @@
     deflateScale: false
     doneCard: false
     ghost: false
+    highlighter: false
     labelOffsetCm: false
     leverA: false
     leverB: false
@@ -52,6 +53,7 @@
     ticks: false
     tire: false
     toolTray: false
+    tube: false
     tubeEnd: false
     tubePull: false
     valve: false
@@ -87,6 +89,8 @@
       audio: !<MappingBased.AssignableType_9> 00000000-0000-0000-0000-000000000000
       doneCard: !<MappingBased.AssignableType_10> 00000000-0000-0000-0000-000000000000
       ticks: !<MappingBased.AssignableType_11> 00000000-0000-0000-0000-000000000000
+      highlighter: !<MappingBased.AssignableType_12> 00000000-0000-0000-0000-000000000000
+      tube: !<reference.SceneObject> 00000000-0000-0000-0000-000000000000
       beadRadiusCm: 33.400002
       markerStandoffCm: 1.500000
       labelOffsetCm: !<float> 10.000000
@@ -124,6 +128,8 @@
     - '// @input AssignableType_9 audio {"hint":"Cue player (zipper, click, nope, done)"}'
     - '// @input AssignableType_10 doneCard {"hint":"Done card (step 7)"}'
     - '// @input AssignableType_11 ticks {"hint":"Dim ticks left on the parts of completed steps"}'
+    - '// @input AssignableType_12 highlighter {"hint":"Pulsing glow on the parts the current step wants touched"}'
+    - '// @input SceneObject tube {"hint":"Tube group (TubeSeg_0..7 and TubeEnd): hidden until a bead lifts"}'
     - '// @ui {"widget":"group_end"}'
     - '// @ui {"widget":"separator"}'
     - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">Settings</span>"}'

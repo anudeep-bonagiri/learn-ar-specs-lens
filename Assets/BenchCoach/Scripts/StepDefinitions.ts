@@ -47,8 +47,12 @@ export const BEAD_RADIUS_CM = 33.4
 /** Clockwise angle (deg) of the second lever socket: 5 cm along the rim from socket A. */
 export const SOCKET_B_ANGLE_DEG = SOCKET_ANGLE_DEG + (5 / BEAD_RADIUS_CM) * (180 / Math.PI)
 
-/** Absolute clockwise angle (deg) where the rim drag completes: lever B at 3 o'clock. */
-export const PEEL_END_ANGLE_DEG = 90
+/**
+ * Absolute clockwise angle (deg) where the rim drag completes: lever B at 5 o'clock,
+ * so Bead_1..3 lift. Not 180: lever B would park on TubeEnd's hit box and the tick
+ * would stack on step 5's.
+ */
+export const PEEL_END_ANGLE_DEG = 150
 
 /** Clockwise angle (deg) of the thorn in the tire: 4 o'clock. */
 export const THORN_ANGLE_DEG = 120
@@ -117,11 +121,11 @@ export const STEPS: StepDef[] = [
   {
     id: 4,
     name: "Second lever and peel",
-    label: "Hook the second lever, then slide it round",
+    label: "Hook the second lever, then slide it round to 5 o'clock",
     action: "leverB",
     markerAnchor: "socket",
     markerAngleDeg: SOCKET_B_ANGLE_DEG,
-    tickAngleDeg: 90, // the peel ends at 3 o'clock
+    tickAngleDeg: 150, // the peel ends at 5 o'clock (180 would stack on step 5's tick)
     showStartCard: false,
     showWheel: true,
     showTray: true,

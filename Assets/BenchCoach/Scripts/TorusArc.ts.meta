@@ -33,6 +33,8 @@
     ringSegments: false
     startDeg: false
     sweepDeg: false
+    treadBlocksPerArc: false
+    treadDepth: false
     tubeRadius: false
     tubeSegments: false
   ScriptTypesHidden:
@@ -51,6 +53,8 @@
       ringSegments: !<float> 24.000000
       tubeSegments: !<float> 12.000000
       material: !<reference.Material> 00000000-0000-0000-0000-000000000000
+      treadDepth: !<float> 0.000000
+      treadBlocksPerArc: !<float> 0.000000
   ScriptTypes:
     -
       {}
@@ -62,3 +66,5 @@
     - // @input float ringSegments = 24
     - // @input float tubeSegments = 12
     - // @input Asset.Material material
+    - '// @input float treadDepth {"hint":"Tread block height in cm, pushed radially outward on the outer third of the cross-section (0 = smooth)"}'
+    - '// @input float treadBlocksPerArc {"hint":"Tread blocks along this arc (0 = smooth); ring segments are raised to about 4 per block"}'

@@ -1,9 +1,9 @@
 /**
  * BenchCoachAudio — the cue player. Owns the AudioComponents authored under
- * Audio/ (Zipper, Chime, Tick, Click, Nope, Done): sets LowLatency playback, volumes and spatialization,
+ * Audio/ (Zipper, Chime, Tick, Click, Nope, Done, Hiss): sets LowLatency playback, volumes and spatialization,
  * and moves each emitter to the world position a cue should come from.
  * Must not: decide when a cue fires — RepairManager / EdgeHint / UIBindings call it.
- * Expects: @inputs zipper, chime, tick, click, nope, done (AudioComponents on child objects).
+ * Expects: @inputs zipper, chime, tick, click, nope, done, hiss (AudioComponents on child objects).
  */
 @component
 export class BenchCoachAudio extends BaseScriptComponent {
@@ -34,6 +34,10 @@ export class BenchCoachAudio extends BaseScriptComponent {
   @input
   @hint("Done cue (repair finished), on Audio/Done")
   done: AudioComponent
+
+  @input
+  @hint("Hiss cue (valve pressed on the deflate step), on Audio/Hiss")
+  hiss: AudioComponent
   @ui.group_end
 
   @ui.separator
@@ -65,6 +69,11 @@ export class BenchCoachAudio extends BaseScriptComponent {
   doneVolume: number = 0.45
 
   @input
+  @hint("Hiss volume (quiet air release)")
+  @widget(new SliderWidget(0, 1, 0.05))
+  hissVolume: number = 0.35
+
+  @input
   @hint("Play the cues from their world position (spatial audio)")
   spatial: boolean = true
   @ui.group_end
@@ -75,6 +84,7 @@ export class BenchCoachAudio extends BaseScriptComponent {
   clickPlays: number = 0
   nopePlays: number = 0
   donePlays: number = 0
+  hissPlays: number = 0
 
   onAwake(): void {
     this.configure(this.zipper, this.zipperVolume)
@@ -83,6 +93,7 @@ export class BenchCoachAudio extends BaseScriptComponent {
     this.configure(this.click, this.feedbackVolume)
     this.configure(this.nope, this.feedbackVolume)
     this.configure(this.done, this.doneVolume)
+    this.configure(this.hiss, this.hissVolume)
   }
 
   playZipperAt(worldPos: vec3): void {
@@ -113,6 +124,11 @@ export class BenchCoachAudio extends BaseScriptComponent {
   playDoneAt(worldPos: vec3): void {
     this.donePlays += 1
     this.playAt(this.done, worldPos)
+  }
+
+  playHissAt(worldPos: vec3): void {
+    this.hissPlays += 1
+    this.playAt(this.hiss, worldPos)
   }
 
   private configure(a: AudioComponent | null, volume: number): void {

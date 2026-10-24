@@ -7,6 +7,7 @@ import {PeelAndPullScenario} from "./PeelAndPullScenario"
 import {InspectDoneScenario} from "./InspectDoneScenario"
 import {JumpToStepScenario} from "./JumpToStepScenario"
 import {StepTicksScenario} from "./StepTicksScenario"
+import {SceneDressingScenario} from "./SceneDressingScenario"
 
 @component
 export class LeafIndex extends BaseScriptComponent {
@@ -37,9 +38,13 @@ export class LeafIndex extends BaseScriptComponent {
       typename: StepTicksScenario.getTypeName(),
     },
     {
+      id: "scene-dressing",
+      typename: SceneDressingScenario.getTypeName(),
+    },
+    {
       id: "jump-to-step",
       typename: JumpToStepScenario.getTypeName(),
-      parameters: {step: "5"},
+      parameters: {step: "5", pullCm: "0"},
     },
   ]
 }

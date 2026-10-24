@@ -3,6 +3,10 @@
  * The arc lies in the local XY plane. Angle 0 is 12 o'clock (+Y) and increases
  * clockwise as seen by a viewer looking down -Z at the front of the wheel.
  * Used for the rim, each tire bead segment, and each tube segment.
+ * Tread (tire beads only): with treadDepth > 0 and treadBlocksPerArc > 0, the outer
+ * third of the cross-section (the side facing away from the wheel center) carries
+ * a square-wave radial bump, treadBlocksPerArc blocks per arc, with about four
+ * rings per block; normals are then recomputed from the bumped surface.
  */
 @component
 export class TorusArc extends BaseScriptComponent {
@@ -31,6 +35,14 @@ export class TorusArc extends BaseScriptComponent {
   @input
   material: Material
 
+  @input
+  @hint("Tread block height in cm, pushed radially outward on the outer third of the cross-section (0 = smooth)")
+  treadDepth: number = 0
+
+  @input
+  @hint("Tread blocks along this arc (0 = smooth); ring segments are raised to about 4 per block")
+  treadBlocksPerArc: number = 0
+
   private rmv: RenderMeshVisual | null = null
 
   onAwake(): void {
@@ -47,7 +59,9 @@ export class TorusArc extends BaseScriptComponent {
     builder.indexType = MeshIndexType.UInt16
 
     const full = Math.abs(this.sweepDeg) >= 359.9
-    const rings = Math.max(2, Math.floor(this.ringSegments))
+    const blocks = Math.max(0, Math.floor(this.treadBlocksPerArc))
+    const tread = this.treadDepth > 0 && blocks > 0
+    const rings = Math.max(2, Math.floor(this.ringSegments), tread ? blocks * 4 : 0)
     const tubes = Math.max(3, Math.floor(this.tubeSegments))
     const start = (this.startDeg * Math.PI) / 180
     const sweep = (this.sweepDeg * Math.PI) / 180
@@ -70,10 +84,19 @@ export class TorusArc extends BaseScriptComponent {
         const nx = cp * sx
         const ny = cp * cy
         const nz = sp
-        verts.push(R * sx + r * nx, R * cy + r * ny, r * nz, nx, ny, nz, i / rings, j / tubes)
+        // Tread: square wave along the arc (blocks centered in each period, so both
+        // arc ends are low and the end caps still fit), only where the cross-section
+        // faces away from the wheel center (cos(phi) > 0.6, the outer third).
+        let bump = 0
+        if (tread && cp > 0.6) {
+          const f = ((i * blocks) / rings) % 1
+          if (f >= 0.25 - 1e-6 && f < 0.75 - 1e-6) bump = this.treadDepth
+        }
+        verts.push(R * sx + (r * cp + bump) * sx, R * cy + (r * cp + bump) * cy, r * nz, nx, ny, nz, i / rings, j / tubes)
       }
     }
     const stride = tubes + 1
+    if (tread) this.recomputeNormals(verts, rings, tubes)
     for (let i = 0; i < rings; i++) {
       for (let j = 0; j < tubes; j++) {
         const a = i * stride + j
@@ -101,6 +124,39 @@ export class TorusArc extends BaseScriptComponent {
       this.rmv.mainMaterial = this.material
     }
     builder.updateMesh()
+  }
+
+  /**
+   * Normals from the bumped grid: cross of the cross-section and arc directions
+   * (central differences), flipped to agree with the smooth tube normal.
+   */
+  private recomputeNormals(verts: number[], rings: number, tubes: number): void {
+    const stride = tubes + 1
+    const pos = (i: number, j: number): vec3 => {
+      const k = (i * stride + j) * 8
+      return new vec3(verts[k], verts[k + 1], verts[k + 2])
+    }
+    const out: number[] = []
+    for (let i = 0; i <= rings; i++) {
+      for (let j = 0; j <= tubes; j++) {
+        const along = pos(Math.min(rings, i + 1), j).sub(pos(Math.max(0, i - 1), j))
+        const jp = j === tubes ? 1 : j + 1
+        const jm = j === 0 ? tubes - 1 : j - 1
+        const around = pos(i, jp).sub(pos(i, jm))
+        let n = around.cross(along)
+        const k = (i * stride + j) * 8
+        const smooth = new vec3(verts[k + 3], verts[k + 4], verts[k + 5])
+        if (n.length < 1e-6) n = smooth
+        n = n.normalize()
+        if (n.dot(smooth) < 0) n = n.uniformScale(-1)
+        out.push(n.x, n.y, n.z)
+      }
+    }
+    for (let v = 0; v < out.length / 3; v++) {
+      verts[v * 8 + 3] = out[v * 3]
+      verts[v * 8 + 4] = out[v * 3 + 1]
+      verts[v * 8 + 5] = out[v * 3 + 2]
+    }
   }
 
   // dir = -1 for the start cap (faces backward along the arc), +1 for the end cap

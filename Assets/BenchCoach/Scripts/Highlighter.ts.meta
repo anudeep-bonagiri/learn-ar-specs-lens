@@ -1,0 +1,63 @@
+- !<AssetImportMetadata/13c66bd5-c5b5-42b4-a974-e1716999a615>
+  ImportedAssetIds:
+    TypeScriptAsset: !<reference> dc7bb9a5-4c73-4989-a9d4-6a92aefe7115
+  ImporterName: TypeScriptAssetImporter
+  PrimaryAsset: !<reference> dc7bb9a5-4c73-4989-a9d4-6a92aefe7115
+  PackageType: NotAPackage
+  LegacyPackagePolicy: ~
+  ExtraData:
+    {}
+  AssetDataMap:
+    TypeScriptAsset: !<own> 567f5aae-96aa-4b70-bb5a-a44e276531dd
+  DependentFiles:
+    []
+  ImporterSettings: !<AssetImporterSettings>
+    {}
+  CompressionSettings: !<own> 00000000-0000-0000-0000-000000000000
+- !<TypeScriptAssetData/567f5aae-96aa-4b70-bb5a-a44e276531dd>
+  SvgIcon: ""
+  SetupScript:
+    code: ""
+  Description: ""
+  VersionMajor: 0
+  VersionMinor: 0
+  VersionPatch: 0
+  VersionPrerelease: ""
+  UpdateOrder: 0
+  ComponentUid: 4c8cf475-bc9b-40cf-8482-5f1eabecd77a
+  ExportUid: 00000000-0000-0000-0000-000000000000
+  PackagePolicy: CanBeUnpacked
+  ScriptInputsHidden:
+    glowStrength: false
+    glowTint: false
+    maxBlend: false
+    minBlend: false
+    pulseHz: false
+  ScriptTypesHidden:
+    {}
+  ReadMe: !<reference> 00000000-0000-0000-0000-000000000000
+  DeclarationFile: !<reference> 00000000-0000-0000-0000-000000000000
+  Tags:
+    []
+  Attachments:
+    []
+  DefaultScriptInputs:
+    - glowTint: !<Vec4> {x: 0.600000, y: 1.000000, z: 1.000000, w: 1.000000}
+      glowStrength: 0.700000
+      minBlend: 0.500000
+      maxBlend: !<float> 1.000000
+      pulseHz: 1.200000
+  ScriptTypes:
+    -
+      {}
+  InputLines:
+    - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">Highlighter – pulsing glow on the parts to touch</span>"}'
+    - '// @ui {"widget":"separator"}'
+    - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">Settings</span>"}'
+    - '// @ui {"widget":"group_start", "label":"Settings"}'
+    - "// @input vec4 glowTint = \"{0.6, 1, 1, 1}\" {\"hint\":\"Glow color the part's base color is pulled toward (light cyan; never dark)\", \"widget\":\"color\"}"
+    - '// @input float glowStrength = 0.7 {"hint":"How far the base color moves toward the glow at the pulse peak (0.7 = 70 percent)", "widget":"slider", "min":0, "max":1, "step":0.05}'
+    - '// @input float minBlend = 0.5 {"hint":"Pulse low point, as a fraction of glowStrength", "widget":"slider", "min":0, "max":1, "step":0.05}'
+    - '// @input float maxBlend = 1 {"hint":"Pulse high point, as a fraction of glowStrength", "widget":"slider", "min":0, "max":1, "step":0.05}'
+    - '// @input float pulseHz = 1.2 {"hint":"Pulses per second", "widget":"slider", "min":0.1, "max":4, "step":0.1}'
+    - '// @ui {"widget":"group_end"}'

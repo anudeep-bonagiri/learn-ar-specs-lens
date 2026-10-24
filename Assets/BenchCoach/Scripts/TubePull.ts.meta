@@ -33,7 +33,9 @@
     pullDistanceCm: false
     rimRadiusCm: false
     segmentDropCm: false
+    segmentLagCm: false
     segmentOutCm: false
+    segmentRunCm: false
     staggerSec: false
     tube: false
     tweenSec: false
@@ -56,6 +58,8 @@
       colliderSizeCm: !<Vec3> {x: 7.000000, y: 7.000000, z: 7.000000}
       pullDistanceCm: !<float> 15.000000
       rimRadiusCm: !<float> 0.000000
+      segmentLagCm: 1.500000
+      segmentRunCm: !<float> 6.000000
       segmentDropCm: !<float> 22.000000
       segmentOutCm: !<float> 10.000000
       staggerSec: 0.100000
@@ -81,6 +85,8 @@
     - '// @input vec3 colliderSizeCm = {7,7,7} {"hint":"Grab box on the tube end, in world cm"}'
     - '// @input float pullDistanceCm = 15 {"hint":"How far beyond the rim the tube end must be pulled, in cm", "widget":"slider", "min":5, "max":40, "step":0.5}'
     - '// @input float rimRadiusCm = 33.4 {"hint":"Tube major radius in cm (matches the TubeSeg_i TorusArc). Literal: @input defaults cannot reference imported constants.", "widget":"slider", "min":10, "max":60, "step":0.1}'
+    - '// @input float segmentLagCm = 1.5 {"hint":"Pull distance past the rim between one segment starting and the next, in cm", "widget":"slider", "min":0, "max":5, "step":0.1}'
+    - '// @input float segmentRunCm = 6 {"hint":"Pull distance over which one segment goes from in the tire to fully out, in cm", "widget":"slider", "min":1, "max":20, "step":0.5}'
     - '// @input float segmentDropCm = 22 {"hint":"How far each segment drops (wheel -Y) when the tube comes out, in cm", "widget":"slider", "min":5, "max":40, "step":0.5}'
     - '// @input float segmentOutCm = 10 {"hint":"How far each segment moves toward the user (wheel +Z), in cm", "widget":"slider", "min":0, "max":30, "step":0.5}'
     - '// @input float staggerSec = 0.1 {"hint":"Delay between consecutive segments, in seconds", "widget":"slider", "min":0, "max":0.5, "step":0.01}'
