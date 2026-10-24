@@ -1,0 +1,67 @@
+- !<AssetImportMetadata/49122128-8950-44f0-99f0-38f8eb13c415>
+  ImportedAssetIds:
+    TypeScriptAsset: !<reference> f834c64b-c01e-47ab-9c98-a9a0281d6cdd
+  ImporterName: TypeScriptAssetImporter
+  PrimaryAsset: !<reference> f834c64b-c01e-47ab-9c98-a9a0281d6cdd
+  PackageType: NotAPackage
+  LegacyPackagePolicy: ~
+  ExtraData:
+    {}
+  AssetDataMap:
+    TypeScriptAsset: !<own> 9eaafac3-f19c-47cb-ac74-faa9d570a55f
+  DependentFiles:
+    []
+  ImporterSettings: !<AssetImporterSettings>
+    {}
+  CompressionSettings: !<own> 00000000-0000-0000-0000-000000000000
+- !<TypeScriptAssetData/9eaafac3-f19c-47cb-ac74-faa9d570a55f>
+  SvgIcon: ""
+  SetupScript:
+    code: ""
+  Description: ""
+  VersionMajor: 0
+  VersionMinor: 0
+  VersionPatch: 0
+  VersionPrerelease: ""
+  UpdateOrder: 0
+  ComponentUid: 3b0d91a5-3a6e-460f-81a7-e8671ff78455
+  ExportUid: 00000000-0000-0000-0000-000000000000
+  PackagePolicy: CanBeUnpacked
+  ScriptInputsHidden:
+    boxMesh: false
+    brightness: false
+    markerMaterial: false
+    poolSize: false
+    sizeCm: false
+  ScriptTypesHidden:
+    {}
+  ReadMe: !<reference> 00000000-0000-0000-0000-000000000000
+  DeclarationFile: !<reference> 00000000-0000-0000-0000-000000000000
+  Tags:
+    []
+  Attachments:
+    []
+  DefaultScriptInputs:
+    - boxMesh: !<reference.RenderMesh> 00000000-0000-0000-0000-000000000000
+      markerMaterial: !<reference.Material> 00000000-0000-0000-0000-000000000000
+      sizeCm: 1.600000
+      brightness: 0.450000
+      poolSize: !<float> 6.000000
+  ScriptTypes:
+    -
+      {}
+  InputLines:
+    - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">StepTicks – dim ticks on completed steps</span>"}'
+    - '// @ui {"widget":"separator"}'
+    - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">References</span>"}'
+    - '// @ui {"widget":"group_start", "label":"References"}'
+    - '// @input Asset.RenderMesh boxMesh {"hint":"Unit box mesh for the two strokes"}'
+    - '// @input Asset.Material markerMaterial {"hint":"Marker material; ticks use a dimmed copy"}'
+    - '// @ui {"widget":"group_end"}'
+    - '// @ui {"widget":"separator"}'
+    - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">Settings</span>"}'
+    - '// @ui {"widget":"group_start", "label":"Settings"}'
+    - '// @input float sizeCm = 1.6 {"hint":"Tick width in cm (the long stroke is about this long)", "widget":"slider", "min":0.5, "max":5, "step":0.1}'
+    - '// @input float brightness = 0.45 {"hint":"Brightness relative to the marker (dim, but never dark on the additive display)", "widget":"slider", "min":0.1, "max":1, "step":0.05}'
+    - '// @input float poolSize = 6 {"hint":"Most ticks shown at once"}'
+    - '// @ui {"widget":"group_end"}'

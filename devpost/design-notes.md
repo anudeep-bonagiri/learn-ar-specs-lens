@@ -132,3 +132,26 @@ Findings:
 
 - **The preview hand simulation could not pinch targets on the wheel while their hit boxes overlapped,** and it reported `obstructed` on the valve because of the valve's own child hit box. A real pinch or click in the preview is the check that catches this; LEAF `trigger` cannot.
 - **Once pulled, the tube hangs as a ring in front of the lower wheel** through steps 6 and 7. It does not block the thorn.
+
+## 2026-10-24: Pass 6, additive-display colors, stand-in badge, dim ticks (plan Section 4)
+
+Branch `Sudeep-Updates`.
+
+Audited against Section 4's additive rule ("no black or dark grey anywhere"): every material's base color read from `Assets/BenchCoach/Materials/*.mat`. Darkest is the tire at 0.50 grey (the mid-grey the plan asks for); rim 0.85, spokes 0.80, stand 0.75, tube tan (0.88, 0.74, 0.52), valve brass (0.85, 0.68, 0.30), levers blue (0.20, 0.55, 1.0), ghost and marker cyan (0.10, 0.95, 1.0). Text sits on light UIKit back plates. No change needed.
+
+Already in place from passes 1 to 4, verified in the walk: the stand-in badge ("stand-in: wheel placed by pinch") in the start card's corner; audio cues tick / click / zipper / chime / nope / done.
+
+Built: **dim ticks for completed steps.** `StepTicks.ts` on a new `StepTicks` object under `BenchCoach` builds a pool of six check marks (two thin box strokes each, 1.6 cm) in a runtime clone of `MarkerMat` at 45% brightness, which stays cyan rather than dark. `RepairManager.placeTicks()` shows one per completed step with an anchor, using the same `markerAnchorFor()` that places the ring; a completed step's tick sits where the work ended (`StepDefinitions.tickAngleDeg`: loosen at 292.5 degrees, the last lit bead; peel at 90 degrees where the peel finishes), not where it started. The ring placement code was refactored into `markerAnchorFor(step, live)` so both the ring and the ticks share it.
+
+| Criterion | LEAF scenario | Result |
+| --- | --- | --- |
+| 1 | `start` | PASSED |
+| 2 | `deflate-loosen` | PASSED |
+| 3 | `lever-snap` | PASSED |
+| 4 | `peel-and-pull` | PASSED |
+| 5 | `inspect-done` | PASSED |
+| Section 4 ticks | `step-ticks` (new) | PASSED: 0..6 ticks on steps 0..7; closest two ticks (steps 1 and 3) 7.15 cm apart; inspect tick 1.50 cm from the thorn; deflate tick 1.50 cm from the valve; Back from 5 leaves 3; reset leaves 0 |
+
+Findings:
+
+- **A recompile from any session resets the running Lens.** A parallel agent's compile check reset the preview mid-walk; one session should own the preview while another compiles.

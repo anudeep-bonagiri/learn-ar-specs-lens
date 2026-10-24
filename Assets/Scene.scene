@@ -1064,6 +1064,28 @@
     - !<own> 3a794764-c758-4d72-9d89-bf3ed978113f
   Components:
     []
+- !<ScriptComponent/27bb9353-73e1-454d-9f03-dde1497d9825>
+  PrefabRemaps:
+    []
+  Name: StepTicks
+  Enabled: true
+  ScriptAsset: !<reference> f834c64b-c01e-47ab-9c98-a9a0281d6cdd
+  ScriptInputsDefault:
+    sizeCm: true
+    brightness: true
+    poolSize: true
+  ScriptTypesDefault:
+    {}
+  ScriptInputs:
+    "":
+      boxMesh: !<reference.RenderMesh> 6a757628-4f58-46af-851c-a5f393415bde
+      markerMaterial: !<reference.Material> 15b55a2d-25cd-4131-88ca-e7924cfbabd4
+      sizeCm: 1.600000
+      brightness: 0.450000
+      poolSize: !<float> 6.000000
+  ScriptTypes:
+    "":
+      {}
 - !<SceneObject/28c12414-80c9-4e5e-84df-8e942a94a2ce>
   PrefabRemaps:
     []
@@ -2186,6 +2208,7 @@
       thorn: !<MappingBased.AssignableType_8> 21fb357a-ddf2-47ea-955f-575db2782408
       audio: !<MappingBased.AssignableType_9> 7407431d-eeb9-4d5c-a25e-0c11394825cf
       doneCard: !<MappingBased.AssignableType_10> 9c0325e9-10f9-46b0-9bc4-f9be0377eb1f
+      ticks: !<MappingBased.AssignableType_11> 27bb9353-73e1-454d-9f03-dde1497d9825
       beadRadiusCm: 33.400002
       markerStandoffCm: 1.500000
       labelOffsetCm: !<float> 10.000000
@@ -2859,6 +2882,7 @@
     Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
     HasSegmentScaleCompensation: false
   Children:
+    - !<own> d21277e0-d518-4ad8-b2f1-756d9e8b8558
     - !<own> 2d5c1cee-f247-4136-b4ae-70ad7a843fae
     - !<own> afdaa241-a357-4b42-82be-bb6c6821a03b
     - !<own> 08881f4b-c58d-498f-b7c9-2c4ba73cbe41
@@ -4209,6 +4233,21 @@
     - !<own> bb9036be-541f-49e7-9554-c297d354da21
   Components:
     []
+- !<SceneObject/d21277e0-d518-4ad8-b2f1-756d9e8b8558>
+  PrefabRemaps:
+    []
+  Name: StepTicks
+  Enabled: true
+  Layers: 1
+  LocalTransform: !<TransformEntity>
+    Position: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
+    HasSegmentScaleCompensation: false
+  Children:
+    []
+  Components:
+    - !<own> 27bb9353-73e1-454d-9f03-dde1497d9825
 - !<ScriptComponent/d3e2fbc5-8795-4913-9af6-c8626f8e6d9c>
   PrefabRemaps:
     []
