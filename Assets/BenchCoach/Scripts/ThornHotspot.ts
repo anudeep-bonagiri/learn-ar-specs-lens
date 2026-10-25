@@ -190,6 +190,11 @@ export class ThornHotspot extends BaseScriptComponent {
     this.flashTime = 0
   }
 
+  /** Watch mode: find the cause as if the glint were pinched (fires onFound while armed). */
+  findInstant(): void {
+    this.pinched()
+  }
+
   private pinched(): void {
     if (!this.armed || this.found) return
     this.found = true

@@ -86,6 +86,16 @@ export class WheelTargets extends BaseScriptComponent {
     }
   }
 
+  /** Watch mode: a valve pinch without a hand (onValvePinched only). */
+  pinchValve(): void {
+    this._onValvePinched.invoke()
+  }
+
+  /** Watch mode: a pinch on Bead_i without a hand (onBeadPinched). */
+  pinchBead(i: number): void {
+    this._onBeadPinched.invoke(i)
+  }
+
   private applyValve(): void {
     if (!this.valveTarget) return
     if (!this.valveWanted && this.valveHeld) return

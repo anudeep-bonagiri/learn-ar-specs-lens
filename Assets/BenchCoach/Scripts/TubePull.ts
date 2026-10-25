@@ -128,6 +128,8 @@ export class TubePull extends BaseScriptComponent {
   removed: boolean = false
   /** The new tube is sliding in. */
   refitting: boolean = false
+  /** Watch mode: playPull() is drawing the tube end out (before the staggered finish). */
+  demoPulling: boolean = false
 
   private manipulation: InteractableManipulation | null = null
   private interactable: Interactable | null = null
@@ -144,6 +146,8 @@ export class TubePull extends BaseScriptComponent {
   /** Progress each segment had when the staggered finish started. */
   private finishFrom: number[] = []
 
+  private demoElapsed = 0
+  private demoSec = 1.6
   private refitElapsed = 0
   private valveRefitFrom = vec3.zero()
 
@@ -216,11 +220,27 @@ export class TubePull extends BaseScriptComponent {
 
   /** Step 5 entry: let the user grab the tube end. */
   arm(): void {
-    if (this.pulled || this.animating) return
+    if (this.pulled || this.animating || this.demoPulling) return
     this.recordHomes()
     this.armed = true
     this.setManipulationEnabled(true)
     this.setPinchTarget(true)
+  }
+
+  /**
+   * Watch mode: draw the tube end straight out past the rim over `sec` seconds,
+   * driving the segment-by-segment pull, then run the usual staggered finish, which
+   * fires onPullComplete as a hand pull does. Grabbing is off while it plays.
+   */
+  playPull(sec: number): boolean {
+    if (this.pulled || this.animating || this.refitting || this.removed || this.held || this.demoPulling) return false
+    this.recordHomes()
+    this.armed = false
+    this.setManipulationEnabled(false)
+    this.demoElapsed = 0
+    this.demoSec = Math.max(0.2, sec)
+    this.demoPulling = true
+    return true
   }
 
   /** Leaving step 5 after the pull: grabbing stops, but the pinch target stays (see setPinchTarget). */
@@ -231,6 +251,7 @@ export class TubePull extends BaseScriptComponent {
 
   /** Back / reset: tube, tube end and valve back in the tire. */
   restore(): void {
+    this.demoPulling = false
     this.armed = false
     this.refitting = false
     this.removed = false
@@ -250,6 +271,7 @@ export class TubePull extends BaseScriptComponent {
 
   /** Jump to the pulled state without animating or emitting (jumpToStep / Next). */
   completeInstant(): void {
+    this.demoPulling = false
     this.recordHomes()
     this.armed = false
     this.animating = false
@@ -267,6 +289,7 @@ export class TubePull extends BaseScriptComponent {
   // ── Refit (pass 9) ─────────────────────────────────────────────────────────
   /** Step 8 entry: the old tube goes in the bin. Segments off, tube-end and valve visuals hidden. */
   removeForRefit(): void {
+    this.demoPulling = false
     this.recordHomes()
     this.refitting = false
     this.removed = true
@@ -417,6 +440,10 @@ export class TubePull extends BaseScriptComponent {
       this.animate()
       return
     }
+    if (this.demoPulling) {
+      this.animateDemoPull()
+      return
+    }
     if (!this.armed || this.pulled || !this.wheel) return
     const tubeScale = this.tube ? this.tube.getTransform().getWorldScale().x : 1
     const pastRim = this.distanceFromCenter() - this.rimRadiusCm * tubeScale
@@ -425,6 +452,19 @@ export class TubePull extends BaseScriptComponent {
       return
     }
     this.followPull(pastRim)
+  }
+
+  /** Watch mode: the tube end moves out along wheel -Y; past the threshold the staggered finish takes over. */
+  private animateDemoPull(): void {
+    this.demoElapsed += getDeltaTime()
+    const t = Math.min(1, this.demoElapsed / this.demoSec)
+    const d = this.pullDistanceCm * this.ease(t)
+    this.sceneObject.getTransform().setLocalPosition(this.endHome.add(new vec3(0, -d, 0)))
+    this.followPull(d)
+    if (t >= 1) {
+      this.demoPulling = false
+      this.startPull()
+    }
   }
 
   /** Index (0..7) of a segment in PULL_ORDER, from its TubeSeg_<n> name. */

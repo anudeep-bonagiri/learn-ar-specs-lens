@@ -47,6 +47,8 @@ export class RimDrag extends BaseScriptComponent {
 
   armed: boolean = false
   complete: boolean = false
+  /** Watch mode: the lever is being slid round by playSweep(), not by a hand. */
+  sweeping: boolean = false
   currentAngleDeg: number = 0
   sweptDeg: number = 0
 
@@ -56,6 +58,9 @@ export class RimDrag extends BaseScriptComponent {
   private socketLocalZ = 0
   private baseRot = quat.quatIdentity()
   private passed: number[] = []
+  private sweepElapsed = 0
+  private sweepSec = 4
+  private sweepFromDeg = 0
 
   private _onSegmentPassed = new Event<number>()
   private _onPeelComplete = new Event<void>()
@@ -81,6 +86,7 @@ export class RimDrag extends BaseScriptComponent {
     this.sweptDeg = 0
     this.passed = []
     this.complete = false
+    this.sweeping = false
     this.armed = true
     const m = this.placement.getManipulation()
     if (m) {
@@ -98,6 +104,7 @@ export class RimDrag extends BaseScriptComponent {
   disarm(): void {
     const wasArmed = this.armed
     this.armed = false
+    this.sweeping = false
     if (wasArmed && this.placement) this.placement.setManipulationActive(false)
     this.releaseManipulation()
   }
@@ -120,8 +127,28 @@ export class RimDrag extends BaseScriptComponent {
     this.passed = this.segmentsUpTo(this.peelEndAngleDeg + this.slackDeg)
     this.complete = true
     this.armed = false
+    this.sweeping = false
     this.placement.setManipulationActive(false)
     this.releaseManipulation()
+  }
+
+  /**
+   * Watch mode: slide the armed lever from where it is to peelEndAngleDeg over `sec`
+   * seconds. The pose is set each frame before the normal drag check, so the usual
+   * onSegmentPassed / onPeelComplete events fire exactly as for a hand drag.
+   */
+  playSweep(sec: number): boolean {
+    if (!this.armed || this.complete) return false
+    this.sweepElapsed = 0
+    this.sweepFromDeg = this.currentAngleDeg
+    this.sweepSec = Math.max(0.2, sec)
+    this.sweeping = true
+    return true
+  }
+
+  /** Stop a playSweep where it is (the lever stays armed for the hand). */
+  stopSweep(): void {
+    this.sweeping = false
   }
 
   getPassedSegments(): number[] {
@@ -130,6 +157,12 @@ export class RimDrag extends BaseScriptComponent {
 
   private tick(): void {
     if (!this.armed || this.complete || !this.wheel) return
+    if (this.sweeping) {
+      this.sweepElapsed += getDeltaTime()
+      const t = Math.min(1, this.sweepElapsed / this.sweepSec)
+      const e = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2
+      this.applyPose(this.sweepFromDeg + (this.peelEndAngleDeg - this.sweepFromDeg) * e)
+    }
     const tr = this.sceneObject.getTransform()
     const local = this.wheel.getTransform().getInvertedWorldTransform().multiplyPoint(tr.getWorldPosition())
     let angle = (Math.atan2(local.x, local.y) * 180) / Math.PI
@@ -157,6 +190,7 @@ export class RimDrag extends BaseScriptComponent {
       this.currentAngleDeg = this.peelEndAngleDeg
       this.complete = true
       this.armed = false
+      this.sweeping = false
       if (this.placement) this.placement.setManipulationActive(false)
       this.log("peel complete")
       this._onPeelComplete.invoke()

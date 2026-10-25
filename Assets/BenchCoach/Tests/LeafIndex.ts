@@ -14,6 +14,7 @@ import {ProgressIdleScenario} from "./ProgressIdleScenario"
 import {WhatsThisScenario} from "./WhatsThisScenario"
 import {MistakesScenario} from "./MistakesScenario"
 import {FlatCausesScenario} from "./FlatCausesScenario"
+import {WatchModeScenario} from "./WatchModeScenario"
 
 @component
 export class LeafIndex extends BaseScriptComponent {
@@ -72,9 +73,13 @@ export class LeafIndex extends BaseScriptComponent {
       typename: ProgressIdleScenario.getTypeName(),
     },
     {
+      id: "watch-mode",
+      typename: WatchModeScenario.getTypeName(),
+    },
+    {
       id: "jump-to-step",
       typename: JumpToStepScenario.getTypeName(),
-      parameters: {step: "5", pullCm: "0", fit: "0", inflate: "0", cause: "", find: "0", part: "", mistake: "", idle: "0"},
+      parameters: {step: "5", pullCm: "0", fit: "0", inflate: "0", cause: "", find: "0", part: "", mistake: "", idle: "0", watch: "0", until: ""},
     },
   ]
 }

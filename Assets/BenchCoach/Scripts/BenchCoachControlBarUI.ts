@@ -44,13 +44,13 @@ export class BenchCoachControlBarUI extends BaseScriptComponent {
 
   @input
   @hint("Gap between buttons in cm")
-  @widget(new SliderWidget(0.5, 5, 0.5))
-  gap: number = 2
+  @widget(new SliderWidget(0.4, 5, 0.1))
+  gap: number = 0.7
 
   @input
   @hint("Panel padding around the buttons in cm")
   @widget(new SliderWidget(0.5, 4, 0.25))
-  padding: number = 1.25
+  padding: number = 1
 
   @input
   @hint("Height of the strip under the buttons for the progress rail, in cm (0 = none)")
@@ -93,8 +93,10 @@ export class BenchCoachControlBarUI extends BaseScriptComponent {
     // The row sits in the top part of the panel; the rail strip is underneath.
     const rp = row.getTransform().getLocalPosition()
     row.getTransform().setLocalPosition(new vec3(rp.x, rp.y + this.railStripCm / 2, rp.z))
-    // What's this? sits at the left end (the tool tray is on the right); the scene
-    // places the bar so Back / Next / Replay keep their pass 5 positions.
+    // What's this? sits at the left end (the tool tray is on the right). F4 (pass 10):
+    // gaps 0.7 and padding 1 keep the bar at 25.1 cm, so looking 32 degrees down all four
+    // buttons and the rail are in view and the right end stays clear of the tray; the
+    // scene centers the bar between the view's left edge and the tray.
     const btn = addIconButton(row, "BtnWhatsThis", ICON_INFO, this.whatsThisSize, () => {})
     addIconButton(row, "BtnBack", ICON_BACK, this.backSize, () => this._onBack.invoke())
     addIconButton(row, "BtnNext", ICON_NEXT, this.nextSize, () => this._onNext.invoke())

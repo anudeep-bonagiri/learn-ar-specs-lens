@@ -1,3 +1,7 @@
+import {RepairDirector} from "../Scripts/RepairDirector"
+import {RimDrag} from "../Scripts/RimDrag"
+import {TubeFit} from "../Scripts/TubeFit"
+import {LAST_STEP} from "../Scripts/StepDefinitions"
 import {Scenario} from "Leaf.lspkg/Scenarios/scenario/Scenario"
 import {ScenarioConfig} from "Leaf.lspkg/Scenarios/scenario/ScenarioConfig"
 import {expect} from "Leaf.lspkg/Utils/common/Expect"
@@ -21,6 +25,11 @@ import {BenchCoachLeafInteractor} from "./BenchCoachLeafInteractor"
  * for this jump; `find` = 1 on step 6 pinches the hotspot and holds the reveal for
  * 30 s; `part` turns What's this? on and pinches InfoHit_<part>; `mistake` shows
  * that mistake code's reason for 30 s; `idle` = 1 fires the idle hint.
+ * Pass 10: `watch` = 1 starts watch mode and leaves it running (step 0 taps BtnWatch;
+ * any other step resumes from there with director.play()), for screenshots and video
+ * takes. `until` = sweep | fit | finish waits until that beat is under way (lever B
+ * sliding round, the new tube end flying to the valve, the Finish card), prints the
+ * moving part at two moments 0.8 s apart, and returns while it is still playing.
  */
 @component
 export class JumpToStepScenario extends Scenario {
@@ -34,6 +43,8 @@ export class JumpToStepScenario extends Scenario {
     const part = config?.get("part") ?? ""
     const mistake = config?.get("mistake") ?? ""
     const idleOn = config?.getNumber("idle") ?? 0
+    const watch = config?.getNumber("watch") ?? 0
+    const until = config?.get("until") ?? ""
     await sleep(500)
     const manager = getRepairManager()
     const root = findSceneObjectByName("BenchCoach")
@@ -83,6 +94,29 @@ export class JumpToStepScenario extends Scenario {
       idle.touch()
       await sleep(1400)
       idle.idleSec = saved
+    }
+    if (watch > 0) {
+      const director = root.getComponent(RepairDirector.getTypeName()) as RepairDirector
+      if (step === 0) await interactor.tap("BtnWatch")
+      else director.play()
+      print(`[JumpToStep] watch mode started (step ${manager.getState().step}, playing ${director.playing})`)
+      const rim = findSceneObjectByName("LeverB").getComponent(RimDrag.getTypeName()) as RimDrag
+      const fitEnd = findSceneObjectByName("NewTubeEnd")
+      const fitObj = fitEnd ? (fitEnd.getComponent(TubeFit.getTypeName()) as TubeFit) : null
+      const sample = (): string => {
+        const e = fitEnd.getTransform().getWorldPosition()
+        return `step ${manager.getState().step}, lever B ${rim.currentAngleDeg.toFixed(1)} deg, new tube end (${e.x.toFixed(1)}, ${e.y.toFixed(1)}, ${e.z.toFixed(1)})`
+      }
+      const cond = (): boolean =>
+        until === "sweep" ? rim.sweeping : until === "fit" ? !!fitObj && fitObj.isBusy() : until === "finish" ? manager.getState().step === LAST_STEP : true
+      const end = getTime() + 75
+      while (until && !cond() && getTime() < end) await sleep(50)
+      expect(cond(), `watch mode reached "${until}"`).toBe(true)
+      if (until) {
+        print(`[JumpToStep] ${until} t1: ${sample()}`)
+        await sleep(800)
+        print(`[JumpToStep] ${until} t2: ${sample()}`)
+      }
     }
     if (part) {
       const info = root.getComponent(PartInfo.getTypeName()) as PartInfo

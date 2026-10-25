@@ -139,8 +139,11 @@ export class LeverPlacement extends BaseScriptComponent {
     this.homeRecorded = true
   }
 
-  /** Snap to the socket immediately, locked, without firing onPlaced (jumpToStep / Next). */
-  placeInstant(): void {
+  /**
+   * Snap to the socket immediately, locked. Without `emit` (jumpToStep / Next) onPlaced
+   * does not fire; with it (watch mode) the step's own placed event runs as for a hand.
+   */
+  placeInstant(emit: boolean = false): void {
     if (!this.socket) return
     const st = this.socket.getTransform()
     const tr = this.sceneObject.getTransform()
@@ -150,6 +153,17 @@ export class LeverPlacement extends BaseScriptComponent {
     this.isLocked = true
     this.setManipulationEnabled(false)
     this.attachToSocketParent()
+    if (emit) this._onPlaced.invoke()
+  }
+
+  /**
+   * Watch mode: fly from wherever the lever is into the socket over `sec` seconds,
+   * lock, and fire onPlaced on arrival (the same tween a good release uses).
+   */
+  playPlace(sec: number): void {
+    if (!this.socket || this.isLocked || this.tweening || this.grabbed) return
+    const st = this.socket.getTransform()
+    this.startTween(st.getWorldPosition(), st.getWorldRotation(), sec, true)
   }
 
   /** Let another controller (RimDrag) re-enable or disable grabbing while locked. */
