@@ -520,3 +520,57 @@ Left over:
 - Live answers sometimes add an analogy ("like a detective solving a mystery"); a stricter system prompt ("plain, practical, no analogies") is a one-field change.
 - README disclosure: RSG and Google Gemini (`gemini-2.5-flash`) are now called at runtime.
 - `tools/check-no-tokens.sh`, `tools/set-coach-tokens.md` and the two snippets are new and untracked until committed.
+
+## 2026-10-24: Pass 11, floor path and coach-report extras (`docs/INTEGRATION_PLAN.md` row 3, features E and D)
+
+Branch `Sujeeth-AR-SPECS-WORK`, on top of 35a1b6b (pass 12). Built by the CLAD Specs Experience Builder through the Lens Studio MCP. The Ask the coach files were not touched; no RSG tokens were set. Not committed.
+
+What was built:
+
+- **E, `FloorPath.ts`** on new `Environment/FloorPath` (so it follows the environment's visibility). Eight flat chevrons (MeshBuilder via `MeshKit`, 12 cm long, 11 cm wide, 3.4 cm arms, wound counter-clockwise seen from above so they face +Y, 4 tris each), 0.3 cm above the mat's top face (y -149.2), spaced evenly by arc length along a cubic curve from `startSpot` (6, -149.5, -48) to `farSpot` (10, -149.5, -124) whose handles pull to `swingX` 45, so the chain swings round the wheel's right side to x 35.8 (the frame and stand base are at -X) and ends behind the wheel. Each arrow has its own clone of `MarkerMat`; a brightness crest travels from the first arrow to the last at `pulseHz` 0.8, between (0.5, 0.92, 1) and (0.92, 1, 1), both light. Public: `show()`, `hide()`, `visible`, `arrived`, `onArrived`, plus `builtCount` and `arrowPositions` for tests. Rules: every step change hides it and only a forward entry into step 5 (the peel finishing, Next or `jumpToStep`) shows it, so Back into 5 keeps it hidden and the pull ending step 5 hides it; it hides on arrival (camera within `arriveRadiusCm` 30 of the far spot on the floor plane), which does not complete the step; it stays hidden while `RepairDirector.playing`. Inputs (literal defaults): `manager`, `director`, `camera`, `arrowMaterial`; `arrowCount` 8, `startSpot`, `farSpot`, `swingX` 45, `arriveRadiusCm` 30, `pulseHz` 0.8.
+- **D, `RunStats`**: `mistakeCounts` per code (lever codes included, used only for the tip; `mistakes` still leaves them out), `noteStep(from, to)` called from `RepairManager.goTo` before `applyStep` (so step 10's time is in when the Finish card fills), `stepSeconds(step)`, `slowestSteps(k)`, `slowestStep()`, `topMistake()`, `practiceTip()`, `formatMSS()`, `PRACTICE_CLEAN`. A step's time runs from entry to a forward completion (to = from + 1) and is summed over such visits; a visit left by Back adds nothing, `jumpToStep` never records (it goes 0 to n in one change), entering step 0 clears everything, and nothing is recorded while `suspended` (watch mode).
+- **Data (`StepDefinitions.ts`, next to `MISTAKES`)**: `MISTAKE_TIPS` (one "Practice next: ..." line per code) and `STEP_SHORT_NAMES` for the time row.
+- **`BenchCoachFinishCardUI`**: `FinishTimes` ("Slowest: Lever 1 0:10 · Deflate 0:02 · Loosen 0:01", the three slowest work steps) and `FinishPractice` (warm light text) between the existing rows; new `setReport(timesLine, practiceLine)`; `setResult` unchanged. The card grew from 14 to 16 cm and moved from y 17 to 18, so it grew upward and its bottom edge (y 10) did not move; restart button 4.5 to 3.8 cm tall, gap 0.35 to 0.3, top/bottom padding 0.6 to 0.45. Literal default and scene value both 16.
+- **LEAF.** New `floor-path` (`FloorPathScenario.ts`) and `coach-report` (`CoachReportScenario.ts`, optional `stay` = 1 leaves the Finish card up for screenshots).
+
+| Scenario | Result (serial, one per call, preview, camera reset before each run, final code, after the save) |
+| --- | --- |
+| `start` | PASSED |
+| `deflate-loosen` | PASSED |
+| `lever-snap` | PASSED |
+| `peel-and-pull` | PASSED (the first try was cut off by an editor OAuth token refresh that reset the Lens; passed on the rerun and again in the final sweep) |
+| `inspect-done` | PASSED |
+| `step-ticks` | PASSED |
+| `scene-dressing` | PASSED |
+| `refit-tube` | PASSED |
+| `seat-inflate` | PASSED |
+| `whats-this` | PASSED |
+| `mistakes` | PASSED |
+| `flat-causes` | PASSED |
+| `progress-idle` | PASSED |
+| `watch-mode` | PASSED |
+| `ask-coach-fallback` | PASSED |
+| `floor-path` (new) | PASSED (hidden on 4; 8 of 8 arrows on 5; first (12.8, -50.4), last (20.8, -118.8), max x 35.8, arrow centers 15.5 cm from the toolbox footprint; arrival hides it and leaves step 5; Next hides it; Back into 5 keeps it hidden; watch mode from step 4 passes through 5 to 6 with the path never visible) |
+| `coach-report` (new) | PASSED (counts beadBeforeDeflate 1, leverTooFar 2 from real drags; step 3 10.06 s, 10.48 s after Back + Next; "Slowest: Lever 1 0:10 · Deflate 0:02 · Loosen 0:01"; "Practice next: lever tips. Drop each tip on the ghost."; no-mistake run "Practice next: Deflate, your slowest step at 0:02"; reset and `jumpToStep(11)` give the clean line and "Slowest: no timed steps") |
+| `jump-to-step` | PASSED |
+
+How the scenarios drive things (as the brief asked to record): `coach-report` produces the two lever misses with LEAF `dragTo` (lever A dropped 10 cm right of the socket, as `lever-snap` does), not `CoachFeedback.mistake()`; the drags were reliable in every run. `floor-path` sets the `Camera Object` world position from the scenario (polled every 50 ms); FloorPath saw the far-side position on the first poll every run, but reading the transform back afterwards gives the tracked pose (0, 0, 0), because DeviceTracking writes the camera back each frame. So the in-scenario move depends on update order. The real preview camera was also checked outside LEAF: `MovePreviewCamera setPosition (10, 0, -124)` logged "[FloorPath] arrived at the far side" and the path was gone on the next screenshot.
+
+Screenshots reviewed: step 5 from the start pose pitched down 62 degrees (eight light cyan chevrons on the mat, starting in front and curving right round the wheel toward the far side, the stand base and frame to the left, the toolbox to the right and clear); a top view of the layout; a view from partway along the path at (34, 0, -66) (the chain carrying on past the wheel's right side, toolbox clear); the far side after arrival from (12, -15, -126) (no arrows; the tube end at 6 o'clock and its label "Grab the tube end at 6 o'clock. Pull." in view); the Finish card from the default pose after a real `coach-report` run (whole card in view above the tire: title and time, cause and stats, the time row, the tip, the practice line, Start over). Pulse, two captures taken one after the other: the first arrow measured 0.97 then 0.86 (sRGB luminance) against 0.71 for the mat. Card text 0.95 to 1.0 on a 0.40 plate against a 0.38 background. After the final recompile all 546 BenchCoach script inputs in the scene are non-null; `RunAndCollectLogsTool` shows no Lens errors; no "duplicate of the loaded id" line this session; `tools/check-no-tokens.sh` printed OK.
+
+Deviations and why:
+
+- **Far spot at z -124, not -130.** The workbench's front edge is at z -128.1 (150 x 79.8 cm at z -168), so -130 would put the end of the path under the bench. The camera arrival radius (30 cm) still covers -130.
+- **Times are summed over forward visits.** A Back then Next on the same step adds the second visit instead of replacing the first, so a long first attempt is not erased by a quick redo.
+- **The time row ranks work steps only (rail-dot steps 1 to 6 and 8 to 10).** Step 7 (the halfway card) is timed too, but it is reading time, so it is left out of "slowest" and the tip.
+- **Watch mode records no step times** (`RunStats.suspended`, like the other counters), so the Finish card after an uninterrupted watch run shows "Slowest: no timed steps" and the clean practice line.
+- **The Finish card was edited in place** with the project's `UIHelpers` (UIKit BackPlate, FlexLayout, Button), not regenerated through `/specs-build-ui`, so the existing layout and object names stay as they were.
+- **Chevrons 12 x 11 cm** (the first try at 10 x 9 cm with 2.6 cm arms looked thin and aliased from 1.6 m up).
+
+Findings:
+
+- **Setting the camera transform from a Lens script holds for one frame only.** DeviceTracking writes it back, so in-Lens checks work only if they read the camera in the same frame; `MovePreviewCamera` is the reliable way to move the user.
+- **`expect(...).toBeGreaterThanOrEqual` does not exist in LEAF's `Expectation`**; use `toBeGreaterThan(n - 1)`.
+- **A LEAF run can take up to about 50 s to start after a recompile** (the panel waits for the reset), so the MCP call can time out while the scenario still runs and passes. Read the result from the log.
+
+Left over: the step-5 marker ring sits on the front side of the tire, so from the far spot it is hidden behind the tire (the tube end and its label are in view); a hands-on walk along the path in the preview (WASD) was not done beyond the camera moves above; the README should mention the floor path in the walk-around shot.

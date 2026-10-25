@@ -16,6 +16,8 @@ import {MistakesScenario} from "./MistakesScenario"
 import {FlatCausesScenario} from "./FlatCausesScenario"
 import {WatchModeScenario} from "./WatchModeScenario"
 import {AskCoachFallbackScenario} from "./AskCoachFallbackScenario"
+import {FloorPathScenario} from "./FloorPathScenario"
+import {CoachReportScenario} from "./CoachReportScenario"
 
 @component
 export class LeafIndex extends BaseScriptComponent {
@@ -80,6 +82,15 @@ export class LeafIndex extends BaseScriptComponent {
     {
       id: "ask-coach-fallback",
       typename: AskCoachFallbackScenario.getTypeName(),
+    },
+    {
+      id: "floor-path",
+      typename: FloorPathScenario.getTypeName(),
+    },
+    {
+      id: "coach-report",
+      typename: CoachReportScenario.getTypeName(),
+      parameters: {stay: "0"},
     },
     {
       id: "jump-to-step",

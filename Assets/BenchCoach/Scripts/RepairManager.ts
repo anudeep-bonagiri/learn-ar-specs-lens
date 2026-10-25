@@ -25,9 +25,11 @@
  * with a reason code; setInteractionsPaused(on) re-applies the step with every
  * arm gated off (What's this?); refreshLabel() gives the label back after a hint,
  * a mistake reason or a part fact.
+ * Pass 11: goTo reports each step change to RunStats.noteStep (step times), and
+ * the Finish card also gets the slowest-steps row and RunStats.practiceTip().
  */
 import Event, {PublicApi} from "SpectaclesInteractionKit.lspkg/Utils/Event"
-import {FLAT_CAUSE_IDS, FLAT_CAUSES, LAST_STEP, LOOSEN_BEADS, STEPS, SOCKET_B_ANGLE_DEG} from "./StepDefinitions"
+import {FLAT_CAUSE_IDS, FLAT_CAUSES, LAST_STEP, LOOSEN_BEADS, STEPS, SOCKET_B_ANGLE_DEG, STEP_SHORT_NAMES} from "./StepDefinitions"
 import {beadMidDeg, findChild, setBeadOffset} from "./WheelMath"
 import {WheelTargets} from "./WheelTargets"
 import {LeverPlacement} from "./LeverPlacement"
@@ -42,7 +44,7 @@ import {StepTicks} from "./StepTicks"
 import {Highlighter} from "./Highlighter"
 import {RefitSteps} from "./RefitSteps"
 import {BenchCoachFinishCardUI} from "./BenchCoachFinishCardUI"
-import {RunStats} from "./RunStats"
+import {RunStats, formatMSS} from "./RunStats"
 import {CoachFeedback} from "./CoachFeedback"
 
 const ALL_BEADS = [0, 1, 2, 3, 4, 5, 6, 7]
@@ -646,6 +648,8 @@ export class RepairManager extends BaseScriptComponent {
     this.subStep = 0
     this.replayCount = 0
     if (this.feedback) this.feedback.cancel()
+    // Pass 11: step times (before applyStep, so step 10's time is in when the Finish card fills).
+    if (this.stats) this.stats.noteStep(from, this.step)
     this.applyStep()
     if (this.step !== from && STEPS[this.step].showDoneCard && this.audio && this.doneCard) {
       this.audio.playDoneAt(this.doneCard.sceneObject.getTransform().getWorldPosition())
@@ -765,6 +769,12 @@ export class RepairManager extends BaseScriptComponent {
       `Cause: ${cause.label}`,
       cause.tip
     )
+    // Pass 11 coach report: the three slowest work steps and one practice line.
+    if (this.stats) {
+      const slow = this.stats.slowestSteps(3)
+      const parts = slow.map((id) => `${STEP_SHORT_NAMES[id] ?? STEPS[id].name} ${formatMSS(this.stats.stepSeconds(id))}`)
+      this.finishCard.setReport(parts.length > 0 ? `Slowest: ${parts.join(" · ")}` : "Slowest: no timed steps", this.stats.practiceTip())
+    }
   }
 
   /** Step 1 lights the valve, step 2 the beads still to loosen; every other step none (RefitSteps lights 8..10). */

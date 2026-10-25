@@ -1826,6 +1826,7 @@
     - !<own> 58d08a53-54e1-407d-864a-c0095664a605
     - !<own> 77a27950-5149-45c1-938c-967433e7670a
     - !<own> d96dcd5a-844f-4d6a-972e-b155b2f6fef4
+    - !<own> 6e5888be-9566-4928-8176-cf33df0638ba
   Components:
     []
 - !<SceneObject/38562bff-09c5-4232-bff1-7ea62a1e7ec5>
@@ -3150,6 +3151,21 @@
     - !<own> 4c195c04-c397-454e-bd08-3485f37d84fe
   Components:
     []
+- !<SceneObject/6e5888be-9566-4928-8176-cf33df0638ba>
+  PrefabRemaps:
+    []
+  Name: FloorPath
+  Enabled: true
+  Layers: 1
+  LocalTransform: !<TransformEntity>
+    Position: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
+    HasSegmentScaleCompensation: false
+  Children:
+    []
+  Components:
+    - !<own> 7ee312ce-8ce2-4af5-afb4-9baaddee166f
 - !<SceneObject/7037a633-4899-4f2e-bc97-2e3f35395687>
   PrefabRemaps:
     []
@@ -3566,6 +3582,36 @@
     - !<own> 58ef319f-850e-40dd-8295-e6dc36ab4854
   Components:
     []
+- !<ScriptComponent/7ee312ce-8ce2-4af5-afb4-9baaddee166f>
+  PrefabRemaps:
+    []
+  Name: FloorPath
+  Enabled: true
+  ScriptAsset: !<reference> 3425a5da-8247-42df-9cbd-85c91f2bcac8
+  ScriptInputsDefault:
+    arrowCount: true
+    startSpot: true
+    farSpot: true
+    swingX: true
+    arriveRadiusCm: true
+    pulseHz: true
+  ScriptTypesDefault:
+    {}
+  ScriptInputs:
+    "":
+      manager: !<MappingBased.AssignableType_1> 622db2cb-d0c7-4791-92af-926fab500a02
+      director: !<MappingBased.AssignableType_2> 69f574fb-b122-40c7-a041-afce199bf43c
+      camera: !<reference.Camera> 00000000-0000-0065-0000-000000000065
+      arrowMaterial: !<reference.Material> 15b55a2d-25cd-4131-88ca-e7924cfbabd4
+      arrowCount: !<float> 8.000000
+      startSpot: !<Vec3> {x: 6.000000, y: -149.500000, z: -48.000000}
+      farSpot: !<Vec3> {x: 10.000000, y: -149.500000, z: -124.000000}
+      swingX: !<float> 45.000000
+      arriveRadiusCm: !<float> 30.000000
+      pulseHz: 0.800000
+  ScriptTypes:
+    "":
+      {}
 - !<SceneObject/7f344016-e78c-4c78-8917-281e1fb650fd>
   PrefabRemaps:
     []
@@ -3880,7 +3926,7 @@
   Enabled: true
   Layers: 1
   LocalTransform: !<TransformEntity>
-    Position: {x: 0.000000, y: 17.000000, z: -88.000000}
+    Position: {x: 0.000000, y: 18.000000, z: -88.000000}
     Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
     Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
     HasSegmentScaleCompensation: false
@@ -5065,6 +5111,7 @@
   Enabled: true
   ScriptAsset: !<reference> 0e2bda00-97be-443d-a091-f8b693738e1c
   ScriptInputsDefault:
+    panelHeight: true
     viewDistanceCm: true
     titleText: true
     restartLabel: true
@@ -5073,7 +5120,7 @@
   ScriptInputs:
     "":
       panelWidth: !<float> 30.000000
-      panelHeight: !<float> 14.000000
+      panelHeight: !<float> 16.000000
       viewDistanceCm: !<float> 90.000000
       titleText: Flat fixed.
       restartLabel: Start over
