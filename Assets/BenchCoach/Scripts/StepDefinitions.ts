@@ -171,6 +171,35 @@ export const MISTAKES: {[code: string]: string} = {
 }
 
 /**
+ * Pass 11, coach report: one "practice this next" line per mistake code, shown on
+ * the Finish card for the run's most frequent mistake (RunStats.practiceTip()).
+ * Short: one line on the 30 cm card.
+ */
+export const MISTAKE_TIPS: {[code: string]: string} = {
+  beadBeforeDeflate: "Practice next: let all the air out before the beads.",
+  valveAlreadyDeflated: "Practice next: once it's flat, go straight to the beads.",
+  leverBBeforeA: "Practice next: hook the first lever by the valve first.",
+  leverTooFar: "Practice next: lever tips. Drop each tip on the ghost.",
+  tubeBeforePeel: "Practice next: peel the bead fully before the tube.",
+  tubeFitMiss: "Practice next: start the new tube at the valve hole.",
+  inflateBeforeSeat: "Practice next: seat every bead before you pump.",
+}
+
+/** Pass 11: short step names for the Finish card's time row (repair steps only). */
+export const STEP_SHORT_NAMES: {[step: number]: string} = {
+  1: "Deflate",
+  2: "Loosen",
+  3: "Lever 1",
+  4: "Peel",
+  5: "Pull",
+  6: "Inspect",
+  7: "Halfway",
+  8: "Fit tube",
+  9: "Seat",
+  10: "Inflate",
+}
+
+/**
  * What's this? facts. `target` is the SceneObject the pinch box follows (found by
  * name under the wheel, stand and tray); `offset` is in the target's rotated frame,
  * in cm; `size` is the box in cm (a little larger than any collider it encloses, so

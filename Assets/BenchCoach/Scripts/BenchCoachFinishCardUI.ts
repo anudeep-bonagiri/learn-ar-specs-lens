@@ -2,8 +2,12 @@
  * BenchCoachFinishCardUI — the final card (step 11), billboarded above the
  * wheel: "Flat fixed.", the time from Found it, a stats line ("Lever misses 1 ·
  * Mistakes 0 · Hints 0"), the flat cause ("Cause: glass shard"), its prevention
- * tip, and BtnRestart.
- * Owns: only its view. setResult() pushes time, stats, cause and tip in. Emits onRestart.
+ * tip, and BtnRestart. Pass 11 (coach report): a time row with the three slowest
+ * steps (FinishTimes, "Slowest: Pull 0:12 · Peel 0:09 · Lever 1 0:07") and one
+ * practice line (FinishPractice); the card grew from 14 to 16 cm tall upward (its
+ * bottom edge stays above the tire).
+ * Owns: only its view. setResult() pushes time, stats, cause and tip in; setReport()
+ * the time row and the practice line. Emits onRestart.
  * Must not: hold repair state or count anything (RunStats counts, RepairManager pushes).
  */
 import Event, {PublicApi} from "SpectaclesInteractionKit.lspkg/Utils/Event"
@@ -27,7 +31,7 @@ export class BenchCoachFinishCardUI extends BaseScriptComponent {
   @input
   @hint("Panel height in cm")
   @widget(new SliderWidget(8, 30, 0.5))
-  panelHeight: number = 14
+  panelHeight: number = 16
 
   @input
   @hint("Viewing distance in cm; scales the type size")
@@ -47,6 +51,8 @@ export class BenchCoachFinishCardUI extends BaseScriptComponent {
   private statsText: Text | null = null
   private causeText: Text | null = null
   private tipText: Text | null = null
+  private timesText: Text | null = null
+  private practiceText: Text | null = null
   private _onRestart = new Event<void>()
   onRestart: PublicApi<void> = this._onRestart.publicApi()
 
@@ -61,14 +67,20 @@ export class BenchCoachFinishCardUI extends BaseScriptComponent {
     if (this.tipText) this.tipText.text = `Next time: ${tip}`
   }
 
+  /** Pass 11: the slowest-steps row and the practice line (RunStats via RepairManager). */
+  setReport(timesLine: string, practiceLine: string): void {
+    if (this.timesText) this.timesText.text = timesLine
+    if (this.practiceText) this.practiceText.text = practiceLine
+  }
+
   onAwake(): void {
     const d = this.viewDistanceCm
     this.sceneObject.createComponent(Billboard.getTypeName())
     const panel = backPlatePanel(this.sceneObject, this.panelWidth, this.panelHeight)
     const col = flexColumn(panel.content, this.panelWidth, this.panelHeight, {
-      gap: 0.35,
+      gap: 0.3,
       padX: 1.0,
-      padY: 0.6,
+      padY: 0.45,
       justify: FlexJustify.Center,
       align: FlexAlign.Center,
     })
@@ -86,11 +98,18 @@ export class BenchCoachFinishCardUI extends BaseScriptComponent {
         distanceCm: d,
       })
     })
+    this.timesText = addColumnText(col, "FinishTimes", "Slowest: Pull 0:00 · Peel 0:00 · Lever 1 0:00", "Caption", 1.6, {
+      distanceCm: d,
+    })
     this.tipText = addColumnText(col, "FinishTip", "Next time: run a hand round inside the tire.", "Caption", 1.6, {
       distanceCm: d,
       color: new vec4(0.75, 0.97, 1, 0.85),
     })
-    addLabelButton(col, "BtnRestart", this.restartLabel, ICON_REPLAY, 13, 4.5, d, () => {
+    this.practiceText = addColumnText(col, "FinishPractice", "Practice next: nothing stands out.", "Caption", 1.6, {
+      distanceCm: d,
+      color: new vec4(1, 0.93, 0.72, 1),
+    })
+    addLabelButton(col, "BtnRestart", this.restartLabel, ICON_REPLAY, 13, 3.8, d, () => {
       this._onRestart.invoke()
     })
   }

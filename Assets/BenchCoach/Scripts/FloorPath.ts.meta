@@ -1,0 +1,82 @@
+- !<AssetImportMetadata/468169f2-2db4-4322-bed2-a14064d918cc>
+  ImportedAssetIds:
+    TypeScriptAsset: !<reference> 3425a5da-8247-42df-9cbd-85c91f2bcac8
+  ImporterName: TypeScriptAssetImporter
+  PrimaryAsset: !<reference> 3425a5da-8247-42df-9cbd-85c91f2bcac8
+  PackageType: NotAPackage
+  LegacyPackagePolicy: ~
+  ExtraData:
+    {}
+  AssetDataMap:
+    TypeScriptAsset: !<own> 97156cde-0d42-46f2-ba0a-60096ee48982
+  DependentFiles:
+    []
+  ImporterSettings: !<AssetImporterSettings>
+    {}
+  CompressionSettings: !<own> 00000000-0000-0000-0000-000000000000
+- !<TypeScriptAssetData/97156cde-0d42-46f2-ba0a-60096ee48982>
+  SvgIcon: ""
+  SetupScript:
+    code: ""
+  Description: ""
+  VersionMajor: 0
+  VersionMinor: 0
+  VersionPatch: 0
+  VersionPrerelease: ""
+  UpdateOrder: 0
+  ComponentUid: dc29c0ea-92dc-449d-a70e-b25bf32b284a
+  ExportUid: 00000000-0000-0000-0000-000000000000
+  PackagePolicy: CanBeUnpacked
+  ScriptInputsHidden:
+    arriveRadiusCm: false
+    arrowCount: false
+    arrowMaterial: false
+    camera: false
+    director: false
+    farSpot: false
+    manager: false
+    pulseHz: false
+    startSpot: false
+    swingX: false
+  ScriptTypesHidden:
+    {}
+  ReadMe: !<reference> 00000000-0000-0000-0000-000000000000
+  DeclarationFile: !<reference> 00000000-0000-0000-0000-000000000000
+  Tags:
+    []
+  Attachments:
+    []
+  DefaultScriptInputs:
+    - manager: !<MappingBased.AssignableType_1> 00000000-0000-0000-0000-000000000000
+      director: !<MappingBased.AssignableType_2> 00000000-0000-0000-0000-000000000000
+      camera: !<reference.Camera> 00000000-0000-0000-0000-000000000000
+      arrowMaterial: !<reference.Material> 00000000-0000-0000-0000-000000000000
+      arrowCount: !<float> 8.000000
+      startSpot: !<Vec3> {x: 6.000000, y: -149.500000, z: -48.000000}
+      farSpot: !<Vec3> {x: 10.000000, y: -149.500000, z: -124.000000}
+      swingX: !<float> 45.000000
+      arriveRadiusCm: !<float> 30.000000
+      pulseHz: 0.800000
+  ScriptTypes:
+    -
+      {}
+  InputLines:
+    - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">FloorPath – arrows to the far side on step 5</span>"}'
+    - '// @ui {"widget":"separator"}'
+    - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">References</span>"}'
+    - '// @ui {"widget":"group_start", "label":"References"}'
+    - '// @input AssignableType_1 manager {"hint":"Step machine (step changes show and hide the path)"}'
+    - '// @input AssignableType_2 director {"hint":"Watch mode: the path stays hidden while it plays"}'
+    - "// @input Component.Camera camera {\"hint\":\"The user's camera (arrival is measured from it on the floor plane)\"}"
+    - '// @input Asset.Material arrowMaterial {"hint":"Light cyan unlit material (MarkerMat); each arrow gets its own clone for the wave"}'
+    - '// @ui {"widget":"group_end"}'
+    - '// @ui {"widget":"separator"}'
+    - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">Settings</span>"}'
+    - '// @ui {"widget":"group_start", "label":"Settings"}'
+    - '// @input float arrowCount = 8 {"hint":"Number of arrows in the chain", "widget":"slider", "min":6, "max":10, "step":1}'
+    - "// @input vec3 startSpot = \"{6, -149.5, -48}\" {\"hint\":\"Floor spot where the path starts, in front of the stand (world cm; y = the mat's top)\"}"
+    - '// @input vec3 farSpot = "{10, -149.5, -124}" {"hint":"Floor spot behind the wheel where the path ends, facing the tube end (world cm)"}'
+    - "// @input float swingX = 45 {\"hint\":\"How far right (+X, world cm) the curve's handles pull; the curve itself peaks at about 3/4 of this\", \"widget\":\"slider\", \"min\":20, \"max\":70, \"step\":1}"
+    - '// @input float arriveRadiusCm = 30 {"hint":"Arrival radius on the floor plane, in cm", "widget":"slider", "min":10, "max":60, "step":1}'
+    - '// @input float pulseHz = 0.8 {"hint":"Brightness waves per second travelling along the chain", "widget":"slider", "min":0.2, "max":3, "step":0.1}'
+    - '// @ui {"widget":"group_end"}'
