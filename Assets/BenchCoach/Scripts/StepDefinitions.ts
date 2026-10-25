@@ -448,3 +448,67 @@ export const STEPS: StepDef[] = [
 export const HALFWAY_STEP = 7
 
 export const LAST_STEP = STEPS.length - 1
+
+/**
+ * Pass 12, Ask the coach: preset questions per repair step (1..6, 8..10; the cards
+ * 0, 7 and 11 have none), each with a canned answer used offline, on a timeout or
+ * when AskCoach.forceCanned is set. Answers are one or two short sentences,
+ * paraphrasing the Park Tool tube-repair procedure.
+ */
+export interface CoachQuestion {
+  q: string
+  a: string
+}
+
+export const COACH_QUESTIONS: {[step: number]: CoachQuestion[]} = {
+  1: [
+    {q: "Why unthread the tip?", a: "A Presta valve has a small lock nut on its tip. Unthread it a few turns, then press it to let the air out."},
+    {q: "Presta or Schrader?", a: "Presta is thin with a lock nut on the tip. Schrader is wider, like a car valve, with a spring pin inside."},
+    {q: "Why let all the air out?", a: "A soft tire lets the bead drop into the rim's center channel. With air in, the bead stays locked on the rim."},
+  ],
+  2: [
+    {q: "Why push to the center?", a: "The rim's center channel is deeper, so the bead sits on a smaller circle there. That gives the slack the levers need."},
+    {q: "Both sides of the tire?", a: "Yes, squeeze both beads into the channel all the way round. Then only one side has to come off."},
+    {q: "What is the bead?", a: "The bead is the stiff edge of the tire. It hooks under the rim's lip and holds the tire on."},
+  ],
+  3: [
+    {q: "How far under the bead?", a: "Just under the bead edge, scoop side up. Then hook the other end on a spoke so it stays put."},
+    {q: "Can I use a screwdriver?", a: "No. Metal tools scratch the rim and can cut the tube. Plastic tire levers are made for this."},
+    {q: "Why hook it on a spoke?", a: "The spoke holds the lever and keeps the bead lifted. Your hand is free for the second lever."},
+  ],
+  4: [
+    {q: "Why a second lever?", a: "One lever lifts only a short stretch of bead. A second one a few cm along frees enough to slide round."},
+    {q: "Why slide it round?", a: "Sliding the lever along the rim unzips the bead. Once a good stretch is off, the rest comes free easily."},
+    {q: "Only one side comes off?", a: "Yes. With one bead off, the tube can come out. The other side can stay on the rim."},
+  ],
+  5: [
+    {q: "Why start opposite the valve?", a: "The valve end is held by the rim. Starting opposite gives slack so the tube slides out without tearing at the valve."},
+    {q: "When does the valve come out?", a: "Last. Once the rest of the tube is out, push the valve up through the rim hole."},
+    {q: "Keep the tube lined up?", a: "Yes, it helps. The hole in the tube points to the spot on the tire where the cause is."},
+  ],
+  6: [
+    {q: "How do I check the tire?", a: "Run your fingers slowly round the inside of the tire and look over the tread. Feel for anything sharp."},
+    {q: "Why find the cause?", a: "Whatever made the flat may still be in the tire. Leave it there and the new tube goes flat too."},
+    {q: "What is a snakebite?", a: "Two small slits side by side. The tube got pinched against the rim, often from low pressure."},
+  ],
+  8: [
+    {q: "Why start at the valve?", a: "Put the valve through the rim hole first. The rest of the tube then tucks in evenly from there."},
+    {q: "Why a little air first?", a: "A tube with a bit of air keeps its round shape. It is less likely to twist or get pinched."},
+    {q: "Does tire direction matter?", a: "Many tires have an arrow on the sidewall. Point it the way the wheel turns."},
+  ],
+  9: [
+    {q: "Why thumbs, not levers?", a: "Levers can pinch the new tube against the rim. Thumbs are safer for putting the bead back."},
+    {q: "Where do I finish?", a: "Finish at the valve. Push the valve up into the tire so the bead can seat under it."},
+    {q: "What should I check?", a: "Look round both sides for tube showing under the bead. A caught tube can burst when you pump."},
+  ],
+  10: [
+    {q: "How hard should it be?", a: "Pump to the pressure printed on the tire sidewall. It is a range; stay inside it."},
+    {q: "Why pump slowly at first?", a: "Add a little air and check the bead line is even all round. Then pump up to full pressure."},
+    {q: "Anything after pumping?", a: "On a Presta valve, thread the lock nut on the tip back down, then put the cap on."},
+  ],
+}
+
+/** The step's preset questions ([] on the cards). */
+export function coachQuestions(step: number): CoachQuestion[] {
+  return COACH_QUESTIONS[step] ? COACH_QUESTIONS[step] : []
+}

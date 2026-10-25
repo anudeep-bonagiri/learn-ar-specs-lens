@@ -4,7 +4,7 @@ Status as of Oct 24, 2026. **Current order of work: `docs/INTEGRATION_PLAN.md`**
 
 Done: criteria 1 to 5, six LEAF scenarios green (`start`, `deflate-loosen`, `lever-snap`, `peel-and-pull`, `inspect-done`, `step-ticks`).
 
-Done: **Pass 7a** (curved levers, tread, valve and bead glow, hiss, tube hidden until a bead lifts, peel to 5 o'clock, segment-by-segment pull). Eight LEAF scenarios green, adding `scene-dressing`. Done: **Pass 7b** (workbench, pegboard, toolbox, saddle, code-built bike frame, floor mat, key and fill lights with shadows on the mat). Done: **Pass 9** (halfway card with Continue, fit the new tube, seat the bead, hold-to-inflate, Finish card with stats). Ten LEAF scenarios green. Done: **Pass 8** (What's this? mode, mistake feedback, random flat cause, progress rail, idle hints) and follow-ups F1 to F3. Fourteen LEAF scenarios green. Done: **Pass 10** (watch mode, about 57 s end to end; control bar narrowed). Fifteen LEAF scenarios green. **Next up: spikes B and A, then pass 11 (see `docs/INTEGRATION_PLAN.md`).**
+Done: **Pass 7a** (curved levers, tread, valve and bead glow, hiss, tube hidden until a bead lifts, peel to 5 o'clock, segment-by-segment pull). Eight LEAF scenarios green, adding `scene-dressing`. Done: **Pass 7b** (workbench, pegboard, toolbox, saddle, code-built bike frame, floor mat, key and fill lights with shadows on the mat). Done: **Pass 9** (halfway card with Continue, fit the new tube, seat the bead, hold-to-inflate, Finish card with stats). Ten LEAF scenarios green. Done: **Pass 8** (What's this? mode, mistake feedback, random flat cause, progress rail, idle hints) and follow-ups F1 to F3. Fourteen LEAF scenarios green. Done: **Pass 10** (watch mode, about 57 s end to end; control bar narrowed). Fifteen LEAF scenarios green. Done: **Pass 12, Ask the coach** (RSG + Gemini 2.5 Flash, preset questions per step, answer next to the part, offline fallback). Sixteen LEAF scenarios green. Voice test skipped by choice. **Next up: pass 11 (floor path, report extras) and the friend handoff below.**
 
 ## Rules so we don't break each other
 
@@ -54,3 +54,30 @@ Done: **Pass 7a** (curved levers, tread, valve and bead glow, hiss, tube hidden 
 | F3 | **DONE.** **Halfway card height.** Its title and time sit just above the default view (buttons visible). Lowering it brings back the lever-A overlap fixed earlier; pick a position that clears both. | Visual check in the preview. |
 | F4 | **DONE.** **Control bar width.** Pass 8 widened the bar to 29.5 cm for the What's this? button and progress rail. Looking down, the info button is clipped at the left edge of the view and the bar's right end tucks under the tool tray. Shrink the gaps or move the info button. | Seen on a screenshot after pass 8; do with or after pass 10. |
 | F5 | **Hands-on walk with the mouse** of the whole repair, including What's this? (do the info boxes win over the levers?) and the idle hint. LEAF skips the ray, so this is untested. | Anyone. |
+
+## Handoff: Ask the coach + AI voice (friend)
+
+Ask the coach is built (pass 12). The friend owns it from here and adds AI voice. Until the friend says otherwise, nobody else edits `AskCoach.ts`, `BenchCoachAskChipsUI.ts`, `BenchCoachAskAnswerUI.ts` or the Ask parts of `StepDefinitions.ts`.
+
+**Setup (once)**
+1. Clone the repo, check out `Sujeeth-AR-SPECS-WORK`, branch off it (for example `ai-coach-voice`).
+2. `brew install git-lfs && git lfs install && git lfs pull`.
+3. Lens Studio 5.22+, signed in; open `Specs Base Template.esproj`. Claude Code from the folder, approve the `lens-studio` MCP; `/plugin marketplace add https://github.com/lens-studio-devs/ls-extensions.git`, `/plugin install ls-clad@ls-extensions`.
+4. Read this file's rules, `docs/INTEGRATION_PLAN.md`, and the "Pass 12: Ask the coach" entry at the end of `devpost/design-notes.md`.
+5. Recompile; fix any "Input X was not provided" in the Logger by rewiring in the Inspector.
+
+**How it works now:** `Assets/BenchCoach/Scripts/AskCoach.ts` calls Gemini `gemini-2.5-flash` (thinking off, about 1.1 s) through Remote Service Gateway 2.0.1. Questions and offline answers are in `StepDefinitions.ts` (three per repair step). Any error, missing token, no internet or a 6 s timeout falls back to the offline answer, tagged "offline". Test: `ask-coach-fallback` (never uses the network). Model notes: `gpt-4.1-nano` is deprecated and `gemini-2.0-flash` returns 404 through RSG; `gpt-4o-mini` works as an OpenAI alternative.
+
+**Tokens (hard rule):** RSG tokens live in the scene file and must never be committed. Before a live test or demo follow `tools/set-coach-tokens.md` (snippets `tools/coach-tokens-set.ts` / `tools/coach-tokens-clear.ts`); clear them before every save. Run `tools/check-no-tokens.sh` before every commit; it must print OK.
+
+**AI voice, what is possible**
+- **Coach speaks its answer:** possible in the preview. RSG can call OpenAI text-to-speech and play the result through an `AudioComponent` (needs internet and tokens). Add a mute toggle, keep the text answer visible, fall back silently when offline. Add a LEAF check that does not need the network (for example, the request is made and the mute flag is respected).
+- **Talking to the coach (voice commands / ASR):** only works on real Specs glasses; in the preview it always hears nothing. Build only if you can test on paired glasses. Keep buttons as the fallback; LEAF must call the handler with a fake transcript, never a real mic.
+- Do not use the deprecated Lens `TextToSpeechModule`.
+
+**Open items you inherit**
+- Step 5: the label and answer sit behind the control bar from the start pose (the walk-around step).
+- Step 6: the question chips clip about 2 cm at the left edge; steps 2 to 4: the answer's first line sits in the faded top edge.
+- Live answers sometimes add analogies; tighten the system prompt in `AskCoach.ts`.
+
+**Rules:** one person edits `Assets/Scene.scene` at a time (say so in chat); every LEAF scenario passes from the default preview camera before you push (run one per call); nothing black or dark; build through Claude Code with the CLAD Specs experience builder; tell the team every AI provider you call so the README can disclose it (currently RSG and Google Gemini).

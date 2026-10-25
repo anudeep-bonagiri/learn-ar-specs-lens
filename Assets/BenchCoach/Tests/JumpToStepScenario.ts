@@ -12,6 +12,7 @@ import {PartInfo} from "../Scripts/PartInfo"
 import {CoachFeedback} from "../Scripts/CoachFeedback"
 import {IdleHint} from "../Scripts/IdleHint"
 import {BenchCoachLeafInteractor} from "./BenchCoachLeafInteractor"
+import {AskCoach} from "../Scripts/AskCoach"
 
 /**
  * Helper, not a criterion: jumps the Lens to step `step` (parameter, default 5)
@@ -30,6 +31,9 @@ import {BenchCoachLeafInteractor} from "./BenchCoachLeafInteractor"
  * takes. `until` = sweep | fit | finish waits until that beat is under way (lever B
  * sliding round, the new tube end flying to the valve, the Finish card), prints the
  * moving part at two moments 0.8 s apart, and returns while it is still playing.
+ * Pass 12: `ask` = open taps BtnAsk; `ask` = 0..2 also pinches that chip and waits
+ * (up to 8 s) for the answer; `canned` = 1 forces the offline answer. Screenshots only;
+ * the live path needs tokens set in memory (tools/set-coach-tokens.md).
  */
 @component
 export class JumpToStepScenario extends Scenario {
@@ -45,6 +49,8 @@ export class JumpToStepScenario extends Scenario {
     const idleOn = config?.getNumber("idle") ?? 0
     const watch = config?.getNumber("watch") ?? 0
     const until = config?.get("until") ?? ""
+    const askArg = config?.get("ask") ?? ""
+    const canned = config?.getNumber("canned") ?? 0
     await sleep(500)
     const manager = getRepairManager()
     const root = findSceneObjectByName("BenchCoach")
@@ -124,6 +130,23 @@ export class JumpToStepScenario extends Scenario {
       await sleep(300)
       await interactor.tap(`InfoHit_${part}`)
       print(`[JumpToStep] What's this? ${info.lastText}`)
+    }
+    if (askArg) {
+      const ask = root.getComponent(AskCoach.getTypeName()) as AskCoach
+      ask.forceCanned = canned > 0
+      await interactor.tap("BtnAsk")
+      await sleep(300)
+      if (askArg !== "open") {
+        const t0 = getTime()
+        await interactor.tap(`AskChip_${askArg}`)
+        await sleep(100)
+        while ((ask.busy || !ask.lastSource) && getTime() - t0 < 8) await sleep(50)
+        print(`[JumpToStep] ask ${askArg}: ${ask.lastSource} (${ask.lastFallbackReason}) ${ask.lastLatencyMs} ms "${ask.lastAnswer}"`)
+      }
+      for (const name of ["AskChipsPanel", "AskAnswerPanel", "StepLabel"]) {
+        const p = findSceneObjectByName(name).getTransform().getWorldPosition()
+        print(`[JumpToStep] ${name} at (${p.x.toFixed(1)}, ${p.y.toFixed(1)}, ${p.z.toFixed(1)})`)
+      }
     }
     for (const name of ["LeverA", "LeverB", "StepMarker", "TubeEnd", "EdgeArrow", "NewTubeEnd"]) {
       const so = findSceneObjectByName(name)

@@ -5,7 +5,8 @@
  * PartInfo. Owns: nothing but the subscriptions.
  * Plays the tick cue from the pressed panel; every press touches IdleHint and
  * first stops watch mode (RepairDirector.stop()); the start card's Watch button
- * presses Found it and then starts watch mode.
+ * presses Found it and then starts watch mode. Pass 12: BtnAsk toggles AskCoach;
+ * Ask and What's this? are mutually exclusive (turning one on turns the other off).
  * Expects: @inputs manager, startCard, controlBar, doneCard, finishCard, audio (wired in the scene).
  */
 import {RepairManager} from "./RepairManager"
@@ -19,6 +20,7 @@ import {RunStats} from "./RunStats"
 import {PartInfo} from "./PartInfo"
 import {CoachFeedback} from "./CoachFeedback"
 import {RepairDirector} from "./RepairDirector"
+import {AskCoach} from "./AskCoach"
 
 @component
 export class UIBindings extends BaseScriptComponent {
@@ -75,6 +77,11 @@ export class UIBindings extends BaseScriptComponent {
   @allowUndefined
   @hint("Watch mode: every press stops it first; BtnWatch starts it")
   director: RepairDirector
+
+  @input
+  @allowUndefined
+  @hint("Ask the coach: BtnAsk toggles it; exclusive with What's this?")
+  askCoach: AskCoach
   @ui.group_end
 
   onAwake(): void {
@@ -106,10 +113,23 @@ export class UIBindings extends BaseScriptComponent {
       }
       if (this.partInfo) {
         // The toggle look follows the mode (it may switch late while a lever is held).
-        this.partInfo.onActiveChanged.add((on) => this.controlBar.setWhatsThisLatched(on))
+        this.partInfo.onActiveChanged.add((on) => {
+          this.controlBar.setWhatsThisLatched(on)
+          if (on && this.askCoach) this.askCoach.setOpen(false)
+        })
         this.controlBar.onWhatsThis.add((on) => {
           if (on === this.partInfo.wanted) return // a sync from setWhatsThisLatched, not a press
           this.press(this.controlBar, () => this.partInfo.setActive(on))
+        })
+      }
+      if (this.askCoach) {
+        this.askCoach.onOpenChanged.add((on) => {
+          this.controlBar.setAskLatched(on)
+          if (on && this.partInfo) this.partInfo.setActive(false)
+        })
+        this.controlBar.onAsk.add((on) => {
+          if (on === this.askCoach.open) return // a sync from setAskLatched, not a press
+          this.press(this.controlBar, () => this.askCoach.setOpen(on))
         })
       }
       if (this.finishCard) {
