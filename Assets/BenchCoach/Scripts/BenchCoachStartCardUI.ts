@@ -1,14 +1,16 @@
 /**
  * BenchCoachStartCardUI — step 0 card: "Fix a flat" title, the big Found it
- * button (BtnFoundIt) and the stand-in badge (StandInBadge).
- * Owns: only its view. Emits onFoundIt. Holds no repair state.
+ * button (BtnFoundIt) with the Watch button (BtnWatch, pass 10: auto-plays the
+ * whole repair) beside it, and the stand-in badge (StandInBadge).
+ * Owns: only its view. Emits onFoundIt, onWatch. Holds no repair state.
  * Expects: to sit on the StartCard SceneObject facing the user at ~85 cm.
  */
 import Event, {PublicApi} from "SpectaclesInteractionKit.lspkg/Utils/Event"
 import {FlexAlign, FlexJustify} from "SpectaclesUIKit.lspkg/Scripts/Components/Layout2D/Flex/FlexTypes"
-import {addColumnText, addLabelButton, backPlatePanel, flexColumn} from "./UIHelpers"
+import {addColumnText, addLabelButton, backPlatePanel, flexChild, flexColumn, flexRow} from "./UIHelpers"
 
 const ICON_CHECK: Texture = requireAsset("../../Icons/check.png") as Texture
+const ICON_PLAY: Texture = requireAsset("../../Icons/play_arrow.png") as Texture
 
 @component
 export class BenchCoachStartCardUI extends BaseScriptComponent {
@@ -44,12 +46,18 @@ export class BenchCoachStartCardUI extends BaseScriptComponent {
   buttonLabel: string = "Found it"
 
   @input
+  @hint("Label on the watch-mode button (plays the whole repair)")
+  watchLabel: string = "Watch"
+
+  @input
   @hint("Stand-in badge text in the card corner")
   badgeText: string = "stand-in: wheel placed by pinch"
   @ui.group_end
 
   private _onFoundIt = new Event<void>()
   onFoundIt: PublicApi<void> = this._onFoundIt.publicApi()
+  private _onWatch = new Event<void>()
+  onWatch: PublicApi<void> = this._onWatch.publicApi()
 
   onAwake(): void {
     const d = this.viewDistanceCm
@@ -66,8 +74,16 @@ export class BenchCoachStartCardUI extends BaseScriptComponent {
       distanceCm: d,
       color: new vec4(1, 1, 1, 0.75),
     })
-    addLabelButton(col, "BtnFoundIt", this.buttonLabel, ICON_CHECK, 14, 6, d, () => {
-      this._onFoundIt.invoke()
+    // Found it (the main action) and Watch side by side, same height as the old single button.
+    const rowW = this.panelWidth - 2.4
+    flexChild(col, {w: rowW, h: 6, name: "Buttons"}, (child) => {
+      const row = flexRow(child, rowW, 6, {gap: 0.8, justify: FlexJustify.Center, align: FlexAlign.Center})
+      addLabelButton(row, "BtnFoundIt", this.buttonLabel, ICON_CHECK, 12, 6, d, () => {
+        this._onFoundIt.invoke()
+      })
+      addLabelButton(row, "BtnWatch", this.watchLabel, ICON_PLAY, 8.6, 6, d, () => {
+        this._onWatch.invoke()
+      })
     })
     addColumnText(col, "StandInBadge", this.badgeText, "Caption", 1.6, {
       distanceCm: d,

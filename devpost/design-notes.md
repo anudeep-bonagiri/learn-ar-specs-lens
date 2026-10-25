@@ -384,3 +384,61 @@ Findings:
 - `UIKit` toggles: `setIsToggleable(true)` after `onInitialized` works (with a one-line warning in the log); `onValueChange` fires for presses and for `isOn = ...`, so `UIBindings` ignores a change that matches the mode's requested state.
 
 Left over: the bar is now 29.5 cm wide; with the head pitched down 32 degrees from the start pose the What's this? button is at the left edge of the view (a hands-on check should decide whether to shrink the gaps). The idle-hint marker boost is checked by counters, not on a screenshot. A hands-on hand-tracking walk of What's this? and the mistake cases was not done (LEAF `trigger` skips the ray, so ray priority of the info boxes over the levers is reasoned from their sizes, not tested).
+
+## 2026-10-24: Pass 10, watch mode, F4 control bar width, final LEAF sweep (plan `docs/PASSES_7_TO_10_PLAN.md`, `docs/INTEGRATION_PLAN.md` row 1)
+
+Branch `Sujeeth-AR-SPECS-WORK`, on top of 99818e8. Built by the CLAD Specs Experience Builder through the Lens Studio MCP. No voice (dropped). Not committed.
+
+What was built:
+
+- **`WatchPlan.ts`** (data): `WATCH_BEATS`, one `{step, waitSec, action, actSec}` per step 0..11. Actions: `valve` (1), `beads` (2), `hookA` (3), `sweep` (4), `pull` (5), `find` (6), `next` (7, the halfway card's Continue), `demo` (8, 9, 10), `none` (0, 11). Reading pause 3.5 s per step (4.5 s on the halfway card); timing constants for the lever flight (0.8 s), the sweep (4 s), the pull (1.6 s) and the bead gap (0.8 s).
+- **`RepairDirector.ts`** on `BenchCoach`: `play()`, `stop()`, `playing`, `beatIndex`, `onFinished`, plus `fallbacks`, `lastStopReason`, `lastPlayTime` for tests and `waitScale` (Inspector). Per frame: if the step changed, start that step's beat; after `waitSec`, act through public controls only; the step's own events advance `RepairManager`. If a step does not advance within `actSec + 8 s` it calls `next()` and counts a fallback (0 in every run). It stops on `stop()`, on a hand grab of lever A, lever B, the tube end or the new tube end (polled each frame), and on `LAST_STEP` (`onFinished`). While playing, `IdleHint.suspended` and the new `RunStats.suspended` are set, and What's this? is turned off.
+- **Small public adds:** `LeverPlacement.placeInstant(emit)` and `playPlace(sec)` (the snap tween from wherever the lever is, firing `onPlaced` on arrival); `RimDrag.playSweep(sec)` / `stopSweep()` / `sweeping` (sets the pose each LateUpdate before the normal angle check, so `onSegmentPassed` and `onPeelComplete` fire as for a hand drag; it starts from the lever's current angle); `TubePull.playPull(sec)` / `demoPulling` (draws the tube end out along wheel -Y, driving the segment-by-segment pull, then runs the usual staggered finish and `onPullComplete`); `ThornHotspot.findInstant()`; `TubeFit.playFit(sec)`; `WheelTargets.pinchValve()` / `pinchBead(i)` (fire the existing events without a hand); `RefitSteps.demo(step)` (8: `playFit`, then the normal `onFitted`, refit and `onStepComplete`; 9: seats the lifted beads one every 0.7 s through its own bead handler; 10: holds the valve until full) and `stopDemo()`; `RunStats.suspended`.
+- **`BtnWatch`** ("Watch", icon `play_arrow` imported with `IconSelector` to `Assets/Icons/play_arrow.png`) next to `BtnFoundIt` on the start card, in a row the same height as the old single button (Found it 12 x 6 cm, Watch 8.6 x 6 cm). `UIBindings` has `@input director`: every button press calls `director.stop()` first (any control-bar press, Back, What's this?, Continue, Start over, Restart); Watch presses Found it, then `director.play()`.
+- **F4.** `BenchCoachControlBarUI` gap 2 to 0.7 cm and padding 1.25 to 1 cm (literal defaults and scene values), so the bar is 25.1 cm wide instead of 29.5; button sizes unchanged (Next still 6 cm and brightest). `ControlBar` moved from (-3.5, -35.63, -44.51) to (-2.35, -35.433, -44.664): centered between the view's left edge and the tray at 32 degrees down, and 0.25 cm up its own tilted Y so the top edge stays where pass 5 put it (the panel is 0.5 cm shorter).
+- **LEAF.** New `watch-mode` (`WatchModeScenario.ts`). `jump-to-step` gained `watch` (1 = start watch mode: on step 0 it taps `BtnWatch`, else `director.play()` from that step) and `until` (`sweep`, `fit`, `finish`: waits for that beat, prints the moving part at two moments 0.8 s apart, returns while it plays), for screenshots and video takes.
+
+Flat cause in watch mode: whatever `foundIt()` picked at random (snakebite and glass in two of the runs, thorn after a jump); nothing is forced.
+
+| Scenario | Result (serial, preview, camera reset before each run, final code, after the save) |
+| --- | --- |
+| `start` | PASSED |
+| `deflate-loosen` | PASSED |
+| `lever-snap` | PASSED |
+| `peel-and-pull` | PASSED (lever B 0.00 cm from socket B; mid-pull 7.8 cm past the rim: TubeSeg_4 moved 23.20 cm, TubeSeg_0 0.00 cm) |
+| `inspect-done` | PASSED (Back from 1..11 worst diff 0.000 cm) |
+| `step-ticks` | PASSED (closest pair steps 1/3, 7.15 cm; on step 11 steps 1/8, 6.71 cm) |
+| `scene-dressing` | PASSED |
+| `refit-tube` | PASSED |
+| `seat-inflate` | PASSED |
+| `whats-this` | PASSED |
+| `mistakes` | PASSED |
+| `flat-causes` | PASSED |
+| `progress-idle` | PASSED |
+| `watch-mode` (new) | PASSED (Watch to playing on step 1 in 111 ms, cause glass; step 5 with 3 peeled beads after 22.1 s; Next stopped it, 5 to 6, nothing moved in the next 1.5 s; resume to step 11 in 29.1 s, ended "finished", 0 fallbacks, misses 0, hints 0, mistakes 0, IdleHint and RunStats no longer suspended) |
+| `jump-to-step` | PASSED |
+
+Uninterrupted watch run (BtnWatch to the Finish card, from the log): 52.4 s with 3.0 s pauses; the pauses were then raised to 3.5 s (4.5 s on the halfway card), measured at 57.3 s (19:22:26.0 play from step 1, 19:23:23.3 stopped, finished, on step 11).
+
+Two-timestamp checks (the beats animate): sweep beat, lever B at 20.6 degrees then 31.9 degrees 0.8 s later, still step 4; two sequential front captures of the wheel show lever B at about 1 o'clock, then at 5 o'clock with the bead peeled behind it. Fit beat, the new tube end at (21.6, -34.2, -35.0) in the tray, then (1.5, -0.5, -86.3) at the valve 0.8 s later; the refit then advanced to step 9 on its own.
+
+Screenshots reviewed: start card with Found it and Watch side by side, both readable; watch mode mid-peel (front captures above; from the default pose lever B leaves the frame below 3 o'clock because the SPECS view only shows the top half of the wheel); watch mode on step 8 (new tan tube going in at the valve, label "Start at the valve. Feed the new tube in."); the Finish card at the end of watch mode, fully in view ("Cause: thorn", "Lever misses 0 · Mistakes 0 · Hints 0"); the control bar at 32 degrees down: all four buttons and the nine rail dots in view, about 1.4 cm from the left edge and 1.2 cm clear of the tray (before: What's this? cut off at the left edge and the bar's right end about 2 cm under the tray). After the final recompile all 507 BenchCoach script inputs in the scene are non-null; `RunAndCollectLogsTool` shows no Lens errors.
+
+Deviations and why:
+
+- **Steps 1 and 2 use real pinch events, not `next`.** The plan listed `next` for them; `WheelTargets.pinchValve()` / `pinchBead(i)` fire the existing events instead, so watch mode plays the hiss, the deflate and the beads loosening one by one through `RepairManager`'s own handlers.
+- **`hookA` and `sweep` fly the lever in with `playPlace(0.8 s)`** (the existing snap tween, `onPlaced` on arrival) instead of `placeInstant(true)`, so the lever visibly travels from the tray. `placeInstant(emit)` exists as planned. The ghost plays on step entry as it always has.
+- **The director polls the grab flags** (`LeverPlacement.grabbed`, `TubePull.isHeld()`, `TubeFit.grabbed`) instead of subscribing to manipulation events; no new events were needed.
+- **A lever flight or tube pull already under way finishes after `stop()`** (both are under 3 s, and their own events then advance the step); a sweep and the step 9/10 demos stop where they are. Next and Back cancel all of them through `completeStep` / `undoStep`.
+- **`RunStats.suspended`** is extra: watch-mode actions cannot produce misses, but it guarantees a grab or mistake path during playback is never counted.
+- **About 57 s, not exactly 60.** Every beat's pause is long enough to read the label; `waitScale` stretches all of them for a slower take.
+
+Findings:
+
+- **`PreviewInteractTool` called through `IChatToolRegistry.execute()` hung** on a Pinch of `BtnWatch` and never returned; the call outlived the MCP timeout. LEAF's `tap` was used instead (`jump-to-step` `watch=1`).
+- **Capturing the preview from inside a long `ExecuteEditorCode` call does not work**: `CapturePanelScreenshotTool` through the registry never produced a frame while the call waited between shots. Timed captures were taken with the MCP tools right after a scenario returned mid-beat (`jump-to-step` `until`).
+- **The MCP `CapturePanelScreenshotTool` and `CaptureRuntimeViewTool` calls in one batch run at the same moment**; issue them one after the other for a two-timestamp check.
+- **`IChatToolRegistry.execute` needs a `Parameters` instance** (`new Parameters(); p.data = {...}`); a plain object fails with "Value is not a native object".
+- A transient "Input manager was not provided for the object BenchCoach" appeared between the VirtualScene Phase A (bare `RepairDirector` component) and Phase B (wiring); gone after the wiring.
+
+Left over: F5 (a hands-on mouse walk) is still open; a hand grab stopping watch mode is reasoned and polled, not tested in LEAF (`watch-mode` stops it with `BtnNext`); a mouse walk should grab a lever mid-watch once. `docs/TEAM_TASKS.md` still lists B4 and F4 as open (not edited in this pass).

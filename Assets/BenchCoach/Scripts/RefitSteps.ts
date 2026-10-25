@@ -143,6 +143,10 @@ export class RefitSteps extends BaseScriptComponent implements StepModule {
   /** Tests / screenshots: false keeps the Lens on step 8 after the refit. */
   advanceOnFit: boolean = true
 
+  /** Watch mode: beads still to seat by demo(9), one every demoSeatGapSec. */
+  private demoQueue: number[] = []
+  private demoTimer = 0
+  private readonly demoSeatGapSec = 0.7
   private seated: number[] = []
   private seatFrom: vec3[] = []
   private paused = false
@@ -292,8 +296,36 @@ export class RefitSteps extends BaseScriptComponent implements StepModule {
     return false
   }
 
+  /**
+   * Watch mode (pass 10): animate the step through its own completion path and return
+   * roughly how long it takes. 8 flies the new tube end onto the valve socket (onFitted,
+   * then the refit, then onStepComplete); 9 seats the lifted beads one by one; 10 holds
+   * the valve until the tire is full. stopDemo() halts 9 and 10 where they are.
+   */
   demo(step: number): number {
+    if (step !== this.current || this.paused) return 0
+    if (step === FIT_STEP) {
+      if (this.fitted || !this.tubeFit) return 0
+      this.tubeFit.playFit(1.0)
+      return 1.0 + 0.4 + 7 * 0.12 + 0.3
+    }
+    if (step === SEAT_STEP) {
+      this.demoQueue = SEAT_BEADS.filter((i) => this.seated.indexOf(i) < 0)
+      this.demoTimer = 0
+      return this.demoQueue.length * this.demoSeatGapSec
+    }
+    if (step === INFLATE_STEP) {
+      if (this.inflated) return 0
+      this.onValveDown()
+      return (1 - this.inflateProgress) * this.inflateHoldSec
+    }
     return 0
+  }
+
+  /** Watch mode stopped: drop queued bead seats and let go of the valve. */
+  stopDemo(): void {
+    this.demoQueue = []
+    if (this.holding && !(this.wheelTargets && this.wheelTargets.valveHeld)) this.stopHolding()
   }
 
   // ── Public helpers (tests, screenshots) ──────────────────────────────────
@@ -382,6 +414,17 @@ export class RefitSteps extends BaseScriptComponent implements StepModule {
   }
 
   private tick(): void {
+    if (this.demoQueue.length > 0) {
+      if (this.current !== SEAT_STEP) {
+        this.demoQueue = []
+      } else {
+        this.demoTimer += getDeltaTime()
+        if (this.demoTimer >= this.demoSeatGapSec) {
+          this.demoTimer = 0
+          this.onBeadPinched(this.demoQueue.shift())
+        }
+      }
+    }
     if (!this.holding) return
     if (this.current !== INFLATE_STEP || this.inflated) {
       this.stopHolding()

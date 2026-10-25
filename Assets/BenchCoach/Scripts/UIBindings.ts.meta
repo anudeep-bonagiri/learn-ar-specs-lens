@@ -30,6 +30,7 @@
   ScriptInputsHidden:
     audio: false
     controlBar: false
+    director: false
     doneCard: false
     feedback: false
     finishCard: false
@@ -57,6 +58,7 @@
       stats: !<MappingBased.AssignableType_8> 00000000-0000-0000-0000-000000000000
       partInfo: !<MappingBased.AssignableType_9> 00000000-0000-0000-0000-000000000000
       feedback: !<MappingBased.AssignableType_10> 00000000-0000-0000-0000-000000000000
+      director: !<MappingBased.AssignableType_11> 00000000-0000-0000-0000-000000000000
   ScriptTypes:
     -
       {}
@@ -75,4 +77,5 @@
     - '// @input AssignableType_8 stats {"hint":"Run counters (hints from IdleHint.onHint, mistakes from CoachFeedback.onMistake)"}'
     - "// @input AssignableType_9 partInfo {\"hint\":\"What's this? mode (BtnWhatsThis toggles it)\"}"
     - '// @input AssignableType_10 feedback {"hint":"Mistake feedback (each mistake counts on RunStats and starts a new idle spell)"}'
+    - '// @input AssignableType_11 director {"hint":"Watch mode: every press stops it first; BtnWatch starts it"}'
     - '// @ui {"widget":"group_end"}'

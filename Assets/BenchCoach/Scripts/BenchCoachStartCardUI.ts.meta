@@ -35,6 +35,7 @@
     subtitle: false
     title: false
     viewDistanceCm: false
+    watchLabel: false
   ScriptTypesHidden:
     {}
   ReadMe: !<reference> 00000000-0000-0000-0000-000000000000
@@ -50,6 +51,7 @@
       title: Fix a flat
       subtitle: Pinch Found it when your wheel is in the stand.
       buttonLabel: Found it
+      watchLabel: Watch
       badgeText: "stand-in: wheel placed by pinch"
   ScriptTypes:
     -
@@ -65,5 +67,6 @@
     - '// @input string title = "Fix a flat" {"hint":"Card title"}'
     - '// @input string subtitle = "Pinch Found it when your wheel is in the stand." {"hint":"One-line instruction under the title"}'
     - '// @input string buttonLabel = "Found it" {"hint":"Label on the big button"}'
+    - '// @input string watchLabel = "Watch" {"hint":"Label on the watch-mode button (plays the whole repair)"}'
     - '// @input string badgeText = "stand-in: wheel placed by pinch" {"hint":"Stand-in badge text in the card corner"}'
     - '// @ui {"widget":"group_end"}'

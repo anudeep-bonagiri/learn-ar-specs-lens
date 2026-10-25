@@ -142,6 +142,13 @@ export class TubeFit extends BaseScriptComponent {
     this.applyManipulation()
   }
 
+  /** Watch mode: fly the end onto the socket over `sec` seconds; onFitted fires on arrival. */
+  playFit(sec: number): void {
+    if (!this.socket || this.fitted || this.tweening || this.grabbed) return
+    const st = this.socket.getTransform()
+    this.startTween(st.getWorldPosition(), st.getWorldRotation(), sec, true)
+  }
+
   /** Back to the coil (after a fit the coil is hidden; Back shows it again with the end in place). */
   returnHome(instant: boolean = false): void {
     this.fitted = false

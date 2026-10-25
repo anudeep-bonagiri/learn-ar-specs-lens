@@ -1522,6 +1522,7 @@
       stats: !<MappingBased.AssignableType_8> 7dc2f119-941e-4f70-bb4a-86205c919c86
       partInfo: !<MappingBased.AssignableType_9> 1d4ea802-2313-4544-a512-0af08fb7293b
       feedback: !<MappingBased.AssignableType_10> f8035567-f4fb-4cd8-851c-a22f0c3d9d41
+      director: !<MappingBased.AssignableType_11> 69f574fb-b122-40c7-a041-afce199bf43c
   ScriptTypes:
     "":
       {}
@@ -2913,6 +2914,36 @@
   ScriptTypes:
     "":
       {}
+- !<ScriptComponent/69f574fb-b122-40c7-a041-afce199bf43c>
+  PrefabRemaps:
+    []
+  Name: RepairDirector
+  Enabled: true
+  ScriptAsset: !<reference> de69fb1d-282e-4716-abc2-e336b0338e70
+  ScriptInputsDefault:
+    waitScale: true
+    debugLogs: true
+  ScriptTypesDefault:
+    {}
+  ScriptInputs:
+    "":
+      manager: !<MappingBased.AssignableType_1> 622db2cb-d0c7-4791-92af-926fab500a02
+      wheelTargets: !<MappingBased.AssignableType_2> 5b3351c9-54b6-430b-b69c-ba78f58c17e9
+      leverA: !<MappingBased.AssignableType_3> 4608f895-b41a-47c4-ac91-6f9477b3560a
+      leverB: !<MappingBased.AssignableType_4> cf095758-023e-4701-a1b3-cf12c5fbb53c
+      rimDrag: !<MappingBased.AssignableType_5> cad47ed9-9b60-4ca4-ba6e-2ab3198c2b20
+      tubePull: !<MappingBased.AssignableType_6> f0bc8453-5853-4488-afe1-0f9c99121ce7
+      thorn: !<MappingBased.AssignableType_7> 21fb357a-ddf2-47ea-955f-575db2782408
+      refit: !<MappingBased.AssignableType_8> 80561524-0b2d-4432-85dd-1615c224a320
+      tubeFit: !<MappingBased.AssignableType_9> 6879e97e-d703-4adb-ab7d-14b20dec44eb
+      idle: !<MappingBased.AssignableType_10> 68bc2d07-3d0b-4c20-a0de-646d168ada8e
+      stats: !<MappingBased.AssignableType_11> 7dc2f119-941e-4f70-bb4a-86205c919c86
+      partInfo: !<MappingBased.AssignableType_12> 1d4ea802-2313-4544-a512-0af08fb7293b
+      waitScale: !<float> 1.000000
+      debugLogs: true
+  ScriptTypes:
+    "":
+      {}
 - !<SceneObject/6a7a67db-5675-49bb-8f31-ba0588e3cffc>
   PrefabRemaps:
     []
@@ -3616,6 +3647,7 @@
     - !<own> 68bc2d07-3d0b-4c20-a0de-646d168ada8e
     - !<own> 1d4ea802-2313-4544-a512-0af08fb7293b
     - !<own> f8035567-f4fb-4cd8-851c-a22f0c3d9d41
+    - !<own> 69f574fb-b122-40c7-a041-afce199bf43c
 - !<SceneObject/83494271-437b-473d-b668-d88421587a4c>
   PrefabRemaps:
     []
@@ -3791,8 +3823,6 @@
     nextSize: true
     replaySize: true
     whatsThisSize: true
-    gap: true
-    padding: true
     railStripCm: true
   ScriptTypesDefault:
     {}
@@ -3802,8 +3832,8 @@
       nextSize: !<float> 6.000000
       replaySize: !<float> 5.000000
       whatsThisSize: !<float> 5.000000
-      gap: !<float> 2.000000
-      padding: 1.250000
+      gap: 0.700000
+      padding: !<float> 1.000000
       railStripCm: 1.600000
   ScriptTypes:
     "":
@@ -4563,7 +4593,7 @@
   Enabled: true
   Layers: 1
   LocalTransform: !<TransformEntity>
-    Position: {x: -3.500000, y: -35.630001, z: -44.509998}
+    Position: {x: -2.350000, y: -35.432999, z: -44.664001}
     Rotation: {x: -38.000000, y: 0.000000, z: 0.000000}
     Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
     HasSegmentScaleCompensation: false
@@ -5104,6 +5134,7 @@
     title: true
     subtitle: true
     buttonLabel: true
+    watchLabel: true
     badgeText: true
   ScriptTypesDefault:
     {}
@@ -5115,6 +5146,7 @@
       title: Fix a flat
       subtitle: Pinch Found it when your wheel is in the stand.
       buttonLabel: Found it
+      watchLabel: Watch
       badgeText: "stand-in: wheel placed by pinch"
   ScriptTypes:
     "":

@@ -63,7 +63,7 @@
     - '// @input float nextSize = 6 {"hint":"Next button size in cm (the brightest, largest target)", "widget":"slider", "min":3, "max":10, "step":0.5}'
     - '// @input float replaySize = 5 {"hint":"Replay button size in cm", "widget":"slider", "min":3, "max":10, "step":0.5}'
     - "// @input float whatsThisSize = 5 {\"hint\":\"What's this? button size in cm\", \"widget\":\"slider\", \"min\":3, \"max\":10, \"step\":0.5}"
-    - '// @input float gap = 2 {"hint":"Gap between buttons in cm", "widget":"slider", "min":0.5, "max":5, "step":0.5}'
-    - '// @input float padding = 1.25 {"hint":"Panel padding around the buttons in cm", "widget":"slider", "min":0.5, "max":4, "step":0.25}'
+    - '// @input float gap = 0.7 {"hint":"Gap between buttons in cm", "widget":"slider", "min":0.4, "max":5, "step":0.1}'
+    - '// @input float padding = 1 {"hint":"Panel padding around the buttons in cm", "widget":"slider", "min":0.5, "max":4, "step":0.25}'
     - '// @input float railStripCm = 1.6 {"hint":"Height of the strip under the buttons for the progress rail, in cm (0 = none)", "widget":"slider", "min":0, "max":4, "step":0.1}'
     - '// @ui {"widget":"group_end"}'

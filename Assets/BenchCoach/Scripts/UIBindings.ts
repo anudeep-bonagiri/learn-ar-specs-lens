@@ -3,7 +3,9 @@
  * RepairManager, and wires the learning-layer events into RunStats (hints from
  * IdleHint.onHint, mistakes from CoachFeedback.onMistake) and BtnWhatsThis into
  * PartInfo. Owns: nothing but the subscriptions.
- * Plays the tick cue from the pressed panel; every press touches IdleHint.
+ * Plays the tick cue from the pressed panel; every press touches IdleHint and
+ * first stops watch mode (RepairDirector.stop()); the start card's Watch button
+ * presses Found it and then starts watch mode.
  * Expects: @inputs manager, startCard, controlBar, doneCard, finishCard, audio (wired in the scene).
  */
 import {RepairManager} from "./RepairManager"
@@ -16,6 +18,7 @@ import {IdleHint} from "./IdleHint"
 import {RunStats} from "./RunStats"
 import {PartInfo} from "./PartInfo"
 import {CoachFeedback} from "./CoachFeedback"
+import {RepairDirector} from "./RepairDirector"
 
 @component
 export class UIBindings extends BaseScriptComponent {
@@ -67,6 +70,11 @@ export class UIBindings extends BaseScriptComponent {
   @allowUndefined
   @hint("Mistake feedback (each mistake counts on RunStats and starts a new idle spell)")
   feedback: CoachFeedback
+
+  @input
+  @allowUndefined
+  @hint("Watch mode: every press stops it first; BtnWatch starts it")
+  director: RepairDirector
   @ui.group_end
 
   onAwake(): void {
@@ -76,6 +84,14 @@ export class UIBindings extends BaseScriptComponent {
         return
       }
       this.startCard.onFoundIt.add(() => this.press(this.startCard, () => this.manager.foundIt()))
+      if (this.director) {
+        this.startCard.onWatch.add(() =>
+          this.press(this.startCard, () => {
+            this.manager.foundIt()
+            this.director.play()
+          })
+        )
+      }
       this.controlBar.onBack.add(() => this.press(this.controlBar, () => this.manager.back()))
       this.controlBar.onNext.add(() => this.press(this.controlBar, () => this.manager.next()))
       this.controlBar.onReplay.add(() => this.press(this.controlBar, () => this.manager.replay()))
@@ -104,6 +120,7 @@ export class UIBindings extends BaseScriptComponent {
 
   private press(panel: BaseScriptComponent, action: () => void): void {
     if (this.audio) this.audio.playTickAt(panel.sceneObject.getTransform().getWorldPosition())
+    if (this.director) this.director.stop()
     if (this.idle) this.idle.touch()
     action()
   }
