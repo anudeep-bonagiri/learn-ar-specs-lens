@@ -28,6 +28,7 @@
   ExportUid: 00000000-0000-0000-0000-000000000000
   PackagePolicy: CanBeUnpacked
   ScriptInputsHidden:
+    askCoach: false
     audio: false
     controlBar: false
     director: false
@@ -59,6 +60,7 @@
       partInfo: !<MappingBased.AssignableType_9> 00000000-0000-0000-0000-000000000000
       feedback: !<MappingBased.AssignableType_10> 00000000-0000-0000-0000-000000000000
       director: !<MappingBased.AssignableType_11> 00000000-0000-0000-0000-000000000000
+      askCoach: !<MappingBased.AssignableType_12> 00000000-0000-0000-0000-000000000000
   ScriptTypes:
     -
       {}
@@ -78,4 +80,5 @@
     - "// @input AssignableType_9 partInfo {\"hint\":\"What's this? mode (BtnWhatsThis toggles it)\"}"
     - '// @input AssignableType_10 feedback {"hint":"Mistake feedback (each mistake counts on RunStats and starts a new idle spell)"}'
     - '// @input AssignableType_11 director {"hint":"Watch mode: every press stops it first; BtnWatch starts it"}'
+    - "// @input AssignableType_12 askCoach {\"hint\":\"Ask the coach: BtnAsk toggles it; exclusive with What's this?\"}"
     - '// @ui {"widget":"group_end"}'

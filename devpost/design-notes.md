@@ -442,3 +442,81 @@ Findings:
 - A transient "Input manager was not provided for the object BenchCoach" appeared between the VirtualScene Phase A (bare `RepairDirector` component) and Phase B (wiring); gone after the wiring.
 
 Left over: F5 (a hands-on mouse walk) is still open; a hand grab stopping watch mode is reasoned and polled, not tested in LEAF (`watch-mode` stops it with `BtnNext`); a mouse walk should grab a lever mid-watch once. `docs/TEAM_TASKS.md` still lists B4 and F4 as open (not edited in this pass).
+
+## 2026-10-24: Pass 12, Ask the coach (`docs/INTEGRATION_PLAN.md` row 4, feature A; `docs/DEMO_PARITY_PLAN.md` A)
+
+Branch `Sujeeth-AR-SPECS-WORK`. Built by the CLAD Specs Experience Builder through the Lens Studio MCP. No voice (no ASR, mic, realtime or websocket pieces). Not committed.
+
+### Spike (phase 1): passed
+
+- **Package.** `SearchLensStudioAssetLibrary` listed Remote Service Gateway 0.1.8 to 0.1.11, 0.2.0, 2.0.0 and 2.0.1; installed **2.0.1** (>= 0.2.0). It pulled in Utilities 2.0.0 and SnapDecorators 2.0.0 and added the `RemoteServiceGatewayToken` editor plugin under `Plugins/`. It instantiated a `RemoteServiceGatewayExamples` prefab: the `Guide_ReadAndDisable` text and the two empty example roots were deleted; its `RemoteServiceGatewayCredentials` child is reused for the tokens.
+- **Tokens.** SNAP, OPENAI and GOOGLE generated together from the signed-in account with `Network.performAuthorizedHttpRequest` in `ExecuteEditorCode` (`tools/coach-tokens-set.ts`), set in memory only, cleared with `tools/coach-tokens-clear.ts` before every save.
+- **One call from a throwaway `CoachSpike.ts`** (prompt "In one sentence, why start removing a bike tube opposite the valve?"), deleted afterwards along with its SceneObject:
+
+| Provider / model | Result | Latency |
+| --- | --- | --- |
+| Gemini `gemini-2.5-flash` (default thinking) | OK: "Starting opposite the valve allows the tire bead to drop into the rim's deep cen" | 4372 ms |
+| Gemini `gemini-2.5-flash`, `thinkingBudget: 0` | OK: "Starting opposite the valve provides more slack in the tire bead, making it easi" | 1055 ms |
+| Gemini `gemini-2.0-flash` | 404 "Publisher model ... was not found" | 310 ms |
+| OpenAI `gpt-4.1-nano` | error: "The model `gpt-4.1-nano` has been deprecated" | 1668 ms |
+| OpenAI `gpt-4o-mini` | OK: "Removing a bike tube opposite the valve helps prevent the valve from getting dam" | 1270 ms |
+
+Chosen: Gemini `gemini-2.5-flash` with thinking off (about 1.1 s, well inside the 6 s timeout).
+
+### What was built (phase 2)
+
+- **Data.** `StepDefinitions.COACH_QUESTIONS`: three preset questions per repair step 1 to 6 and 8 to 10, each with a one- or two-sentence canned answer paraphrasing the Park Tool tube procedure (step 5's first: "Why start opposite the valve?" with the answer from the brief). The cards 0, 7 and 11 have none; Ask shows "Ask on a repair step." there. `coachQuestions(step)`.
+- **`AskCoach.ts`** on `BenchCoach`: `setOpen(on)`, `ask(step, index)`, `open`, `busy`, `lastAnswer`, `lastSource` ("live" | "canned"), `lastFallbackReason`, `lastLatencyMs`, `onOpenChanged`, `onAnswer`. Sends the system prompt "You are a calm bike mechanic. Answer in at most 2 short sentences, specific to this step: <name>, "<label>"." plus the question to `Gemini.models` (`temperature 0.4`, `maxOutputTokens 90`, `thinkingBudget 0`). Uses the canned answer when `forceCanned`, `!useLive`, no internet, the Google token is a placeholder, the call errors, the reply is empty, or `timeoutSec` (6) passes; a late reply is dropped. Inputs (literal defaults): `useLive` true, `forceCanned` false, `timeoutSec` 6, `model`, `systemPrompt`, `panelGapCm` 0.5, `maxElevationDeg` 18. Tokens are read at call time and never logged.
+- **UI** (two passive views, authored under `BenchCoach`, billboarded, default light BackPlate, white text): `AskChipsPanel` (`BenchCoachAskChipsUI`: header "Ask the coach", three UIKit Button chips `AskChip_0..2`, `setQuestions()`, `onChip`) and `AskAnswerPanel` (`BenchCoachAskAnswerUI`: 17 x 7 cm, wrapped answer `AskAnswerText`, tag `AskSourceTag` "coach" or "offline" in light blue, "Thinking…" while waiting). `UIHelpers.addTextButton` added for chips whose label changes.
+- **Placement.** The answer sits above the step label, so next to the part the label already points at; the chips sit on the user's left of the label (from the billboarded label's right vector; the tray is on the right), bottom edges level so they stay above the tire. When the answer's top would rise past 18 degrees above the eye (the inspect step's label is higher and closer), the answer goes under the label and the chips top-align with it. Answers stay until the step changes (answer hidden, chips switch to the new step's questions) or Ask turns off.
+- **Control bar.** `BtnAsk` (icon `help`, imported with `IconSelector` to `Assets/Icons/help.png`) is a UIKit toggle next to What's this?. The bar stays **25.1 cm** wide: the four secondary buttons 5 to 3.9 cm, gap 0.7 to 0.5 cm, side padding 1 to 0.75 cm (new `padX`; `padding` is now top and bottom only); Next stays 6 cm and the height is unchanged, so `ControlBar` did not move. Literal defaults and scene values both updated.
+- **Rules.** `UIBindings` (new `@input askCoach`): BtnAsk presses go through `press()` (tick, `director.stop()`, idle touch); Ask on turns What's this? off and What's this? on turns Ask off. Watch mode closes Ask (AskCoach polls `director.playing`). `IdleHint.askSuspended` (new flag, separate from watch mode's `suspended`) holds hints while Ask is open. A reset closes Ask.
+- **LEAF.** New `ask-coach-fallback` (`AskCoachFallbackScenario.ts`): `forceCanned`, jump to step 5, BtnAsk (open, latched, IdleHint suspended, step 5's three questions), AskChip_0 gives the canned answer in 413 ms with `lastSource` "canned", the label text equal to the canned answer and the tag "offline", the panel 6.5 cm from the step label; What's this? and Ask exclude each other both ways; BtnNext hides the answer and switches the chips to step 6; BtnAsk closes it and releases IdleHint. Never touches the network. `jump-to-step` gained `ask` (open, or 0..2 to pinch a chip and wait for the answer) and `canned`, for screenshots.
+
+| Scenario | Result (serial, preview, camera reset before each run, tokens cleared, final code) |
+| --- | --- |
+| `start` | PASSED |
+| `deflate-loosen` | PASSED |
+| `lever-snap` | PASSED |
+| `peel-and-pull` | PASSED |
+| `inspect-done` | PASSED |
+| `step-ticks` | PASSED |
+| `scene-dressing` | PASSED |
+| `refit-tube` | PASSED |
+| `seat-inflate` | PASSED |
+| `whats-this` | PASSED |
+| `mistakes` | PASSED |
+| `flat-causes` | PASSED |
+| `progress-idle` | PASSED |
+| `watch-mode` | PASSED |
+| `ask-coach-fallback` (new) | PASSED (canned answer after 413 ms) |
+| `jump-to-step` | PASSED |
+
+**Live check (not LEAF), tokens in memory:** step 2, "Why push to the center?", live in 1148 ms ("Pushing the bead to the rim's center creates slack in the tire, making it easier to remove from the rim. ..."), tag "coach", panel beside the bead label; step 6, "Why find the cause?", live in 1125 ms and 1026 ms, panel under the inspect label. With the tokens cleared, step 3 fell back to the canned answer ("no token"). Screenshots reviewed: the control bar at 32 degrees down (five buttons and nine rail dots in view, right end clear of the tray); chips and an offline answer on step 1 and step 3; live answers on steps 2 and 6. On screenshot pixels the new plates read 0.40 (same as every UIKit plate) against the 0.38 background, the text 1.0, the tag 0.86. After the final recompile all 536 BenchCoach script inputs in the scene are non-null; `RunAndCollectLogsTool` shows no Lens errors.
+
+**Token procedure.** `tools/set-coach-tokens.md`: run `tools/coach-tokens-set.ts` through `ExecuteEditorCode` before a demo, never save while tokens are set, run `tools/coach-tokens-clear.ts` before saving, then `tools/check-no-tokens.sh` (exits 1 and names file and line if a token key holds a non-placeholder value or a long bearer-like string in any tracked, unignored-untracked or staged file; self-tested on fake values). The saved scene holds the placeholders `[INSERT SNAP TOKEN]`, `[INSERT OPEN AI TOKEN]`, `[INSERT GOOGLE TOKEN]`.
+
+Deviations and why:
+
+- **Package folder renamed.** `InstallLensStudioPackage` named the folder after the `assetName` argument ("Remote Service Gateway.lspkg"), which broke the package's own example import (`RemoteServiceGateway.lspkg/HostedSnap/Snap3D`, TS2307). Renamed to `RemoteServiceGateway.lspkg` with `AssetManager.rename`; the scene's credentials component kept its reference.
+- **Model.** The skill's known-good `gpt-4.1-nano` is deprecated and `gemini-2.0-flash` 404s through RSG; `gemini-2.5-flash` with `thinkingBudget: 0` is used (four times faster than default thinking).
+- **Ask does not pause the step** (What's this? does): you can keep working with an answer up.
+- **Chips go left of the label, not "away from the wheel center"**: the first rule put them off the right edge on steps 2, 3, 4 and 9.
+- **Three questions on every step with questions** (the brief allowed 2 or 3), so chips never switch on and off mid-step (no Interactable is disabled under a pinch).
+- **Seven tunables on AskCoach**, one more than the usual cap, because `forceCanned` is a test switch.
+
+Findings:
+
+- **`InstallLensStudioPackage` uses `assetName` as the package folder name.** Pass the canonical name or none, or rename afterwards.
+- **`gemini-2.0-flash` returns 404 through RSG** in this project; `gpt-4.1-nano` returns "deprecated". `gemini-2.5-flash` and `gpt-4o-mini` work.
+- **`thinkingConfig: {thinkingBudget: 0}` cuts `gemini-2.5-flash` from about 4.4 s to about 1.1 s** for a one-sentence answer.
+- **The RSG prefab placeholders differ from the script defaults** (`[INSERT OPEN AI TOKEN]` on the prefab, `[INSERT OPENAI TOKEN HERE]` in code); `AskCoach` and `check-no-tokens.sh` treat any `[INSERT...` value as a placeholder.
+- **The preview fades the top tenth of the view**: text there reads about 0.6 instead of 1.0 on screenshot pixels.
+
+Left over:
+
+- Step 5's label sits at 6 o'clock behind the body-locked control bar from the start pose (existing behavior; step 5 is the walk-around step), so its answer is there too.
+- On step 6 the chips' left edge clips about 2 cm at the view edge (all chip text readable); on steps 2 to 4 the answer's first line is in the top fade band (readable).
+- Live answers sometimes add an analogy ("like a detective solving a mystery"); a stricter system prompt ("plain, practical, no analogies") is a one-field change.
+- README disclosure: RSG and Google Gemini (`gemini-2.5-flash`) are now called at runtime.
+- `tools/check-no-tokens.sh`, `tools/set-coach-tokens.md` and the two snippets are new and untracked until committed.

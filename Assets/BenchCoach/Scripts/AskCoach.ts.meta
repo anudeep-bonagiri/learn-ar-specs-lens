@@ -1,0 +1,94 @@
+- !<AssetImportMetadata/6a12c684-ee05-4055-afd0-7ac5d8c5e571>
+  ImportedAssetIds:
+    TypeScriptAsset: !<reference> 608e9983-3edd-4546-a356-4a64f15a178c
+  ImporterName: TypeScriptAssetImporter
+  PrimaryAsset: !<reference> 608e9983-3edd-4546-a356-4a64f15a178c
+  PackageType: NotAPackage
+  LegacyPackagePolicy: ~
+  ExtraData:
+    {}
+  AssetDataMap:
+    TypeScriptAsset: !<own> 0806d7d5-38ff-4c0c-93f7-e4e557bcc1d3
+  DependentFiles:
+    []
+  ImporterSettings: !<AssetImporterSettings>
+    {}
+  CompressionSettings: !<own> 00000000-0000-0000-0000-000000000000
+- !<TypeScriptAssetData/0806d7d5-38ff-4c0c-93f7-e4e557bcc1d3>
+  SvgIcon: ""
+  SetupScript:
+    code: ""
+  Description: ""
+  VersionMajor: 0
+  VersionMinor: 0
+  VersionPatch: 0
+  VersionPrerelease: ""
+  UpdateOrder: 0
+  ComponentUid: 4a10eab5-7d24-4b5f-bc9b-a35fcf1165f7
+  ExportUid: 00000000-0000-0000-0000-000000000000
+  PackagePolicy: CanBeUnpacked
+  ScriptInputsHidden:
+    answerPanel: false
+    audio: false
+    chips: false
+    director: false
+    forceCanned: false
+    idle: false
+    manager: false
+    maxElevationDeg: false
+    model: false
+    panelGapCm: false
+    stepLabel: false
+    systemPrompt: false
+    timeoutSec: false
+    useLive: false
+  ScriptTypesHidden:
+    {}
+  ReadMe: !<reference> 00000000-0000-0000-0000-000000000000
+  DeclarationFile: !<reference> 00000000-0000-0000-0000-000000000000
+  Tags:
+    []
+  Attachments:
+    []
+  DefaultScriptInputs:
+    - manager: !<MappingBased.AssignableType_1> 00000000-0000-0000-0000-000000000000
+      stepLabel: !<MappingBased.AssignableType_2> 00000000-0000-0000-0000-000000000000
+      chips: !<MappingBased.AssignableType_3> 00000000-0000-0000-0000-000000000000
+      answerPanel: !<MappingBased.AssignableType_4> 00000000-0000-0000-0000-000000000000
+      director: !<MappingBased.AssignableType_5> 00000000-0000-0000-0000-000000000000
+      idle: !<MappingBased.AssignableType_6> 00000000-0000-0000-0000-000000000000
+      audio: !<MappingBased.AssignableType_7> 00000000-0000-0000-0000-000000000000
+      useLive: true
+      forceCanned: false
+      timeoutSec: !<float> 6.000000
+      model: gemini-2.5-flash
+      systemPrompt: "You are a calm bike mechanic. Answer in at most 2 short sentences, specific to this step: {step}."
+      panelGapCm: 0.500000
+      maxElevationDeg: !<float> 18.000000
+  ScriptTypes:
+    -
+      {}
+  InputLines:
+    - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">AskCoach – Ask the coach (RSG + canned fallback)</span>"}'
+    - '// @ui {"widget":"separator"}'
+    - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">References</span>"}'
+    - '// @ui {"widget":"group_start", "label":"References"}'
+    - '// @input AssignableType_1 manager {"hint":"The step machine (current step, step changes, reset)"}'
+    - '// @input AssignableType_2 stepLabel {"hint":"Step label: the panels sit around it"}'
+    - '// @input AssignableType_3 chips {"hint":"Question chips panel"}'
+    - '// @input AssignableType_4 answerPanel {"hint":"Answer panel"}'
+    - '// @input AssignableType_5 director {"hint":"Watch mode: Ask closes while it plays"}'
+    - '// @input AssignableType_6 idle {"hint":"Idle hints: suspended while Ask is open"}'
+    - '// @input AssignableType_7 audio {"hint":"Cue player (tick on a chip)"}'
+    - '// @ui {"widget":"group_end"}'
+    - '// @ui {"widget":"separator"}'
+    - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">Settings</span>"}'
+    - '// @ui {"widget":"group_start", "label":"Settings"}'
+    - '// @input bool useLive = true {"hint":"Ask the LLM; off = always the canned answers"}'
+    - '// @input bool forceCanned {"hint":"Tests: always use the canned answer, never the network"}'
+    - '// @input float timeoutSec = 6 {"hint":"Seconds to wait for a live answer before using the canned one", "widget":"slider", "min":1, "max":15, "step":0.5}'
+    - '// @input string model = "gemini-2.5-flash" {"hint":"Gemini model id through the Remote Service Gateway"}'
+    - '// @input string systemPrompt = "You are a calm bike mechanic. Answer in at most 2 short sentences, specific to this step: {step}." {"hint":"System prompt; {step} becomes the step name and label"}'
+    - '// @input float panelGapCm = 0.5 {"hint":"Gap between the step label and the Ask panels, in cm", "widget":"slider", "min":0, "max":4, "step":0.1}'
+    - "// @input float maxElevationDeg = 18 {\"hint\":\"Highest a panel's top edge may sit above the eye, in degrees; above that the answer goes under the label and the chips top-align with it\", \"widget\":\"slider\", \"min\":5, \"max\":40, \"step\":1}"
+    - '// @ui {"widget":"group_end"}'

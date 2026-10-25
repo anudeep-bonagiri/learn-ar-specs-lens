@@ -5,8 +5,8 @@
  * Resets on a step or sub-step change, on touch() (UIBindings calls it on every
  * control-bar press, and on a mistake), and while anything is held or tweening (a
  * lever, the new tube end, the tube end), so a slow drag never counts as idle.
- * Suspended while `suspended` is set (watch mode, pass 10) or step interactions are
- * paused (What's this?).
+ * Suspended while `suspended` is set (watch mode, pass 10), while `askSuspended` is
+ * set (Ask the coach is open, pass 12) or step interactions are paused (What's this?).
  * Owns: the idle timer and the hint counters. Emits onHint(step).
  * Must not: change steps. The label goes back to the step label through
  * RepairManager.refreshLabel().
@@ -80,6 +80,8 @@ export class IdleHint extends BaseScriptComponent {
   showing: boolean = false
   /** Watch mode (pass 10) sets this; no hints while true. */
   suspended: boolean = false
+  /** Ask the coach (pass 12) sets this while it is open; no hints while true. */
+  askSuspended: boolean = false
   /** Step the last hint fired on (-1 = none). */
   lastHintStep: number = -1
 
@@ -123,7 +125,7 @@ export class IdleHint extends BaseScriptComponent {
       this.touch()
       return
     }
-    if (this.suspended || this.manager.interactionsPaused || this.anyBusy() || !this.eligible(state.step)) {
+    if (this.suspended || this.askSuspended || this.manager.interactionsPaused || this.anyBusy() || !this.eligible(state.step)) {
       this.quietSince = getTime()
       return
     }

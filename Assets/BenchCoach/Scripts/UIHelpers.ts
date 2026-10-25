@@ -299,3 +299,32 @@ export function backPlatePanel(root: SceneObject, widthCM: number, heightCM: num
   const content = obj(root, "Content", new vec3(0, 0, PANEL_CONTENT_Z))
   return {backPlate, content}
 }
+
+/**
+ * Pass 12: a text-only UIKit Button whose label changes at runtime (Ask chips).
+ * Same layout as addLabelButton without an icon; returns the label Text too.
+ */
+export function addTextButton(
+  parentFlex: SceneObject,
+  name: string,
+  label: string,
+  widthCM: number,
+  heightCM: number,
+  distanceCm: number,
+  onClick: () => void
+): {button: Button; label: Text} {
+  let button: Button | null = null
+  let text: Text | null = null
+  flexChild(parentFlex, {w: widthCM, h: heightCM, name}, (so) => {
+    const btn = so.createComponent(Button.getTypeName()) as Button
+    btn.onInitialized.add(() => {
+      btn.size = new vec3(widthCM, heightCM, 1)
+    })
+    const row = flexRow(so, widthCM - 1, heightCM - 1, {justify: FlexJustify.Center, align: FlexAlign.Center})
+    liftInZ(row, BUTTON_LABEL_Z)
+    text = addRowText(row, "Label", label, "Button", widthCM - 1.5, heightCM - 1.5, {distanceCm})
+    btn.onTriggerUp.add(() => onClick())
+    button = btn
+  })
+  return {button: button as unknown as Button, label: text as unknown as Text}
+}

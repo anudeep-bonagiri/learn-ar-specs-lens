@@ -15,6 +15,7 @@ import {WhatsThisScenario} from "./WhatsThisScenario"
 import {MistakesScenario} from "./MistakesScenario"
 import {FlatCausesScenario} from "./FlatCausesScenario"
 import {WatchModeScenario} from "./WatchModeScenario"
+import {AskCoachFallbackScenario} from "./AskCoachFallbackScenario"
 
 @component
 export class LeafIndex extends BaseScriptComponent {
@@ -77,9 +78,13 @@ export class LeafIndex extends BaseScriptComponent {
       typename: WatchModeScenario.getTypeName(),
     },
     {
+      id: "ask-coach-fallback",
+      typename: AskCoachFallbackScenario.getTypeName(),
+    },
+    {
       id: "jump-to-step",
       typename: JumpToStepScenario.getTypeName(),
-      parameters: {step: "5", pullCm: "0", fit: "0", inflate: "0", cause: "", find: "0", part: "", mistake: "", idle: "0", watch: "0", until: ""},
+      parameters: {step: "5", pullCm: "0", fit: "0", inflate: "0", cause: "", find: "0", part: "", mistake: "", idle: "0", watch: "0", until: "", ask: "", canned: "0"},
     },
   ]
 }
