@@ -1,0 +1,89 @@
+- !<AssetImportMetadata/17d3d853-152d-4e8c-9b5f-505be5d7ffa1>
+  ImportedAssetIds:
+    TypeScriptAsset: !<reference> 581a44ac-a005-4150-9652-a2399e077853
+  ImporterName: TypeScriptAssetImporter
+  PrimaryAsset: !<reference> 581a44ac-a005-4150-9652-a2399e077853
+  PackageType: NotAPackage
+  LegacyPackagePolicy: ~
+  ExtraData:
+    {}
+  AssetDataMap:
+    TypeScriptAsset: !<own> 59dac0c1-7794-4474-bd63-7a64e10dfd06
+  DependentFiles:
+    []
+  ImporterSettings: !<AssetImporterSettings>
+    {}
+  CompressionSettings: !<own> 00000000-0000-0000-0000-000000000000
+- !<TypeScriptAssetData/59dac0c1-7794-4474-bd63-7a64e10dfd06>
+  SvgIcon: ""
+  SetupScript:
+    code: ""
+  Description: ""
+  VersionMajor: 0
+  VersionMinor: 0
+  VersionPatch: 0
+  VersionPrerelease: ""
+  UpdateOrder: 0
+  ComponentUid: 77f2320a-761e-4bfe-b979-6740dde7eb92
+  ExportUid: 00000000-0000-0000-0000-000000000000
+  PackagePolicy: CanBeUnpacked
+  ScriptInputsHidden:
+    flangeHoleRadiusCm: false
+    flangeOffsetCm: false
+    hub: false
+    markingAngleDeg: false
+    markingBead: false
+    markingColor: false
+    markingRadiusCm: false
+    markingSize: false
+    markingText: false
+    spokeBedRadiusCm: false
+    spokeRadiusCm: false
+    spokes: false
+    valve: false
+  ScriptTypesHidden:
+    {}
+  ReadMe: !<reference> 00000000-0000-0000-0000-000000000000
+  DeclarationFile: !<reference> 00000000-0000-0000-0000-000000000000
+  Tags:
+    []
+  Attachments:
+    []
+  DefaultScriptInputs:
+    - hub: !<reference.SceneObject> 00000000-0000-0000-0000-000000000000
+      spokes: !<reference.SceneObject> 00000000-0000-0000-0000-000000000000
+      valve: !<reference.SceneObject> 00000000-0000-0000-0000-000000000000
+      markingBead: !<reference.SceneObject> 00000000-0000-0000-0000-000000000000
+      spokeRadiusCm: 0.120000
+      spokeBedRadiusCm: 28.400000
+      flangeHoleRadiusCm: 2.150000
+      flangeOffsetCm: 2.900000
+      markingText: 700x25c
+      markingAngleDeg: !<float> 96.000000
+      markingRadiusCm: 32.900002
+      markingSize: !<float> 12.000000
+      markingColor: !<Vec4> {x: 0.960000, y: 0.940000, z: 0.880000, w: 1.000000}
+  ScriptTypes:
+    -
+      {}
+  InputLines:
+    - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">WheelParts – code-built hub, spokes, valve and tire marking</span>"}'
+    - '// @ui {"widget":"separator"}'
+    - '// @ui {"widget":"group_start", "label":"References"}'
+    - '// @input SceneObject hub {"hint":"Hub object (unit scale; its RenderMeshVisual gets the hub mesh)"}'
+    - "// @input SceneObject spokes {\"hint\":\"Parent of Spoke_0..n (each child's RenderMeshVisual gets a spoke)\"}"
+    - '// @input SceneObject valve {"hint":"Valve object (unit scale; local +Y points out toward the rim)"}'
+    - "// @input SceneObject markingBead {\"hint\":\"Tire bead that carries the size marking (the one covering 3 o'clock)\"}"
+    - '// @ui {"widget":"group_end"}'
+    - '// @ui {"widget":"separator"}'
+    - '// @ui {"widget":"group_start", "label":"Settings"}'
+    - '// @input float spokeRadiusCm = 0.12 {"hint":"Spoke radius, in cm"}'
+    - "// @input float spokeBedRadiusCm = 28.4 {\"hint\":\"Radius of the rim's spoke bed (where the nipples sit), in cm\"}"
+    - '// @input float flangeHoleRadiusCm = 2.15 {"hint":"Flange hole circle radius, in cm"}'
+    - '// @input float flangeOffsetCm = 2.9 {"hint":"Flange distance from the wheel plane, in cm"}'
+    - '// @input string markingText = "700x25c" {"hint":"Sidewall marking text"}'
+    - "// @input float markingAngleDeg = 96 {\"hint\":\"Marking angle, degrees clockwise from 12 o'clock\"}"
+    - '// @input float markingRadiusCm = 32.9 {"hint":"Marking radius on the sidewall, in cm"}'
+    - '// @input float markingSize = 12 {"hint":"Marking text size"}'
+    - '// @input vec4 markingColor = "{0.96, 0.94, 0.88, 1}" {"widget":"color"}'
+    - '// @ui {"widget":"group_end"}'
