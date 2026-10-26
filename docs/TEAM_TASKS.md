@@ -1,6 +1,6 @@
 # Bench Coach: team task list
 
-Status as of Oct 24, 2026. **Current order of work: `docs/INTEGRATION_PLAN.md`** (pass 10, spikes, pass 11, conditional pass 12). Branch `Sujeeth-AR-SPECS-WORK` is the integration branch. Full design: `docs/PASSES_7_TO_10_PLAN.md`. Build history and pitfalls: `devpost/design-notes.md` (read its "Findings" lists before touching code).
+Status as of Oct 24, 2026. **Current order of work: `docs/INTEGRATION_PLAN.md`** (pass 10, spikes, pass 11, conditional pass 12). All work is on `main`; the old branches were merged into it and deleted on Oct 26. Full design: `docs/PASSES_7_TO_10_PLAN.md`. Build history and pitfalls: `devpost/design-notes.md` (read its "Findings" lists before touching code).
 
 Done: criteria 1 to 5, six LEAF scenarios green (`start`, `deflate-loosen`, `lever-snap`, `peel-and-pull`, `inspect-done`, `step-ticks`).
 
@@ -9,7 +9,7 @@ Done: **Pass 7a** (curved levers, tread, valve and bead glow, hiss, tube hidden 
 ## Rules so we don't break each other
 
 1. **One person owns `Assets/Scene.scene` at a time.** It does not merge cleanly. Say in chat when you take it and when you push.
-2. Pull before you start, push when you stop. Build on top of the latest `Sujeeth-AR-SPECS-WORK`.
+2. Pull before you start, push when you stop. Build on top of the latest `main`. The project is on Lens Studio 5.24.1; open it with 5.24.1 or newer.
 3. Install git-lfs once (`brew install git-lfs && git lfs install`). Audio, meshes and images are LFS; without it you get 130-byte stub files.
 4. After a pull, recompile in Lens Studio and check the Logger for "Input X was not provided". Lens Studio drops script references when it loads a scene before the scripts compile; rewire them in the Inspector.
 5. Lens Studio deletes any `.agents/` folder. The plan-lens skill lives at `.claude/skills/plan-lens/`.
@@ -60,9 +60,9 @@ Done: **Pass 7a** (curved levers, tread, valve and bead glow, hiss, tube hidden 
 Ask the coach is built (pass 12). The friend owns it from here and adds AI voice. Until the friend says otherwise, nobody else edits `AskCoach.ts`, `BenchCoachAskChipsUI.ts`, `BenchCoachAskAnswerUI.ts` or the Ask parts of `StepDefinitions.ts`.
 
 **Setup (once)**
-1. Clone the repo, check out `Sujeeth-AR-SPECS-WORK`, branch off it (for example `ai-coach-voice`).
+1. Clone the repo and work on `main`.
 2. `brew install git-lfs && git lfs install && git lfs pull`.
-3. Lens Studio 5.22+, signed in; open `Specs Base Template.esproj`. Claude Code from the folder, approve the `lens-studio` MCP; `/plugin marketplace add https://github.com/lens-studio-devs/ls-extensions.git`, `/plugin install ls-clad@ls-extensions`.
+3. Lens Studio 5.24.1+, signed in; open `Specs Base Template.esproj`. Claude Code from the folder, approve the `lens-studio` MCP; `/plugin marketplace add https://github.com/lens-studio-devs/ls-extensions.git`, `/plugin install ls-clad@ls-extensions`.
 4. Read this file's rules, `docs/INTEGRATION_PLAN.md`, and the "Pass 12: Ask the coach" entry at the end of `devpost/design-notes.md`.
 5. Recompile; fix any "Input X was not provided" in the Logger by rewiring in the Inspector.
 
