@@ -1,0 +1,50 @@
+- !<AssetImportMetadata/21a3e288-e0ac-48fe-bdaa-5142e407288b>
+  ImportedAssetIds:
+    TypeScriptAsset: !<reference> 7a6e2df6-07f0-4c71-ba9b-e6a42a4f6dbc
+  ImporterName: TypeScriptAssetImporter
+  PrimaryAsset: !<reference> 7a6e2df6-07f0-4c71-ba9b-e6a42a4f6dbc
+  PackageType: NotAPackage
+  LegacyPackagePolicy: ~
+  ExtraData:
+    {}
+  AssetDataMap:
+    TypeScriptAsset: !<own> 90c60169-f1c4-4906-aea9-f23c12493665
+  DependentFiles:
+    []
+  ImporterSettings: !<AssetImporterSettings>
+    {}
+  CompressionSettings: !<own> 00000000-0000-0000-0000-000000000000
+- !<TypeScriptAssetData/90c60169-f1c4-4906-aea9-f23c12493665>
+  SvgIcon: ""
+  SetupScript:
+    code: ""
+  Description: ""
+  VersionMajor: 0
+  VersionMinor: 0
+  VersionPatch: 0
+  VersionPrerelease: ""
+  UpdateOrder: 0
+  ComponentUid: ebea8ae2-b6bb-4337-8a59-d8d691dd58d8
+  ExportUid: 00000000-0000-0000-0000-000000000000
+  PackagePolicy: CanBeUnpacked
+  ScriptInputsHidden:
+    floorLevel: false
+    heightAboveFloorCm: false
+  ScriptTypesHidden:
+    {}
+  ReadMe: !<reference> 00000000-0000-0000-0000-000000000000
+  DeclarationFile: !<reference> 00000000-0000-0000-0000-000000000000
+  Tags:
+    []
+  Attachments:
+    []
+  DefaultScriptInputs:
+    - floorLevel: !<MappingBased.AssignableType_1> 00000000-0000-0000-0000-000000000000
+      heightAboveFloorCm: !<float> 0.000000
+  ScriptTypes:
+    -
+      {}
+  InputLines:
+    - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">FloorAnchor – stands this object on the measured floor</span>"}'
+    - '// @input AssignableType_1 floorLevel {"hint":"Measured floor height (single source of truth)"}'
+    - "// @input float heightAboveFloorCm {\"hint\":\"Height of this object's origin above the floor, in cm\"}"

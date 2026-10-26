@@ -1,9 +1,10 @@
 /**
  * FloorPath — pass 11 (feature E). When step 5 (pull the tube from the far side)
  * starts going forward, a chain of flat chevron arrows lies on the floor mat from
- * in front of the stand, round the wheel's right side (+X, clear of the frame and
- * stand base at -X and of the toolbox), to a spot behind the wheel facing the tube
- * end at 6 o'clock. A brightness wave travels along the chain toward the far side.
+ * in front of the stand, round the wheel's right side (+X, clear of the stand's
+ * tripod at -X), to a spot behind the wheel
+ * facing the tube end at 6 o'clock. The arrows lie on the floor mat at the
+ * measured floor height (FloorLevel); the spots' own y is ignored when it is wired. A brightness wave travels along the chain toward the far side.
  * The path hides when the user arrives (camera within arriveRadiusCm of the far
  * spot on the floor plane), on any step change (so also when the pull ends step 5),
  * on Back, and whenever watch mode is playing (watch mode never walks).
@@ -17,6 +18,7 @@ import Event, {PublicApi} from "SpectaclesInteractionKit.lspkg/Utils/Event"
 import {RepairManager} from "./RepairManager"
 import {RepairDirector} from "./RepairDirector"
 import {MeshKit} from "./MeshKit"
+import {FloorLevel} from "./FloorLevel"
 
 /** Step that shows the path (the far-side tube pull). */
 const PATH_STEP = 5
@@ -51,11 +53,20 @@ export class FloorPath extends BaseScriptComponent {
   @input
   @hint("Light cyan unlit material (MarkerMat); each arrow gets its own clone for the wave")
   arrowMaterial: Material
+
+  @input
+  @allowUndefined
+  @hint("Measured floor height; the arrows lie on the mat top above it")
+  floorLevel: FloorLevel
   @ui.group_end
 
   @ui.separator
   @ui.label('<span style="color: #60A5FA;">Settings</span>')
   @ui.group_start("Settings")
+  @input
+  @hint("Height of the mat's top face above the floor, in cm (FloorMat's anchor offset)")
+  matTopAboveFloorCm: number = 0.5
+
   @input
   @hint("Number of arrows in the chain")
   @widget(new SliderWidget(6, 10, 1))
@@ -106,6 +117,11 @@ export class FloorPath extends BaseScriptComponent {
     this.build()
     this.setArrowsEnabled(false)
     this.createEvent("OnStartEvent").bind(() => {
+      // FloorLevel may sit lower in the hierarchy, so the arrows settle on the floor here.
+      if (this.floorLevel) {
+        this.settleOnFloor()
+        this.floorLevel.onFloorChanged.add(() => this.settleOnFloor())
+      }
       if (!this.manager || !this.camera || !this.arrowMaterial) {
         print("[FloorPath] ERROR: missing @input refs (manager, camera, arrowMaterial)")
         return
@@ -172,6 +188,22 @@ export class FloorPath extends BaseScriptComponent {
     }
   }
 
+  /** World y of the mat's top face (the arrows sit FLOOR_LIFT_CM above it); the spots' y until FloorLevel is wired. */
+  private matTopY(): number {
+    return this.floorLevel ? this.floorLevel.currentFloorY() + this.matTopAboveFloorCm : this.startSpot.y
+  }
+
+  /** Moves the built arrows onto the current floor. */
+  private settleOnFloor(): void {
+    const y = this.matTopY() + FLOOR_LIFT_CM
+    for (let k = 0; k < this.arrows.length; k++) {
+      const tr = this.arrows[k].getTransform()
+      const p = tr.getWorldPosition()
+      tr.setWorldPosition(new vec3(p.x, y, p.z))
+      this.arrowPositions[k] = new vec3(p.x, y, p.z)
+    }
+  }
+
   private setArrowsEnabled(on: boolean): void {
     for (const a of this.arrows) if (a.enabled !== on) a.enabled = on
   }
@@ -216,7 +248,7 @@ export class FloorPath extends BaseScriptComponent {
       const dir = pts[j].sub(pts[j - 1])
       const so = global.scene.createSceneObject(`PathArrow_${k}`)
       so.setParent(this.sceneObject)
-      const world = new vec3(p.x, p.y + FLOOR_LIFT_CM, p.z)
+      const world = new vec3(p.x, this.startSpot.y + FLOOR_LIFT_CM, p.z)
       const tr = so.getTransform()
       tr.setLocalPosition(parentInv.multiplyPoint(world))
       // The chevron points along local +X; yaw it onto the path tangent.

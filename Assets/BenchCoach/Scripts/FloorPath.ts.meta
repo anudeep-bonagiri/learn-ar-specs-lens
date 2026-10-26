@@ -34,7 +34,9 @@
     camera: false
     director: false
     farSpot: false
+    floorLevel: false
     manager: false
+    matTopAboveFloorCm: false
     pulseHz: false
     startSpot: false
     swingX: false
@@ -51,6 +53,8 @@
       director: !<MappingBased.AssignableType_2> 00000000-0000-0000-0000-000000000000
       camera: !<reference.Camera> 00000000-0000-0000-0000-000000000000
       arrowMaterial: !<reference.Material> 00000000-0000-0000-0000-000000000000
+      floorLevel: !<MappingBased.AssignableType_3> 00000000-0000-0000-0000-000000000000
+      matTopAboveFloorCm: 0.500000
       arrowCount: !<float> 8.000000
       startSpot: !<Vec3> {x: 6.000000, y: -149.500000, z: -48.000000}
       farSpot: !<Vec3> {x: 10.000000, y: -149.500000, z: -124.000000}
@@ -69,10 +73,12 @@
     - '// @input AssignableType_2 director {"hint":"Watch mode: the path stays hidden while it plays"}'
     - "// @input Component.Camera camera {\"hint\":\"The user's camera (arrival is measured from it on the floor plane)\"}"
     - '// @input Asset.Material arrowMaterial {"hint":"Light cyan unlit material (MarkerMat); each arrow gets its own clone for the wave"}'
+    - '// @input AssignableType_3 floorLevel {"hint":"Measured floor height; the arrows lie on the mat top above it"}'
     - '// @ui {"widget":"group_end"}'
     - '// @ui {"widget":"separator"}'
     - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">Settings</span>"}'
     - '// @ui {"widget":"group_start", "label":"Settings"}'
+    - "// @input float matTopAboveFloorCm = 0.5 {\"hint\":\"Height of the mat's top face above the floor, in cm (FloorMat's anchor offset)\"}"
     - '// @input float arrowCount = 8 {"hint":"Number of arrows in the chain", "widget":"slider", "min":6, "max":10, "step":1}'
     - "// @input vec3 startSpot = \"{6, -149.5, -48}\" {\"hint\":\"Floor spot where the path starts, in front of the stand (world cm; y = the mat's top)\"}"
     - '// @input vec3 farSpot = "{10, -149.5, -124}" {"hint":"Floor spot behind the wheel where the path ends, facing the tube end (world cm)"}'

@@ -1,5 +1,5 @@
 /**
- * MeshKit: tiny MeshBuilder helpers shared by RearTriangle and FloorMat.
+ * MeshKit: tiny MeshBuilder helpers shared by FloorMat, FloorPath, WheelParts and WheelStand.
  * Owns: vertex/index accumulation with position + normal + uv, and triangles
  * whose winding is fixed from an outward hint, so (v1 - v0) x (v2 - v0) always
  * points outward (the convention TorusArc and LeverMesh use).
@@ -72,6 +72,45 @@ export class MeshKit {
       ring.push(this.add(c.add(d.uniformScale(r)), n, 0.5 + 0.5 * Math.cos(a), 0.5 + 0.5 * Math.sin(a)))
     }
     for (let i = 0; i < sides; i++) this.tri(center, ring[i], ring[i + 1], n)
+  }
+
+  /**
+   * Solid of revolution around the unit axis w through c (u, v span the plane
+   * across it). `profile` is [r, h] pairs, h along w, wound bottom center -> out ->
+   * up -> in -> top center, so each band's outward normal is (dh, -dr). Bands are
+   * flat along the profile (crisp shoulders); around the axis they are smooth, or
+   * faceted (hex nuts, knurls) when `faceted` is true. `phase` turns the first side.
+   */
+  lathe(c: vec3, w: vec3, u: vec3, v: vec3, profile: number[][], sides: number, faceted: boolean = false, phase: number = 0): void {
+    const dir = (a: number) => u.uniformScale(Math.cos(a)).add(v.uniformScale(Math.sin(a)))
+    for (let k = 0; k + 1 < profile.length; k++) {
+      const r0 = profile[k][0]
+      const h0 = profile[k][1]
+      const r1 = profile[k + 1][0]
+      const h1 = profile[k + 1][1]
+      const dr = r1 - r0
+      const dh = h1 - h0
+      const len = Math.sqrt(dr * dr + dh * dh)
+      if (len < 1e-5) continue
+      const nr = dh / len
+      const nh = -dr / len
+      const normal = (a: number) => dir(a).uniformScale(nr).add(w.uniformScale(nh))
+      for (let i = 0; i < sides; i++) {
+        const a0 = phase + (2 * Math.PI * i) / sides
+        const a1 = phase + (2 * Math.PI * (i + 1)) / sides
+        const am = (a0 + a1) / 2
+        const n0 = faceted ? normal(am) : normal(a0)
+        const n1 = faceted ? normal(am) : normal(a1)
+        const p = (a: number, r: number, h: number) => c.add(dir(a).uniformScale(r)).add(w.uniformScale(h))
+        const q00 = this.add(p(a0, r0, h0), n0, i / sides, k / profile.length)
+        const q01 = this.add(p(a1, r0, h0), n1, (i + 1) / sides, k / profile.length)
+        const q11 = this.add(p(a1, r1, h1), n1, (i + 1) / sides, (k + 1) / profile.length)
+        const q10 = this.add(p(a0, r1, h1), n0, i / sides, (k + 1) / profile.length)
+        const hint = normal(am)
+        if (r0 > 1e-5) this.tri(q00, q01, q11, hint)
+        if (r1 > 1e-5) this.tri(q00, q11, q10, hint)
+      }
+    }
   }
 
   /** Box centered at c with half extents h along the axes ax, ay, az (unit, orthogonal). */

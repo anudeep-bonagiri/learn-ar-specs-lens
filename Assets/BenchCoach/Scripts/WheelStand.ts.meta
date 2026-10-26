@@ -1,0 +1,80 @@
+- !<AssetImportMetadata/d993eeb1-9ffe-4909-bfc2-e183fb982604>
+  ImportedAssetIds:
+    TypeScriptAsset: !<reference> 6419e368-7c58-4ee9-b322-8080cfc967f2
+  ImporterName: TypeScriptAssetImporter
+  PrimaryAsset: !<reference> 6419e368-7c58-4ee9-b322-8080cfc967f2
+  PackageType: NotAPackage
+  LegacyPackagePolicy: ~
+  ExtraData:
+    {}
+  AssetDataMap:
+    TypeScriptAsset: !<own> 645cddb1-2760-44f3-a380-c229dbb3a41b
+  DependentFiles:
+    []
+  ImporterSettings: !<AssetImporterSettings>
+    {}
+  CompressionSettings: !<own> 00000000-0000-0000-0000-000000000000
+- !<TypeScriptAssetData/645cddb1-2760-44f3-a380-c229dbb3a41b>
+  SvgIcon: ""
+  SetupScript:
+    code: ""
+  Description: ""
+  VersionMajor: 0
+  VersionMinor: 0
+  VersionPatch: 0
+  VersionPrerelease: ""
+  UpdateOrder: 0
+  ComponentUid: e2f60d91-1a1b-4be9-9c44-11fe8c80c08e
+  ExportUid: 00000000-0000-0000-0000-000000000000
+  PackagePolicy: CanBeUnpacked
+  ScriptInputsHidden:
+    armOffsetZ: false
+    base: false
+    castShadows: false
+    clamp: false
+    fallbackFloorY: false
+    floorLevel: false
+    hub: false
+    legSpreadCm: false
+    post: false
+    postOffsetX: false
+  ScriptTypesHidden:
+    {}
+  ReadMe: !<reference> 00000000-0000-0000-0000-000000000000
+  DeclarationFile: !<reference> 00000000-0000-0000-0000-000000000000
+  Tags:
+    []
+  Attachments:
+    []
+  DefaultScriptInputs:
+    - hub: !<reference.SceneObject> 00000000-0000-0000-0000-000000000000
+      floorLevel: !<MappingBased.AssignableType_1> 00000000-0000-0000-0000-000000000000
+      base: !<reference.SceneObject> 00000000-0000-0000-0000-000000000000
+      post: !<reference.SceneObject> 00000000-0000-0000-0000-000000000000
+      clamp: !<reference.SceneObject> 00000000-0000-0000-0000-000000000000
+      fallbackFloorY: !<float> -150.000000
+      postOffsetX: !<float> -47.000000
+      armOffsetZ: -8.200000
+      legSpreadCm: !<float> 40.000000
+      castShadows: true
+  ScriptTypes:
+    -
+      {}
+  InputLines:
+    - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">WheelStand – code-built repair stand on the measured floor</span>"}'
+    - '// @ui {"widget":"separator"}'
+    - '// @ui {"widget":"group_start", "label":"References"}'
+    - '// @input SceneObject hub {"hint":"Wheel hub (the clamp grips its back axle stub)"}'
+    - '// @input AssignableType_1 floorLevel {"hint":"Measured floor height; without it the stand uses fallbackFloorY"}'
+    - // @input SceneObject base
+    - // @input SceneObject post
+    - // @input SceneObject clamp
+    - '// @ui {"widget":"group_end"}'
+    - '// @ui {"widget":"separator"}'
+    - '// @ui {"widget":"group_start", "label":"Settings"}'
+    - '// @input float fallbackFloorY = -150 {"hint":"Floor height used when no FloorLevel is wired (world y, cm)"}'
+    - "// @input float postOffsetX = -47 {\"hint\":\"Post position relative to the hub: x (to the user's left is negative), in cm\"}"
+    - '// @input float armOffsetZ = -8.2 {"hint":"Arm plane relative to the hub along Z (behind the wheel is negative), in cm"}'
+    - '// @input float legSpreadCm = 40 {"hint":"Tripod foot radius around the post, in cm"}'
+    - '// @input bool castShadows = true {"hint":"Cast shadows onto the floor mat"}'
+    - '// @ui {"widget":"group_end"}'
