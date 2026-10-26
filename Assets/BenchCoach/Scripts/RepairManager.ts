@@ -849,7 +849,8 @@ export class RepairManager extends BaseScriptComponent {
       return {pos, angleDeg: 0, radius: valveRadius}
     }
     if (def.markerAnchor === "tubeEnd" && this.tubeEnd && live) {
-      const pos = this.tubeEnd.getTransform().getWorldPosition().add(new vec3(0, 0, this.markerStandoffCm))
+      // Step 5 is worked from the far side of the stand (-Z), so the ring stands off toward the user there.
+      const pos = this.tubeEnd.getTransform().getWorldPosition().add(new vec3(0, 0, -this.markerStandoffCm))
       return {pos, angleDeg: 180, radius}
     }
     if (def.markerAnchor === "inspect" && this.thorn) {
