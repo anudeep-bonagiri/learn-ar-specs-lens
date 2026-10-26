@@ -74,7 +74,7 @@
     - '// @input AssignableType_1 manager {"hint":"The step machine (pause, label restore, current cause)"}'
     - '// @input AssignableType_2 stepLabel {"hint":"Step label panel (shows the prompt and the fact)"}'
     - '// @input SceneObject wheel {"hint":"Wheel root: parts are found by name under it, the stand and the tray"}'
-    - '// @input SceneObject stand {"hint":"Stand root (StandPost, BikeFrame)"}'
+    - '// @input SceneObject stand {"hint":"Stand root (StandPost)"}'
     - '// @input SceneObject toolTray {"hint":"Tool tray root (levers while they are in the tray)"}'
     - '// @input AssignableType_3 thorn {"hint":"Flat-cause hotspot: its box exists only once the cause is found"}'
     - '// @input AssignableType_4 leverA {"hint":"Lever A: wait while it is grabbed or tweening"}'

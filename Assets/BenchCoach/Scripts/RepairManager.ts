@@ -72,7 +72,7 @@ export class RepairManager extends BaseScriptComponent {
 
   @input
   @allowUndefined
-  @hint("Workshop dressing root (bench, pegboard, mat, props); shown with the wheel")
+  @hint("Workshop dressing root (floor mat, floor path); shown with the wheel")
   environment: SceneObject
 
   @input

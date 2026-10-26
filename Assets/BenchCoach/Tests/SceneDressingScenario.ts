@@ -4,15 +4,19 @@ import {findSceneObjectByName, sleep} from "Leaf.lspkg/Utils/common/Utils"
 import {BenchCoachLeafInteractor, getRepairManager} from "./BenchCoachLeafInteractor"
 import {Highlighter} from "../Scripts/Highlighter"
 import {BenchCoachAudio} from "../Scripts/BenchCoachAudio"
-import {RearTriangle} from "../Scripts/RearTriangle"
+import {FloorLevel} from "../Scripts/FloorLevel"
+import {WheelStand} from "../Scripts/WheelStand"
 
 /**
  * Pass 7 scene dressing (code half, 7a): the Tube is hidden until a bead lifts
  * (off on step 2, on from step 4); the valve pinch on step 1 plays the hiss; the
  * Highlighter glows the valve on step 1 and exactly the not-yet-loosened beads on
  * step 2, and nothing once the step moves on.
- * Scene half (7b): Environment and Stand/BikeFrame are hidden on step 0 and shown
- * after Found it; the rear triangle's dropouts sit on the hub (within 1 cm).
+ * Scene half (pass D1, replaces the 7b frame checks): Environment is hidden on
+ * step 0 and shown after Found it; the pegboard, toolbox, workbench, bike frame and
+ * saddle are gone; FloorLevel has decided a floor; the stand base and floor mat sit
+ * on it (within 1 cm); the stand's clamp grips the back of the hub; the hub is 20
+ * to 30 cm below and 85 to 95 cm in front of the default eye.
  */
 @component
 export class SceneDressingScenario extends Scenario {
@@ -67,28 +71,48 @@ export class SceneDressingScenario extends Scenario {
     await sleep(300)
     expect(highlighter.current.length, "no highlight on step 3").toBe(0)
 
-    // ── Pass 7b: workshop environment and bike frame ───────────────────────
+    // ── Pass D1: workshop environment, measured floor, stand ───────────────
     const environment = findSceneObjectByName("Environment")
-    const bikeFrame = findSceneObjectByName("BikeFrame")
     const hub = findSceneObjectByName("Hub")
     expect(environment, "Environment exists").toBeTruthy()
-    expect(bikeFrame, "BikeFrame exists").toBeTruthy()
     expect(hub, "Hub exists").toBeTruthy()
+    for (const gone of ["Pegboard", "Toolbox", "Workbench", "BikeFrame", "Saddle"]) {
+      expect(findSceneObjectByName(gone), `${gone} removed`).toBeFalsy()
+    }
     manager.reset()
     await sleep(300)
     expect(manager.getState().step, "reset returns to step 0").toBe(0)
     expect(environment.isEnabledInHierarchy, "Environment hidden on step 0").toBe(false)
-    expect(bikeFrame.isEnabledInHierarchy, "BikeFrame hidden on step 0").toBe(false)
     await interactor.tap("BtnFoundIt")
     await sleep(300)
     expect(manager.getState().step, "Found it enters step 1").toBe(1)
     expect(environment.isEnabledInHierarchy, "Environment shown after Found it").toBe(true)
-    expect(bikeFrame.isEnabledInHierarchy, "BikeFrame shown after Found it").toBe(true)
-    const frame = bikeFrame.getComponent(RearTriangle.getTypeName()) as RearTriangle
-    expect(frame, "RearTriangle on BikeFrame").toBeTruthy()
-    const dropoutToHub = frame.dropoutWorldPos().distance(hub.getTransform().getWorldPosition())
-    print(`[SceneDressingScenario] dropout to hub ${dropoutToHub.toFixed(2)} cm`)
-    expect(dropoutToHub, "rear dropouts within 1 cm of the hub").toBeLessThan(1.0)
+
+    const floorLevel = findSceneObjectByName("FloorLevel").getComponent(FloorLevel.getTypeName()) as FloorLevel
+    expect(floorLevel, "FloorLevel exists").toBeTruthy()
+    for (let i = 0; i < 300 && !floorLevel.ready; i++) await sleep(100)
+    expect(floorLevel.ready, "floor decided within 30 s").toBe(true)
+    await sleep(200)
+    const floorY = floorLevel.floorY
+    print(`[SceneDressingScenario] floor y ${floorY.toFixed(1)} cm via ${floorLevel.source} (${floorLevel.inliers} inliers)`)
+
+    const stand = findSceneObjectByName("Stand").getComponent(WheelStand.getTypeName()) as WheelStand
+    expect(stand, "WheelStand on Stand").toBeTruthy()
+    const baseY = findSceneObjectByName("StandBase").getTransform().getWorldPosition().y
+    print(`[SceneDressingScenario] stand base y ${baseY.toFixed(1)}, built on ${stand.builtFloorY.toFixed(1)}`)
+    expect(Math.abs(baseY - floorY), "stand base within 1 cm of the floor").toBeLessThan(1.0)
+    expect(Math.abs(stand.builtFloorY - floorY), "stand built on the measured floor").toBeLessThan(1.0)
+    const matY = findSceneObjectByName("FloorMat").getTransform().getWorldPosition().y
+    expect(Math.abs(matY - (floorY + 0.5)), "mat top 0.5 cm above the floor").toBeLessThan(1.0)
+
+    const hubPos = hub.getTransform().getWorldPosition()
+    const clampPos = findSceneObjectByName("StandClamp").getTransform().getWorldPosition()
+    expect(Math.abs(clampPos.x - hubPos.x) + Math.abs(clampPos.y - hubPos.y), "clamp level with the hub").toBeLessThan(0.5)
+    expect(hubPos.z - clampPos.z > 6 && hubPos.z - clampPos.z < 11, "clamp just behind the hub").toBe(true)
+    print(`[SceneDressingScenario] hub (${hubPos.x.toFixed(1)}, ${hubPos.y.toFixed(1)}, ${hubPos.z.toFixed(1)})`)
+    expect(hubPos.y < -20 && hubPos.y > -30, "hub 20 to 30 cm below the eye").toBe(true)
+    expect(hubPos.z < -85 && hubPos.z > -95, "hub 85 to 95 cm in front").toBe(true)
+
 
     manager.reset()
     await sleep(300)

@@ -4,11 +4,13 @@ import {findSceneObjectByName, sleep} from "Leaf.lspkg/Utils/common/Utils"
 import {BenchCoachLeafInteractor, getRepairManager} from "./BenchCoachLeafInteractor"
 import {FloorPath} from "../Scripts/FloorPath"
 import {RepairDirector} from "../Scripts/RepairDirector"
+import {FloorLevel} from "../Scripts/FloorLevel"
+import {WheelStand} from "../Scripts/WheelStand"
 
 /**
  * Pass 11 (feature E): the floor path. Hidden on step 4; a forward entry into step 5
- * shows at least six arrows on the floor mat, all clear of the stand base, the
- * toolbox and the workbench, curving round the wheel's right side (+X) and ending
+ * shows at least six arrows on the floor mat at the measured floor, all clear of the
+ * stand's tripod, curving round the wheel's right side (+X) and ending
  * behind the wheel. Moving the camera to the far spot (the Camera Object's world
  * position is set from the scenario and held there; see the log line) sets `arrived`
  * and hides the path without completing the step. Next from step 5 hides it, Back
@@ -120,41 +122,28 @@ export class FloorPathScenario extends Scenario {
     return n
   }
 
-  /** Arrows on the mat, clear of the stand base, toolbox and bench, round the right side, ending behind the wheel. */
+  /** Arrows on the mat at the measured floor, clear of the stand's tripod, round the right side, ending behind the wheel. */
   private checkLayout(path: FloorPath): void {
+    const floorLevel = findSceneObjectByName("FloorLevel").getComponent(FloorLevel.getTypeName()) as FloorLevel
+    const matTop = floorLevel.currentFloorY() + 0.5
+    const stand = findSceneObjectByName("Stand").getComponent(WheelStand.getTypeName()) as WheelStand
+    const base = findSceneObjectByName("StandBase").getTransform().getWorldPosition()
+    const tripodMaxX = base.x + stand.legSpreadCm + 2
     const pts = path.arrowPositions
     let maxX = -1e9
-    let minClear = 1e9
     for (const p of pts) {
-      expect(p.y > -149.5 && p.y < -148.5, "arrow just above the mat").toBe(true)
+      expect(p.y > matTop && p.y < matTop + 1, "arrow just above the mat").toBe(true)
       expect(p.x > -90 && p.x < 90 && p.z > -150 && p.z < -30, "arrow on the floor mat").toBe(true)
-      // Stand base footprint x -55.6..-15.6, z -130..-90; workbench front edge z -128.1 (x -75..75).
-      expect(p.x > -15.6 + 6, "clear of the stand base").toBe(true)
-      expect(p.z > -128.1 + 3, "clear of the workbench").toBe(true)
-      minClear = Math.min(minClear, this.toolboxClearance(p))
+      expect(p.x > tripodMaxX + 6, "clear of the stand's tripod").toBe(true)
       maxX = Math.max(maxX, p.x)
     }
     const last = pts[pts.length - 1]
     print(
       `[FloorPathScenario] layout: first (${pts[0].x.toFixed(1)}, ${pts[0].z.toFixed(1)}), last (${last.x.toFixed(1)}, ${last.z.toFixed(1)}), ` +
-        `max x ${maxX.toFixed(1)}, toolbox clearance ${minClear.toFixed(1)} cm`
+        `max x ${maxX.toFixed(1)}, y ${pts[0].y.toFixed(1)} (mat top ${matTop.toFixed(1)})`
     )
-    expect(minClear, "arrow centers at least 8 cm from the toolbox").toBeGreaterThan(8)
     expect(maxX, "path swings round the right side").toBeGreaterThan(25)
     expect(pts[0].z > -60, "starts in front of the stand").toBe(true)
     expect(last.z < -110, "ends behind the wheel (wheel plane z -90)").toBe(true)
-  }
-
-  /** Distance on the floor from p to the toolbox footprint (45 x 28.9 cm at (70, -120), yaw -20 degrees). */
-  private toolboxClearance(p: vec3): number {
-    const a = (-20 * Math.PI) / 180
-    const dx = p.x - 70
-    const dz = p.z + 120
-    // Into the box's local frame (inverse yaw about Y).
-    const lx = dx * Math.cos(a) - dz * Math.sin(a)
-    const lz = dx * Math.sin(a) + dz * Math.cos(a)
-    const ox = Math.max(0, Math.abs(lx) - 22.5)
-    const oz = Math.max(0, Math.abs(lz) - 14.45)
-    return Math.sqrt(ox * ox + oz * oz)
   }
 }
