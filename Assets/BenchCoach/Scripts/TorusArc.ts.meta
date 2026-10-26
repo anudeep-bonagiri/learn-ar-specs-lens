@@ -28,9 +28,15 @@
   ExportUid: 00000000-0000-0000-0000-000000000000
   PackagePolicy: CanBeUnpacked
   ScriptInputsHidden:
+    bandBelowCos: false
+    bandMaterial: false
+    boxDepthCm: false
+    boxWidthCm: false
+    brakeTrackCm: false
     castShadows: false
     majorRadius: false
     material: false
+    profile: false
     ringSegments: false
     startDeg: false
     sweepDeg: false
@@ -57,6 +63,12 @@
       treadDepth: !<float> 0.000000
       treadBlocksPerArc: !<float> 0.000000
       castShadows: false
+      profile: !<float> 0.000000
+      boxDepthCm: 3.200000
+      boxWidthCm: !<float> 2.000000
+      brakeTrackCm: 1.100000
+      bandMaterial: !<reference.Material> 00000000-0000-0000-0000-000000000000
+      bandBelowCos: 0.380000
   ScriptTypes:
     -
       {}
@@ -71,3 +83,9 @@
     - '// @input float treadDepth {"hint":"Tread block height in cm, pushed radially outward on the outer third of the cross-section (0 = smooth)"}'
     - '// @input float treadBlocksPerArc {"hint":"Tread blocks along this arc (0 = smooth); ring segments are raised to about 4 per block"}'
     - '// @input bool castShadows {"hint":"Cast shadows onto the floor mat"}'
+    - '// @input float profile {"hint":"Cross-section: 0 = round tube, 1 = box section (rim)", "widget":"combobox", "values":[{"label":"Round", "value":0}, {"label":"Box", "value":1}]}'
+    - '// @input float boxDepthCm = 3.2 {"hint":"Box section: radial depth, in cm"}'
+    - '// @input float boxWidthCm = 2 {"hint":"Box section: width across the wheel (Z), in cm"}'
+    - '// @input float brakeTrackCm = 1.1 {"hint":"Box section: braking track height on each sidewall, measured in from the outer edge, in cm"}'
+    - '// @input Asset.Material bandMaterial {"hint":"Optional second material for the sidewall band (tire gumwall); empty = one material"}'
+    - '// @input float bandBelowCos = 0.38 {"hint":"Faces whose radial normal is below this go to the band (0.38 keeps about 135 degrees of tread)"}'

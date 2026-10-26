@@ -1,6 +1,7 @@
 /**
  * Highlighter — makes the parts the current step wants touched glow. set(parts)
- * swaps each part's main material (on its own RenderMeshVisual) for a cached clone
+ * swaps the main material of every RenderMeshVisual on each part (a tire bead has
+ * two: tread and sidewall band) for a cached clone
  * whose baseColor is lerped toward glowTint, pulsing the lerp between
  * minBlend..maxBlend of glowStrength at pulseHz; clear() puts the original
  * materials back. `current` lists the highlighted part names (a field, not a
@@ -45,7 +46,7 @@ export class Highlighter extends BaseScriptComponent {
   current: string[] = []
 
   private parts: SceneObject[] = []
-  private originals: Material[] = []
+  private originals: Material[][] = []
   private clones: Material[] = []
   private cloneSources: Material[] = []
   private baseColors: vec4[] = []
@@ -63,12 +64,15 @@ export class Highlighter extends BaseScriptComponent {
     }
     for (const p of keep) {
       if (this.parts.indexOf(p) >= 0) continue
-      const rmv = p.getComponent("Component.RenderMeshVisual") as RenderMeshVisual | null
-      if (!rmv || !rmv.mainMaterial) continue
-      const original = rmv.mainMaterial
-      rmv.mainMaterial = this.cloneFor(original)
+      const rmvs = this.visualsOf(p)
+      if (rmvs.length === 0) continue
+      const originals: Material[] = []
+      for (const rmv of rmvs) {
+        originals.push(rmv.mainMaterial)
+        rmv.mainMaterial = this.cloneFor(rmv.mainMaterial)
+      }
       this.parts.push(p)
-      this.originals.push(original)
+      this.originals.push(originals)
     }
     this.current = keep.filter((p) => this.parts.indexOf(p) >= 0).map((p) => p.name)
     this.tick()
@@ -79,9 +83,14 @@ export class Highlighter extends BaseScriptComponent {
     this.current = []
   }
 
+  /** The part's own RenderMeshVisuals that have a material (children are not touched). */
+  private visualsOf(p: SceneObject): RenderMeshVisual[] {
+    return (p.getComponents("Component.RenderMeshVisual") as RenderMeshVisual[]).filter((r) => !!r.mainMaterial)
+  }
+
   private restoreAt(i: number): void {
-    const rmv = this.parts[i].getComponent("Component.RenderMeshVisual") as RenderMeshVisual | null
-    if (rmv) rmv.mainMaterial = this.originals[i]
+    const rmvs = this.visualsOf(this.parts[i])
+    for (let k = 0; k < rmvs.length && k < this.originals[i].length; k++) rmvs[k].mainMaterial = this.originals[i][k]
     this.parts.splice(i, 1)
     this.originals.splice(i, 1)
   }
