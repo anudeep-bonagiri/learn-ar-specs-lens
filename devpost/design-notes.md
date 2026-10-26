@@ -574,3 +574,161 @@ Findings:
 - **A LEAF run can take up to about 50 s to start after a recompile** (the panel waits for the reset), so the MCP call can time out while the scenario still runs and passes. Read the result from the log.
 
 Left over: the step-5 marker ring sits on the front side of the tire, so from the far spot it is hidden behind the tire (the tube end and its label are in view); a hands-on walk along the path in the preview (WASD) was not done beyond the camera moves above; the README should mention the floor path in the walk-around shot.
+
+## 2026-10-25: Pass D1, scene and art direction
+
+Branch `fix/step5-far-side-marker`. Built through the CLAD skills and the Lens Studio MCP. Scope: the scene and the art direction only. Panels, labels, the control bar and the cards were not restyled (that is the UI pass).
+
+What the audit showed (`shots/audit/`, Pass V):
+
+- The text-to-3D pegboard (emissive 0.65) was a bright white slab directly behind the wheel in every start-pose shot.
+- The rear triangle cut diagonally across the wheel, and the white saddle blob sat at the top left.
+- The glossy red toolbox and the bright wood workbench showed behind the wheel's lower half.
+- Every BenchCoach PBR material multiplied its base color by `Base.png`, a 1x1 texel of (128, 128, 128), so the set colors rendered at about half.
+- The hub was a cube-like cylinder. The spokes ran into the hub center. The rim was a round tube. The valve was a plain cylinder.
+- The stand assumed a floor 150 cm below the eye.
+
+Changes, each with the reason:
+
+- **Base.png multiply removed.** `ENABLE_BASE_TEX` was taken off the 11 BenchCoach PBR materials (Hub, Rim, Spoke, Tire, Tube, Valve, Stand, Lever, MatField, MatBorder, and the new Sidewall). `ImageMaterial` (the flat UI shader) keeps it. The colors were then retuned on screenshots:
+  - Rim: 0.95 silver, metallic 0.5, roughness 0.35. At 0.80 / metallic 0.6 the rim face read 0.50 against a 0.42 background; at 0.95 / 0.5 it reads 0.56.
+  - Tire tread: charcoal 0.38, roughness 0.8, metallic 0.
+  - New `SidewallMat`: tan (0.75, 0.60, 0.42), roughness 0.75.
+  - Tube: muted amber (0.78, 0.47, 0.16), roughness 0.55. It is more saturated than the tan sidewall so the two stay apart.
+  - Stand: (0.36, 0.37, 0.39), metallic 0.3, roughness 0.6.
+  - Hub: 0.80 silver, metallic 0.5, roughness 0.3.
+  - Spokes: 0.78, metallic 0.4, roughness 0.35. Spokes, tire, tube and valve were all roughness 0 before, which caused the hot streaks.
+  - Valve: brass (0.80, 0.66, 0.38), metallic 0.5, roughness 0.35.
+  - Mat field: 0.34, roughness 0.9. Mat border: (0.26, 0.31, 0.38), roughness 0.9. Both are below the old effective values (0.41 and 0.31 to 0.48), so the mat no longer glows.
+  - Levers: (0.20, 0.50, 0.95), roughness 0.5.
+- **Clutter removed.** These were deleted from the scene and the project:
+  - `Environment/Pegboard` + `Pegboard.glb`.
+  - `Environment/Toolbox` + `Toolbox.glb`.
+  - `Stand/BikeFrame` (rear triangle and saddle) + `RearTriangle.ts`, `FrameMat.mat`, `Saddle.glb`.
+  - The "Frame" What's this? fact and PartInfo's seat-tube placement code.
+- **Workbench removed too (item 4).** It was moved to (95, floor, -120), turned 90 degrees so it no longer sat behind the work area, and given a matte, darker wood (roughness 1.0 and base factor (0.62, 0.55, 0.48), baked into the GLB JSON). It still read as a bright, blocky, cartoon-wood slab and was the largest bright shape in the wide view, so it was deleted with `Workbench.glb`. The floor path's far spot no longer has a bench edge to stay in front of.
+- **Wheel model** (code-built; names and transforms unchanged):
+  - `MeshKit.lathe()` (new): solids of revolution with crisp shoulders, plus faceted hex nuts.
+  - `WheelParts.ts` (new, on `Wheel`) builds into the existing RenderMeshVisuals:
+    - Hub: a waisted round body, two 2.6 cm flanges, hex locknuts, and a 6.3 cm axle stub each side.
+    - Spokes: 0.12 cm radius, flange hole to the rim's spoke bed, alternating flanges, with a nipple at the rim. Each is built in its own `Spoke_i` frame, so the Spoke_2 What's this? box still sits on a spoke.
+    - Presta valve: knurled tip locknut, thin core, threaded stem, and a hex rim nut against the spoke bed.
+    - A light "700x25c" sidewall marking at 96 degrees on `Bead_2`.
+  - Hub, Valve and Spoke_i now have unit scale in the scene. WheelTargets sizes the valve hit box from the scale, and the hit box is unchanged in cm.
+  - `TorusArc`:
+    - `profile` = 1 builds a box-section rim (3.2 cm deep, 2.0 cm wide, chamfered, flat-shaded), with a 0.16 x 0.06 cm groove at the inner edge of a 1.1 cm braking track.
+    - `bandMaterial` / `bandBelowCos`: tire faces off the tread go into a second RenderMeshVisual on the same bead, which makes the tire two-tone.
+    - Beads: 16 cross-section segments, tread 0.1 cm deep with 16 blocks per arc. The old 0.25 cm x 6 blocks was a lumpy silhouette.
+  - `Highlighter` swaps every RenderMeshVisual on a part, so the sidewall band glows with the tread.
+- **Stand on the real floor.**
+  - `FloorLevel.ts` (new, root object `FloorLevel`) is the single source of truth for the floor.
+    - It casts 44 downward rays: 9 vertical rays on a 35 cm ring around the stand footprint, plus 35 rays from the eye toward the floor 1.5 to 4.5 m out.
+    - It uses the World Query hit test for 3 s, then world-mesh raycasts until they hit (up to 8 s more). It sets `enableWorldMeshesTracking`.
+    - It keeps upward-facing hits at least 140 cm below the eye, and takes the lowest height that 3 or more hits agree on within 8 cm. Higher levels (table tops, seats) and stray hits are rejected.
+    - Otherwise it keeps -150, and it logs which path ran.
+  - `WheelStand.ts` (new, on `Stand`) builds the stand into StandBase / StandPost / StandClamp on that floor:
+    - Tripod with rubber feet.
+    - Telescoping post with a height collar, T-knob, top cap and arm collar.
+    - An arm 8.2 cm behind the wheel plane from a post 47 cm to the left, ending in a clamp head with jaws on the back axle stub and a quick-release lever.
+  - `FloorAnchor.ts` (new) puts the mat's top 0.5 cm above the floor. `FloorPath` lays the arrows 0.3 cm above the mat top at the measured floor.
+  - The wheel did not move. The hub stays at (0, -25, -90): 25 cm below and 90 cm in front of the default eye. Only the post length follows the floor.
+  - Readers subscribe to `onFloorChanged` and read `currentFloorY()` in `OnStartEvent`.
+- **Lighting:**
+  - KeyLight 1.0 to 0.9, with shadow blur 3 to 5.
+  - FillLight 0.6 to 0.9, because the front-facing rim sidewall gets little of the steep key.
+  - EnvLight 1.0 to 1.5, because the reflections make the metal read as silver.
+  - The wheel's soft shadow still shows on the mat.
+
+Floor measurement (default start pose, logged by `FloorLevel`):
+
+| Preview room | Floor y (cm) | Path |
+| --- | --- | --- |
+| Sunlit Room (the default) | -178.3, -178.5, -178.5, -177.8 (four runs) | world mesh (15 to 16 inliers), once World Query (15) |
+| Plane (chosen for shots) | -150.0, -150.1 | World Query (3 to 6 hits); one run fell back to -150 before the 140 cm rule existed |
+| Sunlit Outdoor / Evening Outdoor | -172.9 / -173.0 | World Query |
+| Colorful Home | -150.1 | World Query, 3 hits |
+| Evening Room | -135.8 (rejected now) | World Query only sees a furniture top there; this is why the 140 cm rule exists. Not re-run after the rule. |
+
+In the Sunlit Room, the world mesh sees -175 to -180 (floor), -165, -140 to -145 and -110 (the coffee table in front of the start pose). From the start pose, World Query sees only one surface at -146.6, a low console top. Before the pooled lowest-level rule, the median picked -142.1.
+
+Preview room (editor setting, not part of the Lens): six rooms were captured on step 1 from the start pose (`shots/d1-notes/rooms-sheet.png`). The figures are the luminance spread behind the wheel on screenshot pixels, with the brightest 10 percent (spokes, rim) trimmed:
+
+| Room | Spread | Notes |
+| --- | --- | --- |
+| Sunlit Room | 0.100 | High-contrast posters behind the wheel |
+| Colorful Home | 0.113 | Green wall, chair, table |
+| Evening Room | 0.036 | Same posters, dimmer |
+| Sunlit Outdoor | 0.041 | Plaza arches |
+| Evening Outdoor | 0.032 | Dark plaza and tiles |
+| Plane | 0.029 | Nothing behind the wheel; faint floor grid |
+
+**Plane was chosen** for the demo video and the after-shots. It is the calmest backdrop: no posters, shelves or furniture, and the floor measured there matches its visible grid (the mat lies flush on it). Evening Room is the runner-up if a lived-in room is wanted, but its floor is not measurable from the start pose.
+
+| Scenario | Result (serial, one per call, Plane, default camera pose, after the save) |
+| --- | --- |
+| `start` | PASSED |
+| `deflate-loosen` | PASSED |
+| `lever-snap` | PASSED |
+| `peel-and-pull` | PASSED |
+| `inspect-done` | PASSED |
+| `step-ticks` | PASSED |
+| `scene-dressing` (changed) | PASSED. Plane: floor -150.0 via World Query + world mesh (56 inliers), stand base -150.0, hub (0, -25, -90). Sunlit Room rerun: floor -177.8, base -177.8 |
+| `refit-tube` | PASSED |
+| `seat-inflate` | PASSED |
+| `whats-this` | PASSED |
+| `mistakes` | PASSED |
+| `flat-causes` | PASSED |
+| `progress-idle` | PASSED |
+| `watch-mode` | PASSED on the rerun. The first run failed ("watch mode reached LAST_STEP within 90 s") because the preview paused itself at step 9. |
+| `ask-coach-fallback` | PASSED |
+| `floor-path` (changed) | PASSED. Arrows y -149.2 on a -149.5 mat top in Plane, -177.3 on -177.6 in the Sunlit Room; first (12.8, -50.4), last (20.8, -118.8), max x 35.8 |
+| `coach-report` | PASSED |
+| `jump-to-step` | PASSED |
+
+Assertions changed, and why:
+
+- **`scene-dressing` 7b block.** These checks were removed because the objects are gone: BikeFrame exists / hidden on step 0 / shown after Found it, and the rear dropouts within 1 cm of the hub. These checks were added:
+  - Pegboard, Toolbox, Workbench, BikeFrame and Saddle absent.
+  - FloorLevel decided within 30 s.
+  - StandBase within 1 cm of the floor, and WheelStand built on it.
+  - Mat origin 0.5 cm (within 1 cm) above the floor.
+  - StandClamp level with the hub (within 0.5 cm), 6 to 11 cm behind it.
+  - Hub 20 to 30 cm below and 85 to 95 cm in front of the default eye.
+  - The Workbench placement check proposed for item 2 was not added, because the bench was removed.
+- **`floor-path` layout checks.**
+  - The fixed y -149.5 to -148.5 is now "within 1 cm above the measured mat top".
+  - "Clear of the stand base" (x > -9.6) is now "clear of the tripod" (x > base x + leg spread + 8).
+  - The workbench-edge and toolbox-clearance checks were removed (both props are gone).
+
+Every BenchCoach script input in the saved scene is set (697 across 39 script components), except the 12 optional `TorusArc.bandMaterial` slots (`@allowUndefined`, empty by design on the rim, tube segments, marker ring and new-tube coils). `RunAndCollectLogsTool` showed no Lens errors after the final recompile.
+
+Cost:
+- Removed: about 15,900 triangles (the four GLBs and the frame).
+- Added:
+  - WheelParts 1,824 triangles.
+  - WheelStand 944 triangles, replacing three primitives.
+  - Tire beads about 16,600 triangles, up from 4,800 (64 rings x 16 segments x 8 beads, for the fine tread).
+  - Rim about 2,200 triangles, up from 1,500.
+- Net about flat.
+- Draw calls: minus 5 props, plus 8 sidewall bands and 1 text.
+
+Findings:
+
+- **World Query in the preview answers only inside the camera's view.** From the start pose that is far floor and furniture, not the floor under the stand.
+- **World-mesh raycasts need `worldOptions.enableWorldMeshesTracking = true` and a few seconds** before they hit anything.
+- **The floor differs per preview room** (-150 to -178.5), so a hard-coded floor is wrong in most rooms.
+- **A script component referenced through an `@input` has no methods before its own `onAwake`.** WheelStand on `Stand` threw "undefined is not a function" calling `FloorLevel.currentFloorY()`, because FloorLevel sits lower in the hierarchy. Read it in `OnStartEvent`.
+- **`CapturePanelScreenshotTool` with `outputPath` reports success but writes nothing when the folder does not exist.**
+- **Two LEAF runs and two captures sent at once left the editor unresponsive for about 7 minutes.** Afterwards `CapturePanelScreenshotTool` kept timing out, so the after-shot run was stopped (see Left over).
+- **The Preview panel changed size mid-session**, from 1463 x 1590 to 1392 x 1731, so the after-shots frame more of the scene vertically than the audit shots.
+- **Lens Studio reported "not signed in".** Nothing in this pass needed account APIs.
+
+Left over:
+
+- Only 5 of the 24 after-shots were taken: 00, 01, 02, 03 and 03b in `shots/after-d1/`, all in Plane. 04 through 31 still need retaking with the same poses as the audit, one call at a time.
+- On loosened or lifted beads, the charcoal end caps show as small ticks at the bead joints.
+- The stand's arm is visible through the spokes at 9 o'clock, behind the wheel.
+- On step 3, in the taller panel, the edge arrow shows next to the ring.
+- FloorLevel is untested on a device. There, World Query also sees only what is in view, so the world-mesh path may decide.
+- The Evening Room was not re-measured after the 140 cm rule.
+- No hands-on walk was done.
