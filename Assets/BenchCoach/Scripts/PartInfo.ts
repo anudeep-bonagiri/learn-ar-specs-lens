@@ -23,13 +23,11 @@ import {LeverPlacement} from "./LeverPlacement"
 import {TubeFit} from "./TubeFit"
 import {TubePull} from "./TubePull"
 import {BenchCoachAudio} from "./BenchCoachAudio"
-import {RearTriangle} from "./RearTriangle"
 
 interface InfoHit {
   fact: PartFact
   so: SceneObject
   target: SceneObject | null
-  frame: RearTriangle | null
 }
 
 @component
@@ -51,7 +49,7 @@ export class PartInfo extends BaseScriptComponent {
   wheel: SceneObject
 
   @input
-  @hint("Stand root (StandPost, BikeFrame)")
+  @hint("Stand root (StandPost)")
   stand: SceneObject
 
   @input
@@ -124,7 +122,7 @@ export class PartInfo extends BaseScriptComponent {
       shape.size = new vec3(fact.size[0], fact.size[1], fact.size[2])
       collider.shape = shape
       const interactable = so.createComponent(Interactable.getTypeName()) as Interactable
-      const hit: InfoHit = {fact, so, target: null, frame: null}
+      const hit: InfoHit = {fact, so, target: null}
       interactable.onTriggerEnd.add(() => this.pinched(hit))
       this.hits.push(hit)
     }
@@ -222,18 +220,10 @@ export class PartInfo extends BaseScriptComponent {
       if (!hit.target || !hit.target.isEnabledInHierarchy) hit.target = this.findTarget(hit.fact.target)
       let on = !!hit.target && hit.target.isEnabledInHierarchy
       if (hit.fact.cause) on = on && !!this.thorn && this.thorn.found
-      if (on && hit.fact.frameT !== undefined && !hit.frame) {
-        hit.frame = hit.target.getComponent(RearTriangle.getTypeName()) as RearTriangle
-      }
       if (hit.so.enabled !== on) hit.so.enabled = on
       if (!on) continue
       const ttr = hit.target.getTransform()
       const tr = hit.so.getTransform()
-      if (hit.frame && hit.fact.frameT !== undefined) {
-        tr.setWorldPosition(hit.frame.seatTubeWorldPos(hit.fact.frameT))
-        tr.setWorldRotation(quat.quatIdentity())
-        continue
-      }
       const rot = ttr.getWorldRotation()
       const o = hit.fact.offset
       tr.setWorldPosition(ttr.getWorldPosition().add(rot.multiplyVec3(new vec3(o[0], o[1], o[2]))))

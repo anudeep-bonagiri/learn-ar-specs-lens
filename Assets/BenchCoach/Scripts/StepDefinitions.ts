@@ -204,8 +204,7 @@ export const STEP_SHORT_NAMES: {[step: number]: string} = {
  * name under the wheel, stand and tray); `offset` is in the target's rotated frame,
  * in cm; `size` is the box in cm (a little larger than any collider it encloses, so
  * the info box takes the ray first). `cause`: the fact text comes from the current
- * flat cause and the box exists only once it is found. `frameT`: the box sits on
- * RearTriangle's seat tube at that fraction.
+ * flat cause and the box exists only once it is found.
  */
 export interface PartFact {
   id: string
@@ -215,7 +214,6 @@ export interface PartFact {
   offset: number[]
   size: number[]
   cause?: boolean
-  frameT?: number
 }
 
 export const PART_FACTS: PartFact[] = [
@@ -227,9 +225,8 @@ export const PART_FACTS: PartFact[] = [
   {id: "Valve", target: "Valve", title: "Valve", fact: "unscrew the tip, then press.", offset: [0, 0, 0], size: [6, 8, 6]},
   {id: "LeverA", target: "LeverA", title: "Lever", fact: "lifts the bead over the rim.", offset: [0, 0, 0], size: [13, 3, 2]},
   {id: "LeverB", target: "LeverB", title: "Lever", fact: "lifts the bead over the rim.", offset: [0, 0, 0], size: [13, 3, 2]},
-  {id: "Stand", target: "StandPost", title: "Stand", fact: "holds the wheel at work height.", offset: [0, 0, 0], size: [8, 131, 8]},
+  {id: "Stand", target: "StandPost", title: "Stand", fact: "holds the wheel at work height.", offset: [0, 0, 0], size: [8, 150, 8]},
   {id: "Cause", target: "ThornHotspot", title: "Cause", fact: "", offset: [0, 0, 0], size: [5, 5, 5], cause: true},
-  {id: "Frame", target: "BikeFrame", title: "Frame", fact: "the wheel clamps into its dropouts.", offset: [0, 0, 0], size: [3, 6, 5], frameT: 0.45},
 ]
 
 /** Rail dots: the steps with railDot, in order. */

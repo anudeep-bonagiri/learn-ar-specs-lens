@@ -10,8 +10,9 @@
     - !<own> 5135ccb9-f21b-4b31-805d-4ab254d133d2
     - !<own> 832a9517-4460-40da-a8d5-9e05cd96d78b
     - !<own> 38128195-5d72-4fa8-b0dc-b49b04211ea8
-    - !<own> bc9727ed-f366-4fef-aa9f-ddb27643878a
     - !<own> 89bf56a7-af7f-46a0-85a4-cb4230432c7e
+    - !<own> a71af63a-96d3-4c55-91bc-d78fcb943037
+    - !<own> 621c2c74-2f18-4dc4-89cb-15857b8b1650
   layers: !<Layers/267ee9a7-aff2-4f9d-9a49-f71214747d03>
     userLayers:
       - id: 1
@@ -113,9 +114,9 @@
   Enabled: true
   renderLayer: 1310719
   LightType: Directional
-  Intensity: 1.000000
+  Intensity: 0.900000
   ShadowDensity: 0.350000
-  ShadowBlurRadius: 3.000000
+  ShadowBlurRadius: 5.000000
   ShadowTextureSize: 1024
   AutoLightSourcePosition: true
   AutoShadowFrustumSize: true
@@ -130,6 +131,7 @@
   EnvMapRotation: 0.000000
   DiffuseEnvTexture: !<reference> 00000000-0000-0000-0000-000000000000
   SpecularEnvTexture: !<reference> 00000000-0000-0000-0000-000000000000
+  SpecularCubemapTexture: !<reference> 00000000-0000-0000-0000-000000000000
   Color: {x: 1.000000, y: 1.000000, z: 1.000000, w: 1.000000}
   ShadowColor: {x: 0.000000, y: 0.000000, z: 0.000000, w: 1.000000}
   DynamicEnvInputTexture: !<reference> 00000000-0000-0000-0000-000000000000
@@ -175,8 +177,9 @@
   EstimationSharpness: 1.000000
   EnvMapExposure: 1.000000
   EnvMapRotation: 0.000000
-  DiffuseEnvTexture: !<reference> b2797edc-75c0-4bb7-a4e2-e1d8feb434ec
-  SpecularEnvTexture: !<reference> d0f0a707-43e3-4156-9c02-4ee2455ffd2c
+  DiffuseEnvTexture: !<reference> 00000000-0000-0000-0000-000000000000
+  SpecularEnvTexture: !<reference> 00000000-0000-0000-0000-000000000000
+  SpecularCubemapTexture: !<reference> 3065f1f1-909c-e663-68b3-c9ebafea15a8
   Color: {x: 1.000000, y: 1.000000, z: 1.000000, w: 1.000000}
   ShadowColor: {x: 0.000000, y: 0.000000, z: 0.000000, w: 1.000000}
   DynamicEnvInputTexture: !<reference> 00000000-0000-0000-0000-000000000000
@@ -279,7 +282,7 @@
   LocalTransform: !<TransformEntity>
     Position: {x: -11.667000, y: 11.667000, z: 0.000000}
     Rotation: {x: 0.000000, y: 0.000000, z: 45.000000}
-    Scale: {x: 0.400000, y: 27.000000, z: 0.400000}
+    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
     HasSegmentScaleCompensation: false
   Children:
     []
@@ -294,7 +297,7 @@
   LocalTransform: !<TransformEntity>
     Position: {x: 15.244000, y: -6.314000, z: 0.000000}
     Rotation: {x: 0.000000, y: 0.000000, z: 247.500000}
-    Scale: {x: 0.400000, y: 27.000000, z: 0.400000}
+    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
     HasSegmentScaleCompensation: false
   Children:
     []
@@ -481,22 +484,6 @@
     - !<own> 6a99bdcf-c194-46c1-ba16-945f1d48a1dd
   Components:
     []
-- !<ScriptComponent/09a93ba7-d0b3-4df9-8b48-8d7cc64c040e>
-  PrefabRemaps:
-    []
-  Name: MessagingBridge
-  Enabled: true
-  ScriptAsset: !<reference> 9aa407db-2872-4afc-a162-cf7faf2a0f29
-  ScriptInputsDefault:
-    {}
-  ScriptTypesDefault:
-    {}
-  ScriptInputs:
-    "":
-      {}
-  ScriptTypes:
-    "":
-      {}
 - !<SceneObject/09cdeceb-7e24-4028-801b-9655cc342470>
   PrefabRemaps:
     []
@@ -858,7 +845,7 @@
   LocalTransform: !<TransformEntity>
     Position: {x: 0.000000, y: -16.500000, z: 0.000000}
     Rotation: {x: 0.000000, y: 0.000000, z: 180.000000}
-    Scale: {x: 0.400000, y: 27.000000, z: 0.400000}
+    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
     HasSegmentScaleCompensation: false
   Children:
     []
@@ -1206,26 +1193,6 @@
     - !<own> d9071294-12e8-425f-98f1-bf308a02639e
   Components:
     []
-- !<RenderMeshVisual/2652ee32-cecb-496e-8389-c838a84ebdb6>
-  PrefabRemaps:
-    []
-  Name: geometry_0
-  Enabled: true
-  RenderOrder: 0
-  StretchMode: Stretch
-  VerticalAlignment: Center
-  HorizontalAlignment: Center
-  MeshShadowMode: None
-  ShadowColor: {x: 1.000000, y: 1.000000, z: 1.000000, w: 1.000000}
-  ShadowDensity: 1.000000
-  Materials:
-    - !<reference> b8f91d95-3e7b-404f-8bde-0c9d0181ed7f
-  Mesh: !<reference> 1ce8f4b0-d47f-408c-9cfa-966414e25550
-  Skin: !<reference> 00000000-0000-0000-0000-000000000000
-  BlendShapesEnabled: true
-  BlendNormals: false
-  BlendShapes:
-    {}
 - !<ScriptComponent/275aeb4d-77ac-4b1b-811e-907652542110>
   PrefabRemaps:
     []
@@ -1509,7 +1476,7 @@
   LocalTransform: !<TransformEntity>
     Position: {x: 6.314000, y: 15.244000, z: 0.000000}
     Rotation: {x: 0.000000, y: 0.000000, z: 337.500000}
-    Scale: {x: 0.400000, y: 27.000000, z: 0.400000}
+    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
     HasSegmentScaleCompensation: false
   Children:
     []
@@ -1641,6 +1608,7 @@
     - !<own> 229a05cc-4527-42d6-9cc5-20dffc5de595
   Components:
     - !<own> 5b3351c9-54b6-430b-b69c-ba78f58c17e9
+    - !<own> 5978043f-bc87-4818-985e-2b64faf20d9f
 - !<SceneObject/32c99f14-0fae-47a5-96d9-9c36af9d1714>
   PrefabRemaps:
     []
@@ -1710,6 +1678,12 @@
     treadDepth: true
     treadBlocksPerArc: true
     castShadows: true
+    profile: true
+    boxDepthCm: true
+    boxWidthCm: true
+    brakeTrackCm: true
+    bandMaterial: true
+    bandBelowCos: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
@@ -1724,6 +1698,12 @@
       treadDepth: !<float> 0.000000
       treadBlocksPerArc: !<float> 0.000000
       castShadows: false
+      profile: !<float> 0.000000
+      boxDepthCm: 3.200000
+      boxWidthCm: !<float> 2.000000
+      brakeTrackCm: 1.100000
+      bandMaterial: !<reference.Material> 00000000-0000-0000-0000-000000000000
+      bandBelowCos: 0.380000
   ScriptTypes:
     "":
       {}
@@ -1740,21 +1720,6 @@
     HasSegmentScaleCompensation: false
   Children:
     - !<own> e42bbb9f-e951-4432-be2e-3cc712b1fc33
-  Components:
-    []
-- !<SceneObject/3493efaf-5e70-42fc-be7d-c64ed99483b9>
-  PrefabRemaps:
-    []
-  Name: Saddle
-  Enabled: true
-  Layers: 1
-  LocalTransform: !<TransformEntity>
-    Position: {x: -27.950001, y: 162.000000, z: 20.000000}
-    Rotation: {x: 0.000000, y: 0.000000, z: -17.000000}
-    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
-    HasSegmentScaleCompensation: false
-  Children:
-    - !<own> 850d6f37-a95b-4711-9e52-ad87db74848a
   Components:
     []
 - !<RenderMeshVisual/35501b69-b651-41e6-9b64-72a252df8105>
@@ -1823,9 +1788,6 @@
     HasSegmentScaleCompensation: false
   Children:
     - !<own> 7f344016-e78c-4c78-8917-281e1fb650fd
-    - !<own> 58d08a53-54e1-407d-864a-c0095664a605
-    - !<own> 77a27950-5149-45c1-938c-967433e7670a
-    - !<own> d96dcd5a-844f-4d6a-972e-b155b2f6fef4
     - !<own> 6e5888be-9566-4928-8176-cf33df0638ba
   Components:
     []
@@ -1882,7 +1844,11 @@
   ScriptAsset: !<reference> 07065aae-7a8b-432b-aac5-6f24cb652722
   ScriptInputsDefault:
     tubeRadius: true
-    tubeSegments: true
+    profile: true
+    boxDepthCm: true
+    boxWidthCm: true
+    brakeTrackCm: true
+    bandBelowCos: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
@@ -1892,11 +1858,17 @@
       startDeg: !<float> 180.000000
       sweepDeg: !<float> 45.000000
       ringSegments: !<float> 10.000000
-      tubeSegments: !<float> 12.000000
+      tubeSegments: !<float> 16.000000
       material: !<reference.Material> 925ddf55-78fe-4bb2-b3d1-90c1146fd166
-      treadDepth: 0.250000
-      treadBlocksPerArc: !<float> 6.000000
+      treadDepth: 0.100000
+      treadBlocksPerArc: !<float> 16.000000
       castShadows: true
+      profile: !<float> 0.000000
+      boxDepthCm: 3.200000
+      boxWidthCm: !<float> 2.000000
+      brakeTrackCm: 1.100000
+      bandMaterial: !<reference.Material> 24bbc9b1-8765-4608-96c5-3a65d6eca71a
+      bandBelowCos: 0.380000
   ScriptTypes:
     "":
       {}
@@ -1913,36 +1885,6 @@
     HasSegmentScaleCompensation: false
   Children:
     - !<own> 54130007-65c1-48d3-b9df-0866d8112e01
-  Components:
-    []
-- !<SceneObject/3d258dd8-839b-483f-8ce8-f877e3d34f39>
-  PrefabRemaps:
-    []
-  Name: Scene
-  Enabled: true
-  Layers: 1
-  LocalTransform: !<TransformEntity>
-    Position: {x: 0.000000, y: 0.000000, z: 0.000000}
-    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
-    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
-    HasSegmentScaleCompensation: false
-  Children:
-    - !<own> 8e0a59fc-5003-4f62-9370-4c869a372e54
-  Components:
-    []
-- !<SceneObject/3d7e5e02-7962-41d6-8ab3-2af646f31f58>
-  PrefabRemaps:
-    []
-  Name: Scenes
-  Enabled: true
-  Layers: 1
-  LocalTransform: !<TransformEntity>
-    Position: {x: 0.000000, y: 0.000000, z: 0.000000}
-    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
-    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
-    HasSegmentScaleCompensation: false
-  Children:
-    - !<own> 53a213b3-f6e9-4304-8177-286761941114
   Components:
     []
 - !<RenderMeshVisual/3d825aaa-d9bb-44c6-b182-19cdd8e4b658>
@@ -1974,7 +1916,11 @@
   ScriptInputsDefault:
     tubeRadius: true
     startDeg: true
-    tubeSegments: true
+    profile: true
+    boxDepthCm: true
+    boxWidthCm: true
+    brakeTrackCm: true
+    bandBelowCos: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
@@ -1984,11 +1930,17 @@
       startDeg: !<float> 0.000000
       sweepDeg: !<float> 45.000000
       ringSegments: !<float> 10.000000
-      tubeSegments: !<float> 12.000000
+      tubeSegments: !<float> 16.000000
       material: !<reference.Material> 925ddf55-78fe-4bb2-b3d1-90c1146fd166
-      treadDepth: 0.250000
-      treadBlocksPerArc: !<float> 6.000000
+      treadDepth: 0.100000
+      treadBlocksPerArc: !<float> 16.000000
       castShadows: true
+      profile: !<float> 0.000000
+      boxDepthCm: 3.200000
+      boxWidthCm: !<float> 2.000000
+      brakeTrackCm: 1.100000
+      bandMaterial: !<reference.Material> 24bbc9b1-8765-4608-96c5-3a65d6eca71a
+      bandBelowCos: 0.380000
   ScriptTypes:
     "":
       {}
@@ -2030,8 +1982,8 @@
   Layers: 1
   LocalTransform: !<TransformEntity>
     Position: {x: 0.000000, y: 0.000000, z: 0.000000}
-    Rotation: {x: 90.000000, y: 0.000000, z: 0.000000}
-    Scale: {x: 6.000000, y: 8.000000, z: 6.000000}
+    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
     HasSegmentScaleCompensation: false
   Children:
     []
@@ -2070,41 +2022,6 @@
     HasSegmentScaleCompensation: false
   Children:
     - !<own> 7aa85bd8-d423-42cd-b190-473711e94929
-  Components:
-    []
-- !<RenderMeshVisual/40ac3383-e6f1-46eb-af0e-1a4db1fcd836>
-  PrefabRemaps:
-    []
-  Name: geometry_0
-  Enabled: true
-  RenderOrder: 0
-  StretchMode: Stretch
-  VerticalAlignment: Center
-  HorizontalAlignment: Center
-  MeshShadowMode: Caster
-  ShadowColor: {x: 1.000000, y: 1.000000, z: 1.000000, w: 1.000000}
-  ShadowDensity: 1.000000
-  Materials:
-    - !<reference> 7287dba2-cdd1-4c25-bbed-a1e13a143d0e
-  Mesh: !<reference> 2251a4bd-2baa-4b34-8fad-2ffe3568cafe
-  Skin: !<reference> 00000000-0000-0000-0000-000000000000
-  BlendShapesEnabled: true
-  BlendNormals: false
-  BlendShapes:
-    {}
-- !<SceneObject/40f8093b-bd84-42e9-8ae1-ed855ae565ab>
-  PrefabRemaps:
-    []
-  Name: Scenes
-  Enabled: true
-  Layers: 1
-  LocalTransform: !<TransformEntity>
-    Position: {x: 0.000000, y: 0.000000, z: 0.000000}
-    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
-    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
-    HasSegmentScaleCompensation: false
-  Children:
-    - !<own> 3d258dd8-839b-483f-8ce8-f877e3d34f39
   Components:
     []
 - !<SceneObject/421c3378-3246-429d-bd2f-4ee81f6751a7>
@@ -2267,9 +2184,8 @@
     - !<own> 3d9a5bb6-e2d3-401a-89b2-23ae84d66c58
     - !<own> 5611a01d-6d60-49b5-9c72-fcf9afc3c8c1
     - !<own> 17f7ccf1-0ea5-4e0f-86e3-20396894cd81
-    - !<own> a448b8fc-e43b-4134-8258-018762fce473
   Components:
-    []
+    - !<own> dc6e032a-1886-41b7-8aaf-6e366770002a
 - !<SceneObject/4a883d6c-a08f-453e-8f21-b406b6473015>
   PrefabRemaps:
     []
@@ -2285,6 +2201,22 @@
     []
   Components:
     - !<own> d3f80074-f1f5-4faa-aec6-43e7d3c8f885
+- !<ScriptComponent/4b020c4a-5329-4a34-ade9-49dc7a3d62e8>
+  PrefabRemaps:
+    []
+  Name: MessagingBridge
+  Enabled: true
+  ScriptAsset: !<reference> 9aa407db-2872-4afc-a162-cf7faf2a0f29
+  ScriptInputsDefault:
+    {}
+  ScriptTypesDefault:
+    {}
+  ScriptInputs:
+    "":
+      {}
+  ScriptTypes:
+    "":
+      {}
 - !<SceneObject/4c195c04-c397-454e-bd08-3485f37d84fe>
   PrefabRemaps:
     []
@@ -2367,21 +2299,6 @@
     []
   Components:
     - !<own> 3d89b01e-fdb7-4dcc-b084-16db37c6d68f
-- !<SceneObject/4ec75e78-1e69-4f90-aa6e-2515fd554361>
-  PrefabRemaps:
-    []
-  Name: Scenes
-  Enabled: true
-  Layers: 1
-  LocalTransform: !<TransformEntity>
-    Position: {x: 0.000000, y: 0.000000, z: 0.000000}
-    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
-    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
-    HasSegmentScaleCompensation: false
-  Children:
-    - !<own> ca4372fe-250c-4f6c-932f-6cdee71dfbfc
-  Components:
-    []
 - !<AudioComponent/4ed6c333-1350-47ef-83ed-185e37f67f44>
   PrefabRemaps:
     []
@@ -2414,25 +2331,6 @@
     []
   Components:
     - !<own> b84626e5-3372-4b0c-a260-42dc0be6532a
-- !<SceneObject/50524524-5029-491c-aa08-88b9c851ef72>
-  PrefabRemaps:
-    - 40ac3383-e6f1-46eb-af0e-1a4db1fcd836: 4613bdd4-82f1-4940-7754-654ed4802c72
-    - 50524524-5029-491c-aa08-88b9c851ef72: d10f14d5-8e80-4d0a-775d-de09502e6d10
-    - 77efa91f-ecb0-406b-98e9-8ebaa51de392: f431dec5-108e-4eb4-5739-5050fc08790e
-    - d8ef1d8d-d417-4626-a8e5-7b094fc55f99: 1d10ba02-0e11-41dc-5b40-406264c13fb3
-    - eaf80d87-c50c-47ba-8566-2fb869e6b693: c5a15098-10e7-4a2f-4e78-a0f3addac287
-  Name: ToolboxModel
-  Enabled: true
-  Layers: 1
-  LocalTransform: !<TransformEntity>
-    Position: {x: 0.000000, y: 0.000000, z: 0.000000}
-    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
-    Scale: {x: 100.000000, y: 100.000000, z: 100.000000}
-    HasSegmentScaleCompensation: false
-  Children:
-    - !<own> 77efa91f-ecb0-406b-98e9-8ebaa51de392
-  Components:
-    []
 - !<SceneObject/5135ccb9-f21b-4b31-805d-4ab254d133d2>
   PrefabRemaps:
     []
@@ -2516,21 +2414,6 @@
     []
   Components:
     - !<own> fa172dd0-e0c4-4dc2-b393-0caccde1a966
-- !<SceneObject/53a213b3-f6e9-4304-8177-286761941114>
-  PrefabRemaps:
-    []
-  Name: Scene
-  Enabled: true
-  Layers: 1
-  LocalTransform: !<TransformEntity>
-    Position: {x: 0.000000, y: 0.000000, z: 0.000000}
-    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
-    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
-    HasSegmentScaleCompensation: false
-  Children:
-    - !<own> 83494271-437b-473d-b668-d88421587a4c
-  Components:
-    []
 - !<SceneObject/54130007-65c1-48d3-b9df-0866d8112e01>
   PrefabRemaps:
     []
@@ -2576,21 +2459,6 @@
     []
   Components:
     - !<own> ecc6fa5f-9f0e-4159-9ffc-8c4cfb7df9d9
-- !<SceneObject/58d08a53-54e1-407d-864a-c0095664a605>
-  PrefabRemaps:
-    []
-  Name: Workbench
-  Enabled: true
-  Layers: 1
-  LocalTransform: !<TransformEntity>
-    Position: {x: 0.000000, y: -150.000000, z: -168.000000}
-    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
-    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
-    HasSegmentScaleCompensation: false
-  Children:
-    - !<own> 745d7893-b5e8-4af6-8d10-643c99b67180
-  Components:
-    []
 - !<SceneObject/58ef319f-850e-40dd-8295-e6dc36ab4854>
   PrefabRemaps:
     []
@@ -2606,6 +2474,42 @@
     - !<own> bf2095b6-c6f8-48c8-b840-e0a6cec0dc99
   Components:
     []
+- !<ScriptComponent/5978043f-bc87-4818-985e-2b64faf20d9f>
+  PrefabRemaps:
+    []
+  Name: WheelParts
+  Enabled: true
+  ScriptAsset: !<reference> 581a44ac-a005-4150-9652-a2399e077853
+  ScriptInputsDefault:
+    spokeRadiusCm: true
+    spokeBedRadiusCm: true
+    flangeHoleRadiusCm: true
+    flangeOffsetCm: true
+    markingText: true
+    markingAngleDeg: true
+    markingRadiusCm: true
+    markingSize: true
+    markingColor: true
+  ScriptTypesDefault:
+    {}
+  ScriptInputs:
+    "":
+      hub: !<reference.SceneObject> 3fd61124-5e3d-436d-a655-f0e18bad2413
+      spokes: !<reference.SceneObject> b223ef95-e42e-4928-a010-700e7701056a
+      valve: !<reference.SceneObject> 988001d4-30af-4ad7-abab-0ee69baf3c40
+      markingBead: !<reference.SceneObject> 28c12414-80c9-4e5e-84df-8e942a94a2ce
+      spokeRadiusCm: 0.120000
+      spokeBedRadiusCm: 28.400000
+      flangeHoleRadiusCm: 2.150000
+      flangeOffsetCm: 2.900000
+      markingText: 700x25c
+      markingAngleDeg: !<float> 96.000000
+      markingRadiusCm: 32.900002
+      markingSize: !<float> 12.000000
+      markingColor: !<Vec4> {x: 0.960000, y: 0.940000, z: 0.880000, w: 1.000000}
+  ScriptTypes:
+    "":
+      {}
 - !<SceneObject/5a8195f5-6fc4-4249-80d4-4ce68a02a5c7>
   PrefabRemaps:
     []
@@ -2615,7 +2519,7 @@
   LocalTransform: !<TransformEntity>
     Position: {x: 15.244000, y: 6.314000, z: 0.000000}
     Rotation: {x: 0.000000, y: 0.000000, z: 292.500000}
-    Scale: {x: 0.400000, y: 27.000000, z: 0.400000}
+    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
     HasSegmentScaleCompensation: false
   Children:
     []
@@ -2655,6 +2559,12 @@
     treadDepth: true
     treadBlocksPerArc: true
     castShadows: true
+    profile: true
+    boxDepthCm: true
+    boxWidthCm: true
+    brakeTrackCm: true
+    bandMaterial: true
+    bandBelowCos: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
@@ -2669,6 +2579,12 @@
       treadDepth: !<float> 0.000000
       treadBlocksPerArc: !<float> 0.000000
       castShadows: false
+      profile: !<float> 0.000000
+      boxDepthCm: 3.200000
+      boxWidthCm: !<float> 2.000000
+      brakeTrackCm: 1.100000
+      bandMaterial: !<reference.Material> 00000000-0000-0000-0000-000000000000
+      bandBelowCos: 0.380000
   ScriptTypes:
     "":
       {}
@@ -2719,6 +2635,58 @@
   ScriptTypes:
     "":
       {}
+- !<ScriptComponent/61e06c67-dbb7-48bf-97af-4ac893d51f94>
+  PrefabRemaps:
+    []
+  Name: FloorLevel
+  Enabled: true
+  ScriptAsset: !<reference> 5ef38e4f-6023-4a67-86da-c511c33e1314
+  ScriptInputsDefault:
+    fallbackFloorY: true
+    probeCenter: true
+    probeRadiusCm: true
+    probeRays: true
+    rayTopY: true
+    rayBottomY: true
+    maxWaitSec: true
+    meshWaitSec: true
+    minHits: true
+    minDropCm: true
+    outlierCm: true
+  ScriptTypesDefault:
+    {}
+  ScriptInputs:
+    "":
+      deviceTracking: !<reference.DeviceTracking> e5553c8a-0b7e-4ef4-92d9-3e1318fb82c1
+      fallbackFloorY: !<float> -150.000000
+      probeCenter: !<Vec3> {x: -20.000000, y: 0.000000, z: -95.000000}
+      probeRadiusCm: !<float> 35.000000
+      probeRays: !<float> 8.000000
+      rayTopY: !<float> 0.000000
+      rayBottomY: !<float> -400.000000
+      maxWaitSec: !<float> 3.000000
+      meshWaitSec: !<float> 8.000000
+      minHits: !<float> 3.000000
+      minDropCm: !<float> 140.000000
+      outlierCm: !<float> 4.000000
+  ScriptTypes:
+    "":
+      {}
+- !<SceneObject/621c2c74-2f18-4dc4-89cb-15857b8b1650>
+  PrefabRemaps:
+    []
+  Name: FloorLevel
+  Enabled: true
+  Layers: 1
+  LocalTransform: !<TransformEntity>
+    Position: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
+    HasSegmentScaleCompensation: false
+  Children:
+    []
+  Components:
+    - !<own> 61e06c67-dbb7-48bf-97af-4ac893d51f94
 - !<ScriptComponent/622db2cb-d0c7-4791-92af-926fab500a02>
   PrefabRemaps:
     []
@@ -2814,7 +2782,7 @@
   LocalTransform: !<TransformEntity>
     Position: {x: -11.667000, y: -11.667000, z: 0.000000}
     Rotation: {x: 0.000000, y: 0.000000, z: 135.000000}
-    Scale: {x: 0.400000, y: 27.000000, z: 0.400000}
+    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
     HasSegmentScaleCompensation: false
   Children:
     []
@@ -2937,26 +2905,6 @@
     - !<own> 80574bd1-697b-4bb5-b9ce-13b340146d82
   Components:
     - !<own> ccf4d3bc-d3c2-4580-b9c5-62f164ef7eef
-- !<RenderMeshVisual/660e19e6-b3c1-4cf4-bac4-be6a4462e74f>
-  PrefabRemaps:
-    []
-  Name: geometry_0
-  Enabled: true
-  RenderOrder: 0
-  StretchMode: Stretch
-  VerticalAlignment: Center
-  HorizontalAlignment: Center
-  MeshShadowMode: Caster
-  ShadowColor: {x: 1.000000, y: 1.000000, z: 1.000000, w: 1.000000}
-  ShadowDensity: 1.000000
-  Materials:
-    - !<reference> a5968f9d-e3c7-4baa-ba14-24e14e0a1a1f
-  Mesh: !<reference> 869b9395-dc22-49b9-bc50-d7f7aca16d23
-  Skin: !<reference> 00000000-0000-0000-0000-000000000000
-  BlendShapesEnabled: true
-  BlendNormals: false
-  BlendShapes:
-    {}
 - !<ScriptComponent/6879e97e-d703-4adb-ab7d-14b20dec44eb>
   PrefabRemaps:
     []
@@ -3324,25 +3272,6 @@
   ScriptTypes:
     "":
       {}
-- !<SceneObject/745d7893-b5e8-4af6-8d10-643c99b67180>
-  PrefabRemaps:
-    - 4ec75e78-1e69-4f90-aa6e-2515fd554361: 6f59c40a-3116-47d8-5d9d-7bf0e4e8bd97
-    - 745d7893-b5e8-4af6-8d10-643c99b67180: fe6dcda3-97cf-4892-6e20-8ed647ee67d0
-    - 92f4739b-2192-426c-8343-4b0dc7073063: 2f8e4664-3910-42ee-5a81-f41b243e5748
-    - a4988be3-8dec-4f60-b37f-b37910a92997: a7a52c40-de3d-4882-4fa2-79b399137abf
-    - ca4372fe-250c-4f6c-932f-6cdee71dfbfc: 58868aa6-2129-4e65-59ed-194d2772e5ed
-  Name: WorkbenchModel
-  Enabled: true
-  Layers: 1
-  LocalTransform: !<TransformEntity>
-    Position: {x: 0.000000, y: 0.000000, z: 0.000000}
-    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
-    Scale: {x: 100.000000, y: 100.000000, z: 100.000000}
-    HasSegmentScaleCompensation: false
-  Children:
-    - !<own> 4ec75e78-1e69-4f90-aa6e-2515fd554361
-  Components:
-    []
 - !<RenderMeshVisual/74a04d78-344d-4fcd-b5b5-78fea89aeb7d>
   PrefabRemaps:
     []
@@ -3393,21 +3322,6 @@
     - !<own> 241be3d8-6f45-47d7-8b71-53778e375dc2
   Components:
     []
-- !<SceneObject/77a27950-5149-45c1-938c-967433e7670a>
-  PrefabRemaps:
-    []
-  Name: Pegboard
-  Enabled: true
-  Layers: 1
-  LocalTransform: !<TransformEntity>
-    Position: {x: 0.000000, y: -5.000000, z: -215.000000}
-    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
-    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
-    HasSegmentScaleCompensation: false
-  Children:
-    - !<own> 7d926498-0724-4325-9a0f-b385e06bf449
-  Components:
-    []
 - !<SceneObject/77a79970-63f4-4c7c-984a-539d2ef0c92a>
   PrefabRemaps:
     []
@@ -3438,21 +3352,6 @@
     []
   Components:
     - !<own> c8e031d3-a8a1-468a-a419-427f8556de4c
-- !<SceneObject/77efa91f-ecb0-406b-98e9-8ebaa51de392>
-  PrefabRemaps:
-    []
-  Name: Scenes
-  Enabled: true
-  Layers: 1
-  LocalTransform: !<TransformEntity>
-    Position: {x: 0.000000, y: 0.000000, z: 0.000000}
-    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
-    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
-    HasSegmentScaleCompensation: false
-  Children:
-    - !<own> d8ef1d8d-d417-4626-a8e5-7b094fc55f99
-  Components:
-    []
 - !<SceneObject/7aa85bd8-d423-42cd-b190-473711e94929>
   PrefabRemaps:
     []
@@ -3496,31 +3395,12 @@
   LocalTransform: !<TransformEntity>
     Position: {x: -15.244000, y: 6.314000, z: 0.000000}
     Rotation: {x: 0.000000, y: 0.000000, z: 67.500000}
-    Scale: {x: 0.400000, y: 27.000000, z: 0.400000}
+    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
     HasSegmentScaleCompensation: false
   Children:
     []
   Components:
     - !<own> d7680636-7f60-4c82-a36a-2ea7e69e172d
-- !<SceneObject/7d926498-0724-4325-9a0f-b385e06bf449>
-  PrefabRemaps:
-    - 2652ee32-cecb-496e-8389-c838a84ebdb6: 1ec79ecd-e4e7-4e31-4a7b-183941c98e04
-    - 3d258dd8-839b-483f-8ce8-f877e3d34f39: 53855f2b-d1f9-4e5a-5780-a9e4ea8bc42b
-    - 40f8093b-bd84-42e9-8ae1-ed855ae565ab: ae8da3e7-199f-4efc-606e-4ba14995c9c3
-    - 7d926498-0724-4325-9a0f-b385e06bf449: 077a0a40-cc52-4184-44bb-4aeefd170a31
-    - 8e0a59fc-5003-4f62-9370-4c869a372e54: 6de25a35-ea62-49d8-6935-b15b28966faa
-  Name: PegboardModel
-  Enabled: true
-  Layers: 1
-  LocalTransform: !<TransformEntity>
-    Position: {x: 0.000000, y: 0.000000, z: 0.000000}
-    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
-    Scale: {x: 100.000000, y: 100.000000, z: 100.000000}
-    HasSegmentScaleCompensation: false
-  Children:
-    - !<own> 40f8093b-bd84-42e9-8ae1-ed855ae565ab
-  Components:
-    []
 - !<ScriptComponent/7dc2f119-941e-4f70-bb4a-86205c919c86>
   PrefabRemaps:
     []
@@ -3550,6 +3430,12 @@
     treadDepth: true
     treadBlocksPerArc: true
     castShadows: true
+    profile: true
+    boxDepthCm: true
+    boxWidthCm: true
+    brakeTrackCm: true
+    bandMaterial: true
+    bandBelowCos: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
@@ -3564,6 +3450,12 @@
       treadDepth: !<float> 0.000000
       treadBlocksPerArc: !<float> 0.000000
       castShadows: false
+      profile: !<float> 0.000000
+      boxDepthCm: 3.200000
+      boxWidthCm: !<float> 2.000000
+      brakeTrackCm: 1.100000
+      bandMaterial: !<reference.Material> 00000000-0000-0000-0000-000000000000
+      bandBelowCos: 0.380000
   ScriptTypes:
     "":
       {}
@@ -3589,6 +3481,7 @@
   Enabled: true
   ScriptAsset: !<reference> 3425a5da-8247-42df-9cbd-85c91f2bcac8
   ScriptInputsDefault:
+    matTopAboveFloorCm: true
     arrowCount: true
     startSpot: true
     farSpot: true
@@ -3603,6 +3496,8 @@
       director: !<MappingBased.AssignableType_2> 69f574fb-b122-40c7-a041-afce199bf43c
       camera: !<reference.Camera> 00000000-0000-0065-0000-000000000065
       arrowMaterial: !<reference.Material> 15b55a2d-25cd-4131-88ca-e7924cfbabd4
+      floorLevel: !<MappingBased.AssignableType_3> 61e06c67-dbb7-48bf-97af-4ac893d51f94
+      matTopAboveFloorCm: 0.500000
       arrowCount: !<float> 8.000000
       startSpot: !<Vec3> {x: 6.000000, y: -149.500000, z: -48.000000}
       farSpot: !<Vec3> {x: 10.000000, y: -149.500000, z: -124.000000}
@@ -3627,6 +3522,7 @@
     []
   Components:
     - !<own> 936714bb-ed97-4d40-ab92-c9e0db2ad90a
+    - !<own> d4ff1f72-ed19-486b-a130-b89a60507e79
 - !<SceneObject/7fb3591f-54a2-4aee-b07d-fd10d56538c8>
   PrefabRemaps:
     []
@@ -3720,7 +3616,11 @@
   ScriptAsset: !<reference> 07065aae-7a8b-432b-aac5-6f24cb652722
   ScriptInputsDefault:
     tubeRadius: true
-    tubeSegments: true
+    profile: true
+    boxDepthCm: true
+    boxWidthCm: true
+    brakeTrackCm: true
+    bandBelowCos: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
@@ -3730,11 +3630,17 @@
       startDeg: !<float> 135.000000
       sweepDeg: !<float> 45.000000
       ringSegments: !<float> 10.000000
-      tubeSegments: !<float> 12.000000
+      tubeSegments: !<float> 16.000000
       material: !<reference.Material> 925ddf55-78fe-4bb2-b3d1-90c1146fd166
-      treadDepth: 0.250000
-      treadBlocksPerArc: !<float> 6.000000
+      treadDepth: 0.100000
+      treadBlocksPerArc: !<float> 16.000000
       castShadows: true
+      profile: !<float> 0.000000
+      boxDepthCm: 3.200000
+      boxWidthCm: !<float> 2.000000
+      brakeTrackCm: 1.100000
+      bandMaterial: !<reference.Material> 24bbc9b1-8765-4608-96c5-3a65d6eca71a
+      bandBelowCos: 0.380000
   ScriptTypes:
     "":
       {}
@@ -3788,21 +3694,6 @@
     - !<own> f8035567-f4fb-4cd8-851c-a22f0c3d9d41
     - !<own> 69f574fb-b122-40c7-a041-afce199bf43c
     - !<own> 28a8d074-10e5-4ebd-a5a2-c31e87bc65c7
-- !<SceneObject/83494271-437b-473d-b668-d88421587a4c>
-  PrefabRemaps:
-    []
-  Name: geometry_0
-  Enabled: true
-  Layers: 1
-  LocalTransform: !<TransformEntity>
-    Position: {x: 0.000000, y: 0.137591, z: 0.000000}
-    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
-    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
-    HasSegmentScaleCompensation: false
-  Children:
-    []
-  Components:
-    - !<own> 660e19e6-b3c1-4cf4-bac4-be6a4462e74f
 - !<SceneObject/8363e9a6-cd83-4889-abd4-6521e394f244>
   PrefabRemaps:
     []
@@ -3828,6 +3719,12 @@
     treadDepth: true
     treadBlocksPerArc: true
     castShadows: true
+    profile: true
+    boxDepthCm: true
+    boxWidthCm: true
+    brakeTrackCm: true
+    bandMaterial: true
+    bandBelowCos: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
@@ -3842,6 +3739,12 @@
       treadDepth: !<float> 0.000000
       treadBlocksPerArc: !<float> 0.000000
       castShadows: false
+      profile: !<float> 0.000000
+      boxDepthCm: 3.200000
+      boxWidthCm: !<float> 2.000000
+      brakeTrackCm: 1.100000
+      bandMaterial: !<reference.Material> 00000000-0000-0000-0000-000000000000
+      bandBelowCos: 0.380000
   ScriptTypes:
     "":
       {}
@@ -3885,25 +3788,6 @@
   ScriptTypes:
     "":
       {}
-- !<SceneObject/850d6f37-a95b-4711-9e52-ad87db74848a>
-  PrefabRemaps:
-    - 3d7e5e02-7962-41d6-8ab3-2af646f31f58: 334a465d-e57e-40ba-7968-02fddcca87a2
-    - 53a213b3-f6e9-4304-8177-286761941114: e0e2b727-35d4-43f0-4fb7-fc15b46f7d6c
-    - 660e19e6-b3c1-4cf4-bac4-be6a4462e74f: 2a0fd644-9565-4c7b-5b3e-07344f6448fa
-    - 83494271-437b-473d-b668-d88421587a4c: 28aec430-634e-4e9a-49fd-fc6ff5629518
-    - 850d6f37-a95b-4711-9e52-ad87db74848a: 1f0c77c4-91b7-4d82-7e9a-590dc3cc5df7
-  Name: SaddleModel
-  Enabled: true
-  Layers: 1
-  LocalTransform: !<TransformEntity>
-    Position: {x: 0.000000, y: 0.000000, z: 0.000000}
-    Rotation: {x: 0.000000, y: -90.000000, z: 0.000000}
-    Scale: {x: 100.000000, y: 100.000000, z: 100.000000}
-    HasSegmentScaleCompensation: false
-  Children:
-    - !<own> 3d7e5e02-7962-41d6-8ab3-2af646f31f58
-  Components:
-    []
 - !<SceneObject/859e1ef3-3021-4825-8626-f1dc323b9252>
   PrefabRemaps:
     []
@@ -4004,6 +3888,12 @@
     treadDepth: true
     treadBlocksPerArc: true
     castShadows: true
+    profile: true
+    boxDepthCm: true
+    boxWidthCm: true
+    brakeTrackCm: true
+    bandMaterial: true
+    bandBelowCos: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
@@ -4018,6 +3908,12 @@
       treadDepth: !<float> 0.000000
       treadBlocksPerArc: !<float> 0.000000
       castShadows: false
+      profile: !<float> 0.000000
+      boxDepthCm: 3.200000
+      boxWidthCm: !<float> 2.000000
+      brakeTrackCm: 1.100000
+      bandMaterial: !<reference.Material> 00000000-0000-0000-0000-000000000000
+      bandBelowCos: 0.380000
   ScriptTypes:
     "":
       {}
@@ -4127,7 +4023,7 @@
   LocalTransform: !<TransformEntity>
     Position: {x: 11.667000, y: -11.667000, z: 0.000000}
     Rotation: {x: 0.000000, y: 0.000000, z: 225.000000}
-    Scale: {x: 0.400000, y: 27.000000, z: 0.400000}
+    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
     HasSegmentScaleCompensation: false
   Children:
     []
@@ -4142,7 +4038,7 @@
   LocalTransform: !<TransformEntity>
     Position: {x: 6.314000, y: -15.244000, z: 0.000000}
     Rotation: {x: 0.000000, y: 0.000000, z: 202.500000}
-    Scale: {x: 0.400000, y: 27.000000, z: 0.400000}
+    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
     HasSegmentScaleCompensation: false
   Children:
     []
@@ -4216,21 +4112,6 @@
     - !<own> b859e31c-4c76-46bd-bd6a-042228e52728
   Components:
     []
-- !<SceneObject/8e0a59fc-5003-4f62-9370-4c869a372e54>
-  PrefabRemaps:
-    []
-  Name: geometry_0
-  Enabled: true
-  Layers: 1
-  LocalTransform: !<TransformEntity>
-    Position: {x: 0.000000, y: 0.000000, z: 0.000000}
-    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
-    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
-    HasSegmentScaleCompensation: false
-  Children:
-    []
-  Components:
-    - !<own> 2652ee32-cecb-496e-8389-c838a84ebdb6
 - !<SceneObject/8fe2a532-9bf3-4cde-b598-04ce5470718d>
   PrefabRemaps:
     []
@@ -4266,21 +4147,6 @@
   BlendNormals: false
   BlendShapes:
     {}
-- !<SceneObject/92f4739b-2192-426c-8343-4b0dc7073063>
-  PrefabRemaps:
-    []
-  Name: geometry_0
-  Enabled: true
-  Layers: 1
-  LocalTransform: !<TransformEntity>
-    Position: {x: 0.000000, y: 0.454512, z: 0.000000}
-    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
-    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
-    HasSegmentScaleCompensation: false
-  Children:
-    []
-  Components:
-    - !<own> a4988be3-8dec-4f60-b37f-b37910a92997
 - !<ScriptComponent/933ac506-f82e-4973-88ef-c709b3f13c8a>
   PrefabRemaps:
     []
@@ -4373,6 +4239,12 @@
     treadDepth: true
     treadBlocksPerArc: true
     castShadows: true
+    profile: true
+    boxDepthCm: true
+    boxWidthCm: true
+    brakeTrackCm: true
+    bandMaterial: true
+    bandBelowCos: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
@@ -4387,6 +4259,12 @@
       treadDepth: !<float> 0.000000
       treadBlocksPerArc: !<float> 0.000000
       castShadows: false
+      profile: !<float> 0.000000
+      boxDepthCm: 3.200000
+      boxWidthCm: !<float> 2.000000
+      brakeTrackCm: 1.100000
+      bandMaterial: !<reference.Material> 00000000-0000-0000-0000-000000000000
+      bandBelowCos: 0.380000
   ScriptTypes:
     "":
       {}
@@ -4414,7 +4292,7 @@
   LocalTransform: !<TransformEntity>
     Position: {x: 0.000000, y: 27.000000, z: 0.000000}
     Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
-    Scale: {x: 0.800000, y: 4.000000, z: 0.800000}
+    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
     HasSegmentScaleCompensation: false
   Children:
     []
@@ -4586,6 +4464,12 @@
     treadDepth: true
     treadBlocksPerArc: true
     castShadows: true
+    profile: true
+    boxDepthCm: true
+    boxWidthCm: true
+    brakeTrackCm: true
+    bandMaterial: true
+    bandBelowCos: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
@@ -4600,44 +4484,15 @@
       treadDepth: !<float> 0.000000
       treadBlocksPerArc: !<float> 0.000000
       castShadows: false
+      profile: !<float> 0.000000
+      boxDepthCm: 3.200000
+      boxWidthCm: !<float> 2.000000
+      brakeTrackCm: 1.100000
+      bandMaterial: !<reference.Material> 00000000-0000-0000-0000-000000000000
+      bandBelowCos: 0.380000
   ScriptTypes:
     "":
       {}
-- !<SceneObject/a448b8fc-e43b-4134-8258-018762fce473>
-  PrefabRemaps:
-    []
-  Name: BikeFrame
-  Enabled: true
-  Layers: 1
-  LocalTransform: !<TransformEntity>
-    Position: {x: 0.000000, y: 0.000000, z: 0.000000}
-    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
-    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
-    HasSegmentScaleCompensation: false
-  Children:
-    - !<own> 3493efaf-5e70-42fc-be7d-c64ed99483b9
-  Components:
-    - !<own> c84bac87-c941-40ef-8e2b-99e1f82bceba
-- !<RenderMeshVisual/a4988be3-8dec-4f60-b37f-b37910a92997>
-  PrefabRemaps:
-    []
-  Name: geometry_0
-  Enabled: true
-  RenderOrder: 0
-  StretchMode: Stretch
-  VerticalAlignment: Center
-  HorizontalAlignment: Center
-  MeshShadowMode: Caster
-  ShadowColor: {x: 1.000000, y: 1.000000, z: 1.000000, w: 1.000000}
-  ShadowDensity: 1.000000
-  Materials:
-    - !<reference> 68b2c82a-fa5a-43eb-a044-d970be27b931
-  Mesh: !<reference> d0fdaa8c-d33e-4605-9401-43fa84cf59fc
-  Skin: !<reference> 00000000-0000-0000-0000-000000000000
-  BlendShapesEnabled: true
-  BlendNormals: false
-  BlendShapes:
-    {}
 - !<RenderMeshVisual/a49a8e24-37bb-4f24-ac30-10a1f650eb98>
   PrefabRemaps:
     []
@@ -4722,6 +4577,21 @@
     - !<own> d5f63266-b1ce-419f-847b-3c9f347b3ee2
   Components:
     []
+- !<SceneObject/a71af63a-96d3-4c55-91bc-d78fcb943037>
+  PrefabRemaps:
+    []
+  Name: LEAF Plugin Bridge
+  Enabled: true
+  Layers: 1
+  LocalTransform: !<TransformEntity>
+    Position: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
+    HasSegmentScaleCompensation: false
+  Children:
+    []
+  Components:
+    - !<own> 4b020c4a-5329-4a34-ade9-49dc7a3d62e8
 - !<SceneObject/a7526b33-fca3-4f28-8e32-b0e9aa13c4b4>
   PrefabRemaps:
     []
@@ -4871,7 +4741,11 @@
   ScriptAsset: !<reference> 07065aae-7a8b-432b-aac5-6f24cb652722
   ScriptInputsDefault:
     tubeRadius: true
-    tubeSegments: true
+    profile: true
+    boxDepthCm: true
+    boxWidthCm: true
+    brakeTrackCm: true
+    bandBelowCos: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
@@ -4881,11 +4755,17 @@
       startDeg: !<float> 225.000000
       sweepDeg: !<float> 45.000000
       ringSegments: !<float> 10.000000
-      tubeSegments: !<float> 12.000000
+      tubeSegments: !<float> 16.000000
       material: !<reference.Material> 925ddf55-78fe-4bb2-b3d1-90c1146fd166
-      treadDepth: 0.250000
-      treadBlocksPerArc: !<float> 6.000000
+      treadDepth: 0.100000
+      treadBlocksPerArc: !<float> 16.000000
       castShadows: true
+      profile: !<float> 0.000000
+      boxDepthCm: 3.200000
+      boxWidthCm: !<float> 2.000000
+      brakeTrackCm: 1.100000
+      bandMaterial: !<reference.Material> 24bbc9b1-8765-4608-96c5-3a65d6eca71a
+      bandBelowCos: 0.380000
   ScriptTypes:
     "":
       {}
@@ -4958,7 +4838,7 @@
   LocalTransform: !<TransformEntity>
     Position: {x: 16.500000, y: 0.000000, z: 0.000000}
     Rotation: {x: 0.000000, y: 0.000000, z: 270.000000}
-    Scale: {x: 0.400000, y: 27.000000, z: 0.400000}
+    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
     HasSegmentScaleCompensation: false
   Children:
     []
@@ -5049,7 +4929,7 @@
   Enabled: true
   renderLayer: 1
   LightType: EnvMap
-  Intensity: 1.000000
+  Intensity: 1.500000
   ShadowDensity: 1.000000
   ShadowBlurRadius: 0.000000
   ShadowTextureSize: 512
@@ -5064,8 +4944,9 @@
   EstimationSharpness: 1.000000
   EnvMapExposure: 1.000000
   EnvMapRotation: 0.000000
-  DiffuseEnvTexture: !<reference> b2797edc-75c0-4bb7-a4e2-e1d8feb434ec
-  SpecularEnvTexture: !<reference> d0f0a707-43e3-4156-9c02-4ee2455ffd2c
+  DiffuseEnvTexture: !<reference> 00000000-0000-0000-0000-000000000000
+  SpecularEnvTexture: !<reference> 00000000-0000-0000-0000-000000000000
+  SpecularCubemapTexture: !<reference> 3065f1f1-909c-e663-68b3-c9ebafea15a8
   Color: {x: 1.000000, y: 1.000000, z: 1.000000, w: 1.000000}
   ShadowColor: {x: 0.000000, y: 0.000000, z: 0.000000, w: 1.000000}
   DynamicEnvInputTexture: !<reference> 00000000-0000-0000-0000-000000000000
@@ -5202,21 +5083,6 @@
     - !<own> fe93d992-1114-4f1f-8bef-0a0bbd75747d
   Components:
     []
-- !<SceneObject/bc9727ed-f366-4fef-aa9f-ddb27643878a>
-  PrefabRemaps:
-    []
-  Name: LEAF Plugin Bridge
-  Enabled: true
-  Layers: 1
-  LocalTransform: !<TransformEntity>
-    Position: {x: 0.000000, y: 0.000000, z: 0.000000}
-    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
-    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
-    HasSegmentScaleCompensation: false
-  Children:
-    []
-  Components:
-    - !<own> 09a93ba7-d0b3-4df9-8b48-8d7cc64c040e
 - !<SceneObject/bf2095b6-c6f8-48c8-b840-e0a6cec0dc99>
   PrefabRemaps:
     []
@@ -5244,6 +5110,12 @@
     treadDepth: true
     treadBlocksPerArc: true
     castShadows: true
+    profile: true
+    boxDepthCm: true
+    boxWidthCm: true
+    brakeTrackCm: true
+    bandMaterial: true
+    bandBelowCos: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
@@ -5258,6 +5130,12 @@
       treadDepth: !<float> 0.000000
       treadBlocksPerArc: !<float> 0.000000
       castShadows: false
+      profile: !<float> 0.000000
+      boxDepthCm: 3.200000
+      boxWidthCm: !<float> 2.000000
+      brakeTrackCm: 1.100000
+      bandMaterial: !<reference.Material> 00000000-0000-0000-0000-000000000000
+      bandBelowCos: 0.380000
   ScriptTypes:
     "":
       {}
@@ -5333,34 +5211,6 @@
   BlendNormals: false
   BlendShapes:
     {}
-- !<ScriptComponent/c84bac87-c941-40ef-8e2b-99e1f82bceba>
-  PrefabRemaps:
-    []
-  Name: RearTriangle
-  Enabled: true
-  ScriptAsset: !<reference> ec75c6d3-daed-4e0e-8780-8331cb1b8efa
-  ScriptInputsDefault:
-    chainStayCm: true
-    bbDropCm: true
-    seatTubeCm: true
-    seatAngleDeg: true
-    stayOffsetCm: true
-    castShadows: true
-  ScriptTypesDefault:
-    {}
-  ScriptInputs:
-    "":
-      hub: !<reference.SceneObject> 3fd61124-5e3d-436d-a655-f0e18bad2413
-      material: !<reference.Material> d56c4eb0-244c-49d4-8b52-897c60eb76db
-      chainStayCm: !<float> 42.000000
-      bbDropCm: !<float> 7.000000
-      seatTubeCm: !<float> 50.000000
-      seatAngleDeg: !<float> 73.000000
-      stayOffsetCm: !<float> 6.000000
-      castShadows: true
-  ScriptTypes:
-    "":
-      {}
 - !<ScriptComponent/c8e031d3-a8a1-468a-a419-427f8556de4c>
   PrefabRemaps:
     []
@@ -5402,21 +5252,6 @@
     HasSegmentScaleCompensation: false
   Children:
     - !<own> 0a0e1d78-8246-4f5b-ab1a-fdc51837956d
-  Components:
-    []
-- !<SceneObject/ca4372fe-250c-4f6c-932f-6cdee71dfbfc>
-  PrefabRemaps:
-    []
-  Name: Scene
-  Enabled: true
-  Layers: 1
-  LocalTransform: !<TransformEntity>
-    Position: {x: 0.000000, y: 0.000000, z: 0.000000}
-    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
-    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
-    HasSegmentScaleCompensation: false
-  Children:
-    - !<own> 92f4739b-2192-426c-8343-4b0dc7073063
   Components:
     []
 - !<ScriptComponent/caa8fc4f-6d45-4119-a6dd-457dd4b1ae9d>
@@ -5480,7 +5315,7 @@
   LocalTransform: !<TransformEntity>
     Position: {x: -16.500000, y: 0.000000, z: 0.000000}
     Rotation: {x: 0.000000, y: 0.000000, z: 90.000000}
-    Scale: {x: 0.400000, y: 27.000000, z: 0.400000}
+    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
     HasSegmentScaleCompensation: false
   Children:
     []
@@ -5633,7 +5468,7 @@
   LocalTransform: !<TransformEntity>
     Position: {x: -6.314000, y: 15.244000, z: 0.000000}
     Rotation: {x: 0.000000, y: 0.000000, z: 22.500000}
-    Scale: {x: 0.400000, y: 27.000000, z: 0.400000}
+    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
     HasSegmentScaleCompensation: false
   Children:
     []
@@ -5745,12 +5580,29 @@
   LocalTransform: !<TransformEntity>
     Position: {x: 11.667000, y: 11.667000, z: 0.000000}
     Rotation: {x: 0.000000, y: 0.000000, z: 315.000000}
-    Scale: {x: 0.400000, y: 27.000000, z: 0.400000}
+    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
     HasSegmentScaleCompensation: false
   Children:
     []
   Components:
     - !<own> f3d16fc5-c160-4dc0-92f5-2a5abf553322
+- !<ScriptComponent/d4ff1f72-ed19-486b-a130-b89a60507e79>
+  PrefabRemaps:
+    []
+  Name: FloorAnchor
+  Enabled: true
+  ScriptAsset: !<reference> 7a6e2df6-07f0-4c71-ba9b-e6a42a4f6dbc
+  ScriptInputsDefault:
+    {}
+  ScriptTypesDefault:
+    {}
+  ScriptInputs:
+    "":
+      floorLevel: !<MappingBased.AssignableType_1> 61e06c67-dbb7-48bf-97af-4ac893d51f94
+      heightAboveFloorCm: 0.500000
+  ScriptTypes:
+    "":
+      {}
 - !<SceneObject/d5f63266-b1ce-419f-847b-3c9f347b3ee2>
   PrefabRemaps:
     []
@@ -5776,6 +5628,12 @@
     treadDepth: true
     treadBlocksPerArc: true
     castShadows: true
+    profile: true
+    boxDepthCm: true
+    boxWidthCm: true
+    brakeTrackCm: true
+    bandMaterial: true
+    bandBelowCos: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
@@ -5790,6 +5648,12 @@
       treadDepth: !<float> 0.000000
       treadBlocksPerArc: !<float> 0.000000
       castShadows: false
+      profile: !<float> 0.000000
+      boxDepthCm: 3.200000
+      boxWidthCm: !<float> 2.000000
+      brakeTrackCm: 1.100000
+      bandMaterial: !<reference.Material> 00000000-0000-0000-0000-000000000000
+      bandBelowCos: 0.380000
   ScriptTypes:
     "":
       {}
@@ -5828,21 +5692,6 @@
     []
   Components:
     - !<own> 0ffbc09d-c4d5-42cb-9a0f-43acf543901d
-- !<SceneObject/d8ef1d8d-d417-4626-a8e5-7b094fc55f99>
-  PrefabRemaps:
-    []
-  Name: Scene
-  Enabled: true
-  Layers: 1
-  LocalTransform: !<TransformEntity>
-    Position: {x: 0.000000, y: 0.000000, z: 0.000000}
-    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
-    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
-    HasSegmentScaleCompensation: false
-  Children:
-    - !<own> eaf80d87-c50c-47ba-8566-2fb869e6b693
-  Components:
-    []
 - !<SceneObject/d9071294-12e8-425f-98f1-bf308a02639e>
   PrefabRemaps:
     []
@@ -5871,21 +5720,6 @@
     HasSegmentScaleCompensation: false
   Children:
     - !<own> 74d13517-1dbf-42e6-b536-27afc4909c65
-  Components:
-    []
-- !<SceneObject/d96dcd5a-844f-4d6a-972e-b155b2f6fef4>
-  PrefabRemaps:
-    []
-  Name: Toolbox
-  Enabled: true
-  Layers: 1
-  LocalTransform: !<TransformEntity>
-    Position: {x: 70.000000, y: -150.000000, z: -120.000000}
-    Rotation: {x: 0.000000, y: -20.000000, z: 0.000000}
-    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
-    HasSegmentScaleCompensation: false
-  Children:
-    - !<own> 50524524-5029-491c-aa08-88b9c851ef72
   Components:
     []
 - !<SceneObject/da214b27-43a7-4db4-90fd-993798e859d9>
@@ -5938,6 +5772,35 @@
   BlendNormals: false
   BlendShapes:
     {}
+- !<ScriptComponent/dc6e032a-1886-41b7-8aaf-6e366770002a>
+  PrefabRemaps:
+    []
+  Name: WheelStand
+  Enabled: true
+  ScriptAsset: !<reference> 6419e368-7c58-4ee9-b322-8080cfc967f2
+  ScriptInputsDefault:
+    fallbackFloorY: true
+    postOffsetX: true
+    armOffsetZ: true
+    legSpreadCm: true
+    castShadows: true
+  ScriptTypesDefault:
+    {}
+  ScriptInputs:
+    "":
+      hub: !<reference.SceneObject> 3fd61124-5e3d-436d-a655-f0e18bad2413
+      floorLevel: !<MappingBased.AssignableType_1> 61e06c67-dbb7-48bf-97af-4ac893d51f94
+      base: !<reference.SceneObject> 3d9a5bb6-e2d3-401a-89b2-23ae84d66c58
+      post: !<reference.SceneObject> 5611a01d-6d60-49b5-9c72-fcf9afc3c8c1
+      clamp: !<reference.SceneObject> 17f7ccf1-0ea5-4e0f-86e3-20396894cd81
+      fallbackFloorY: !<float> -150.000000
+      postOffsetX: !<float> -47.000000
+      armOffsetZ: -8.200000
+      legSpreadCm: !<float> 40.000000
+      castShadows: true
+  ScriptTypes:
+    "":
+      {}
 - !<ScriptComponent/dc77f7c6-fcd1-430f-98ac-dfb634815528>
   PrefabRemaps:
     []
@@ -5996,6 +5859,11 @@
     tubeSegments: true
     treadDepth: true
     treadBlocksPerArc: true
+    boxDepthCm: true
+    boxWidthCm: true
+    brakeTrackCm: true
+    bandMaterial: true
+    bandBelowCos: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
@@ -6010,6 +5878,12 @@
       treadDepth: !<float> 0.000000
       treadBlocksPerArc: !<float> 0.000000
       castShadows: true
+      profile: !<float> 1.000000
+      boxDepthCm: 3.200000
+      boxWidthCm: !<float> 2.000000
+      brakeTrackCm: 1.100000
+      bandMaterial: !<reference.Material> 00000000-0000-0000-0000-000000000000
+      bandBelowCos: 0.380000
   ScriptTypes:
     "":
       {}
@@ -6022,7 +5896,7 @@
   LocalTransform: !<TransformEntity>
     Position: {x: 0.000000, y: 16.500000, z: 0.000000}
     Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
-    Scale: {x: 0.400000, y: 27.000000, z: 0.400000}
+    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
     HasSegmentScaleCompensation: false
   Children:
     []
@@ -6078,6 +5952,12 @@
     treadDepth: true
     treadBlocksPerArc: true
     castShadows: true
+    profile: true
+    boxDepthCm: true
+    boxWidthCm: true
+    brakeTrackCm: true
+    bandMaterial: true
+    bandBelowCos: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
@@ -6092,6 +5972,12 @@
       treadDepth: !<float> 0.000000
       treadBlocksPerArc: !<float> 0.000000
       castShadows: false
+      profile: !<float> 0.000000
+      boxDepthCm: 3.200000
+      boxWidthCm: !<float> 2.000000
+      brakeTrackCm: 1.100000
+      bandMaterial: !<reference.Material> 00000000-0000-0000-0000-000000000000
+      bandBelowCos: 0.380000
   ScriptTypes:
     "":
       {}
@@ -6217,7 +6103,11 @@
   ScriptAsset: !<reference> 07065aae-7a8b-432b-aac5-6f24cb652722
   ScriptInputsDefault:
     tubeRadius: true
-    tubeSegments: true
+    profile: true
+    boxDepthCm: true
+    boxWidthCm: true
+    brakeTrackCm: true
+    bandBelowCos: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
@@ -6227,29 +6117,20 @@
       startDeg: !<float> 270.000000
       sweepDeg: !<float> 45.000000
       ringSegments: !<float> 10.000000
-      tubeSegments: !<float> 12.000000
+      tubeSegments: !<float> 16.000000
       material: !<reference.Material> 925ddf55-78fe-4bb2-b3d1-90c1146fd166
-      treadDepth: 0.250000
-      treadBlocksPerArc: !<float> 6.000000
+      treadDepth: 0.100000
+      treadBlocksPerArc: !<float> 16.000000
       castShadows: true
+      profile: !<float> 0.000000
+      boxDepthCm: 3.200000
+      boxWidthCm: !<float> 2.000000
+      brakeTrackCm: 1.100000
+      bandMaterial: !<reference.Material> 24bbc9b1-8765-4608-96c5-3a65d6eca71a
+      bandBelowCos: 0.380000
   ScriptTypes:
     "":
       {}
-- !<SceneObject/eaf80d87-c50c-47ba-8566-2fb869e6b693>
-  PrefabRemaps:
-    []
-  Name: geometry_0
-  Enabled: true
-  Layers: 1
-  LocalTransform: !<TransformEntity>
-    Position: {x: 0.000000, y: 0.188628, z: 0.000000}
-    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
-    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
-    HasSegmentScaleCompensation: false
-  Children:
-    []
-  Components:
-    - !<own> 40ac3383-e6f1-46eb-af0e-1a4db1fcd836
 - !<LightSource/ec2fc065-614f-45b1-88ed-89c3dc98c820>
   PrefabRemaps:
     []
@@ -6257,7 +6138,7 @@
   Enabled: true
   renderLayer: 1
   LightType: Directional
-  Intensity: 0.600000
+  Intensity: 0.900000
   ShadowDensity: 1.000000
   ShadowBlurRadius: 0.000000
   ShadowTextureSize: 512
@@ -6274,6 +6155,7 @@
   EnvMapRotation: 0.000000
   DiffuseEnvTexture: !<reference> 00000000-0000-0000-0000-000000000000
   SpecularEnvTexture: !<reference> 00000000-0000-0000-0000-000000000000
+  SpecularCubemapTexture: !<reference> 00000000-0000-0000-0000-000000000000
   Color: {x: 1.000000, y: 1.000000, z: 1.000000, w: 1.000000}
   ShadowColor: {x: 0.000000, y: 0.000000, z: 0.000000, w: 1.000000}
   DynamicEnvInputTexture: !<reference> 00000000-0000-0000-0000-000000000000
@@ -6386,7 +6268,7 @@
   LocalTransform: !<TransformEntity>
     Position: {x: -15.244000, y: -6.314000, z: 0.000000}
     Rotation: {x: 0.000000, y: 0.000000, z: 112.500000}
-    Scale: {x: 0.400000, y: 27.000000, z: 0.400000}
+    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
     HasSegmentScaleCompensation: false
   Children:
     []
@@ -6400,7 +6282,11 @@
   ScriptAsset: !<reference> 07065aae-7a8b-432b-aac5-6f24cb652722
   ScriptInputsDefault:
     tubeRadius: true
-    tubeSegments: true
+    profile: true
+    boxDepthCm: true
+    boxWidthCm: true
+    brakeTrackCm: true
+    bandBelowCos: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
@@ -6410,11 +6296,17 @@
       startDeg: !<float> 315.000000
       sweepDeg: !<float> 45.000000
       ringSegments: !<float> 10.000000
-      tubeSegments: !<float> 12.000000
+      tubeSegments: !<float> 16.000000
       material: !<reference.Material> 925ddf55-78fe-4bb2-b3d1-90c1146fd166
-      treadDepth: 0.250000
-      treadBlocksPerArc: !<float> 6.000000
+      treadDepth: 0.100000
+      treadBlocksPerArc: !<float> 16.000000
       castShadows: true
+      profile: !<float> 0.000000
+      boxDepthCm: 3.200000
+      boxWidthCm: !<float> 2.000000
+      brakeTrackCm: 1.100000
+      bandMaterial: !<reference.Material> 24bbc9b1-8765-4608-96c5-3a65d6eca71a
+      bandBelowCos: 0.380000
   ScriptTypes:
     "":
       {}
@@ -6780,7 +6672,7 @@
   LocalTransform: !<TransformEntity>
     Position: {x: -6.314000, y: -15.244000, z: 0.000000}
     Rotation: {x: 0.000000, y: 0.000000, z: 157.500000}
-    Scale: {x: 0.400000, y: 27.000000, z: 0.400000}
+    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
     HasSegmentScaleCompensation: false
   Children:
     []
@@ -6794,7 +6686,11 @@
   ScriptAsset: !<reference> 07065aae-7a8b-432b-aac5-6f24cb652722
   ScriptInputsDefault:
     tubeRadius: true
-    tubeSegments: true
+    profile: true
+    boxDepthCm: true
+    boxWidthCm: true
+    brakeTrackCm: true
+    bandBelowCos: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
@@ -6804,11 +6700,17 @@
       startDeg: !<float> 90.000000
       sweepDeg: !<float> 45.000000
       ringSegments: !<float> 10.000000
-      tubeSegments: !<float> 12.000000
+      tubeSegments: !<float> 16.000000
       material: !<reference.Material> 925ddf55-78fe-4bb2-b3d1-90c1146fd166
-      treadDepth: 0.250000
-      treadBlocksPerArc: !<float> 6.000000
+      treadDepth: 0.100000
+      treadBlocksPerArc: !<float> 16.000000
       castShadows: true
+      profile: !<float> 0.000000
+      boxDepthCm: 3.200000
+      boxWidthCm: !<float> 2.000000
+      brakeTrackCm: 1.100000
+      bandMaterial: !<reference.Material> 24bbc9b1-8765-4608-96c5-3a65d6eca71a
+      bandBelowCos: 0.380000
   ScriptTypes:
     "":
       {}
@@ -6838,7 +6740,11 @@
   ScriptAsset: !<reference> 07065aae-7a8b-432b-aac5-6f24cb652722
   ScriptInputsDefault:
     tubeRadius: true
-    tubeSegments: true
+    profile: true
+    boxDepthCm: true
+    boxWidthCm: true
+    brakeTrackCm: true
+    bandBelowCos: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
@@ -6848,11 +6754,17 @@
       startDeg: !<float> 45.000000
       sweepDeg: !<float> 45.000000
       ringSegments: !<float> 10.000000
-      tubeSegments: !<float> 12.000000
+      tubeSegments: !<float> 16.000000
       material: !<reference.Material> 925ddf55-78fe-4bb2-b3d1-90c1146fd166
-      treadDepth: 0.250000
-      treadBlocksPerArc: !<float> 6.000000
+      treadDepth: 0.100000
+      treadBlocksPerArc: !<float> 16.000000
       castShadows: true
+      profile: !<float> 0.000000
+      boxDepthCm: 3.200000
+      boxWidthCm: !<float> 2.000000
+      brakeTrackCm: 1.100000
+      bandMaterial: !<reference.Material> 24bbc9b1-8765-4608-96c5-3a65d6eca71a
+      bandBelowCos: 0.380000
   ScriptTypes:
     "":
       {}
@@ -6896,6 +6808,12 @@
     treadDepth: true
     treadBlocksPerArc: true
     castShadows: true
+    profile: true
+    boxDepthCm: true
+    boxWidthCm: true
+    brakeTrackCm: true
+    bandMaterial: true
+    bandBelowCos: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
@@ -6910,6 +6828,12 @@
       treadDepth: !<float> 0.000000
       treadBlocksPerArc: !<float> 0.000000
       castShadows: false
+      profile: !<float> 0.000000
+      boxDepthCm: 3.200000
+      boxWidthCm: !<float> 2.000000
+      brakeTrackCm: 1.100000
+      bandMaterial: !<reference.Material> 00000000-0000-0000-0000-000000000000
+      bandBelowCos: 0.380000
   ScriptTypes:
     "":
       {}

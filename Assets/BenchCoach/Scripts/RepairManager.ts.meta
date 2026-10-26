@@ -123,7 +123,7 @@
     - '// @ui {"widget":"group_start", "label":"References"}'
     - '// @input SceneObject wheel {"hint":"Wheel assembly root (hidden until Found it)"}'
     - '// @input SceneObject stand {"hint":"Repair stand root (hidden until Found it)"}'
-    - '// @input SceneObject environment {"hint":"Workshop dressing root (bench, pegboard, mat, props); shown with the wheel"}'
+    - '// @input SceneObject environment {"hint":"Workshop dressing root (floor mat, floor path); shown with the wheel"}'
     - '// @input SceneObject tire {"hint":"Tire group holding Bead_0..7 (scaled 4% down on deflate)"}'
     - '// @input SceneObject valve {"hint":"Valve stem (step 1 marker anchor)"}'
     - '// @input AssignableType_1 wheelTargets {"hint":"Pinch targets on the valve and beads"}'
