@@ -1,7 +1,6 @@
 - !<AssetImportMetadata/893bf982-0fae-4046-a39f-da93bdfb9a54>
   ImportedAssetIds:
-    Diffuse: !<reference> b2797edc-75c0-4bb7-a4e2-e1d8feb434ec
-    Specular: !<reference> d0f0a707-43e3-4156-9c02-4ee2455ffd2c
+    Cubemap: !<reference> 3065f1f1-909c-e663-68b3-c9ebafea15a8
   ImporterName: EnvmapTextureImporter
   PrimaryAsset: !<reference> 00000000-0000-0000-0000-000000000000
   PackageType: LegacyPackage
