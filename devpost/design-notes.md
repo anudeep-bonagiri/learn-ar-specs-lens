@@ -732,3 +732,171 @@ Left over:
 - FloorLevel is untested on a device. There, World Query also sees only what is in view, so the world-mesh path may decide.
 - The Evening Room was not re-measured after the 140 cm rule.
 - No hands-on walk was done.
+
+## 2026-10-28: Pass F, control-bar misfires and floor detection
+
+On `main`. Built through the CLAD skills and the Lens Studio MCP. Pass Q played the whole repair with real preview input and found three bugs. Each was reproduced, fixed at its root cause and re-checked with the same kind of real input. No UI restyle.
+
+Real input in this pass is of two kinds:
+- **The preview agent hand** (`PreviewInteractTool`). It always targets directly: SIK's HandInteractor stays in Direct mode with a zero ray direction. It animates from its rest pose to the target with the index finger out, so it can poke whatever it passes. This is the input pass Q used.
+- **The preview's mouse ray** (`InjectPreviewGesture` taps). This is a SIK indirect interactor: a deliberate ray pinch. The first press at a new spot only moves the cursor and fires nothing; the second press triggers.
+
+### Bug 1: Replay presses Next
+
+Repro: on step 4, a by-id pinch on `BtnReplay` timed out on Replay's `onTriggerStart` and the step went 4 to 5. With a trigger log added, one world-position pinch at Replay's centre (7.5, -34.4, -44.65) gave:
+- "BtnNext triggered by poke" (step 4 to 5);
+- then "BtnReplay triggered by poke".
+
+A by-id pinch straight after gave "BtnNext triggered by poke" again (step 5 to 6).
+
+Root cause: not the hit boxes. Measured live after FlexLayout placed them, in cm from the bar's centre, each collider is exactly as wide as its visual, with 0.50 cm gaps:
+
+| Button | Hit box | Width (= visual) |
+| --- | --- | --- |
+| BtnWhatsThis | -11.80 to -7.90 | 3.90 |
+| BtnAsk | -7.40 to -3.50 | 3.90 |
+| BtnBack | -3.00 to 0.90 | 3.90 |
+| BtnNext | 1.40 to 7.40 | 6.00 |
+| BtnReplay | 7.90 to 11.80 | 3.90 |
+
+UIKit's `Element.initialize()` sets every button's Interactable to `TargetingMode.All`, which includes Poke. A hand on its way to Replay pokes Next, the large button in its path. This is the same root cause as bug 2, and the same fix closes it. Until the layout runs (a few frames after init), all five buttons sit at the bar's centre, so a measurement must wait for it.
+
+Fix:
+- **Ray-only buttons:** see bug 2.
+- **Replay log:** `RepairManager.replay()` logs the step and what it replayed ("replay on step 4 (Second lever and peel): the ghost lever's hooking motion (replay 1 on this step)") and keeps it in `lastReplay`.
+- **Press log:** `UIBindings` logs "press <button>" for every bar and card press.
+- **Trigger log:** `UIHelpers` logs "[UI] <button> triggered by ray|poke|direct pinch".
+- **Hit-box log:** the bar logs its measured hit boxes once after layout (`hitBoxes`, `hitBoxesClear`).
+
+Verification (mouse ray at the centre of every bar button):
+- **Step 2:**
+  - Replay: chime, step stays 2.
+  - What's this? on, then off.
+  - Ask on, then off.
+  - Back: 2 to 1.
+  - Next: 1 to 2.
+- **Step 4:**
+  - Replay: ghost replay, step stays 4.
+  - What's this? on, then off.
+  - Ask on, then off.
+  - Back: 4 to 3.
+  - Next: 3 to 4.
+- Every press logged only its own button.
+- Agent-hand pinches at all five centres on step 4 (pass Q's input) now fire nothing, and the step stays 4.
+
+### Bug 2: control-bar buttons fire when the hand passes over them
+
+Root cause: `TargetingMode.All`, as above. A hand passing through the body-locked bar (about 44 cm out, 32 degrees down) poked its buttons.
+
+Fix: `UIHelpers.rayOnly()` sets `TargetingMode.Indirect` once each button is up. This is SIK's own setting (`Interactable.targetingMode`; its interactors and `PhysicalInteractionProvider` skip interactables without the Direct or Poke bit). It applies to every UI button built by `addIconButton`, `addLabelButton` and `addTextButton`, 13 in all:
+- the bar (5);
+- Found it and Watch;
+- Continue and Try again;
+- Restart;
+- Ask chips 0 to 2.
+
+The tool tray has no UI buttons. The levers, tube ends, new tube, valve, beads and What's this? boxes keep their own targeting.
+
+Verification:
+- **Found it**, agent-hand pinch (Sunlit Room): nothing fired, and What's this? stayed off. By ray: only Found it, step 1.
+- **Valve**, agent hand, step 1: the tire deflated and the step went to 2; no UI fired. On step 2: only the "already flat" coaching.
+- **New tube**, agent-hand drag on step 8 (shown as 9): fitted 0.1 cm from the socket, step 9; no UI fired.
+- **Step 9 (shown as 10):** the tube is not grabbable there. The same tray-to-valve hand path, and a pinch-drag starting on Ask/Back and ending at the wheel, fired nothing.
+- **Ask**, by ray: open, chip 1 (offline answer, no token), close. Each fired alone.
+- **Other buttons by ray:** Watch, Continue, Try again and Restart each fired alone.
+
+### Bug 3: FloorLevel could pick a console top
+
+Root cause:
+- When the world mesh had too few hits, World Query hits were accepted alone, and the 140 cm rule let a -146 console top through.
+- World Query answers only inside the view, and most of the fixed eye rays aimed outside it.
+- In the preview the world mesh is often missing for the first Lens runs after a room loads. In one Colorful Home run it never appeared in 90 s, and in Evening Room it stayed missing across seven Lens runs (LEAF resets, a preview refresh and a recompile).
+
+Fix (`FloorLevel.ts`):
+- **Wider footprint, pooled over time:** hits from both paths are pooled, one per 10 cm cell and 2 cm of height per path:
+  - two rings round the stand (35 and 70 cm);
+  - a World Query grid fanned below the current gaze (yaw -21 to 21, 4 to 28 degrees down), so looking down brings the near floor into it;
+  - world-mesh eye rays out to 450 cm.
+- **Lowest wide level:** the exported, pure `pickFloorCluster()` takes the lowest 8 cm band with 3 or more cells spread over 60 cm or more.
+- **Timing:**
+  - Nothing is decided before 3 s.
+  - A level seen only by World Query waits 8 s more for the mesh. With no level, the -150 fallback stays.
+  - Until 20 s, a lower wide level replaces the decision. The window stays open until the mesh has answered for 8 s, at most 90 s.
+  - Stand, mat and floor path rebuild on every `onFloorChanged`.
+- **`minDropCm` 140 to 120:** Colorful Home's visible floor is about -135, not -150.1. Its world mesh puts 37 cells at -135. A preview camera at y -142 is under the floor, and at y -128 it sees the floor just below. The -150.1 in pass D1 came from three World Query hits.
+- **Logs:** every decision logs its path, hits per path, cells, spread, time, the pooled histogram and the ignored higher hits.
+
+Decided floor, default pose, Lens reset right before each LEAF run:
+
+| Room | Visible floor | With the world mesh | Without it (fresh room load) |
+| --- | --- | --- | --- |
+| Sunlit Room | about -178 | -179.4 (28 cells, spread 589 cm, 3.1 s) in `start`, `deflate-loosen`, `lever-snap`; -178.4 (16 cells) | -178.1 (3 World Query cells, spread 221 cm, 11 s) in `start`, `deflate-loosen`, `lever-snap`. One session decided -138.4 (a 2.5 m wide surface 40 cm above the floor, probably the sofa seat) until the mesh arrived and corrected it to -178.2. |
+| Evening Room (Sunlit's geometry, dimmer) | about -178 | -178.4 (16 cells) | -178.1 in `start`, `deflate-loosen`, `lever-snap` |
+| Plane | -150 | -150.0 (75 mesh + 4 World Query hits) in `deflate-loosen`, `lever-snap` | -150.0 (5 to 6 World Query cells) in `start`, `deflate-loosen`, `lever-snap` |
+| Colorful Home | about -135 | -133.6 (38 cells) in `start`, `deflate-loosen`, `lever-snap` | -135.5 (14 to 15 World Query cells) in `start`, `deflate-loosen`, `lever-snap` |
+
+Before the gaze grid, the Evening Room with no mesh decided -146.3. Looking down 32 degrees then corrected it to -176.3 at 28.4 s, and the stand followed.
+
+Side views with the stand's feet on the mat on the room floor: `shots/pass-f/floor-sunlit-room.png`, `floor-evening-room.png`, `floor-plane.png`, `floor-colorful-home.png`.
+
+### LEAF
+
+Two scenarios were added:
+- **`control-bar`:**
+  - hit boxes match their visuals and do not overlap;
+  - all 13 UI buttons are ray-only, and the grabbables still take a direct pinch;
+  - Replay keeps step 4 and reports the ghost;
+  - each bar button acts alone.
+- **`floor-level`:**
+  - mixed heights: the floor beats a console top, and a narrow box or strays below the floor are skipped;
+  - live: a higher level never raises the floor, and a lower wide level corrects it down with the stand, mat and path following.
+
+| Scenario | Result (serial, one per call, Sunlit Room, default pose, after the save) |
+| --- | --- |
+| `start` | PASSED |
+| `deflate-loosen` | PASSED |
+| `lever-snap` | PASSED |
+| `peel-and-pull` | PASSED. In the sweep before the last FloorLevel change it failed once (lever B never grabbed, still 66.75 cm from socket B; the floor decision came after the drag timed out) and passed on the immediate rerun |
+| `inspect-done` | PASSED |
+| `step-ticks` | PASSED |
+| `scene-dressing` | PASSED. Floor -138.4 via World Query in that session (see bug 3), stand base -138.4 |
+| `refit-tube` | PASSED |
+| `seat-inflate` | PASSED |
+| `whats-this` | PASSED |
+| `mistakes` | PASSED |
+| `flat-causes` | PASSED |
+| `progress-idle` | PASSED |
+| `watch-mode` | PASSED |
+| `ask-coach-fallback` | PASSED |
+| `floor-path` | PASSED. The mesh arrived mid-run: -138.2 corrected to -178.2 at 14.1 s |
+| `coach-report` | PASSED |
+| `control-bar` (new) | PASSED |
+| `floor-level` (new) | PASSED. Live floor -178.4 via world mesh; correction to -190.4 moved stand, base, mat and 8 arrows |
+| `jump-to-step` | PASSED |
+
+Not covered by an automated test:
+- **Bug 2's hand pass-through, and bug 1's poke misfire.** LEAF's interactor triggers an interactable directly and cannot travel through space or poke. `control-bar` checks the setting, the hit boxes and each button's effect.
+- **Bug 3's no-mesh behaviour.** It depends on the preview's world mesh and World Query. `floor-level` covers the cluster choice and the correction path.
+
+All BenchCoach script inputs are set (699 across 63 script components), except the 12 optional `TorusArc.bandMaterial` slots. `RunAndCollectLogsTool` shows no Lens errors after the final recompile.
+
+Findings:
+
+- **UIKit `Element.initialize()` forces `TargetingMode.All` on every Button.** Set the targeting after `onInitialized`. `setIsToggleable` keeps it.
+- **`PreviewInteractTool` can no longer press UI buttons.** They now take only ray pinches, and its hand only targets directly. Use `InjectPreviewGesture` taps: press twice at a new spot (the first only moves the cursor). Read button screen positions from the camera's `worldSpaceToScreenSpace`; do not estimate them from screenshots.
+- **The preview's world mesh** is missing for the first Lens runs after a room loads, sometimes for many resets. It never appeared mid-run.
+- **A new `@input`'s default is stored in the scene at its first compile.** Changing the default afterwards does not change the scene value; set it on the component.
+- **The Evening Room is the Sunlit Room's geometry with dimmer light:** the same floor and the same World Query answers.
+- **Saving through the MCP made the LEAF plugin re-create its "LEAF Plugin Bridge"** with new ids. That hunk was left out of the commit.
+
+Left over:
+
+- **Ray-only UI is untested on Specs.** People can no longer poke or touch-pinch the bar, the cards or the chips; they must use the hand ray. If direct pinches are wanted on device, `TargetingMode.Direct | Indirect` (no Poke) is the next thing to try.
+- **Without the world mesh, World Query from the start pose sometimes sees no floor.** One session picked a surface at -138 until the mesh came. On a device the mesh builds while the user looks around, and looking down corrects it, but this is untested there.
+- **FloorLevel now casts more rays,** for 20 s, or up to 90 s while the mesh is missing:
+  - 81 World Query hit tests every 0.25 s;
+  - 79 world-mesh raycasts every 0.5 s.
+
+  Performance was not measured.
+- **Floor figures elsewhere:** the brief's -150.1 for Colorful Home is superseded by about -135. `docs/TEAM_TASKS.md` was not updated.
+- **Hands-on walk:** no real-hand walk was done, and the cursor-tap verification is the preview mouse, not a Specs hand ray.
