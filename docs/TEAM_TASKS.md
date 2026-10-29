@@ -1,5 +1,7 @@
 # Bench Coach: team task list
 
+**Oct 29 update: read `docs/INFO_SESSION_OCT29.md` first.** It has the judges' rules from the live session and the new must-do tasks: the design brief, the video opening, Lens Studio 5.24.1 and the Discord post.
+
 Status as of Oct 24, 2026. **Current order of work: `docs/INTEGRATION_PLAN.md`** (pass 10, spikes, pass 11, conditional pass 12). All work is on `main`; the old branches were merged into it and deleted on Oct 26. Full design: `docs/PASSES_7_TO_10_PLAN.md`. Build history and pitfalls: `devpost/design-notes.md` (read its "Findings" lists before touching code).
 
 Done: criteria 1 to 5, six LEAF scenarios green (`start`, `deflate-loosen`, `lever-snap`, `peel-and-pull`, `inspect-done`, `step-ticks`).
