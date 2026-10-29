@@ -17,6 +17,8 @@ import {
 import {BackPlate} from "SpectaclesUIKit.lspkg/Scripts/BackPlate"
 import {Button} from "SpectaclesUIKit.lspkg/Scripts/Components/Button/Button"
 import {ElementContent} from "SpectaclesUIKit.lspkg/Scripts/Components/Content/ElementContent"
+import {TargetingMode} from "SpectaclesInteractionKit.lspkg/Core/Interactor/Interactor"
+import {InteractorEvent} from "SpectaclesInteractionKit.lspkg/Core/Interactor/InteractorEvent"
 
 export const LAYOUT_Z_LIFT = 0.02
 export const BUTTON_LABEL_Z = 0.08
@@ -206,6 +208,13 @@ export function addRowText(
 }
 
 // ── Images and buttons ────────────────────────────────────────────────────────
+/** Logs which targeting path triggered a UI button (1 Direct, 2 Indirect, 4 Poke). */
+function logTrigger(name: string, e: InteractorEvent): void {
+  const mode = e?.interactor?.activeTargetingMode ?? TargetingMode.None
+  const label = mode === TargetingMode.Indirect ? "ray" : mode === TargetingMode.Direct ? "direct pinch" : mode === TargetingMode.Poke ? "poke" : `mode ${mode}`
+  print(`[UI] ${name} triggered by ${label}`)
+}
+
 export function imageOn(so: SceneObject, texture: Texture, sizeCM: number): Image {
   const img = so.createComponent("Component.Image") as Image
   const mat = imageMaterial.clone()
@@ -243,7 +252,10 @@ export function addIconButton(
       ec.leadingIcon = icon
       ec.leadingIconSize = sizeCM * 0.5
     }
-    btn.onTriggerUp.add(() => onClick())
+    btn.onTriggerUp.add((e) => {
+      logTrigger(name, e)
+      onClick()
+    })
     button = btn
   })
   return button as unknown as Button
@@ -279,7 +291,10 @@ export function addLabelButton(
     if (icon) addRowImage(row, icon, iconSize)
     const labelW = widthCM - 1.5 - (icon ? iconSize + 0.8 : 0)
     addRowText(row, "Label", label, "Button", labelW, heightCM - 1.5, {distanceCm})
-    btn.onTriggerUp.add(() => onClick())
+    btn.onTriggerUp.add((e) => {
+      logTrigger(name, e)
+      onClick()
+    })
     button = btn
   })
   return button as unknown as Button
@@ -323,7 +338,10 @@ export function addTextButton(
     const row = flexRow(so, widthCM - 1, heightCM - 1, {justify: FlexJustify.Center, align: FlexAlign.Center})
     liftInZ(row, BUTTON_LABEL_Z)
     text = addRowText(row, "Label", label, "Button", widthCM - 1.5, heightCM - 1.5, {distanceCm})
-    btn.onTriggerUp.add(() => onClick())
+    btn.onTriggerUp.add((e) => {
+      logTrigger(name, e)
+      onClick()
+    })
     button = btn
   })
   return {button: button as unknown as Button, label: text as unknown as Text}

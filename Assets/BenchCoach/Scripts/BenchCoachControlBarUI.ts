@@ -5,6 +5,8 @@
  * BtnWhatsThis and BtnAsk are UIKit toggles, so their latched look shows while the mode is on.
  * Owns: only its view. Emits onBack / onNext / onReplay / onWhatsThis(on) / onAsk(on).
  * setWhatsThisLatched() / setAskLatched() sync the toggle looks. Holds no repair state.
+ * Pass F: once every button is up, logs each hit box along the bar against its visual
+ * and flags any overlap (`hitBoxes` keeps the numbers for tests).
  */
 import Event, {PublicApi} from "SpectaclesInteractionKit.lspkg/Utils/Event"
 import {Button} from "SpectaclesUIKit.lspkg/Scripts/Components/Button/Button"
@@ -90,6 +92,12 @@ export class BenchCoachControlBarUI extends BaseScriptComponent {
 
   private whatsThis: Button | null = null
   private ask: Button | null = null
+  private buttons: Button[] = []
+
+  /** Hit boxes along the bar, in cm from its center, once measured (tests read it). */
+  hitBoxes: {name: string; left: number; right: number; visualWidth: number}[] = []
+  /** True once the hit boxes were measured, each matches its visual width and none overlaps its neighbor. */
+  hitBoxesClear: boolean = false
 
   /** Show the Ask toggle as on or off (no-op if it already is). */
   setAskLatched(on: boolean): void {
@@ -123,9 +131,10 @@ export class BenchCoachControlBarUI extends BaseScriptComponent {
     // (secondary buttons 3.9 cm, gap 0.5, side padding 0.75; Next stays 6 cm).
     const btn = addIconButton(row, "BtnWhatsThis", ICON_INFO, this.whatsThisSize, () => {})
     const askBtn = addIconButton(row, "BtnAsk", ICON_ASK, this.askSize, () => {})
-    addIconButton(row, "BtnBack", ICON_BACK, this.backSize, () => this._onBack.invoke())
-    addIconButton(row, "BtnNext", ICON_NEXT, this.nextSize, () => this._onNext.invoke())
-    addIconButton(row, "BtnReplay", ICON_REPLAY, this.replaySize, () => this._onReplay.invoke())
+    const backBtn = addIconButton(row, "BtnBack", ICON_BACK, this.backSize, () => this._onBack.invoke())
+    const nextBtn = addIconButton(row, "BtnNext", ICON_NEXT, this.nextSize, () => this._onNext.invoke())
+    const replayBtn = addIconButton(row, "BtnReplay", ICON_REPLAY, this.replaySize, () => this._onReplay.invoke())
+    this.buttons = [btn, askBtn, backBtn, nextBtn, replayBtn]
     btn.onInitialized.add(() => btn.setIsToggleable(true))
     btn.onValueChange.add((v) => {
       this.whatsThisOn = v === 1
@@ -138,5 +147,43 @@ export class BenchCoachControlBarUI extends BaseScriptComponent {
       this._onAsk.invoke(this.askOn)
     })
     this.ask = askBtn
+    // Measure once the buttons are up and FlexLayout has placed them (it lays out a few
+    // frames after init; until then every button sits at the bar's center).
+    let settled = 0
+    const check = this.createEvent("UpdateEvent")
+    check.bind(() => {
+      if (!this.buttons.every((b) => b.initialized)) return
+      if (++settled < 30) return
+      check.enabled = false
+      this.logHitBoxes()
+    })
+  }
+
+  /** Measures each button's live collider along the bar's x axis and logs it. */
+  private logHitBoxes(): void {
+    const bar = this.sceneObject.getTransform()
+    const origin = bar.getWorldPosition()
+    const right = bar.right
+    this.hitBoxes = this.buttons.map((b) => {
+      const tr = b.collider.getSceneObject().getTransform()
+      const half = ((b.collider.shape as BoxShape).size.x * tr.getWorldScale().x) / 2
+      const c = tr.getWorldPosition().sub(origin).dot(right)
+      return {name: b.getSceneObject().name, left: c - half, right: c + half, visualWidth: b.size.x}
+    })
+    const parts: string[] = []
+    let clear = true
+    for (let i = 0; i < this.hitBoxes.length; i++) {
+      const h = this.hitBoxes[i]
+      const next = this.hitBoxes[i + 1]
+      const gap = next ? next.left - h.right : NaN
+      if (next && gap < 0) clear = false
+      if (Math.abs(h.right - h.left - h.visualWidth) > 0.05) clear = false
+      parts.push(
+        `${h.name} ${h.left.toFixed(2)}..${h.right.toFixed(2)} (hit ${(h.right - h.left).toFixed(2)}, visual ${h.visualWidth.toFixed(2)})` +
+          (next ? ` gap ${gap.toFixed(2)}` : "")
+      )
+    }
+    this.hitBoxesClear = clear
+    print(`[ControlBar] hit boxes along the bar (cm): ${parts.join("; ")}: ${clear ? "match the visuals, no overlap" : "MISMATCH OR OVERLAP"}`)
   }
 }
