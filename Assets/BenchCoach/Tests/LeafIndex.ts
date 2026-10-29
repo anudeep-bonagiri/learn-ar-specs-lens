@@ -18,6 +18,7 @@ import {WatchModeScenario} from "./WatchModeScenario"
 import {AskCoachFallbackScenario} from "./AskCoachFallbackScenario"
 import {FloorPathScenario} from "./FloorPathScenario"
 import {CoachReportScenario} from "./CoachReportScenario"
+import {ControlBarScenario} from "./ControlBarScenario"
 
 @component
 export class LeafIndex extends BaseScriptComponent {
@@ -91,6 +92,10 @@ export class LeafIndex extends BaseScriptComponent {
       id: "coach-report",
       typename: CoachReportScenario.getTypeName(),
       parameters: {stay: "0"},
+    },
+    {
+      id: "control-bar",
+      typename: ControlBarScenario.getTypeName(),
     },
     {
       id: "jump-to-step",

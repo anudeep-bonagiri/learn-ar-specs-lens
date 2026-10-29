@@ -215,6 +215,18 @@ function logTrigger(name: string, e: InteractorEvent): void {
   print(`[UI] ${name} triggered by ${label}`)
 }
 
+/**
+ * Pass F: a UI button answers only a deliberate ray pinch. UIKit's Element.initialize()
+ * sets TargetingMode.All (Direct + Indirect + Poke), so a hand passing through the
+ * body-locked control bar on its way to the wheel poked its buttons. Grabbable tools
+ * and wheel parts keep their own targeting.
+ */
+export function rayOnly(btn: Button): void {
+  btn.onInitialized.add(() => {
+    btn.interactable.targetingMode = TargetingMode.Indirect
+  })
+}
+
 export function imageOn(so: SceneObject, texture: Texture, sizeCM: number): Image {
   const img = so.createComponent("Component.Image") as Image
   const mat = imageMaterial.clone()
@@ -244,6 +256,7 @@ export function addIconButton(
   let button: Button | null = null
   flexChild(parentFlex, {w: sizeCM, h: sizeCM, name}, (so) => {
     const btn = so.createComponent(Button.getTypeName()) as Button
+    rayOnly(btn)
     btn.onInitialized.add(() => {
       btn.size = new vec3(sizeCM, sizeCM, 1)
     })
@@ -276,6 +289,7 @@ export function addLabelButton(
   let button: Button | null = null
   flexChild(parentFlex, {w: widthCM, h: heightCM, name}, (so) => {
     const btn = so.createComponent(Button.getTypeName()) as Button
+    rayOnly(btn)
     // Optional UIKit style (e.g. "Primary"): must be set before the button initializes.
     if (style) btn.setVariant({theme: "SnapOS2", style})
     btn.onInitialized.add(() => {
@@ -332,6 +346,7 @@ export function addTextButton(
   let text: Text | null = null
   flexChild(parentFlex, {w: widthCM, h: heightCM, name}, (so) => {
     const btn = so.createComponent(Button.getTypeName()) as Button
+    rayOnly(btn)
     btn.onInitialized.add(() => {
       btn.size = new vec3(widthCM, heightCM, 1)
     })
