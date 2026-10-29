@@ -28,12 +28,14 @@
   ExportUid: 00000000-0000-0000-0000-000000000000
   PackagePolicy: CanBeUnpacked
   ScriptInputsHidden:
+    correctWindowSec: false
     deviceTracking: false
     fallbackFloorY: false
     maxWaitSec: false
     meshWaitSec: false
     minDropCm: false
     minHits: false
+    minSpreadCm: false
     outlierCm: false
     probeCenter: false
     probeRadiusCm: false
@@ -58,7 +60,9 @@
       rayBottomY: !<float> -400.000000
       maxWaitSec: !<float> 3.000000
       meshWaitSec: !<float> 8.000000
+      correctWindowSec: !<float> 20.000000
       minHits: !<float> 3.000000
+      minSpreadCm: !<float> 60.000000
       minDropCm: !<float> 140.000000
       outlierCm: !<float> 4.000000
   ScriptTypes:
@@ -68,19 +72,21 @@
     - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">FloorLevel – measured floor height, one source of truth</span>"}'
     - '// @ui {"widget":"separator"}'
     - '// @ui {"widget":"group_start", "label":"References"}'
-    - "// @input Component.DeviceTracking deviceTracking {\"hint\":\"Camera's DeviceTracking, used for the world-mesh fallback\"}"
+    - "// @input Component.DeviceTracking deviceTracking {\"hint\":\"Camera's DeviceTracking, used for the world-mesh path\"}"
     - '// @ui {"widget":"group_end"}'
     - '// @ui {"widget":"separator"}'
     - '// @ui {"widget":"group_start", "label":"Settings"}'
-    - '// @input float fallbackFloorY = -150 {"hint":"Floor height (world y, cm) used until a measurement lands, and when no ray hits"}'
-    - '// @input vec3 probeCenter = "{-20, 0, -95}" {"hint":"Center of the ray ring on the floor plane (world x, z; y is ignored)"}'
-    - '// @input float probeRadiusCm = 35 {"hint":"Radius of the ray ring, in cm", "widget":"slider", "min":5, "max":100, "step":1}'
-    - '// @input float probeRays = 8 {"hint":"Rays on the ring (plus one at the center)", "widget":"slider", "min":3, "max":16, "step":1}'
+    - '// @input float fallbackFloorY = -150 {"hint":"Floor height (world y, cm) used until a measurement lands, and when no level is found"}'
+    - '// @input vec3 probeCenter = "{-20, 0, -95}" {"hint":"Center of the ray rings on the floor plane (world x, z; y is ignored)"}'
+    - '// @input float probeRadiusCm = 35 {"hint":"Radius of the inner ray ring, in cm (the outer ring is twice as wide)", "widget":"slider", "min":5, "max":100, "step":1}'
+    - '// @input float probeRays = 8 {"hint":"Rays on the inner ring (plus one at the center; the outer ring has twice as many)", "widget":"slider", "min":3, "max":16, "step":1}'
     - '// @input float rayTopY {"hint":"Ray start and end heights (world y, cm)"}'
     - // @input float rayBottomY = -400
-    - '// @input float maxWaitSec = 3 {"hint":"Seconds to keep collecting World Query hits before deciding", "widget":"slider", "min":0.5, "max":10, "step":0.5}'
-    - '// @input float meshWaitSec = 8 {"hint":"Extra seconds to retry world-mesh raycasts (the mesh builds over time) before the fallback", "widget":"slider", "min":0, "max":20, "step":0.5}'
-    - '// @input float minHits = 3 {"hint":"Inlier hits needed to accept a measurement", "widget":"slider", "min":1, "max":16, "step":1}'
-    - '// @input float minDropCm = 140 {"hint":"A floor must be at least this far below the eye (cm); higher levels are table tops or seats (the Lens is used standing)", "widget":"slider", "min":60, "max":200, "step":5}'
+    - '// @input float maxWaitSec = 3 {"hint":"Earliest decision, in seconds: hits are pooled at least this long", "widget":"slider", "min":0.5, "max":10, "step":0.5}'
+    - '// @input float meshWaitSec = 8 {"hint":"Extra seconds a World-Query-only level waits for world-mesh support (and before the fallback)", "widget":"slider", "min":0, "max":20, "step":0.5}'
+    - '// @input float correctWindowSec = 20 {"hint":"Seconds after start during which a lower well-supported level still replaces the decision", "widget":"slider", "min":5, "max":60, "step":1}'
+    - '// @input float minHits = 3 {"hint":"Distinct 10 cm floor cells a level needs", "widget":"slider", "min":1, "max":16, "step":1}'
+    - "// @input float minSpreadCm = 60 {\"hint\":\"Horizontal spread (cm) a level's hits need; a floor is the lowest WIDE surface\", \"widget\":\"slider\", \"min\":10, \"max\":200, \"step\":5}"
+    - "// @input float minDropCm = 120 {\"hint\":\"A floor must be at least this far below the eye (cm); higher levels are table tops or seats. 120, not 140: Colorful Home's floor is 135 cm below the eye, and table tops lose to a lower wide floor anyway\", \"widget\":\"slider\", \"min\":60, \"max\":200, \"step\":5}"
     - '// @input float outlierCm = 4 {"hint":"Half the height band (cm) that hits must share to count as one level", "widget":"slider", "min":0.5, "max":20, "step":0.5}'
     - '// @ui {"widget":"group_end"}'
