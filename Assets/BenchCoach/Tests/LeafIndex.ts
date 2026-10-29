@@ -19,6 +19,7 @@ import {AskCoachFallbackScenario} from "./AskCoachFallbackScenario"
 import {FloorPathScenario} from "./FloorPathScenario"
 import {CoachReportScenario} from "./CoachReportScenario"
 import {ControlBarScenario} from "./ControlBarScenario"
+import {FloorLevelScenario} from "./FloorLevelScenario"
 
 @component
 export class LeafIndex extends BaseScriptComponent {
@@ -96,6 +97,10 @@ export class LeafIndex extends BaseScriptComponent {
     {
       id: "control-bar",
       typename: ControlBarScenario.getTypeName(),
+    },
+    {
+      id: "floor-level",
+      typename: FloorLevelScenario.getTypeName(),
     },
     {
       id: "jump-to-step",

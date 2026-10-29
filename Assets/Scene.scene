@@ -2650,8 +2650,9 @@
     rayBottomY: true
     maxWaitSec: true
     meshWaitSec: true
+    correctWindowSec: true
     minHits: true
-    minDropCm: true
+    minSpreadCm: true
     outlierCm: true
   ScriptTypesDefault:
     {}
@@ -2666,8 +2667,10 @@
       rayBottomY: !<float> -400.000000
       maxWaitSec: !<float> 3.000000
       meshWaitSec: !<float> 8.000000
+      correctWindowSec: !<float> 20.000000
       minHits: !<float> 3.000000
-      minDropCm: !<float> 140.000000
+      minSpreadCm: !<float> 60.000000
+      minDropCm: !<float> 120.000000
       outlierCm: !<float> 4.000000
   ScriptTypes:
     "":
