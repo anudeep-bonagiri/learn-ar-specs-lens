@@ -90,20 +90,20 @@ export class UIBindings extends BaseScriptComponent {
         print("[UIBindings] ERROR: missing @input refs")
         return
       }
-      this.startCard.onFoundIt.add(() => this.press(this.startCard, () => this.manager.foundIt()))
+      this.startCard.onFoundIt.add(() => this.press(this.startCard, "BtnFoundIt", () => this.manager.foundIt()))
       if (this.director) {
         this.startCard.onWatch.add(() =>
-          this.press(this.startCard, () => {
+          this.press(this.startCard, "BtnWatch", () => {
             this.manager.foundIt()
             this.director.play()
           })
         )
       }
-      this.controlBar.onBack.add(() => this.press(this.controlBar, () => this.manager.back()))
-      this.controlBar.onNext.add(() => this.press(this.controlBar, () => this.manager.next()))
-      this.controlBar.onReplay.add(() => this.press(this.controlBar, () => this.manager.replay()))
-      this.doneCard.onTryAgain.add(() => this.press(this.doneCard, () => this.manager.reset()))
-      this.doneCard.onContinue.add(() => this.press(this.doneCard, () => this.manager.next()))
+      this.controlBar.onBack.add(() => this.press(this.controlBar, "BtnBack", () => this.manager.back()))
+      this.controlBar.onNext.add(() => this.press(this.controlBar, "BtnNext", () => this.manager.next()))
+      this.controlBar.onReplay.add(() => this.press(this.controlBar, "BtnReplay", () => this.manager.replay()))
+      this.doneCard.onTryAgain.add(() => this.press(this.doneCard, "BtnTryAgain", () => this.manager.reset()))
+      this.doneCard.onContinue.add(() => this.press(this.doneCard, "BtnContinue", () => this.manager.next()))
       if (this.idle && this.stats) this.idle.onHint.add(() => this.stats.noteHint())
       if (this.feedback) {
         this.feedback.onMistake.add((m) => {
@@ -119,7 +119,7 @@ export class UIBindings extends BaseScriptComponent {
         })
         this.controlBar.onWhatsThis.add((on) => {
           if (on === this.partInfo.wanted) return // a sync from setWhatsThisLatched, not a press
-          this.press(this.controlBar, () => this.partInfo.setActive(on))
+          this.press(this.controlBar, `BtnWhatsThis (${on ? "on" : "off"})`, () => this.partInfo.setActive(on))
         })
       }
       if (this.askCoach) {
@@ -129,16 +129,18 @@ export class UIBindings extends BaseScriptComponent {
         })
         this.controlBar.onAsk.add((on) => {
           if (on === this.askCoach.open) return // a sync from setAskLatched, not a press
-          this.press(this.controlBar, () => this.askCoach.setOpen(on))
+          this.press(this.controlBar, `BtnAsk (${on ? "on" : "off"})`, () => this.askCoach.setOpen(on))
         })
       }
       if (this.finishCard) {
-        this.finishCard.onRestart.add(() => this.press(this.finishCard, () => this.manager.reset()))
+        this.finishCard.onRestart.add(() => this.press(this.finishCard, "BtnRestart", () => this.manager.reset()))
       }
     })
   }
 
-  private press(panel: BaseScriptComponent, action: () => void): void {
+  /** Every button press goes through here; the log line names the button (pass F). */
+  private press(panel: BaseScriptComponent, name: string, action: () => void): void {
+    print(`[UIBindings] press ${name}`)
     if (this.audio) this.audio.playTickAt(panel.sceneObject.getTransform().getWorldPosition())
     if (this.director) this.director.stop()
     if (this.idle) this.idle.touch()

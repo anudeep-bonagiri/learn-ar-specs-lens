@@ -254,6 +254,8 @@ export class RepairManager extends BaseScriptComponent {
 
   /** Times Replay did something on the current step (ghost, chime or glint flash). */
   replayCount: number = 0
+  /** What the last Replay showed (pass F; logged and read by tests), or "nothing". */
+  lastReplay: string = ""
 
   private _onStepChanged = new Event<number>()
   onStepChanged: PublicApi<number> = this._onStepChanged.publicApi()
@@ -406,22 +408,32 @@ export class RepairManager extends BaseScriptComponent {
    */
   replay(): void {
     const def = STEPS[this.step]
+    let what: string
     if (this.refit && this.refit.ownsStep(this.step) && this.refit.replay(this.step)) {
-      // the module showed it
+      what = "the step module's demo" // the module showed it
     } else if (def.showGhost && this.ghost && this.ghost.sceneObject.enabled) {
       this.ghost.play()
+      what = "the ghost lever's hooking motion"
     } else if (def.markerAnchor === "inspect" && !this.thornFound) {
       this.thorn.flash()
+      what = "the glint flash on the tire"
     } else if (this.stepMarker.enabled) {
       this.audio.playChimeAt(this.stepMarker.getTransform().getWorldPosition())
+      what = "the chime from the marker"
     } else if (def.showDoneCard) {
       this.audio.playDoneAt(this.doneCard.sceneObject.getTransform().getWorldPosition())
+      what = "the done cue"
     } else if (def.showFinishCard && this.finishCard) {
       this.audio.playFinishAt(this.finishCard.sceneObject.getTransform().getWorldPosition())
+      what = "the finish cue"
     } else {
+      this.lastReplay = "nothing"
+      this.log(`replay on step ${this.step} (${def.name}): nothing to replay`)
       return
     }
     this.replayCount += 1
+    this.lastReplay = what
+    this.log(`replay on step ${this.step} (${def.name}): ${what} (replay ${this.replayCount} on this step)`)
   }
 
   reset(): void {
@@ -647,6 +659,7 @@ export class RepairManager extends BaseScriptComponent {
     this.step = Math.max(0, Math.min(LAST_STEP, step))
     this.subStep = 0
     this.replayCount = 0
+    this.lastReplay = ""
     if (this.feedback) this.feedback.cancel()
     // Pass 11: step times (before applyStep, so step 10's time is in when the Finish card fills).
     if (this.stats) this.stats.noteStep(from, this.step)
