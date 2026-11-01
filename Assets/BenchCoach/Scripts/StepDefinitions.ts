@@ -219,12 +219,12 @@ export interface PartFact {
 export const PART_FACTS: PartFact[] = [
   {id: "Rim", target: "Wheel", title: "Rim", fact: "hoop the tire bead hooks onto.", offset: [-21.2, -21.2, 0], size: [5, 5, 3.4]},
   {id: "Hub", target: "Wheel", title: "Hub", fact: "the center. It spins on the axle.", offset: [0, 0, 0], size: [7, 7, 9]},
-  {id: "Spoke", target: "Spoke_2", title: "Spoke", fact: "holds the rim true under load.", offset: [0, 0, 0], size: [2.5, 16, 2.5]},
+  {id: "Spoke", target: "Spoke_2", title: "Spoke", fact: "holds the rim true under load.", offset: [0, 0, 0], size: [4, 16, 4]},
   {id: "Tire", target: "Wheel", title: "Tire", fact: "grips the road. Beads hold it on.", offset: [29.4, 17, 0], size: [5, 5, 4.5]},
   {id: "Tube", target: "TubeEnd", title: "Tube", fact: "holds the air. Easy to puncture.", offset: [0, 0, 0], size: [8, 8, 8]},
   {id: "Valve", target: "Valve", title: "Valve", fact: "unscrew the tip, then press.", offset: [0, 0, 0], size: [6, 8, 6]},
-  {id: "LeverA", target: "LeverA", title: "Lever", fact: "lifts the bead over the rim.", offset: [0, 0, 0], size: [13, 3, 2]},
-  {id: "LeverB", target: "LeverB", title: "Lever", fact: "lifts the bead over the rim.", offset: [0, 0, 0], size: [13, 3, 2]},
+  {id: "LeverA", target: "LeverA", title: "Lever", fact: "lifts the bead over the rim.", offset: [0, 0, 0], size: [13, 2.2, 2]},
+  {id: "LeverB", target: "LeverB", title: "Lever", fact: "lifts the bead over the rim.", offset: [0, 0, 0], size: [13, 2.2, 2]},
   {id: "Stand", target: "StandPost", title: "Stand", fact: "holds the wheel at work height.", offset: [0, 0, 0], size: [8, 150, 8]},
   {id: "Cause", target: "ThornHotspot", title: "Cause", fact: "", offset: [0, 0, 0], size: [5, 5, 5], cause: true},
 ]

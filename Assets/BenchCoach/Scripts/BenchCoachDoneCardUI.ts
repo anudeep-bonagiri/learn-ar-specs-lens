@@ -82,8 +82,8 @@ export class BenchCoachDoneCardUI extends BaseScriptComponent {
     })
     const rowW = this.panelWidth - 2
     flexChild(col, {w: rowW, h: 4.5, name: "Buttons"}, (child) => {
-      const row = flexRow(child, rowW, 4.5, {gap: 0.8, justify: FlexJustify.Center, align: FlexAlign.Center})
-      addLabelButton(row, "BtnContinue", this.continueLabel, ICON_FORWARD, 12.4, 4.5, d, () => {
+      const row = flexRow(child, rowW, 4.5, {gap: 1.6, justify: FlexJustify.Center, align: FlexAlign.Center})
+      addLabelButton(row, "BtnContinue", this.continueLabel, ICON_FORWARD, 11.6, 4.5, d, () => {
         this._onContinue.invoke()
       }, "Primary")
       addLabelButton(row, "BtnTryAgain", this.restartLabel, ICON_REPLAY, 8.8, 4.5, d, () => {

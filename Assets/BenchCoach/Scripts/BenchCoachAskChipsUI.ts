@@ -27,12 +27,12 @@ export class BenchCoachAskChipsUI extends BaseScriptComponent {
   @input
   @hint("Chip height in cm")
   @widget(new SliderWidget(2.4, 6, 0.1))
-  chipHeight: number = 3.2
+  chipHeight: number = 3.6
 
   @input
   @hint("Gap between chips in cm")
   @widget(new SliderWidget(0.2, 2, 0.1))
-  gap: number = 0.5
+  gap: number = 1.6
 
   @input
   @hint("Header text")

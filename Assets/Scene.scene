@@ -1567,8 +1567,6 @@
   Enabled: true
   ScriptAsset: !<reference> 53596e83-3730-4da0-946d-a66868705f02
   ScriptInputsDefault:
-    chipHeight: true
-    gap: true
     headerText: true
     viewDistanceCm: true
   ScriptTypesDefault:
@@ -1576,8 +1574,8 @@
   ScriptInputs:
     "":
       panelWidth: !<float> 15.000000
-      chipHeight: 3.200000
-      gap: 0.500000
+      chipHeight: 3.600000
+      gap: 1.600000
       headerText: Ask the coach
       emptyText: Ask on a repair step.
       viewDistanceCm: !<float> 90.000000
@@ -3847,19 +3845,18 @@
   ScriptAsset: !<reference> f7d81306-a581-4510-a7e5-35e67d74b1ba
   ScriptInputsDefault:
     nextSize: true
-    askSize: true
     padX: true
     railStripCm: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
     "":
-      backSize: 3.900000
+      backSize: 3.500000
       nextSize: !<float> 6.000000
-      replaySize: 3.900000
-      whatsThisSize: 3.900000
-      askSize: 3.900000
-      gap: 0.500000
+      replaySize: 3.500000
+      whatsThisSize: 3.500000
+      askSize: 3.500000
+      gap: 1.100000
       padding: !<float> 1.000000
       padX: 0.750000
       railStripCm: 1.600000
@@ -4727,7 +4724,7 @@
   Enabled: true
   Layers: 1
   LocalTransform: !<TransformEntity>
-    Position: {x: -2.350000, y: -35.432999, z: -44.664001}
+    Position: {x: -3.350000, y: -35.432999, z: -44.664001}
     Rotation: {x: -38.000000, y: 0.000000, z: 0.000000}
     Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
     HasSegmentScaleCompensation: false

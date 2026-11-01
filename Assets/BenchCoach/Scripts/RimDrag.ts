@@ -61,6 +61,8 @@ export class RimDrag extends BaseScriptComponent {
   private sweepElapsed = 0
   private sweepSec = 4
   private sweepFromDeg = 0
+  /** Grab box while armed on the rim: 3.5 cm is about 2.2 degrees at 91 cm (the tray box is 12 x 2 x 1). */
+  private static readonly ARMED_BOX = new vec3(12, 3.5, 2)
 
   private _onSegmentPassed = new Event<number>()
   private _onPeelComplete = new Event<void>()
@@ -94,6 +96,7 @@ export class RimDrag extends BaseScriptComponent {
       m.setCanScale(false)
     }
     this.placement.setManipulationActive(true)
+    this.placement.setColliderSize(RimDrag.ARMED_BOX)
     this.log(`armed at ${socketAngleDeg.toFixed(1)} deg, radius ${this.radiusCm.toFixed(1)} cm`)
   }
 
@@ -106,6 +109,7 @@ export class RimDrag extends BaseScriptComponent {
     this.armed = false
     this.sweeping = false
     if (wasArmed && this.placement) this.placement.setManipulationActive(false)
+    if (this.placement) this.placement.setColliderSize(null)
     this.releaseManipulation()
   }
 
@@ -129,6 +133,7 @@ export class RimDrag extends BaseScriptComponent {
     this.armed = false
     this.sweeping = false
     this.placement.setManipulationActive(false)
+    this.placement.setColliderSize(null)
     this.releaseManipulation()
   }
 
@@ -191,7 +196,10 @@ export class RimDrag extends BaseScriptComponent {
       this.complete = true
       this.armed = false
       this.sweeping = false
-      if (this.placement) this.placement.setManipulationActive(false)
+      if (this.placement) {
+        this.placement.setManipulationActive(false)
+        this.placement.setColliderSize(null)
+      }
       this.log("peel complete")
       this._onPeelComplete.invoke()
       return

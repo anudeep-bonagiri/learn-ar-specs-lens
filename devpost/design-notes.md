@@ -900,3 +900,34 @@ Left over:
   Performance was not measured.
 - **Floor figures elsewhere:** the brief's -150.1 for Colorful Home is superseded by about -135. `docs/TEAM_TASKS.md` was not updated.
 - **Hands-on walk:** no real-hand walk was done, and the cursor-tap verification is the preview mouse, not a Specs hand ray.
+
+## 2026-11-01: Pass G, target sizes and spacing (`docs/INFO_SESSION_OCT29.md` section 5.1)
+
+First pass on Lens Studio 5.24.1. Snap's rule is a target of at least 2 degrees and a gap of at least 1 degree, measured on the collider. The Nov 1 audit listed every target under that; this pass applies the exact values it gave, so no new measuring was done.
+
+| Target | Before | After |
+| --- | --- | --- |
+| Control bar (57 cm) | secondary buttons 3.9 cm, gap 0.5 (0.5 degrees) | buttons 3.5, gap 1.1 (1.1 degrees); Next stays 6. Bar 25.1 to 25.9 cm. Literal defaults and the scene values on `ControlBar`. |
+| `ControlBar` position | (-2.35, -35.433, -44.664) | (-3.35, same, same). At 25.1 cm the bar's bounds already met the tray's (10.2 vs 10 in x); at 25.9 they overlapped by 0.6 cm. 1 cm left puts the right edge at 9.6, 0.4 cm clear, and the left edge at -16.3, inside the -18.25 the bar had before F4. |
+| Start card: Found it and Watch (86 cm) | gap 0.8 | gap 1.6, `BtnFoundIt` 12 to 11.4 (the row still fills 21.6 cm) |
+| Halfway card: Continue and Start over (90 cm) | gap 0.8 | gap 1.6, `BtnContinue` 12.4 to 11.6 |
+| Ask question chips (89 cm) | chip 3.2, gap 0.5 | chip 3.6, gap 1.6 (defaults and the scene values on the `BenchCoachAskChipsUI` component) |
+| Lever B while sliding on the rim (91 cm) | 12 x 2 x 1 box, 1.25 degrees | `RimDrag.arm()` sets 12 x 3.5 x 2 through a new `LeverPlacement.setColliderSize()`; `disarm()`, `completeInstant()` and the peel-complete branch restore the tray size, so the two tray boxes don't overlap |
+| What's this? spoke | 2.5 x 16 x 2.5 | 4 x 16 x 4 |
+| What's this? levers | 13 x 3 x 2 (0.2 cm apart in the tray) | 13 x 2.2 x 2 (1.0 cm apart) |
+
+### LEAF
+
+All 20 scenarios passed from the default preview camera, one per call, on the first run: `start`, `deflate-loosen`, `lever-snap`, `peel-and-pull`, `inspect-done`, `step-ticks`, `scene-dressing`, `refit-tube`, `seat-inflate`, `whats-this`, `mistakes`, `flat-causes`, `progress-idle`, `watch-mode`, `ask-coach-fallback`, `floor-path`, `coach-report`, `control-bar`, `floor-level`, `jump-to-step`. `control-bar` ran once more after the 1 cm move and passed. `RunAndCollectLogsTool` shows no Lens errors.
+
+Findings:
+
+- **A live `BoxShape.size` can be changed at runtime.** `LeverPlacement` keeps the shape it created and resizes it on request; the Interactable keeps working through the change (`peel-and-pull`, `watch-mode`, `mistakes` and `coach-report` all drag lever B through an armed resize).
+- **Scene values were set on the components, not left to the recompile.** The scene flags these inputs as default (`ScriptInputsDefault`), but after pass F's lesson the values were written through `scene-graphql` and confirmed by read-back.
+- **Lens Studio 5.24.1 opened the project cleanly;** the MCP, LEAF panel and the 5.23 permission dialog were not an issue in this session.
+
+Left over:
+
+- **The taller lever box is unproven with a hand ray.** LEAF's interactor triggers the Interactable directly, so the tests prove the resize doesn't break the drag, not that a ray hits 3.5 cm more easily. The B4 mouse walk should include a grab of lever B mid-peel.
+- **The chips panel grew 4.5 cm taller** (14.9 to 19.4). `AskCoach`'s `maxElevationDeg` placement was not rechecked; `ask-coach-fallback` passes, but the panel's top edge from the start pose needs a look in the B1 check.
+- **Sections 5.2 (show and hide) and 5.3 (color-only signals) of the audit are not started.**

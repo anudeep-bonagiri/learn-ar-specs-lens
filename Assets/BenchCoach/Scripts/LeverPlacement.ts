@@ -58,6 +58,7 @@ export class LeverPlacement extends BaseScriptComponent {
   grabbed: boolean = false
 
   private manipulation: InteractableManipulation | null = null
+  private boxShape: BoxShape | null = null
   private homeParent: SceneObject | null = null
   private homeLocalPos = vec3.zero()
   private homeLocalRot = quat.quatIdentity()
@@ -109,6 +110,7 @@ export class LeverPlacement extends BaseScriptComponent {
       shape.size = this.colliderSize
       collider.shape = shape
     }
+    if (collider.shape && (collider.shape as BoxShape).size !== undefined) this.boxShape = collider.shape as BoxShape
     this.sceneObject.createComponent(Interactable.getTypeName()) as Interactable
     const manipulation = this.sceneObject.createComponent(
       InteractableManipulation.getTypeName()
@@ -169,6 +171,19 @@ export class LeverPlacement extends BaseScriptComponent {
   /** Let another controller (RimDrag) re-enable or disable grabbing while locked. */
   setManipulationActive(on: boolean): void {
     this.setManipulationEnabled(on)
+  }
+
+  /**
+   * Resize the grab box (cm). Null restores colliderSize. RimDrag grows it while the lever
+   * slides on the rim so it meets Snap's 2-degree minimum, and shrinks it back for the tray,
+   * where a bigger box would overlap the other lever's.
+   */
+  setColliderSize(size: vec3 | null): void {
+    if (this.boxShape) this.boxShape.size = size ? size : this.colliderSize
+  }
+
+  getColliderSize(): vec3 {
+    return this.boxShape ? this.boxShape.size : this.colliderSize
   }
 
   getManipulation(): InteractableManipulation | null {

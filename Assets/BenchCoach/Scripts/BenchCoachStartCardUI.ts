@@ -77,8 +77,8 @@ export class BenchCoachStartCardUI extends BaseScriptComponent {
     // Found it (the main action) and Watch side by side, same height as the old single button.
     const rowW = this.panelWidth - 2.4
     flexChild(col, {w: rowW, h: 6, name: "Buttons"}, (child) => {
-      const row = flexRow(child, rowW, 6, {gap: 0.8, justify: FlexJustify.Center, align: FlexAlign.Center})
-      addLabelButton(row, "BtnFoundIt", this.buttonLabel, ICON_CHECK, 12, 6, d, () => {
+      const row = flexRow(child, rowW, 6, {gap: 1.6, justify: FlexJustify.Center, align: FlexAlign.Center})
+      addLabelButton(row, "BtnFoundIt", this.buttonLabel, ICON_CHECK, 11.4, 6, d, () => {
         this._onFoundIt.invoke()
       })
       addLabelButton(row, "BtnWatch", this.watchLabel, ICON_PLAY, 8.6, 6, d, () => {

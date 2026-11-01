@@ -12,7 +12,7 @@ import {AskCoach} from "../Scripts/AskCoach"
 /**
  * Pass F: the control bar's hit boxes and targeting.
  * - Every bar button's live collider is as wide as its visual and none overlaps
- *   its neighbor (Next is 6 cm, the rest 3.9 cm, 0.5 cm gaps).
+ *   its neighbor (Next is 6 cm, the rest 3.5 cm, 1.1 cm gaps).
  * - Every initialized UIKit button answers only a ray pinch (TargetingMode.Indirect),
  *   so a hand passing through cannot poke it; the grabbable tools and wheel parts
  *   keep direct targeting.

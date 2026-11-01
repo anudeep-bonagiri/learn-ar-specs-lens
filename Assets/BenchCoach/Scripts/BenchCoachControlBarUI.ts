@@ -28,7 +28,7 @@ export class BenchCoachControlBarUI extends BaseScriptComponent {
   @input
   @hint("Back button size in cm")
   @widget(new SliderWidget(3, 10, 0.5))
-  backSize: number = 3.9
+  backSize: number = 3.5
 
   @input
   @hint("Next button size in cm (the brightest, largest target)")
@@ -38,22 +38,22 @@ export class BenchCoachControlBarUI extends BaseScriptComponent {
   @input
   @hint("Replay button size in cm")
   @widget(new SliderWidget(3, 10, 0.5))
-  replaySize: number = 3.9
+  replaySize: number = 3.5
 
   @input
   @hint("What's this? button size in cm")
   @widget(new SliderWidget(3, 10, 0.5))
-  whatsThisSize: number = 3.9
+  whatsThisSize: number = 3.5
 
   @input
   @hint("Ask button size in cm")
   @widget(new SliderWidget(3, 10, 0.5))
-  askSize: number = 3.9
+  askSize: number = 3.5
 
   @input
   @hint("Gap between buttons in cm")
   @widget(new SliderWidget(0.4, 5, 0.1))
-  gap: number = 0.5
+  gap: number = 1.1
 
   @input
   @hint("Panel padding above and below the buttons in cm")
@@ -127,8 +127,9 @@ export class BenchCoachControlBarUI extends BaseScriptComponent {
     row.getTransform().setLocalPosition(new vec3(rp.x, rp.y + this.railStripCm / 2, rp.z))
     // What's this? and Ask sit at the left end (the tool tray is on the right). F4 (pass 10)
     // kept the bar at 25.1 cm so, looking 32 degrees down, every button and the rail are in
-    // view and the right end clears the tray; pass 12 fits BtnAsk in the same 25.1 cm
-    // (secondary buttons 3.9 cm, gap 0.5, side padding 0.75; Next stays 6 cm).
+    // view and the right end clears the tray. The Nov 1 target audit widened it to 25.9 cm
+    // (secondary buttons 3.5 cm, gap 1.1 so neighbors are 1 degree apart at 57 cm, side
+    // padding 0.75; Next stays 6 cm), which is 0.4 cm per side: still clear of the tray.
     const btn = addIconButton(row, "BtnWhatsThis", ICON_INFO, this.whatsThisSize, () => {})
     const askBtn = addIconButton(row, "BtnAsk", ICON_ASK, this.askSize, () => {})
     const backBtn = addIconButton(row, "BtnBack", ICON_BACK, this.backSize, () => this._onBack.invoke())
