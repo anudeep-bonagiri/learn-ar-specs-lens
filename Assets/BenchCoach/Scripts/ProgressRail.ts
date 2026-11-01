@@ -64,7 +64,11 @@ export class ProgressRail extends BaseScriptComponent {
   private visuals: RenderMeshVisual[] = []
   private steps: number[] = []
   private dimMat: Material | null = null
+  /** Runtime clone of `material` for lit dots, so the rail can fade with the control bar. */
+  private litMat: Material | null = null
   private lastStep = -1
+  /** Current dot opacity (0..1), set by the control bar fade. */
+  opacity: number = 1
 
   onAwake(): void {
     if (!this.dotMesh || !this.material) {
@@ -72,10 +76,14 @@ export class ProgressRail extends BaseScriptComponent {
       return
     }
     this.steps = railSteps()
+    this.litMat = this.material.clone()
     this.dimMat = this.material.clone()
     const c = this.material.mainPass.baseColor
     const b = this.dimBrightness
     this.dimMat.mainPass.baseColor = new vec4(c.x * b, c.y * b, c.z * b, 1)
+    // MarkerMat has blending off; the clones blend so setOpacity() can fade the dots with the bar.
+    this.litMat.mainPass.blendMode = BlendMode.Normal
+    this.dimMat.mainPass.blendMode = BlendMode.Normal
     const n = this.steps.length
     for (let i = 0; i < n; i++) {
       const so = global.scene.createSceneObject(`RailDot_${i}`)
@@ -103,10 +111,20 @@ export class ProgressRail extends BaseScriptComponent {
       const s = this.steps[i]
       if (s < step) lit++
       if (s === step) this.currentIndex = i
-      this.visuals[i].mainMaterial = s <= step ? this.material : this.dimMat
+      this.visuals[i].mainMaterial = s <= step ? this.litMat : this.dimMat
       this.dots[i].getTransform().setLocalScale(vec3.one().uniformScale(this.dotSizeCm))
     }
     this.litCount = lit
+  }
+
+  /** Fade the dots (0..1); the control bar calls this with its own opacity. */
+  setOpacity(o: number): void {
+    if (o === this.opacity || !this.litMat || !this.dimMat) return
+    this.opacity = o
+    for (const m of [this.litMat, this.dimMat]) {
+      const c = m.mainPass.baseColor
+      m.mainPass.baseColor = new vec4(c.x, c.y, c.z, o)
+    }
   }
 
   private tick(): void {

@@ -10,6 +10,10 @@
  */
 import Event, {PublicApi} from "SpectaclesInteractionKit.lspkg/Utils/Event"
 import {Button} from "SpectaclesUIKit.lspkg/Scripts/Components/Button/Button"
+import {ElementContent} from "SpectaclesUIKit.lspkg/Scripts/Components/Content/ElementContent"
+import {RoundedRectangle} from "SpectaclesUIKit.lspkg/Scripts/Visuals/RoundedRectangle/RoundedRectangle"
+import {BodyFollow} from "./BodyFollow"
+import {ProgressRail} from "./ProgressRail"
 import {FlexAlign, FlexJustify} from "SpectaclesUIKit.lspkg/Scripts/Components/Layout2D/Flex/FlexTypes"
 import {addIconButton, backPlatePanel, flexRow} from "./UIHelpers"
 
@@ -56,6 +60,21 @@ export class BenchCoachControlBarUI extends BaseScriptComponent {
   gap: number = 1.1
 
   @input
+  @hint("Opacity while a part is held or the user looks at the wheel (Nov 1 audit: show it only when needed); 1 = never fade")
+  @widget(new SliderWidget(0, 1, 0.05))
+  faintOpacity: number = 0.3
+
+  @input
+  @hint("Camera pitch, in degrees below level, past which the user is looking down at the bar and it comes back to full")
+  @widget(new SliderWidget(5, 45, 1))
+  lookDownDeg: number = 22
+
+  @input
+  @hint("Seconds for a fade between faint and full")
+  @widget(new SliderWidget(0, 2, 0.05))
+  fadeSec: number = 0.3
+
+  @input
   @hint("Panel padding above and below the buttons in cm")
   @widget(new SliderWidget(0.5, 4, 0.25))
   padding: number = 1
@@ -96,6 +115,17 @@ export class BenchCoachControlBarUI extends BaseScriptComponent {
 
   /** Hit boxes along the bar, in cm from its center, once measured (tests read it). */
   hitBoxes: {name: string; left: number; right: number; visualWidth: number}[] = []
+  /** Current bar opacity (0..1). */
+  opacity: number = 1
+  /** Why the bar is faint: "held", "wheel", or "" while full (hovered, or looking down at it). */
+  faintReason: string = ""
+  private hoverCount = 0
+  private follow: BodyFollow | null = null
+  private rail: ProgressRail | null = null
+  private plate: RoundedRectangle | null = null
+  private contents: ElementContent[] = []
+  private fadeReady = false
+
   /** True once the hit boxes were measured, each matches its visual width and none overlaps its neighbor. */
   hitBoxesClear: boolean = false
 
@@ -150,6 +180,18 @@ export class BenchCoachControlBarUI extends BaseScriptComponent {
     this.ask = askBtn
     // Measure once the buttons are up and FlexLayout has placed them (it lays out a few
     // frames after init; until then every button sits at the bar's center).
+    this.follow = this.sceneObject.getComponent(BodyFollow.getTypeName()) as BodyFollow | null
+    for (let i = 0; i < this.sceneObject.getChildrenCount(); i++) {
+      const r = this.sceneObject.getChild(i).getComponent(ProgressRail.getTypeName()) as ProgressRail | null
+      if (r) this.rail = r
+    }
+    for (const b of this.buttons) {
+      b.onInitialized.add(() => {
+        b.interactable.onHoverEnter.add(() => (this.hoverCount += 1))
+        b.interactable.onHoverExit.add(() => (this.hoverCount = Math.max(0, this.hoverCount - 1)))
+      })
+    }
+    this.createEvent("LateUpdateEvent").bind(() => this.fadeTick())
     let settled = 0
     const check = this.createEvent("UpdateEvent")
     check.bind(() => {
@@ -158,6 +200,51 @@ export class BenchCoachControlBarUI extends BaseScriptComponent {
       check.enabled = false
       this.logHitBoxes()
     })
+  }
+
+  /**
+   * Show it only when needed (Nov 1 audit): the bar fades to faintOpacity while a lever
+   * or the tube end is held, or while the user looks at the wheel rather than down at the
+   * bar; it returns to full when a button is hovered or the camera pitches down past
+   * lookDownDeg. Hover wins, so a ray on the bar always sees it solid.
+   */
+  private fadeTick(): void {
+    if (!this.fadeReady) {
+      if (!this.buttons.every((b) => b.initialized)) return
+      this.plate = this.sceneObject.getComponent(RoundedRectangle.getTypeName()) as RoundedRectangle | null
+      this.contents = this.buttons
+        .map((b) => b.getSceneObject().getComponent(ElementContent.getTypeName()) as ElementContent | null)
+        .filter((c) => !!c) as ElementContent[]
+      this.fadeReady = true
+    }
+    let reason = ""
+    if (this.hoverCount === 0 && this.faintOpacity < 1) {
+      if (this.follow && this.follow.isHeld()) reason = "held"
+      else if (!this.lookingDown()) reason = "wheel"
+    }
+    this.faintReason = reason
+    const target = reason ? this.faintOpacity : 1
+    if (this.opacity === target) return
+    const step = this.fadeSec > 0 ? getDeltaTime() / this.fadeSec : 1
+    const o = this.opacity < target ? Math.min(target, this.opacity + step) : Math.max(target, this.opacity - step)
+    this.applyOpacity(o)
+  }
+
+  /** Camera pitch at least lookDownDeg below level, with a 3 degree band so it doesn't flicker. */
+  private lookingDown(): boolean {
+    const cam = this.follow ? this.follow.camera : null
+    if (!cam) return true
+    const look = cam.getTransform().getWorldRotation().multiplyVec3(new vec3(0, 0, -1))
+    const downDeg = (-Math.asin(Math.max(-1, Math.min(1, look.y))) * 180) / Math.PI
+    return downDeg >= this.lookDownDeg - (this.faintReason === "wheel" ? 0 : 3)
+  }
+
+  private applyOpacity(o: number): void {
+    this.opacity = o
+    if (this.plate) this.plate.opacity = o
+    for (const b of this.buttons) b.opacity = o
+    for (const c of this.contents) c.opacity = o
+    if (this.rail) this.rail.setOpacity(o)
   }
 
   /** Measures each button's live collider along the bar's x axis and logs it. */

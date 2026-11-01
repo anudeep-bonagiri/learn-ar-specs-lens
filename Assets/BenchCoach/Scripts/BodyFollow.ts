@@ -106,7 +106,8 @@ export class BodyFollow extends BaseScriptComponent {
     return quat.angleAxis(Math.atan2(back.x, back.z), new vec3(0, 1, 0))
   }
 
-  private isHeld(): boolean {
+  /** A lever or the tube end is grabbed or tweening (public for the control bar fade). */
+  isHeld(): boolean {
     if (this.tubeFit && this.tubeFit.isBusy()) return true
     if (!this.levers) return false
     for (const lever of this.levers) if (lever && lever.isBusy()) return true

@@ -18,6 +18,8 @@ import {AskCoach} from "../Scripts/AskCoach"
  *   keep direct targeting.
  * - Replay keeps the step and says what it replayed; each bar button acts alone
  *   (Back and Next move one step, What's this? and Ask toggle only their mode).
+ * - Pass G2: from the default pose (looking at the wheel) the bar starts at its faint
+ *   opacity with faintReason "wheel"; the hover and look-down returns are not simulated.
  * The hand pass-through itself is not simulated here (LEAF's interactor does not
  * travel through space); see the pass F notes for the preview-hand check.
  */
@@ -46,6 +48,13 @@ export class ControlBarScenario extends Scenario {
       }
     }
     expect(bar.hitBoxesClear, "bar reports its hit boxes clear").toBe(true)
+
+    // ── Fade (pass G2): from the default pose the user looks at the wheel, 12 degrees
+    // down, so the bar sits faint; nothing is held and no ray hovers it yet. ───────
+    for (let i = 0; i < 20 && bar.opacity !== bar.faintOpacity; i++) await sleep(100)
+    expect(bar.faintReason, "bar faint because the user looks at the wheel").toBe("wheel")
+    expect(bar.opacity, "bar at its faint opacity").toBeCloseTo(bar.faintOpacity, 2)
+    expect(bar.faintOpacity, "faint opacity is a real fade").toBeLessThan(1)
 
     // ── Targeting: UI buttons ray only, tools and wheel parts direct ──────
     const buttons: Button[] = []

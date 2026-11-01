@@ -931,3 +931,34 @@ Left over:
 - **The taller lever box is unproven with a hand ray.** LEAF's interactor triggers the Interactable directly, so the tests prove the resize doesn't break the drag, not that a ray hits 3.5 cm more easily. The B4 mouse walk should include a grab of lever B mid-peel.
 - **The chips panel grew 4.5 cm taller** (14.9 to 19.4). `AskCoach`'s `maxElevationDeg` placement was not rechecked; `ask-coach-fallback` passes, but the panel's top edge from the start pose needs a look in the B1 check.
 - **Sections 5.2 (show and hide) and 5.3 (color-only signals) of the audit are not started.**
+
+## 2026-11-01: Pass G2, show it only when needed (`docs/INFO_SESSION_OCT29.md` section 5.2)
+
+Joe's main Design point: things appear when needed and get out of the way after. The Nov 1 audit named three things that stayed up: the control bar (always on, covering the lowest edge of the tire), the Ask chips (open across steps, no timeout, blocking idle hints) and the Ask answer (no timeout).
+
+| Item | Before | After |
+| --- | --- | --- |
+| Control bar | Always full | `BenchCoachControlBarUI` fades the bar to `faintOpacity` (0.3) while a lever or the tube end is held (`BodyFollow.isHeld()`, now public) or while the user looks at the wheel; it returns to full when any bar button is hovered by the ray, or the camera pitches down past `lookDownDeg` (22, with a 3 degree band so it doesn't flicker). Hover wins. `fadeSec` 0.3. The fade drives UIKit `Button.opacity`, each button's `ElementContent.opacity` (the icon; `Button.opacity` doesn't reach it), the BackPlate's `RoundedRectangle.opacity` and a new `ProgressRail.setOpacity()`. |
+| Ask question chips | Open until toggled, What's this?, reset or watch mode | Also close after `chipsIdleSec` (10 s) without a chip press, an answer, an open or a step change. They still follow the step while open (`ask-coach-fallback` asserts that). |
+| Ask answer | Up until the step changed or Ask closed | Also hides after `answerSec` (8 s) once a real answer is shown; the "thinking" text is never timed. |
+| What's this? fact label | Over the wheel for hub and spoke | Not changed (the audit rated it low priority). |
+
+`ProgressRail` now clones `MarkerMat` for the lit dots as well as the dim ones, with `BlendMode.Normal` on both clones (the asset has blending off), so the dots take an alpha. The dot colours are unchanged.
+
+### LEAF
+
+All 20 scenarios passed from the reset preview camera, one per call. `control-bar` gained a fade check: from the default pose the bar reads `faintReason` "wheel" at its faint opacity. The look-down and hover returns are not in LEAF (its interactor neither hovers nor moves the camera); they were checked by hand: `MovePreviewCamera lookAt (0, -35, -45)` brought the bar to full in the preview and in `CaptureRuntimeViewTool`, and `reset` sent it faint again.
+
+Findings:
+
+- **The preview camera's "default" is identity (pitch 0).** This session started at -12 degrees, left over from an earlier session; `MovePreviewCamera reset` gives 0. Both poses count as looking at the wheel for the fade.
+- **`MovePreviewCamera rotate` with `pitch: -20` turned the camera to +89 degrees** (looking straight up), not 20 degrees down. Use `lookAt` with a point for an absolute pitch.
+- **`RunAndCollectLogsTool` can return before the Lens has registered LEAF** when the log goes quiet for 800 ms during startup; the tail a few seconds later had everything. Don't read a short refresh log as a halted Lens.
+- **Script fields don't show in `QueryRuntimeSceneTool`;** `components(filter:["ScriptComponent"])` lists only `scriptAsset`. Verify script state through LEAF or prints.
+
+Left over:
+
+- **The faint bar from the default pose changes the demo's look:** the bar is at 30 % until the user looks down or hovers it. If the video wants the bar solid in a shot, hover it or set `faintOpacity` to 1 on `ControlBar` for the take.
+- **Hover counting assumes every `onHoverEnter` gets an `onHoverExit`.** If a button is destroyed or disabled mid-hover the count could stick at 1 and the bar stay full; no bar button is ever disabled today.
+- **Watch mode and the far-side step were not re-looked-at for the fade.** During watch mode nothing is held and the user watches the wheel, so the bar is faint, which is what we want; untested by eye.
+- **5.3 (colour-only signals) is not started.**

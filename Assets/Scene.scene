@@ -1276,6 +1276,8 @@
     model: true
     systemPrompt: true
     panelGapCm: true
+    answerSec: true
+    chipsIdleSec: true
     maxElevationDeg: true
   ScriptTypesDefault:
     {}
@@ -1294,6 +1296,8 @@
       model: gemini-2.5-flash
       systemPrompt: "You are a calm bike mechanic. Answer in at most 2 short sentences, specific to this step: {step}."
       panelGapCm: 0.500000
+      answerSec: !<float> 8.000000
+      chipsIdleSec: !<float> 10.000000
       maxElevationDeg: !<float> 18.000000
   ScriptTypes:
     "":
@@ -3845,6 +3849,9 @@
   ScriptAsset: !<reference> f7d81306-a581-4510-a7e5-35e67d74b1ba
   ScriptInputsDefault:
     nextSize: true
+    faintOpacity: true
+    lookDownDeg: true
+    fadeSec: true
     padX: true
     railStripCm: true
   ScriptTypesDefault:
@@ -3857,6 +3864,9 @@
       whatsThisSize: 3.500000
       askSize: 3.500000
       gap: 1.100000
+      faintOpacity: 0.300000
+      lookDownDeg: !<float> 22.000000
+      fadeSec: 0.300000
       padding: !<float> 1.000000
       padX: 0.750000
       railStripCm: 1.600000
