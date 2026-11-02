@@ -37,6 +37,7 @@
     deflateScale: false
     doneCard: false
     environment: false
+    farSideLabelLiftCm: false
     feedback: false
     finishCard: false
     forceCause: false
@@ -106,6 +107,7 @@
       beadRadiusCm: 33.400002
       markerStandoffCm: 1.500000
       labelOffsetCm: !<float> 10.000000
+      farSideLabelLiftCm: !<float> 20.000000
       deflateScale: 0.960000
       beadPushCm: 0.500000
       beadLiftCm: !<float> 1.000000
@@ -156,6 +158,7 @@
     - '// @input float beadRadiusCm = 33.4 {"hint":"Bead major radius in cm (matches the Bead_i TorusArc)", "widget":"slider", "min":10, "max":60, "step":0.1}'
     - '// @input float markerStandoffCm = 1.5 {"hint":"Marker stand-off in front of the part, in cm", "widget":"slider", "min":0, "max":10, "step":0.5}'
     - '// @input float labelOffsetCm = 10 {"hint":"Label distance from its marker, in cm", "widget":"slider", "min":4, "max":30, "step":0.5}'
+    - "// @input float farSideLabelLiftCm = 20 {\"hint\":\"Step 5 (far side): lift the label this much above its 6 o'clock spot, so from the start pose it is not behind the body-locked control bar (pass G5, B1)\", \"widget\":\"slider\", \"min\":0, \"max\":40, \"step\":1}"
     - '// @input float deflateScale = 0.96 {"hint":"Tire scale after deflating (0.96 = 4% smaller)", "widget":"slider", "min":0.8, "max":1, "step":0.01}'
     - '// @input float beadPushCm = 0.5 {"hint":"How far each loosened bead shifts toward the rim center, in cm", "widget":"slider", "min":0.1, "max":3, "step":0.1}'
     - '// @input float beadLiftCm = 1 {"hint":"How far Bead_0 lifts radially outward when lever A hooks, in cm", "widget":"slider", "min":0.2, "max":5, "step":0.1}'

@@ -200,6 +200,11 @@ export class RepairManager extends BaseScriptComponent {
   labelOffsetCm: number = 10
 
   @input
+  @hint("Step 5 (far side): lift the label this much above its 6 o'clock spot, so from the start pose it is not behind the body-locked control bar (pass G5, B1)")
+  @widget(new SliderWidget(0, 40, 1))
+  farSideLabelLiftCm: number = 20
+
+  @input
   @hint("Tire scale after deflating (0.96 = 4% smaller)")
   @widget(new SliderWidget(0.8, 1, 0.01))
   deflateScale: number = 0.96
@@ -819,12 +824,16 @@ export class RepairManager extends BaseScriptComponent {
     // Searching: the label sits above the wheel, not next to the answer.
     const angleDeg = def.markerAnchor === "inspect" && !this.thornFound ? 0 : anchor.angleDeg
     const dir = new vec3(Math.sin((angleDeg * Math.PI) / 180), Math.cos((angleDeg * Math.PI) / 180), 0)
+    // Once the thorn is found the label sits by it, in front of the pulled tube that hangs 10 cm
+    // off the wheel; while searching it is above the wheel at the usual depth (pass G5, B1: 16 cm
+    // nearer made the Ask chips clip the view's left edge). Step 5's label lifts clear of the bar.
+    const forward = def.markerAnchor === "inspect" && this.thornFound ? 16 : 4
+    const lift = def.markerAnchor === "tubeEnd" ? this.farSideLabelLiftCm : 0
     const labelPos = this.wheel
       .getTransform()
       .getWorldPosition()
       .add(dir.uniformScale(anchor.radius + this.labelOffsetCm))
-      // On the inspect step the pulled tube hangs 10 cm in front of the wheel: the label goes in front of it.
-      .add(new vec3(0, 0, def.markerAnchor === "inspect" ? 16 : 4))
+      .add(new vec3(0, lift, forward))
     this.stepLabel.sceneObject.getTransform().setWorldPosition(labelPos)
   }
 

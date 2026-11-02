@@ -1011,3 +1011,27 @@ Left over:
 - **No shot of the line mid-sweep;** it lasts 1.2 s. For the video, `jump-to-step` with `step` 1 replays it on demand.
 - **The sweep is a line, not an outline that traces the wheel.** The audit wrote "an outline sweeps the wheel"; a line crossing it reads as a scan and cost one component. A rim-shaped outline (a TorusArc that draws itself round) is the richer version if there is time.
 - **Hierarchy order:** `ScanReveal` is the last child of `BenchCoach`, after `RepairManager`, so its `OnStart` subscription lands after the manager's; it reacts to step changes only, so order does not matter today.
+
+## 2026-11-01: Pass G5, the three Pass 12 layout bugs (`docs/INFO_SESSION_OCT29.md` B1)
+
+Checked from the reset preview camera with `jump-to-step` and the Preview panel screenshot. Each bug had a cause the Pass 12 notes didn't name; none needed the Ask panels resized.
+
+| Bug | Cause | Fix |
+| --- | --- | --- |
+| Step 6: the question chips clip about 2 cm at the left edge | The inspect step pulled the label 16 cm toward the user (so it sits in front of the hanging tube once the thorn is found) *while searching too*, when the label is simply above the wheel. At 74 cm the chips' outer edge (label.x - 23.5 cm) is 17.6 degrees out; the view's half-width is about 16. | `RepairManager.placeMarkerAndLabel`: the 16 cm only once `thornFound`; while searching the label is at the normal 4 cm. At 86 cm the same chips edge is 15.3 degrees: inside. |
+| Steps 2 to 4: the answer's first line sits in the faded top edge | `AskCoach.maxElevationDeg` 18 is Specs' own top edge (about 18.5 degrees), so the answer flipped under the label only when it was already off the display. | `maxElevationDeg` 14 (default and scene value). And the flipped answer no longer goes *under the label*, where it covered the marker ring and the part and ran past the view's right edge on step 2: in the high case it sits under the question chips (left of the part, in reading order). The normal case is unchanged: above the label, next to the part. |
+| Step 5: the label and answer sit behind the control bar from the start pose | The far-side label was at 6 o'clock, 71 cm below the eye at 86 cm (39 degrees down), the same band as the body-locked bar (38 degrees down, 45 cm out). | New `RepairManager.farSideLabelLiftCm` 20: the step 5 label sits at -51 cm (31 degrees down), above the bar's top edge, 8 cm above the tube end it points at. The marker ring stays on the tube end. |
+
+### LEAF
+
+All 20 scenarios passed from the reset preview camera, one per call; `ask-coach-fallback` (answer within 10 cm of the step 5 label) and `inspect-done` were run first. No scenario changes: these are placements LEAF doesn't assert, checked by screenshot — step 6 with Ask open (chips fully inside the view), step 2 with a canned answer (answer under the chips, marker clear), and step 5 looking 33 degrees down (label, answer and chips above the bar).
+
+Findings:
+
+- **The Ask timeouts from pass G2 race the screenshot workflow:** a `jump-to-step` run plus the call latency is about 10 s, so the first step 6 shot came one second after the chips had closed. For screenshot sessions set `chipsIdleSec` and `answerSec` to 60 on the `AskCoach` component, and put them back (10 and 8) before the sweep; both are restored in the committed scene.
+- **Two of the three bugs were depth, not layout:** the same panel at 74 cm instead of 86 cm is 16 % bigger on screen.
+
+Left over:
+
+- **B4, the hands-on mouse walk,** is still untested (LEAF skips the ray).
+- **The Ask panels are the friend's files** (`TEAM_TASKS.md` handoff); passes G, G2 and G5 touched `AskCoach.ts` and `BenchCoachAskChipsUI.ts` per the Nov 1 audit. Sujeeth is telling the friend; the changes are the chip size, the two timeouts, `maxElevationDeg` and the high-case answer spot.

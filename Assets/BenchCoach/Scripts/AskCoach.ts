@@ -113,9 +113,9 @@ export class AskCoach extends BaseScriptComponent {
   chipsIdleSec: number = 10
 
   @input
-  @hint("Highest a panel's top edge may sit above the eye, in degrees; above that the answer goes under the label and the chips top-align with it")
+  @hint("Highest a panel's top edge may sit above the eye, in degrees; above that the answer goes under the label and the chips top-align with it. 14 keeps the answer's first line out of the display's faded top edge (Specs shows about 18.5 degrees up)")
   @widget(new SliderWidget(5, 40, 1))
-  maxElevationDeg: number = 18
+  maxElevationDeg: number = 14
   @ui.group_end
 
   /** Ask is open (chips shown). */
@@ -335,12 +335,18 @@ export class AskCoach extends BaseScriptComponent {
     const chipsH = this.chips.height
     const up = labelH / 2 + this.panelGapCm + answerH / 2
     const high = this.tooHigh(l.add(new vec3(0, up + answerH / 2, 0)))
-    if (this.answerShown) {
-      this.answerPanel.sceneObject.getTransform().setWorldPosition(l.add(new vec3(0, high ? -up : up, 0.5)))
-    }
     const side = this.stepLabel.panelWidth / 2 + this.panelGapCm + this.chips.panelWidth / 2
     const dy = high ? (labelH - chipsH) / 2 : (chipsH - labelH) / 2
-    this.chips.sceneObject.getTransform().setWorldPosition(l.add(lt.right.uniformScale(-side)).add(new vec3(0, dy, 0.5)))
+    const chipsPos = l.add(lt.right.uniformScale(-side)).add(new vec3(0, dy, 0.5))
+    this.chips.sceneObject.getTransform().setWorldPosition(chipsPos)
+    if (this.answerShown) {
+      // Normal: the answer above the label, next to the part. High (the label is already near
+      // the top of the view): under the question chips instead of under the label, so it never
+      // covers the marker and the part, stays inside the view's side edge, and reads in order
+      // (questions, then the answer). Pass G5, B1.
+      const underChips = chipsPos.add(new vec3(0, -(chipsH / 2 + this.panelGapCm + answerH / 2), 0))
+      this.answerPanel.sceneObject.getTransform().setWorldPosition(high ? underChips : l.add(new vec3(0, up, 0.5)))
+    }
   }
 
   /** The point is more than maxElevationDeg above the eye (horizontal distance from the camera). */

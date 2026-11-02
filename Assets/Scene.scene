@@ -1295,7 +1295,6 @@
     panelGapCm: true
     answerSec: true
     chipsIdleSec: true
-    maxElevationDeg: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
@@ -1315,7 +1314,7 @@
       panelGapCm: 0.500000
       answerSec: !<float> 8.000000
       chipsIdleSec: !<float> 10.000000
-      maxElevationDeg: !<float> 18.000000
+      maxElevationDeg: !<float> 14.000000
   ScriptTypes:
     "":
       {}
@@ -2719,6 +2718,7 @@
     beadRadiusCm: true
     markerStandoffCm: true
     labelOffsetCm: true
+    farSideLabelLiftCm: true
     deflateScale: true
     beadPushCm: true
     beadLiftCm: true
@@ -2761,6 +2761,7 @@
       beadRadiusCm: 33.400002
       markerStandoffCm: 1.500000
       labelOffsetCm: !<float> 10.000000
+      farSideLabelLiftCm: !<float> 20.000000
       deflateScale: 0.960000
       beadPushCm: 0.500000
       beadLiftCm: !<float> 1.000000
