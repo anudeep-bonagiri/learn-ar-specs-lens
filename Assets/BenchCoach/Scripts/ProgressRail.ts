@@ -1,8 +1,9 @@
 /**
  * ProgressRail — a row of small dots on the control bar, one per step that has
  * `railDot` in StepDefinitions (the cards 0, 7 and 11 have none). Done steps are
- * bright, the current step pulses, steps ahead use a dim copy of the marker
- * material (the StepTicks trick: dim cyan, never dark on the additive display).
+ * small bright ticks (pass G3: shape as well as brightness, for anyone who can't
+ * tell two cyans apart), the current step is a pulsing dot, steps ahead are dim
+ * dots in a copy of the marker material (dim cyan, never dark on the additive display).
  * Owns: the dot children of this SceneObject. Reads the step from RepairManager.
  * Must not: change steps. Lives on ControlBar/ProgressRail, so it body-follows with the bar.
  * Expects: @inputs manager, dotMesh (unit sphere), material (MarkerMat).
@@ -48,6 +49,11 @@ export class ProgressRail extends BaseScriptComponent {
   dimBrightness: number = 0.5
 
   @input
+  @hint("Width of the tick that replaces a done step's dot, in cm (shape, not only brightness, says done)")
+  @widget(new SliderWidget(0.5, 3, 0.1))
+  tickSizeCm: number = 1.4
+
+  @input
   @hint("Pulses per second of the current step's dot")
   @widget(new SliderWidget(0.2, 4, 0.1))
   pulseHz: number = 1.5
@@ -60,7 +66,11 @@ export class ProgressRail extends BaseScriptComponent {
   /** Index of the pulsing dot, or -1 on a card step. */
   currentIndex: number = -1
 
+  /** Done steps shown as ticks (pass G3: never brightness alone). */
+  tickCount: number = 0
+
   private dots: SceneObject[] = []
+  private ticks: SceneObject[] = []
   private visuals: RenderMeshVisual[] = []
   private steps: number[] = []
   private dimMat: Material | null = null
@@ -94,6 +104,9 @@ export class ProgressRail extends BaseScriptComponent {
       rmv.mainMaterial = this.dimMat
       this.dots.push(so)
       this.visuals.push(rmv)
+      const tick = this.buildTick(`RailTick_${i}`, so.getTransform().getLocalPosition())
+      tick.enabled = false
+      this.ticks.push(tick)
     }
     this.dotCount = n
     this.createEvent("OnStartEvent").bind(() => {
@@ -112,9 +125,40 @@ export class ProgressRail extends BaseScriptComponent {
       if (s < step) lit++
       if (s === step) this.currentIndex = i
       this.visuals[i].mainMaterial = s <= step ? this.litMat : this.dimMat
+      // A done step is a tick, not a brighter dot: shape carries the state as well as brightness.
+      this.ticks[i].enabled = s < step
+      this.dots[i].enabled = s >= step
       this.dots[i].getTransform().setLocalScale(vec3.one().uniformScale(this.dotSizeCm))
     }
     this.litCount = lit
+    this.tickCount = lit
+  }
+
+  /**
+   * A small check mark from two stretched spheres (the rail has no box mesh), in the
+   * StepTicks proportions: short stroke down-right into the corner, long stroke up-right.
+   */
+  private buildTick(name: string, at: vec3): SceneObject {
+    const tick = global.scene.createSceneObject(name)
+    tick.setParent(this.sceneObject)
+    tick.getTransform().setLocalPosition(at)
+    const s = this.tickSizeCm
+    const t = s * 0.22
+    this.stroke(tick, new vec3(-s * 0.3, -s * 0.05, 0), -45, s * 0.45, t)
+    this.stroke(tick, new vec3(s * 0.12, s * 0.1, 0), 55, s * 0.8, t)
+    return tick
+  }
+
+  private stroke(parent: SceneObject, pos: vec3, angleDeg: number, length: number, thick: number): void {
+    const so = global.scene.createSceneObject("Stroke")
+    so.setParent(parent)
+    const tr = so.getTransform()
+    tr.setLocalPosition(pos)
+    tr.setLocalRotation(quat.angleAxis((angleDeg * Math.PI) / 180, new vec3(0, 0, 1)))
+    tr.setLocalScale(new vec3(length, thick, thick))
+    const rmv = so.createComponent("Component.RenderMeshVisual") as RenderMeshVisual
+    rmv.mesh = this.dotMesh
+    rmv.mainMaterial = this.litMat
   }
 
   /** Fade the dots (0..1); the control bar calls this with its own opacity. */

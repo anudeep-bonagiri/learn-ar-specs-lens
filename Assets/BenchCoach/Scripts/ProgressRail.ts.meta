@@ -35,6 +35,7 @@
     material: false
     pulseHz: false
     spacingCm: false
+    tickSizeCm: false
   ScriptTypesHidden:
     {}
   ReadMe: !<reference> 00000000-0000-0000-0000-000000000000
@@ -50,6 +51,7 @@
       dotSizeCm: 0.800000
       spacingCm: !<float> 2.000000
       dimBrightness: 0.500000
+      tickSizeCm: 1.400000
       pulseHz: 1.500000
   ScriptTypes:
     -
@@ -69,5 +71,6 @@
     - '// @input float dotSizeCm = 0.8 {"hint":"Dot diameter in cm", "widget":"slider", "min":0.3, "max":2, "step":0.05}'
     - '// @input float spacingCm = 2 {"hint":"Distance between dot centers in cm", "widget":"slider", "min":0.8, "max":4, "step":0.1}'
     - '// @input float dimBrightness = 0.5 {"hint":"Brightness of the dots ahead, relative to the marker (dim, never dark)", "widget":"slider", "min":0.1, "max":1, "step":0.05}'
+    - "// @input float tickSizeCm = 1.4 {\"hint\":\"Width of the tick that replaces a done step's dot, in cm (shape, not only brightness, says done)\", \"widget\":\"slider\", \"min\":0.5, \"max\":3, \"step\":0.1}"
     - "// @input float pulseHz = 1.5 {\"hint\":\"Pulses per second of the current step's dot\", \"widget\":\"slider\", \"min\":0.2, \"max\":4, \"step\":0.1}"
     - '// @ui {"widget":"group_end"}'

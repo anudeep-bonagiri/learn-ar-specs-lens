@@ -63,7 +63,7 @@ export class CoachFeedback extends BaseScriptComponent {
     this.lastReason = reason
     if (this.audio) this.audio.playNopeAt(worldPos)
     if (this.stepLabel && this.stepLabel.sceneObject.isEnabledInHierarchy) {
-      this.stepLabel.setText(reason)
+      this.stepLabel.setText(reason, true)
       this.showing = true
       const generation = ++this.generation
       const delay = this.createEvent("DelayedCallbackEvent")

@@ -962,3 +962,28 @@ Left over:
 - **Hover counting assumes every `onHoverEnter` gets an `onHoverExit`.** If a button is destroyed or disabled mid-hover the count could stick at 1 and the bar stay full; no bar button is ever disabled today.
 - **Watch mode and the far-side step were not re-looked-at for the fade.** During watch mode nothing is held and the user watches the wheel, so the bar is faint, which is what we want; untested by eye.
 - **5.3 (colour-only signals) is not started.**
+
+## 2026-11-01: Pass G3, no signal by colour alone (`docs/INFO_SESSION_OCT29.md` section 5.3)
+
+The Nov 1 audit found three states told apart only by colour or brightness. Each now has a shape as well.
+
+| Item | Before | After |
+| --- | --- | --- |
+| Progress rail, done steps | A brighter dot than the steps ahead | A small tick (`ProgressRail.buildTick`: two stretched spheres in the `StepTicks` proportions, `tickSizeCm` 1.4, in the lit material); the current step stays a pulsing dot, steps ahead stay dim dots. `tickCount` for LEAF. |
+| What's this? and Ask toggles while on | UIKit's tint only; the icon never changed | The icon becomes a close cross while the toggle is on (`setToggleIcon`, on `onValueChange` and in the latched setters), back to info / help when off. `Assets/Icons/close.png` imported with `IconSelector` (Material Symbols, rounded, 600). |
+| Mistake reason on the step label | Same white text as an instruction, plus the nope sound | `BenchCoachStepLabelUI.setText(reason, true)`: a warning badge just outside the panel's left edge and amber text (1, 0.82, 0.35); `warning` for LEAF. `CoachFeedback` passes `true`; every other caller leaves the default. `Assets/Icons/warning.png` imported the same way. |
+
+### LEAF
+
+All 20 scenarios passed from the reset preview camera, one per call. `progress-idle` now asserts three ticks on step 4 and nine on the Finish card; `mistakes` asserts the warning state with each reason and its clearing when the label comes back. The three visuals were checked in `CaptureRuntimeViewTool` after `jump-to-step` with `mistake` and with `part`.
+
+Findings:
+
+- **`IconSelector` imports land in `Assets/Icons`** next to the hand-placed icons, so `requireAsset("../../Icons/<name>.png")` works unchanged.
+- **The first badge position (inside the panel's left edge) sat on the first letters:** the label text is centred across the whole panel. Outside the edge it reads as a badge and never collides.
+- **`jump-to-step`'s `mistake` holds the reason for 30 s,** but an earlier capture still found the step label back: something refreshed it in between (likely the lever-B highlight path on step 4). A capture straight after the run is fine.
+
+Left over:
+
+- **The bar's "on" tint plus the cross is still UIKit's default style;** no contrast check was done against the additive display.
+- **The rail ticks are 1.4 cm at 57 cm (1.4 degrees):** readable in the preview, not measured on glass.

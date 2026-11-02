@@ -213,6 +213,7 @@
     dotSizeCm: true
     spacingCm: true
     dimBrightness: true
+    tickSizeCm: true
     pulseHz: true
   ScriptTypesDefault:
     {}
@@ -224,6 +225,7 @@
       dotSizeCm: 0.800000
       spacingCm: !<float> 2.000000
       dimBrightness: 0.500000
+      tickSizeCm: 1.400000
       pulseHz: 1.500000
   ScriptTypes:
     "":

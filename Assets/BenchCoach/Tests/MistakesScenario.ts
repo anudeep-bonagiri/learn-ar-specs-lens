@@ -34,6 +34,7 @@ export class MistakesScenario extends Scenario {
       expect(fb.mistakeCount, `${code} counted`).toBe(countBefore + 1)
       expect(fb.lastCode, `${code} is the last code`).toBe(code)
       expect(label.text, `${code} reason on the label`).toBe(MISTAKES[code])
+      expect(fb.stepLabel.warning, `${code} reason carries the warning icon and colour (pass G3)`).toBe(true)
       expect(audio.nopePlays, `${code} plays nope`).toBe(nopeBefore + 1)
       expect(manager.getState().step, `${code} leaves step ${step}`).toBe(step)
     }
@@ -50,6 +51,7 @@ export class MistakesScenario extends Scenario {
     await sleep(2800)
     expect(fb.showing, "reason gone after 2.5 s").toBe(false)
     expect(label.text, "step 1 label back").toBe(STEPS[1].label)
+    expect(fb.stepLabel.warning, "warning icon gone with the reason").toBe(false)
 
     // ── Step 2: the valve again ────────────────────────────────────────────
     await interactor.tap("Valve")

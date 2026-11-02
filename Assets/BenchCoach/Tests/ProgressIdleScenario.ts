@@ -42,6 +42,7 @@ export class ProgressIdleScenario extends Scenario {
     await sleep(300)
     print(`[ProgressIdleScenario] step 4: lit ${rail.litCount}, current ${rail.currentIndex}`)
     expect(rail.litCount, "three dots lit on step 4").toBe(3)
+    expect(rail.tickCount, "the three done steps are ticks, not only brighter dots (pass G3)").toBe(3)
     expect(rail.currentIndex, "fourth dot pulses on step 4").toBe(3)
     manager.jumpToStep(8)
     await sleep(300)
@@ -49,6 +50,7 @@ export class ProgressIdleScenario extends Scenario {
     manager.jumpToStep(LAST_STEP)
     await sleep(300)
     expect(rail.litCount, "all dots lit on the Finish card").toBe(9)
+    expect(rail.tickCount, "all nine are ticks on the Finish card").toBe(9)
     expect(rail.currentIndex, "no pulsing dot on the Finish card").toBe(-1)
 
     // ── Idle hint ───────────────────────────────────────────────────────────

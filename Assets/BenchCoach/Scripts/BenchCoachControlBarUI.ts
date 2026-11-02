@@ -22,6 +22,8 @@ const ICON_NEXT: Texture = requireAsset("../../Icons/arrow_forward.png") as Text
 const ICON_REPLAY: Texture = requireAsset("../../Icons/replay.png") as Texture
 const ICON_INFO: Texture = requireAsset("../../Icons/info.png") as Texture
 const ICON_ASK: Texture = requireAsset("../../Icons/help.png") as Texture
+/** Pass G3: a toggle that is on shows a close icon, so "on" is a shape as well as UIKit's tint. */
+const ICON_CLOSE: Texture = requireAsset("../../Icons/close.png") as Texture
 
 @component
 export class BenchCoachControlBarUI extends BaseScriptComponent {
@@ -132,11 +134,20 @@ export class BenchCoachControlBarUI extends BaseScriptComponent {
   /** Show the Ask toggle as on or off (no-op if it already is). */
   setAskLatched(on: boolean): void {
     if (this.ask && this.ask.isOn !== on) this.ask.isOn = on
+    this.setToggleIcon(this.ask, on, ICON_ASK)
   }
 
   /** Show the What's this? toggle as on or off (no-op if it already is). */
   setWhatsThisLatched(on: boolean): void {
     if (this.whatsThis && this.whatsThis.isOn !== on) this.whatsThis.isOn = on
+    this.setToggleIcon(this.whatsThis, on, ICON_INFO)
+  }
+
+  /** Icon of a toggle: its own while off, close while on (never colour alone). */
+  private setToggleIcon(btn: Button | null, on: boolean, offIcon: Texture): void {
+    if (!btn) return
+    const ec = btn.getSceneObject().getComponent(ElementContent.getTypeName()) as ElementContent | null
+    if (ec) ec.leadingIcon = on ? ICON_CLOSE : offIcon
   }
 
   onAwake(): void {
@@ -169,12 +180,14 @@ export class BenchCoachControlBarUI extends BaseScriptComponent {
     btn.onInitialized.add(() => btn.setIsToggleable(true))
     btn.onValueChange.add((v) => {
       this.whatsThisOn = v === 1
+      this.setToggleIcon(btn, this.whatsThisOn, ICON_INFO)
       this._onWhatsThis.invoke(this.whatsThisOn)
     })
     this.whatsThis = btn
     askBtn.onInitialized.add(() => askBtn.setIsToggleable(true))
     askBtn.onValueChange.add((v) => {
       this.askOn = v === 1
+      this.setToggleIcon(askBtn, this.askOn, ICON_ASK)
       this._onAsk.invoke(this.askOn)
     })
     this.ask = askBtn
