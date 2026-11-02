@@ -320,6 +320,21 @@
     []
   Components:
     - !<own> 9b1f6de2-53a0-4451-981e-ca2e65bb80ce
+- !<SceneObject/06a8b1e8-35dc-48af-824a-f713d3fd97b0>
+  PrefabRemaps:
+    []
+  Name: ScanReveal
+  Enabled: true
+  Layers: 1
+  LocalTransform: !<TransformEntity>
+    Position: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
+    HasSegmentScaleCompensation: false
+  Children:
+    []
+  Components:
+    - !<own> 7726ddea-3369-4e57-9aed-317c45bedc1a
 - !<SceneObject/07859685-8b88-461c-937f-309702a87f2b>
   PrefabRemaps:
     []
@@ -3329,6 +3344,41 @@
     - !<own> 241be3d8-6f45-47d7-8b71-53778e375dc2
   Components:
     []
+- !<ScriptComponent/7726ddea-3369-4e57-9aed-317c45bedc1a>
+  PrefabRemaps:
+    []
+  Name: ScanReveal
+  Enabled: true
+  ScriptAsset: !<reference> c76814e1-f625-400d-a9d5-c49b8ceef204
+  ScriptInputsDefault:
+    wheelRadiusCm: true
+    sweepSec: true
+    holdSec: true
+    fadeSec: true
+    valveLabelAlongCm: true
+    color: true
+  ScriptTypesDefault:
+    {}
+  ScriptInputs:
+    "":
+      manager: !<MappingBased.AssignableType_1> 622db2cb-d0c7-4791-92af-926fab500a02
+      wheel: !<reference.SceneObject> 32ba4b33-674d-4969-a473-4523545d3108
+      valve: !<reference.SceneObject> 988001d4-30af-4ad7-abab-0ee69baf3c40
+      boxMesh: !<reference.RenderMesh> 6a757628-4f58-46af-851c-a5f393415bde
+      markerMaterial: !<reference.Material> 15b55a2d-25cd-4131-88ca-e7924cfbabd4
+      audio: !<MappingBased.AssignableType_2> 7407431d-eeb9-4d5c-a25e-0c11394825cf
+      wheelRadiusCm: !<float> 38.000000
+      sweepSec: 1.200000
+      holdSec: 2.500000
+      fadeSec: 0.400000
+      labelSize: !<float> 80.000000
+      labelOutCm: !<float> 4.000000
+      rimLabelAngleDeg: !<float> 330.000000
+      valveLabelAlongCm: !<float> 12.000000
+      color: !<Vec4> {x: 0.600000, y: 1.000000, z: 1.000000, w: 1.000000}
+  ScriptTypes:
+    "":
+      {}
 - !<SceneObject/77a79970-63f4-4c7c-984a-539d2ef0c92a>
   PrefabRemaps:
     []
@@ -3689,6 +3739,7 @@
     - !<own> 86d4713a-1235-4f5e-bcc4-9b7994e012d8
     - !<own> 14e20f83-a370-461e-9163-ffece741ac3d
     - !<own> 05e67ae0-5b93-47af-875b-55f7d1f52e05
+    - !<own> 06a8b1e8-35dc-48af-824a-f713d3fd97b0
   Components:
     - !<own> 622db2cb-d0c7-4791-92af-926fab500a02
     - !<own> 322de4cf-0408-4c93-be6b-45c3f47f3be1

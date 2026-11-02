@@ -2,10 +2,13 @@ import {Scenario} from "Leaf.lspkg/Scenarios/scenario/Scenario"
 import {expect} from "Leaf.lspkg/Utils/common/Expect"
 import {findSceneObjectByName, sleep} from "Leaf.lspkg/Utils/common/Utils"
 import {BenchCoachLeafInteractor, countEnabledByName, getRepairManager} from "./BenchCoachLeafInteractor"
+import {ScanReveal} from "../Scripts/ScanReveal"
 
 /**
  * Criterion 1: pinching Found it places the wheel in the stand and step 1's
- * marker sits on the valve.
+ * marker sits on the valve. Pass G4: the scan reveal plays as the wheel appears
+ * (line sweeping, both labels on by the end of the sweep, everything gone after
+ * the hold and fade) without holding step 1 up.
  */
 @component
 export class StartScenario extends Scenario {
@@ -52,5 +55,22 @@ export class StartScenario extends Scenario {
     print(`[StartScenario] marker to valve ${markerToValve.toFixed(2)} cm`)
     expect(markerToValve, "marker within 2 cm of the valve").toBeLessThan(2.0)
     expect(findSceneObjectByName("StepLabel").enabled, "StepLabel visible").toBe(true)
+
+    // ── Scan reveal (pass G4) ─────────────────────────────────────────────
+    const scanObj = findSceneObjectByName("ScanReveal")
+    expect(scanObj, "ScanReveal exists").toBeTruthy()
+    const scan = scanObj.getComponent(ScanReveal.getTypeName()) as ScanReveal
+    expect(scan.playing, "scan plays on Found it").toBe(true)
+    expect(scan.phase, "scan is sweeping 0.3 s in").toBe("sweep")
+    expect(findSceneObjectByName("ScanLine").enabled, "scan line visible").toBe(true)
+    await sleep(scan.sweepSec * 1000 + 200)
+    expect(scan.labelsShown, "Valve and Rim labels on after the sweep").toBe(2)
+    expect(findSceneObjectByName("ScanLabel_Valve").enabled, "Valve label on").toBe(true)
+    expect(findSceneObjectByName("ScanLabel_Rim").enabled, "Rim label on").toBe(true)
+    expect(findSceneObjectByName("ScanLine").enabled, "scan line gone after the sweep").toBe(false)
+    expect(manager.getState().step, "step 1 ran underneath").toBe(1)
+    await sleep((scan.holdSec + scan.fadeSec) * 1000 + 300)
+    expect(scan.playing, "scan over after hold and fade").toBe(false)
+    expect(findSceneObjectByName("ScanLabel_Valve").enabled, "labels gone").toBe(false)
   }
 }

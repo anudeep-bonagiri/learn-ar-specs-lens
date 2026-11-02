@@ -987,3 +987,27 @@ Left over:
 
 - **The bar's "on" tint plus the cross is still UIKit's default style;** no contrast check was done against the additive display.
 - **The rail ticks are 1.4 cm at 57 cm (1.4 degrees):** readable in the preview, not measured on glass.
+
+## 2026-11-01: Pass G4, the scanning moment (`docs/INFO_SESSION_OCT29.md` section 6, item 4)
+
+The audit's most valuable Design item: make "it sees what you see" visible. The wheel is hidden until Found it (the `start` scenario asserts it), so the moment plays *as* the wheel appears rather than before the pinch, and step 1 runs underneath it from the first frame.
+
+**What was built.** `ScanReveal` (new `Assets/BenchCoach/Scripts/ScanReveal.ts`, on a new `BenchCoach/ScanReveal` object; inputs manager, wheel, valve, boxMesh, markerMaterial, audio). On the step change 0 to 1 a thin cyan line (the StepTicks box mesh, 0.6 x 86 x 0.5 cm, MarkerMat clone with normal blending) sweeps across the wheel from the user's left to right in `sweepSec` 1.2 s, 4 cm in front of the wheel plane. As it passes each spot a 3D text label pops on (0.4 to 1 scale in 0.15 s) with the audio tick: **Valve** 12 cm along the rim to the right of the marker (`valveLabelAlongCm`; straight above it is where the step label panel sits), **Rim** outside the tire at 11 o'clock (`rimLabelAngleDeg` 330, `labelOutCm` 4). The line goes when the sweep ends; the labels hold `holdSec` 2.5 s, fade over `fadeSec` 0.4 s, and everything hides. Reset hides it; `jumpToStep(1)` replays it (reset then go to 1); any other jump target does not. The start card's stand-in badge is untouched. Fields for LEAF: `playing`, `phase`, `labelsShown`, `plays`.
+
+### LEAF
+
+All 20 scenarios passed from the reset preview camera, one per call. `start` now asserts: the reveal is playing and sweeping 0.3 s after Found it with the line visible; after the sweep both labels are on, the line is off and the step is 1; after the hold and fade everything is gone. Seen in the preview with `holdSec` raised to 12 for the shot: "Valve" beside the marker, "Rim" at the upper left, both inside the camera's view from the start pose.
+
+Findings:
+
+- **`Text.size` on a world object is about 0.036 cm per unit** (the step label's size 33 is 1.2 cm tall). The first size, 9, drew a speck; 80 gives 3 cm letters. The sidewall marking at 12 is a 0.45 cm engraving, which is right for a sidewall.
+- **Straight above the valve is taken:** the step label panel sits 10 cm above the marker, so a radial Valve label was hidden behind it. Along the rim's tangent it reads.
+- **10 o'clock is outside the preview camera's view** from the start pose (and Specs' 32 degree width): 39 cm left at 86 cm. 11 o'clock at 22 cm is inside both.
+- **`CaptureRuntimeViewTool` does not draw `Text`** (the sidewall marking is missing from its renders too). Use the Preview panel screenshot for anything with text.
+- **Script inputs added after the first compile store their default on the next compile;** `holdSec`, `labelOutCm`, `rimLabelAngleDeg` and `labelSize` were set on the component as well so the scene holds the final values.
+
+Left over:
+
+- **No shot of the line mid-sweep;** it lasts 1.2 s. For the video, `jump-to-step` with `step` 1 replays it on demand.
+- **The sweep is a line, not an outline that traces the wheel.** The audit wrote "an outline sweeps the wheel"; a line crossing it reads as a scan and cost one component. A rim-shaped outline (a TorusArc that draws itself round) is the richer version if there is time.
+- **Hierarchy order:** `ScanReveal` is the last child of `BenchCoach`, after `RepairManager`, so its `OnStart` subscription lands after the manager's; it reacts to step changes only, so order does not matter today.
