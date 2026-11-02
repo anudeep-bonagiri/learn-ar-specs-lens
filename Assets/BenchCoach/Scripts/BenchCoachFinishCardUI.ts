@@ -3,7 +3,7 @@
  * wheel: "Flat fixed.", the time from Found it, a stats line ("Lever misses 1 ·
  * Mistakes 0 · Hints 0"), the flat cause ("Cause: glass shard"), its prevention
  * tip, and BtnRestart. Pass 11 (coach report): a time row with the three slowest
- * steps (FinishTimes, "Slowest: Pull 0:12 · Peel 0:09 · Lever 1 0:07") and one
+ * steps (FinishTimes, "Slowest: Pull 0:12 · Peel 0:09 · Lever A 0:07") and one
  * practice line (FinishPractice); the card grew from 14 to 16 cm tall upward (its
  * bottom edge stays above the tire).
  * Owns: only its view. setResult() pushes time, stats, cause and tip in; setReport()
@@ -98,7 +98,7 @@ export class BenchCoachFinishCardUI extends BaseScriptComponent {
         distanceCm: d,
       })
     })
-    this.timesText = addColumnText(col, "FinishTimes", "Slowest: Pull 0:00 · Peel 0:00 · Lever 1 0:00", "Caption", 1.6, {
+    this.timesText = addColumnText(col, "FinishTimes", "Slowest: Pull 0:00 · Peel 0:00 · Lever A 0:00", "Caption", 1.6, {
       distanceCm: d,
     })
     this.tipText = addColumnText(col, "FinishTip", "Next time: run a hand round inside the tire.", "Caption", 1.6, {

@@ -1035,3 +1035,54 @@ Left over:
 
 - **B4, the hands-on mouse walk,** is still untested (LEAF skips the ray).
 - **The Ask panels are the friend's files** (`TEAM_TASKS.md` handoff); passes G, G2 and G5 touched `AskCoach.ts` and `BenchCoachAskChipsUI.ts` per the Nov 1 audit. Sujeeth is telling the friend; the changes are the chip size, the two timeouts, `maxElevationDeg` and the high-case answer spot.
+
+## 2026-11-02: Pass G6, the hands-on mouse walk (`docs/INFO_SESSION_OCT29.md` B4, `TEAM_TASKS.md` F5)
+
+The whole repair, What's this?, Ask, a mistake and the idle hint, driven through the preview's own mouse ray (SIK's `MouseInteractor`, the same path a person's mouse takes in the Preview panel) instead of LEAF's `trigger()`, which skips the ray. Start card to Finish card in one run from the reset camera, Plane room, SPECS 27: Found it, valve, four beads, lever A from the tray onto the ghost, lever B hooked and slid round to 5 o'clock, tube pulled, cause pinched, Continue, new tube fitted at the valve, four beads seated, valve held to inflate, Finish card, Start over; then Next twice, What's this? on a tray lever, and Ask with a chip. Every step fired through the real colliders. The synthetic SIK hand (`PreviewInteractTool`) could not reach a UIKit button in this project (pinch, poke and hover all time out), so the walk used `InjectPreviewGesture` touch events, which is closer to the mouse anyway.
+
+| What | Result |
+| --- | --- |
+| Buttons (Found it, Continue, Start over, Next, What's this?, Ask, a question chip) | All fire from the ray. |
+| Valve, beads, the glint, the valve hold | Fire on release; the 2.5 s hold inflates from 0 to 100 %. |
+| Lever A and B, tube end, new tube end | Grab, carry and drop with `InteractableManipulation`; snaps at 1.5, 1.9, 0.9 cm. |
+| Rim slide | Lever B swept 30 to 150 degrees across two head turns; beads 1 to 3 peeled in order. |
+| What's this? over a grabbable lever | The info box wins: the fact label shows, the lever does not move. |
+| Mistake with the ray | Valve on step 9 gives "Seat the bead first, or the tube pinches." |
+| Idle hint | Fires at 12 s on every step it was given the chance (12 hints in a 17 minute run). |
+| Ask | Chips open from the bar, a chip answers (canned, offline tag), the answer sits under the chips (G5 high case). |
+
+Fixes from the walk:
+
+| Bug | Cause | Fix |
+| --- | --- | --- |
+| The tool tray slides away when you turn to look at it | `BodyFollow` glides once the yaw-carried target is 20 cm from the panel. The tray's horizontal offset is 44 cm, so a 26 degree turn moves its target 20 cm, but the tray itself sits 35 degrees to the right: looking at it always moved it, and then it sat 35 degrees right of the new heading. On Specs it could only ever be seen at the right edge of the display (turn 19 to 26 degrees). | `moveThresholdCm` 20 to 35 and `turnThresholdDeg` 35 to 45 on both panels (defaults and scene values). A 35 degree look moves the target 26 cm: nothing glides. Both panels keep the same numbers, because a bar that followed under a tray that stayed overlapped it (seen when only the tray was changed). Walking 35 cm or turning 46 degrees still brings both along. |
+| Finish card: "Slowest: Lever 14:52" | Step 3's short name is "Lever 1", so "Lever 1 4:52" reads as fourteen minutes. | `STEP_SHORT_NAMES[3]` "Lever A" (the step 4 hint already says "lever B"). |
+
+### Mouse recipe (for the video and anyone testing by hand)
+
+- **A click fires on release, and the ray must already be on the target.** With a real mouse the hover comes free; with injected touches a `start` at a new spot only moves the ray, so the walk primed each new target with one click and fired with the second. Beads, the valve and the glint act on `onTriggerEnd`, so they fire on the first click; buttons, grabs and the valve hold need the second.
+- **A grab keeps the part at its grab distance from the eye.** The mouse has no depth, so a lever grabbed in the tray (52 cm away) can only be dropped on a socket that is also about 52 cm away: walk forward (W) until the wheel is about 38 cm in front of you, grab, turn your head to the ghost, drop. Snap radius is 4 cm (tube end 5 cm). Hands on Specs move in depth and do not need this.
+- **Turn your head while holding;** the panels hold still while a part is held, and the part follows the ray.
+- **The rim slide and the tube pull are depth-free:** `RimDrag` takes the angle in the wheel plane, `TubePull` the distance from the wheel center, so the cursor only has to sweep along the rim or pull down past 48 cm from the center.
+- **The Ask chips close 10 s after opening and the answer 8 s after it shows**, so click a chip straight after Ask.
+- **Everything is measured from the reset camera (pitch 0, origin).** `MovePreviewCamera reset`, not `rotate`.
+
+### LEAF
+
+All 20 scenarios passed from the reset preview camera after the two fixes, one per call (`start`, `deflate-loosen`, `lever-snap`, `peel-and-pull`, `inspect-done`, `step-ticks`, `scene-dressing`, `refit-tube`, `seat-inflate`, `whats-this`, `mistakes`, `flat-causes`, `progress-idle`, `watch-mode`, `ask-coach-fallback`, `floor-path`, `coach-report`, `control-bar`, `floor-level`, `jump-to-step`). `coach-report` only checks that each time entry ends in m:ss, so "Lever A" needed no test change; `floor-path` walks 60 cm, so the panels still follow it.
+
+Findings:
+
+- **The synthetic SIK hand does not reach this project's interactables.** `PreviewInteractTool` Pinch, Poke and Hover on `BtnFoundIt` all timed out waiting for `onTriggerStart`, with `AiPreviewAgent Handler` present and the puppet hand parented in the scene. The mouse ray works, so the walk used it; the hand path was not debugged.
+- **Injected touches are not a mouse.** The preview delivers no hover move without a button, so a `start` at a new spot moves the ray and pinches in the same frame, and the target is not yet hovered when the pinch starts. A real mouse hovers first. Script code needs no change; the notes above say which parts fire on the first click anyway.
+- **The watch demo is too quick for a grab test through the tools:** its beats are 3.5 s and a tool round trip is about 3 s, so the lever and the new tube end had flown each time. `RepairDirector.halt("grab")` stays reasoned, not seen.
+- **From the start pose, half the loosen beads are outside the view** (beads 2 and 6 at 30 cm left and right of center; the view is 23 cm wide at 90 cm). The user turns the head, which is the point of the wheel-sized layout, but the video take should show it.
+- **Close up, the step 4 label runs off the right edge:** at 38 cm from the wheel the label at 1 o'clock is cut. It is fine from the start pose, where every label was checked in pass G5.
+- **Hover on a bar button pulls the bar back to full opacity** even when the head is up (pass G2 rule), seen while clicking Next from the lever pose.
+- **`Finish` card stats are honest about a slow run:** 17:01, Hints 12, Mistakes 1, "Practice next: seat every bead before you pump."
+
+Left over:
+
+- A grab during watch mode by a person (one try, lever B at step 3, within about 5 s of the tray appearing).
+- The puppet hand (`PreviewInteractTool`) in this project: why SIK's hand interactor never targets the UIKit buttons here. Not needed for the hackathon.
+- The watch-mode screen recording (section 6 item 6) still needs a person to press Record.

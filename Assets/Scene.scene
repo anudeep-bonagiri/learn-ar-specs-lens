@@ -786,8 +786,6 @@
   ScriptAsset: !<reference> 4269e27f-88dd-4b32-82b5-2d5ae3949e6b
   ScriptInputsDefault:
     levers: true
-    moveThresholdCm: true
-    turnThresholdDeg: true
     smoothing: true
   ScriptTypesDefault:
     {}
@@ -797,8 +795,8 @@
       levers: !<MappingBased.AssignableType_1[]>
         []
       tubeFit: !<MappingBased.AssignableType_2> 6879e97e-d703-4adb-ab7d-14b20dec44eb
-      moveThresholdCm: !<float> 20.000000
-      turnThresholdDeg: !<float> 35.000000
+      moveThresholdCm: !<float> 35.000000
+      turnThresholdDeg: !<float> 45.000000
       smoothing: !<float> 6.000000
   ScriptTypes:
     "":
@@ -3829,8 +3827,6 @@
   Enabled: true
   ScriptAsset: !<reference> 4269e27f-88dd-4b32-82b5-2d5ae3949e6b
   ScriptInputsDefault:
-    moveThresholdCm: true
-    turnThresholdDeg: true
     smoothing: true
   ScriptTypesDefault:
     {}
@@ -3841,8 +3837,8 @@
         - !<reference> 4608f895-b41a-47c4-ac91-6f9477b3560a
         - !<reference> cf095758-023e-4701-a1b3-cf12c5fbb53c
       tubeFit: !<MappingBased.AssignableType_2> 6879e97e-d703-4adb-ab7d-14b20dec44eb
-      moveThresholdCm: !<float> 20.000000
-      turnThresholdDeg: !<float> 35.000000
+      moveThresholdCm: !<float> 35.000000
+      turnThresholdDeg: !<float> 45.000000
       smoothing: !<float> 6.000000
   ScriptTypes:
     "":

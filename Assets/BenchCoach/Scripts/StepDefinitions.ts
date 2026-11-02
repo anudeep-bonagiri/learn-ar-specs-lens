@@ -189,7 +189,7 @@ export const MISTAKE_TIPS: {[code: string]: string} = {
 export const STEP_SHORT_NAMES: {[step: number]: string} = {
   1: "Deflate",
   2: "Loosen",
-  3: "Lever 1",
+  3: "Lever A",
   4: "Peel",
   5: "Pull",
   6: "Inspect",

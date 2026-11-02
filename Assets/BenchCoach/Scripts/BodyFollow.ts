@@ -4,6 +4,11 @@
  * origin facing -Z); each frame the target is that offset carried by the
  * camera's position and yaw. The panel stays put until the user walks or turns
  * past a threshold, then glides to the target, so it never chases small head motion.
+ * Thresholds 35 cm / 45 degrees (pass G6): the tray sits 35 degrees to the right, and
+ * with 20 cm / 35 degrees a 26 degree turn already moved its yaw-carried target 20 cm,
+ * so the tray slid away whenever the user turned to look at it. The bar and the tray
+ * use the same numbers so they keep their layout (a bar that follows under a tray
+ * that stays overlaps it).
  * Owns: this SceneObject's world pose. Holds still while any listed lever, or the
  * new tube end, is grabbed or tweening, so nothing is moved out from under the hand.
  * Expects: @input camera; optional @input levers (LeverPlacement on the tray's
@@ -39,12 +44,12 @@ export class BodyFollow extends BaseScriptComponent {
   @input
   @hint("Start gliding once the target is this far from the panel, in cm")
   @widget(new SliderWidget(2, 80, 1))
-  moveThresholdCm: number = 20
+  moveThresholdCm: number = 35
 
   @input
   @hint("Start gliding once the user has turned this far from the panel, in degrees")
   @widget(new SliderWidget(5, 90, 1))
-  turnThresholdDeg: number = 35
+  turnThresholdDeg: number = 45
 
   @input
   @hint("Glide speed (higher is snappier)")
