@@ -3,9 +3,10 @@
  * (RepairManager.setInteractionsPaused) and turns on one pinch box per
  * StepDefinitions.PART_FACTS entry (InfoHit_<id>, under BenchCoach/InfoHits, each
  * following its part every frame and a little larger than any collider it encloses,
- * so it takes the ray first). A pinch writes "Title: fact" on the step label and
- * moves the label next to the part. setActive(false) hides the boxes and gives
- * the step back (the manager re-applies it, label included). A reset (Start over,
+ * so it takes the ray first). Pass D2: the prompt shows on the info callout in the slot
+ * under the step callout; a pinch shows the part's name and fact on the info callout
+ * beside the part, with a leader line. The step callout is never rewritten.
+ * setActive(false) hides the boxes and the info callout and gives the step back. A reset (Start over,
  * jumpToStep) turns the mode off.
  * Never switches while a lever, the new tube end or the tube end is held or
  * tweening: the request waits until they are free (an Interactable turned off
@@ -18,6 +19,7 @@ import {Interactable} from "SpectaclesInteractionKit.lspkg/Components/Interactio
 import {FLAT_CAUSES, PART_FACTS, PartFact} from "./StepDefinitions"
 import {RepairManager} from "./RepairManager"
 import {BenchCoachStepLabelUI} from "./BenchCoachStepLabelUI"
+import {BenchCoachInfoCalloutUI} from "./BenchCoachInfoCalloutUI"
 import {ThornHotspot} from "./ThornHotspot"
 import {LeverPlacement} from "./LeverPlacement"
 import {TubeFit} from "./TubeFit"
@@ -41,8 +43,12 @@ export class PartInfo extends BaseScriptComponent {
   manager: RepairManager
 
   @input
-  @hint("Step label panel (shows the prompt and the fact)")
+  @hint("Step callout: the prompt hangs in the slot under it")
   stepLabel: BenchCoachStepLabelUI
+
+  @input
+  @hint("Info callout (the prompt, then the part's name and fact)")
+  infoCallout: BenchCoachInfoCalloutUI
 
   @input
   @hint("Wheel root: parts are found by name under it, the stand and the tray")
@@ -85,13 +91,17 @@ export class PartInfo extends BaseScriptComponent {
   @ui.label('<span style="color: #60A5FA;">Settings</span>')
   @ui.group_start("Settings")
   @input
-  @hint("Label text while the mode is on and no part is picked")
-  promptText: string = "What's this? Pinch any part."
+  @hint("Prompt title while the mode is on and no part is picked")
+  promptText: string = "What's this?"
 
   @input
-  @hint("How far above the picked part the label sits, in cm")
-  @widget(new SliderWidget(2, 20, 0.5))
-  labelLiftCm: number = 7
+  @hint("Prompt line under the title")
+  promptLine: string = "Pinch any part to learn what it is."
+
+  @input
+  @hint("Gap between the step callout and the prompt hanging under it, in cm")
+  @widget(new SliderWidget(0, 4, 0.1))
+  stackGapCm: number = 0.6
   @ui.group_end
 
   /** What's this? mode is on (boxes live, step paused). */
@@ -166,29 +176,41 @@ export class PartInfo extends BaseScriptComponent {
     if (this.root) this.root.enabled = this.active
     if (this.manager) this.manager.setInteractionsPaused(this.active)
     if (this.active) this.showPrompt()
+    else {
+      if (this.infoCallout) this.infoCallout.hide()
+      if (this.stepLabel) this.stepLabel.setStack(0)
+    }
     print(`[PartInfo] What's this? ${this.active ? "on" : "off"}`)
     this._onActiveChanged.invoke(this.active)
   }
 
   private showPrompt(): void {
-    if (!this.stepLabel || !this.wheel) return
-    this.stepLabel.sceneObject.enabled = true
-    this.stepLabel.setText(this.promptText)
-    this.stepLabel.sceneObject
-      .getTransform()
-      .setWorldPosition(this.wheel.getTransform().getWorldPosition().add(new vec3(0, 44, 4)))
+    if (!this.infoCallout || !this.stepLabel) return
+    if (this.stepLabel.sceneObject.isEnabledInHierarchy) this.stepLabel.setStack(this.infoCallout.panelHeight + this.stackGapCm)
+    this.infoCallout.showPrompt(this.promptText, this.promptLine, this.promptAt())
+  }
+
+  /** Center of the prompt: in the slot under the step callout (above the wheel on the cards). */
+  private promptAt(): vec3 {
+    if (!this.stepLabel.sceneObject.isEnabledInHierarchy && this.wheel) {
+      return this.wheel.getTransform().getWorldPosition().add(new vec3(0, 44, 6))
+    }
+    return this.stepLabel.stackTop(this.stackGapCm).add(new vec3(0, (-this.infoCallout.panelHeight / 2) * this.stepLabel.scale, 0))
   }
 
   private pinched(hit: InfoHit): void {
     if (!this.active) return
-    const text = `${hit.fact.title}: ${this.factText(hit.fact)}`
+    const fact = this.factText(hit.fact)
+    const text = `${hit.fact.title}: ${fact}`
     this.lastPart = hit.fact.id
     this.lastText = text
     this.pinchCount += 1
     this.picked = hit
-    this.stepLabel.sceneObject.enabled = true
-    this.stepLabel.setText(text)
-    this.placeLabelAt(hit)
+    if (this.stepLabel) this.stepLabel.setStack(0)
+    if (this.infoCallout) {
+      this.infoCallout.sceneObject.getTransform().setLocalScale(vec3.one())
+      this.infoCallout.showPart(hit.fact.title, capitalize(fact), hit.so)
+    }
     if (this.audio) this.audio.playClickAt(hit.so.getTransform().getWorldPosition())
     print(`[PartInfo] ${text}`)
   }
@@ -202,16 +224,17 @@ export class PartInfo extends BaseScriptComponent {
     return k >= 0 ? cause.fact.substring(k + 2) : cause.fact
   }
 
-  private placeLabelAt(hit: InfoHit): void {
-    const p = hit.so.getTransform().getWorldPosition()
-    this.stepLabel.sceneObject.getTransform().setWorldPosition(p.add(new vec3(0, this.labelLiftCm, 4)))
-  }
-
   private tick(): void {
     if (this.wanted !== this.active) this.tryApply()
     if (!this.active) return
     this.placeHits()
-    if (this.picked) this.placeLabelAt(this.picked)
+    if (!this.picked && this.infoCallout && this.stepLabel) {
+      // The prompt owns the slot under the step callout while it shows.
+      if (this.stepLabel.sceneObject.isEnabledInHierarchy) this.stepLabel.setStack(this.infoCallout.panelHeight + this.stackGapCm)
+      this.infoCallout.moveTo(this.promptAt())
+      const k = this.stepLabel.sceneObject.isEnabledInHierarchy ? this.stepLabel.scale : 1
+      this.infoCallout.sceneObject.getTransform().setLocalScale(new vec3(k, k, k))
+    }
   }
 
   /** Each box follows its part; boxes of hidden parts (and an unfound cause) are off. */
@@ -250,4 +273,8 @@ export class PartInfo extends BaseScriptComponent {
     }
     return null
   }
+}
+
+function capitalize(t: string): string {
+  return t.length > 0 ? t.charAt(0).toUpperCase() + t.substring(1) : t
 }
