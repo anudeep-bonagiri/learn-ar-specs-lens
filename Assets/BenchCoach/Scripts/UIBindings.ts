@@ -7,6 +7,10 @@
  * first stops watch mode (RepairDirector.stop()); the start card's Watch button
  * presses Found it and then starts watch mode. Pass 12: BtnAsk toggles AskCoach;
  * Ask and What's this? are mutually exclusive (turning one on turns the other off).
+ * Pass D2: pushes the dock's progress ("4 / 10") on every step, shows the watch pill
+ * while watch mode plays (its Stop is a press like any other), closes the More popover
+ * on a step change, and keeps the start card's floor line in step with FloorLevel
+ * ("Look down at your work spot" until it decides, then found or fallback).
  * Expects: @inputs manager, startCard, controlBar, doneCard, finishCard, audio (wired in the scene).
  */
 import {RepairManager} from "./RepairManager"
@@ -21,6 +25,7 @@ import {PartInfo} from "./PartInfo"
 import {CoachFeedback} from "./CoachFeedback"
 import {RepairDirector} from "./RepairDirector"
 import {AskCoach} from "./AskCoach"
+import {FloorLevel} from "./FloorLevel"
 
 @component
 export class UIBindings extends BaseScriptComponent {
@@ -82,6 +87,11 @@ export class UIBindings extends BaseScriptComponent {
   @allowUndefined
   @hint("Ask the coach: BtnAsk toggles it; exclusive with What's this?")
   askCoach: AskCoach
+
+  @input
+  @allowUndefined
+  @hint("Floor measurement: the start card's floor line follows it")
+  floorLevel: FloorLevel
   @ui.group_end
 
   onAwake(): void {
@@ -135,7 +145,34 @@ export class UIBindings extends BaseScriptComponent {
       if (this.finishCard) {
         this.finishCard.onRestart.add(() => this.press(this.finishCard, "BtnRestart", () => this.manager.reset()))
       }
+      // Pass D2: the dock's progress, the watch pill's Stop, the floor line.
+      this.controlBar.onMore.add((on) => this.press(this.controlBar, `BtnMore (${on ? "open" : "closed"})`, () => {}))
+      if (this.askCoach) {
+        this.askCoach.chips.onClose.add(() => this.press(this.askCoach.chips, "BtnAskClose", () => {}))
+        this.askCoach.answerPanel.onClose.add(() => this.press(this.askCoach.answerPanel, "BtnAnswerClose", () => {}))
+      }
+      this.controlBar.onStopWatch.add(() => this.press(this.controlBar, "BtnStopWatch", () => print("[UIBindings] watch mode stopped by Stop")))
+      this.controlBar.setProgress(this.manager.getState().step)
+      this.manager.onStepChanged.add((step) => {
+        this.controlBar.setProgress(step)
+        if (this.controlBar.moreOpen) this.controlBar.setMoreOpen(false)
+      })
+      this.createEvent("UpdateEvent").bind(() => this.tick())
     })
+  }
+
+  private lastFloor = ""
+
+  private tick(): void {
+    if (this.director) this.controlBar.setWatching(this.director.playing)
+    if (this.floorLevel) {
+      const status = !this.floorLevel.ready ? "pending" : this.floorLevel.source === "fallback" ? "fallback" : "found"
+      if (status !== this.lastFloor) {
+        this.lastFloor = status
+        this.startCard.setFloorStatus(status)
+        print(`[UIBindings] floor line: ${status} (${this.floorLevel.source})`)
+      }
+    }
   }
 
   /** Every button press goes through here; the log line names the button (pass F). */

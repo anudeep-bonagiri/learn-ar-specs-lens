@@ -34,11 +34,14 @@
     audio: false
     camera: false
     chimeEnabled: false
+    dock: false
     edgeArrow: false
     edgeInset: false
+    infoCallout: false
     manager: false
     marker: false
     safeFraction: false
+    stepCallout: false
   ScriptTypesHidden:
     {}
   ReadMe: !<reference> 00000000-0000-0000-0000-000000000000
@@ -54,6 +57,9 @@
       arrowMaterial: !<reference.Material> 00000000-0000-0000-0000-000000000000
       audio: !<MappingBased.AssignableType_1> 00000000-0000-0000-0000-000000000000
       manager: !<MappingBased.AssignableType_2> 00000000-0000-0000-0000-000000000000
+      dock: !<MappingBased.AssignableType_3> 00000000-0000-0000-0000-000000000000
+      stepCallout: !<MappingBased.AssignableType_4> 00000000-0000-0000-0000-000000000000
+      infoCallout: !<MappingBased.AssignableType_5> 00000000-0000-0000-0000-000000000000
       safeFraction: 0.800000
       arrowDistanceCm: !<float> 45.000000
       edgeInset: 0.850000
@@ -73,6 +79,9 @@
     - '// @input Asset.Material arrowMaterial {"hint":"Unlit cyan material for the arrow (no black on the additive display)"}'
     - '// @input AssignableType_1 audio {"hint":"Cue player (chime)"}'
     - '// @input AssignableType_2 manager {"hint":"Step machine (resets the once-per-step chime)"}'
+    - '// @input AssignableType_3 dock {"hint":"The dock: the arrow keeps off its screen rectangle"}'
+    - '// @input AssignableType_4 stepCallout {"hint":"The step callout: the arrow keeps off it"}'
+    - "// @input AssignableType_5 infoCallout {\"hint\":\"The What's this? info callout: the arrow keeps off it\"}"
     - '// @ui {"widget":"group_end"}'
     - '// @ui {"widget":"separator"}'
     - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">Settings</span>"}'

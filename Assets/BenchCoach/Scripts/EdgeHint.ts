@@ -4,12 +4,18 @@
  * user) it shows EdgeArrow — a 3 cm cyan chevron parented to the camera, placed at
  * the view edge and aimed at the marker — and plays the chime once per step from
  * the marker's world position. Inside the safe rectangle the arrow hides.
+ * Pass D2: the arrow never draws over a panel (the dock, the step callout, the info
+ * callout): when its spot falls on one's screen rectangle it slides along the view
+ * edge past it.
  * Owns: EdgeArrow's mesh and pose, the once-per-step chime flag.
  * Expects: @inputs camera, marker (StepMarker), edgeArrow (child of the camera
  * object), arrowMaterial, audio, manager (for step changes).
  */
 import {RepairManager} from "./RepairManager"
 import {BenchCoachAudio} from "./BenchCoachAudio"
+import {BenchCoachControlBarUI} from "./BenchCoachControlBarUI"
+import {BenchCoachStepLabelUI} from "./BenchCoachStepLabelUI"
+import {BenchCoachInfoCalloutUI} from "./BenchCoachInfoCalloutUI"
 
 @component
 export class EdgeHint extends BaseScriptComponent {
@@ -40,6 +46,21 @@ export class EdgeHint extends BaseScriptComponent {
   @input
   @hint("Step machine (resets the once-per-step chime)")
   manager: RepairManager
+
+  @input
+  @allowUndefined
+  @hint("The dock: the arrow keeps off its screen rectangle")
+  dock: BenchCoachControlBarUI
+
+  @input
+  @allowUndefined
+  @hint("The step callout: the arrow keeps off it")
+  stepCallout: BenchCoachStepLabelUI
+
+  @input
+  @allowUndefined
+  @hint("The What's this? info callout: the arrow keeps off it")
+  infoCallout: BenchCoachInfoCalloutUI
   @ui.group_end
 
   @ui.separator
@@ -71,6 +92,8 @@ export class EdgeHint extends BaseScriptComponent {
   @ui.group_end
 
   arrowVisible: boolean = false
+  /** True when the last frame had to slide the arrow off the dock. */
+  movedOffDock: boolean = false
   private chimed = false
 
   onAwake(): void {
@@ -126,7 +149,27 @@ export class EdgeHint extends BaseScriptComponent {
     const ky = Math.abs(dy) > 0.0001 ? halfH / Math.abs(dy) : Number.POSITIVE_INFINITY
     const k = Math.min(kx, ky)
     const arrowTr = this.edgeArrow.getTransform()
-    arrowTr.setLocalPosition(new vec3(dx * k, dy * k, -D))
+    let ax = dx * k
+    let ay = dy * k
+    // Keep off the panels: if the arrow's spot is on a panel's screen rectangle, slide it
+    // along the edge it sits on to just past the rectangle (the side nearer the marker).
+    this.movedOffDock = false
+    const pad = this.arrowLengthCm * 0.7
+    const onEdgeY = Math.abs(ay) >= halfH - 0.01
+    for (let pass = 0; pass < 3; pass++) {
+      let moved = false
+      for (const rect of this.panelRects(inv, D)) {
+        if (!(ax > rect.x0 - pad && ax < rect.x1 + pad && ay > rect.y0 - pad && ay < rect.y1 + pad)) continue
+        moved = true
+        this.movedOffDock = true
+        if (onEdgeY) ax = dx >= (rect.x0 + rect.x1) / 2 ? rect.x1 + pad : rect.x0 - pad
+        else ay = dy >= (rect.y0 + rect.y1) / 2 ? rect.y1 + pad : rect.y0 - pad
+        ax = Math.max(-halfW, Math.min(halfW, ax))
+        ay = Math.max(-halfH, Math.min(halfH, ay))
+      }
+      if (!moved) break
+    }
+    arrowTr.setLocalPosition(new vec3(ax, ay, -D))
     arrowTr.setLocalRotation(quat.angleAxis(Math.atan2(dy, dx), new vec3(0, 0, 1)))
     this.setArrow(true)
 
@@ -134,6 +177,42 @@ export class EdgeHint extends BaseScriptComponent {
       this.chimed = true
       this.audio.playChimeAt(markerPos)
     }
+  }
+
+  /** Screen rectangles (camera space at depth D) of the panels the arrow must not cover. */
+  private panelRects(inv: mat4, D: number): {x0: number; x1: number; y0: number; y1: number}[] {
+    const out: {x0: number; x1: number; y0: number; y1: number}[] = []
+    const add = (so: SceneObject | null, w: number, h: number) => {
+      if (!so || !so.isEnabledInHierarchy || w <= 0 || h <= 0) return
+      const r = this.rectOf(inv, D, so.getTransform(), w, h)
+      if (r) out.push(r)
+    }
+    if (this.dock) add(this.dock.sceneObject, this.dock.width, this.dock.height)
+    if (this.stepCallout) add(this.stepCallout.sceneObject, this.stepCallout.scaledWidth(), this.stepCallout.scaledHeight())
+    if (this.infoCallout) add(this.infoCallout.sceneObject, this.infoCallout.panelWidth, this.infoCallout.panelHeight)
+    return out
+  }
+
+  /** A w x h panel's rectangle projected onto the arrow's plane, or null when it is behind the eye. */
+  private rectOf(inv: mat4, D: number, tr: Transform, w: number, h: number): {x0: number; x1: number; y0: number; y1: number} | null {
+    const c = tr.getWorldPosition()
+    const r = tr.right.uniformScale(w / 2)
+    const u = tr.up.uniformScale(h / 2)
+    let x0 = Number.POSITIVE_INFINITY
+    let x1 = Number.NEGATIVE_INFINITY
+    let y0 = Number.POSITIVE_INFINITY
+    let y1 = Number.NEGATIVE_INFINITY
+    for (const p of [c.add(r).add(u), c.add(r).sub(u), c.sub(r).add(u), c.sub(r).sub(u)]) {
+      const l = inv.multiplyPoint(p)
+      if (l.z > -1) return null
+      const sx = (l.x * D) / -l.z
+      const sy = (l.y * D) / -l.z
+      x0 = Math.min(x0, sx)
+      x1 = Math.max(x1, sx)
+      y0 = Math.min(y0, sy)
+      y1 = Math.max(y1, sy)
+    }
+    return {x0, x1, y0, y1}
   }
 
   private setArrow(on: boolean): void {

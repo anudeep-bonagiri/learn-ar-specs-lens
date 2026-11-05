@@ -1,11 +1,12 @@
 /**
- * ProgressRail — a row of small dots on the control bar, one per step that has
- * `railDot` in StepDefinitions (the cards 0, 7 and 11 have none). Done steps are
- * bright, the current step pulses, steps ahead use a dim copy of the marker
- * material (the StepTicks trick: dim cyan, never dark on the additive display).
- * Owns: the dot children of this SceneObject. Reads the step from RepairManager.
- * Must not: change steps. Lives on ControlBar/ProgressRail, so it body-follows with the bar.
- * Expects: @inputs manager, dotMesh (unit sphere), material (MarkerMat).
+ * ProgressRail — the dock's thin progress bar (pass D2; it was a row of dots): one
+ * flat rounded segment per step that has `railDot` in StepDefinitions (the cards 0, 7
+ * and 11 have none). Done segments are the accent, the current one glows brighter and
+ * breathes, segments ahead use a dim copy of the marker material (dim cyan, never dark
+ * on the additive display). The dock sets the bar's length (setLength) and position.
+ * Owns: the segment children of this SceneObject. Reads the step from RepairManager.
+ * Must not: change steps. Lives on ControlBar/ProgressRail, so it body-follows with the dock.
+ * Expects: @inputs manager, dotMesh (unit sphere, squashed into a segment), material (MarkerMat).
  */
 import {RepairManager} from "./RepairManager"
 import {railSteps} from "./StepDefinitions"
@@ -33,14 +34,19 @@ export class ProgressRail extends BaseScriptComponent {
   @ui.label('<span style="color: #60A5FA;">Settings</span>')
   @ui.group_start("Settings")
   @input
-  @hint("Dot diameter in cm")
-  @widget(new SliderWidget(0.3, 2, 0.05))
-  dotSizeCm: number = 0.8
+  @hint("Bar thickness in cm")
+  @widget(new SliderWidget(0.1, 1, 0.02))
+  dotSizeCm: number = 0.32
 
   @input
-  @hint("Distance between dot centers in cm")
-  @widget(new SliderWidget(0.8, 4, 0.1))
-  spacingCm: number = 2
+  @hint("Gap between segments in cm")
+  @widget(new SliderWidget(0.05, 1, 0.05))
+  spacingCm: number = 0.25
+
+  @input
+  @hint("Bar length in cm (the dock sets it to fit its progress line)")
+  @widget(new SliderWidget(4, 40, 0.5))
+  lengthCm: number = 18
 
   @input
   @hint("Brightness of the dots ahead, relative to the marker (dim, never dark)")
@@ -57,8 +63,10 @@ export class ProgressRail extends BaseScriptComponent {
   dotCount: number = 0
   /** Dots for completed steps. */
   litCount: number = 0
-  /** Index of the pulsing dot, or -1 on a card step. */
+  /** Index of the pulsing segment, or -1 on a card step. */
   currentIndex: number = -1
+  /** Segment length in cm (from lengthCm). */
+  segmentCm: number = 0
 
   private dots: SceneObject[] = []
   private visuals: RenderMeshVisual[] = []
@@ -80,13 +88,13 @@ export class ProgressRail extends BaseScriptComponent {
     for (let i = 0; i < n; i++) {
       const so = global.scene.createSceneObject(`RailDot_${i}`)
       so.setParent(this.sceneObject)
-      so.getTransform().setLocalPosition(new vec3((i - (n - 1) / 2) * this.spacingCm, 0, 0))
       const rmv = so.createComponent("Component.RenderMeshVisual") as RenderMeshVisual
       rmv.mesh = this.dotMesh
       rmv.mainMaterial = this.dimMat
       this.dots.push(so)
       this.visuals.push(rmv)
     }
+    this.layout()
     this.dotCount = n
     this.createEvent("OnStartEvent").bind(() => {
       if (this.manager) this.manager.onStepChanged.add((s) => this.setStep(s))
@@ -94,7 +102,29 @@ export class ProgressRail extends BaseScriptComponent {
     this.createEvent("UpdateEvent").bind(() => this.tick())
   }
 
-  /** Light the dots of the steps before `step`, pulse the dot of `step`, dim the rest. */
+  /** Fit the bar to `cm` (the dock's progress line). */
+  setLength(cm: number): void {
+    this.lengthCm = cm
+    this.layout()
+  }
+
+  private layout(): void {
+    const n = this.dots.length
+    if (n === 0) return
+    this.segmentCm = (this.lengthCm - (n - 1) * this.spacingCm) / n
+    for (let i = 0; i < n; i++) {
+      const x = -this.lengthCm / 2 + this.segmentCm / 2 + i * (this.segmentCm + this.spacingCm)
+      const tr = this.dots[i].getTransform()
+      tr.setLocalPosition(new vec3(x, 0, 0))
+      tr.setLocalScale(this.segmentScale(1))
+    }
+  }
+
+  private segmentScale(k: number): vec3 {
+    return new vec3(this.segmentCm, this.dotSizeCm * k, this.dotSizeCm * 0.5)
+  }
+
+  /** Light the segments of the steps before `step`, pulse the one of `step`, dim the rest. */
   setStep(step: number): void {
     this.lastStep = step
     let lit = 0
@@ -104,7 +134,7 @@ export class ProgressRail extends BaseScriptComponent {
       if (s < step) lit++
       if (s === step) this.currentIndex = i
       this.visuals[i].mainMaterial = s <= step ? this.material : this.dimMat
-      this.dots[i].getTransform().setLocalScale(vec3.one().uniformScale(this.dotSizeCm))
+      this.dots[i].getTransform().setLocalScale(this.segmentScale(1))
     }
     this.litCount = lit
   }
@@ -113,7 +143,7 @@ export class ProgressRail extends BaseScriptComponent {
     if (this.dots.length === 0) return
     if (this.manager && this.manager.getState().step !== this.lastStep) this.setStep(this.manager.getState().step)
     if (this.currentIndex < 0) return
-    const s = this.dotSizeCm * (1.25 + 0.25 * Math.sin(getTime() * this.pulseHz * 2 * Math.PI))
-    this.dots[this.currentIndex].getTransform().setLocalScale(new vec3(s, s, s))
+    const k = 1.5 + 0.35 * Math.sin(getTime() * this.pulseHz * 2 * Math.PI)
+    this.dots[this.currentIndex].getTransform().setLocalScale(this.segmentScale(k))
   }
 }
