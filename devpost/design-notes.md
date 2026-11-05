@@ -1086,3 +1086,15 @@ Left over:
 - A grab during watch mode by a person (one try, lever B at step 3, within about 5 s of the tray appearing).
 - The puppet hand (`PreviewInteractTool`) in this project: why SIK's hand interactor never targets the UIKit buttons here. Not needed for the hackathon.
 - The watch-mode screen recording (section 6 item 6) still needs a person to press Record.
+
+## 2026-11-04: Pass G7, the mistake reason survives an idle hint
+
+Found while cutting the demo video: in every recorded take of the lever B mistake the label never turned amber. The takes had a ten second lead-in, so the idle hint (12 s) was showing when the lever dropped. `CoachFeedback.mistake()` wrote the reason, and in the same frame `UIBindings` forwarded the mistake to `IdleHint.touch()`, which saw a hint showing and called `RepairManager.refreshLabel()`, rewriting the step text over the reason. By hand (no lead-in) it never happened, and the `mistakes` scenario pinches straight away, so neither caught it.
+
+Fix: `refreshLabel()` returns while `feedback.showing` is true. The reason's own 2.5 s timer clears `showing` before it restores the label through the same method, and `cancel()` clears it on a step change, so nothing else waits on it.
+
+Verified by hand: jump to step 3, 14 s idle (hint fires), grab lever B, drop at the rim: label "First lever first. Hook the other one." in amber. LEAF after the fix: `mistakes`, `progress-idle`, `whats-this`, `inspect-done` (see below).
+
+Video notes from the same session: Lens Studio has no garage room (Plane, Sunlit Room, Evening Room, Colorful Home, two outdoors); the LEAF status line is hidden per run with `__leaf__log_level=WARN`; a bare injected `move` hovers a target, and a button or lever then needs one click, sometimes two, after a camera move; macOS screen recording captures no Lens audio; resizing or scrolling the Preview panel mid-take resets the Lens or pushes the camera back.
+
+LEAF after the fix, reset camera, one per call: `mistakes`, `progress-idle`, `whats-this`, `inspect-done` all PASSED.

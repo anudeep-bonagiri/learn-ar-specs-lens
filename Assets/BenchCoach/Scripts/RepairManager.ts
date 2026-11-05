@@ -467,6 +467,11 @@ export class RepairManager extends BaseScriptComponent {
   refreshLabel(): void {
     const def = STEPS[this.step]
     if (!this.stepLabel || def.markerAnchor === "none" || this.interactionsPaused) return
+    // A mistake reason owns the label for its showSec (pass G7): the idle hint's
+    // touch() on the same release used to rewrite the step text over it in the
+    // same frame, so the amber warning never showed after an idle hint. The
+    // reason's own timer restores the label through this method once it is done.
+    if (this.feedback && this.feedback.showing) return
     this.stepLabel.setText(this.currentLabel())
   }
 
