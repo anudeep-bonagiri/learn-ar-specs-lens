@@ -14,6 +14,11 @@
  * Sidewall band (the tire): with a bandMaterial, the cross-section faces whose
  * radial normal is below bandBelowCos (the sides and the bead, not the tread) go
  * into a second RenderMeshVisual on this SceneObject, so the tire is two-tone.
+ * Sidewall line (pass V, the tire): with a stripeMaterial, the faces whose radial normal
+ * lies between stripeFromCos and stripeToCos (one face ring on each sidewall) go into a
+ * third RenderMeshVisual: a thin light line round the sidewall that gives the tire its
+ * form on the additive display, and moves with the bead (lift, peel, deflate). With
+ * stripeMirror the mirrored faces get it too: a second line where the tire meets the rim.
  */
 @component
 export class TorusArc extends BaseScriptComponent {
@@ -80,8 +85,26 @@ export class TorusArc extends BaseScriptComponent {
   @hint("Faces whose radial normal is below this go to the band (0.38 keeps about 135 degrees of tread)")
   bandBelowCos: number = 0.38
 
+  @input
+  @allowUndefined
+  @hint("Optional third material: a thin line round each sidewall (pass V); empty = none")
+  stripeMaterial: Material
+
+  @input
+  @hint("Sidewall line: faces whose radial normal is at least this go to the line")
+  stripeFromCos: number = 0.1
+
+  @input
+  @hint("Sidewall line: faces whose radial normal is at most this go to the line")
+  stripeToCos: number = 0.3
+
+  @input
+  @hint("Sidewall line: also the mirrored faces (radial normal between -to and -from), a second line by the rim")
+  stripeMirror: boolean = false
+
   private rmv: RenderMeshVisual | null = null
   private bandRmv: RenderMeshVisual | null = null
+  private stripeRmv: RenderMeshVisual | null = null
 
   onAwake(): void {
     this.build()
@@ -155,6 +178,7 @@ export class TorusArc extends BaseScriptComponent {
     const verts: number[] = []
     const main: number[] = []
     const band: number[] = []
+    const stripe: number[] = []
 
     // Grid of (rings+1) x (cols+1) vertices
     for (let i = 0; i <= rings; i++) {
@@ -177,11 +201,14 @@ export class TorusArc extends BaseScriptComponent {
     const stride = cols + 1
     if (tread) this.recomputeNormals(verts, rings, cols)
     const useBand = !!this.bandMaterial
+    const useStripe = !!this.stripeMaterial && !box
     for (let j = 0; j < cols; j++) {
       // Box faces come in vertex pairs; skip the zero-width joins between faces.
       if (box && j % 2 === 1) continue
       const midNr = (sec[j][2] + sec[j + 1][2]) / 2
-      const target = useBand && midNr < this.bandBelowCos ? band : main
+      const inBand = (v: number) => v >= this.stripeFromCos && v <= this.stripeToCos
+      const inStripe = useStripe && (inBand(midNr) || (this.stripeMirror && inBand(-midNr)))
+      const target = inStripe ? stripe : useBand && midNr < this.bandBelowCos ? band : main
       for (let i = 0; i < rings; i++) {
         const a = i * stride + j
         const b = (i + 1) * stride + j
@@ -204,6 +231,10 @@ export class TorusArc extends BaseScriptComponent {
     if (useBand) {
       if (!this.bandRmv) this.bandRmv = this.sceneObject.createComponent("Component.RenderMeshVisual") as RenderMeshVisual
       this.fill(this.bandRmv, verts, band, this.bandMaterial)
+    }
+    if (useStripe && stripe.length > 0) {
+      if (!this.stripeRmv) this.stripeRmv = this.sceneObject.createComponent("Component.RenderMeshVisual") as RenderMeshVisual
+      this.fill(this.stripeRmv, verts, stripe, this.stripeMaterial)
     }
   }
 
