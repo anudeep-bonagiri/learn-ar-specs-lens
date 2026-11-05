@@ -43,6 +43,7 @@
     - !<own> 00000000-0000-0065-0000-000000000065
     - !<own> e5553c8a-0b7e-4ef4-92d9-3e1318fb82c1
     - !<own> 5300b7d8-620d-476a-ae8b-9987ebe0a2da
+    - !<own> 83c89bad-9bba-4f83-903d-04dbc424ce95
 - !<Camera/00000000-0000-0065-0000-000000000065>
   PrefabRemaps:
     []
@@ -210,8 +211,7 @@
   Enabled: true
   ScriptAsset: !<reference> d3a53819-70b0-476b-98d4-0d3a57082d7d
   ScriptInputsDefault:
-    dotSizeCm: true
-    spacingCm: true
+    lengthCm: true
     dimBrightness: true
     pulseHz: true
   ScriptTypesDefault:
@@ -221,8 +221,9 @@
       manager: !<MappingBased.AssignableType_1> 622db2cb-d0c7-4791-92af-926fab500a02
       dotMesh: !<reference.RenderMesh> 2907b2f2-061c-41d4-a0bf-24432fd5a44d
       material: !<reference.Material> 15b55a2d-25cd-4131-88ca-e7924cfbabd4
-      dotSizeCm: 0.800000
-      spacingCm: !<float> 2.000000
+      dotSizeCm: 0.320000
+      spacingCm: 0.250000
+      lengthCm: !<float> 18.000000
       dimBrightness: 0.500000
       pulseHz: 1.500000
   ScriptTypes:
@@ -770,7 +771,7 @@
   ScriptInputsDefault:
     levers: true
     moveThresholdCm: true
-    turnThresholdDeg: true
+    snapDistanceCm: true
     smoothing: true
   ScriptTypesDefault:
     {}
@@ -781,7 +782,8 @@
         []
       tubeFit: !<MappingBased.AssignableType_2> 6879e97e-d703-4adb-ab7d-14b20dec44eb
       moveThresholdCm: !<float> 20.000000
-      turnThresholdDeg: !<float> 35.000000
+      turnThresholdDeg: !<float> 55.000000
+      snapDistanceCm: !<float> 150.000000
       smoothing: !<float> 6.000000
   ScriptTypes:
     "":
@@ -943,25 +945,27 @@
   Enabled: true
   ScriptAsset: !<reference> bc65ce0c-1b5b-46c4-8c7f-46f412ba80ed
   ScriptInputsDefault:
-    promptText: true
-    labelLiftCm: true
+    promptLine: true
+    stackGapCm: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
     "":
       manager: !<MappingBased.AssignableType_1> 622db2cb-d0c7-4791-92af-926fab500a02
       stepLabel: !<MappingBased.AssignableType_2> 24460ad0-f260-4e7a-970c-05fcf6db9a81
+      infoCallout: !<MappingBased.AssignableType_3> afbea311-7b55-4bff-9b40-48b878c76f96
       wheel: !<reference.SceneObject> 32ba4b33-674d-4969-a473-4523545d3108
       stand: !<reference.SceneObject> 49df10c5-b0c8-402d-9882-4a75d579c629
       toolTray: !<reference.SceneObject> b6a059d6-e648-4d74-934e-1e937d6bc923
-      thorn: !<MappingBased.AssignableType_3> 21fb357a-ddf2-47ea-955f-575db2782408
-      leverA: !<MappingBased.AssignableType_4> 4608f895-b41a-47c4-ac91-6f9477b3560a
-      leverB: !<MappingBased.AssignableType_5> cf095758-023e-4701-a1b3-cf12c5fbb53c
-      tubeFit: !<MappingBased.AssignableType_6> 6879e97e-d703-4adb-ab7d-14b20dec44eb
-      tubePull: !<MappingBased.AssignableType_7> f0bc8453-5853-4488-afe1-0f9c99121ce7
-      audio: !<MappingBased.AssignableType_8> 7407431d-eeb9-4d5c-a25e-0c11394825cf
-      promptText: "What's this? Pinch any part."
-      labelLiftCm: !<float> 7.000000
+      thorn: !<MappingBased.AssignableType_4> 21fb357a-ddf2-47ea-955f-575db2782408
+      leverA: !<MappingBased.AssignableType_5> 4608f895-b41a-47c4-ac91-6f9477b3560a
+      leverB: !<MappingBased.AssignableType_6> cf095758-023e-4701-a1b3-cf12c5fbb53c
+      tubeFit: !<MappingBased.AssignableType_7> 6879e97e-d703-4adb-ab7d-14b20dec44eb
+      tubePull: !<MappingBased.AssignableType_8> f0bc8453-5853-4488-afe1-0f9c99121ce7
+      audio: !<MappingBased.AssignableType_9> 7407431d-eeb9-4d5c-a25e-0c11394825cf
+      promptText: "What's this?"
+      promptLine: Pinch any part to learn what it is.
+      stackGapCm: 0.600000
   ScriptTypes:
     "":
       {}
@@ -1161,19 +1165,26 @@
   Enabled: true
   ScriptAsset: !<reference> ab3a3e31-cc7e-4a38-8c9b-140b59297992
   ScriptInputsDefault:
-    panelWidth: true
-    panelHeight: true
     viewDistanceCm: true
-    fitChars: true
+    totalSteps: true
+    tireGapCm: true
+    markerGapCm: true
+    maxSideCm: true
+    minScale: true
+    leaderCm: true
     billboard: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
     "":
-      panelWidth: !<float> 16.000000
-      panelHeight: !<float> 5.000000
+      panelWidth: !<float> 21.000000
       viewDistanceCm: !<float> 90.000000
-      fitChars: !<float> 32.000000
+      totalSteps: !<float> 10.000000
+      tireGapCm: 2.500000
+      markerGapCm: 4.500000
+      maxSideCm: !<float> 12.000000
+      minScale: 0.450000
+      leaderCm: 0.140000
       billboard: true
   ScriptTypes:
     "":
@@ -1276,7 +1287,6 @@
     model: true
     systemPrompt: true
     panelGapCm: true
-    maxElevationDeg: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
@@ -1294,7 +1304,6 @@
       model: gemini-2.5-flash
       systemPrompt: "You are a calm bike mechanic. Answer in at most 2 short sentences, specific to this step: {step}."
       panelGapCm: 0.500000
-      maxElevationDeg: !<float> 18.000000
   ScriptTypes:
     "":
       {}
@@ -1390,7 +1399,7 @@
   Enabled: true
   Layers: 1
   LocalTransform: !<TransformEntity>
-    Position: {x: 0.000000, y: -6.000000, z: -85.000000}
+    Position: {x: 0.000000, y: -12.000000, z: -82.000000}
     Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
     Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
     HasSegmentScaleCompensation: false
@@ -1504,16 +1513,15 @@
   Enabled: true
   ScriptAsset: !<reference> 1ea7781f-5c44-4c87-8bd8-0346a66502a0
   ScriptInputsDefault:
-    panelWidth: true
-    viewDistanceCm: true
+    {}
   ScriptTypesDefault:
     {}
   ScriptInputs:
     "":
-      panelWidth: !<float> 20.000000
+      panelWidth: !<float> 17.000000
       panelHeight: !<float> 14.000000
       headerText: Tools
-      viewDistanceCm: !<float> 45.000000
+      viewDistanceCm: !<float> 52.000000
   ScriptTypes:
     "":
       {}
@@ -1557,6 +1565,7 @@
       feedback: !<MappingBased.AssignableType_10> f8035567-f4fb-4cd8-851c-a22f0c3d9d41
       director: !<MappingBased.AssignableType_11> 69f574fb-b122-40c7-a041-afce199bf43c
       askCoach: !<MappingBased.AssignableType_12> 28a8d074-10e5-4ebd-a5a2-c31e87bc65c7
+      floorLevel: !<MappingBased.AssignableType_13> 61e06c67-dbb7-48bf-97af-4ac893d51f94
   ScriptTypes:
     "":
       {}
@@ -1567,17 +1576,15 @@
   Enabled: true
   ScriptAsset: !<reference> 53596e83-3730-4da0-946d-a66868705f02
   ScriptInputsDefault:
-    chipHeight: true
-    gap: true
     headerText: true
     viewDistanceCm: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
     "":
-      panelWidth: !<float> 15.000000
-      chipHeight: 3.200000
-      gap: 0.500000
+      panelWidth: !<float> 21.000000
+      chipHeight: 2.700000
+      gap: 0.350000
       headerText: Ask the coach
       emptyText: Ask on a repair step.
       viewDistanceCm: !<float> 90.000000
@@ -3685,6 +3692,7 @@
     - !<own> 86d4713a-1235-4f5e-bcc4-9b7994e012d8
     - !<own> 14e20f83-a370-461e-9163-ffece741ac3d
     - !<own> 05e67ae0-5b93-47af-875b-55f7d1f52e05
+    - !<own> 89ffc755-62dd-4c47-a35f-6ad4fdd8b160
   Components:
     - !<own> 622db2cb-d0c7-4791-92af-926fab500a02
     - !<own> 322de4cf-0408-4c93-be6b-45c3f47f3be1
@@ -3751,6 +3759,38 @@
   ScriptTypes:
     "":
       {}
+- !<ScriptComponent/83c89bad-9bba-4f83-903d-04dbc424ce95>
+  PrefabRemaps:
+    []
+  Name: WorkspaceAnchor
+  Enabled: true
+  ScriptAsset: !<reference> 0bdb5564-7950-407e-887a-ea5e023ef129
+  ScriptInputsDefault:
+    followHeight: true
+    settleSec: true
+    settleCm: true
+  ScriptTypesDefault:
+    {}
+  ScriptInputs:
+    "":
+      roots: !<reference.SceneObject[]>
+        - !<reference> 0005641c-028d-459a-0000-000000014b4d
+        - !<reference> 49df10c5-b0c8-402d-9882-4a75d579c629
+        - !<reference> 32ba4b33-674d-4969-a473-4523545d3108
+        - !<reference> 38128195-5d72-4fa8-b0dc-b49b04211ea8
+        - !<reference> 2d5c1cee-f247-4136-b4ae-70ad7a843fae
+        - !<reference> 08881f4b-c58d-498f-b7c9-2c4ba73cbe41
+        - !<reference> 2dece704-8730-4633-9db7-8435dc1b818c
+        - !<reference> acff2cea-6a95-428d-96d0-3acf9f536497
+        - !<reference> 86d4713a-1235-4f5e-bcc4-9b7994e012d8
+        - !<reference> 14e20f83-a370-461e-9163-ffece741ac3d
+        - !<reference> 05e67ae0-5b93-47af-875b-55f7d1f52e05
+      followHeight: true
+      settleSec: 1.500000
+      settleCm: !<float> 5.000000
+  ScriptTypes:
+    "":
+      {}
 - !<SceneObject/83ef588c-5040-4344-b15f-0554c739da0b>
   PrefabRemaps:
     []
@@ -3774,7 +3814,7 @@
   ScriptAsset: !<reference> 4269e27f-88dd-4b32-82b5-2d5ae3949e6b
   ScriptInputsDefault:
     moveThresholdCm: true
-    turnThresholdDeg: true
+    snapDistanceCm: true
     smoothing: true
   ScriptTypesDefault:
     {}
@@ -3786,7 +3826,8 @@
         - !<reference> cf095758-023e-4701-a1b3-cf12c5fbb53c
       tubeFit: !<MappingBased.AssignableType_2> 6879e97e-d703-4adb-ab7d-14b20dec44eb
       moveThresholdCm: !<float> 20.000000
-      turnThresholdDeg: !<float> 35.000000
+      turnThresholdDeg: !<float> 55.000000
+      snapDistanceCm: !<float> 150.000000
       smoothing: !<float> 6.000000
   ScriptTypes:
     "":
@@ -3813,7 +3854,7 @@
   Enabled: true
   Layers: 1
   LocalTransform: !<TransformEntity>
-    Position: {x: 0.000000, y: 18.000000, z: -88.000000}
+    Position: {x: 0.000000, y: -8.000000, z: -80.000000}
     Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
     Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
     HasSegmentScaleCompensation: false
@@ -3846,23 +3887,19 @@
   Enabled: true
   ScriptAsset: !<reference> f7d81306-a581-4510-a7e5-35e67d74b1ba
   ScriptInputsDefault:
-    nextSize: true
-    askSize: true
-    padX: true
-    railStripCm: true
+    viewDistanceCm: true
+    totalSteps: true
+    nextLabel: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
     "":
-      backSize: 3.900000
-      nextSize: !<float> 6.000000
-      replaySize: 3.900000
-      whatsThisSize: 3.900000
-      askSize: 3.900000
-      gap: 0.500000
-      padding: !<float> 1.000000
-      padX: 0.750000
-      railStripCm: 1.600000
+      viewDistanceCm: !<float> 48.000000
+      buttonSize: 3.600000
+      nextWidth: 6.600000
+      gap: 0.450000
+      totalSteps: !<float> 10.000000
+      nextLabel: Next
   ScriptTypes:
     "":
       {}
@@ -4032,6 +4069,21 @@
     []
   Components:
     - !<own> 718024f6-6982-4073-b76d-5745f300e30b
+- !<SceneObject/89ffc755-62dd-4c47-a35f-6ad4fdd8b160>
+  PrefabRemaps:
+    []
+  Name: InfoCallout
+  Enabled: true
+  Layers: 1
+  LocalTransform: !<TransformEntity>
+    Position: {x: 0.000000, y: 19.000000, z: -86.000000}
+    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
+    HasSegmentScaleCompensation: false
+  Children:
+    []
+  Components:
+    - !<own> afbea311-7b55-4bff-9b40-48b878c76f96
 - !<SceneObject/8b6a7020-cb56-4041-8bc0-de9984a9a864>
   PrefabRemaps:
     []
@@ -4338,6 +4390,9 @@
       arrowMaterial: !<reference.Material> 15b55a2d-25cd-4131-88ca-e7924cfbabd4
       audio: !<MappingBased.AssignableType_1> 7407431d-eeb9-4d5c-a25e-0c11394825cf
       manager: !<MappingBased.AssignableType_2> 622db2cb-d0c7-4791-92af-926fab500a02
+      dock: !<MappingBased.AssignableType_3> 88532baf-8d88-43c6-8552-dad8833e8b12
+      stepCallout: !<MappingBased.AssignableType_4> 24460ad0-f260-4e7a-970c-05fcf6db9a81
+      infoCallout: !<MappingBased.AssignableType_5> afbea311-7b55-4bff-9b40-48b878c76f96
       safeFraction: 0.800000
       arrowDistanceCm: !<float> 45.000000
       edgeInset: 0.850000
@@ -4353,19 +4408,17 @@
   Enabled: true
   ScriptAsset: !<reference> 103f60fc-3e63-498d-92fa-547389db81a4
   ScriptInputsDefault:
+    answerLines: true
     thinkingText: true
-    fitChars: true
-    tagColor: true
+    viewDistanceCm: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
     "":
-      panelWidth: !<float> 17.000000
-      panelHeight: !<float> 7.000000
+      panelWidth: !<float> 21.000000
+      answerLines: !<float> 4.000000
       thinkingText: Thinking…
-      fitChars: !<float> 130.000000
-      tagColor: !<Vec4> {x: 0.550000, y: 0.850000, z: 1.000000, w: 1.000000}
-      viewDistanceCm: !<float> 110.000000
+      viewDistanceCm: !<float> 90.000000
   ScriptTypes:
     "":
       {}
@@ -4376,9 +4429,7 @@
   Enabled: true
   ScriptAsset: !<reference> 7f03d572-8cdc-431a-bdca-0c5d2f1f8b72
   ScriptInputsDefault:
-    panelWidth: true
-    viewDistanceCm: true
-    doneText: true
+    nextStepText: true
     nextSkillText: true
     continueLabel: true
     restartLabel: true
@@ -4386,10 +4437,10 @@
     {}
   ScriptInputs:
     "":
-      panelWidth: !<float> 24.000000
-      panelHeight: !<float> 13.000000
-      viewDistanceCm: !<float> 90.000000
-      doneText: "Tube out, cause found. Ready for the new tube."
+      panelWidth: !<float> 27.000000
+      viewDistanceCm: !<float> 80.000000
+      doneText: "Tube out, cause found"
+      nextStepText: "Next: fit the new tube and pump it up."
       nextSkillText: "Next skill: brake pads"
       continueLabel: Fit the new tube
       restartLabel: Start over
@@ -4712,7 +4763,7 @@
   Enabled: true
   Layers: 1
   LocalTransform: !<TransformEntity>
-    Position: {x: -6.500000, y: 17.000000, z: -88.000000}
+    Position: {x: 0.000000, y: -9.000000, z: -80.000000}
     Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
     Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
     HasSegmentScaleCompensation: false
@@ -4720,6 +4771,31 @@
     []
   Components:
     - !<own> 9c0325e9-10f9-46b0-9bc4-f9be0377eb1f
+- !<ScriptComponent/afbea311-7b55-4bff-9b40-48b878c76f96>
+  PrefabRemaps:
+    []
+  Name: BenchCoachInfoCalloutUI
+  Enabled: true
+  ScriptAsset: !<reference> 8551fbd1-6e54-43cb-b578-a4d964afad21
+  ScriptInputsDefault:
+    panelWidth: true
+    viewDistanceCm: true
+    partGapCm: true
+    towardUserCm: true
+    safeFraction: true
+  ScriptTypesDefault:
+    {}
+  ScriptInputs:
+    "":
+      stepCallout: !<MappingBased.AssignableType_1> 24460ad0-f260-4e7a-970c-05fcf6db9a81
+      panelWidth: !<float> 18.000000
+      viewDistanceCm: !<float> 85.000000
+      partGapCm: !<float> 4.000000
+      towardUserCm: !<float> 6.000000
+      safeFraction: 0.900000
+  ScriptTypes:
+    "":
+      {}
 - !<SceneObject/afdaa241-a357-4b42-82be-bb6c6821a03b>
   PrefabRemaps:
     []
@@ -4727,8 +4803,8 @@
   Enabled: true
   Layers: 1
   LocalTransform: !<TransformEntity>
-    Position: {x: -2.350000, y: -35.432999, z: -44.664001}
-    Rotation: {x: -38.000000, y: 0.000000, z: 0.000000}
+    Position: {x: -20.799999, y: -24.000000, z: -36.000000}
+    Rotation: {x: -30.000000, y: 30.000000, z: 0.000000}
     Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
     HasSegmentScaleCompensation: false
   Children:
@@ -4899,8 +4975,8 @@
   Enabled: true
   Layers: 1
   LocalTransform: !<TransformEntity>
-    Position: {x: 20.000000, y: -30.000000, z: -40.000000}
-    Rotation: {x: -37.000000, y: 0.000000, z: 0.000000}
+    Position: {x: 17.299999, y: -32.000000, z: -37.099998}
+    Rotation: {x: -38.000000, y: -25.000000, z: 0.000000}
     Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
     HasSegmentScaleCompensation: false
   Children:
@@ -4995,18 +5071,14 @@
   Enabled: true
   ScriptAsset: !<reference> 0e2bda00-97be-443d-a091-f8b693738e1c
   ScriptInputsDefault:
-    panelHeight: true
-    viewDistanceCm: true
-    titleText: true
     restartLabel: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
     "":
-      panelWidth: !<float> 30.000000
-      panelHeight: !<float> 16.000000
-      viewDistanceCm: !<float> 90.000000
-      titleText: Flat fixed.
+      panelWidth: !<float> 29.000000
+      viewDistanceCm: !<float> 80.000000
+      titleText: Flat fixed
       restartLabel: Start over
   ScriptTypes:
     "":
@@ -5264,26 +5336,24 @@
   Enabled: true
   ScriptAsset: !<reference> 228de48b-4f19-40df-8bb2-3c9f56353f31
   ScriptInputsDefault:
-    panelWidth: true
-    panelHeight: true
-    viewDistanceCm: true
     title: true
-    subtitle: true
     buttonLabel: true
-    watchLabel: true
-    badgeText: true
+    floorPendingText: true
+    floorFoundText: true
+    floorFallbackText: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
     "":
-      panelWidth: !<float> 24.000000
-      panelHeight: !<float> 14.000000
-      viewDistanceCm: !<float> 85.000000
+      panelWidth: !<float> 27.000000
+      viewDistanceCm: !<float> 82.000000
       title: Fix a flat
-      subtitle: Pinch Found it when your wheel is in the stand.
+      subtitle: "Put your wheel in the stand, then pinch Found it."
       buttonLabel: Found it
-      watchLabel: Watch
-      badgeText: "stand-in: wheel placed by pinch"
+      watchLabel: Watch first
+      floorPendingText: Look down at your work spot
+      floorFoundText: Floor found
+      floorFallbackText: Using a standard floor height
   ScriptTypes:
     "":
       {}
