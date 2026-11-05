@@ -7,6 +7,7 @@ import {BenchCoachLeafInteractor, getRepairManager} from "./BenchCoachLeafIntera
 import {CoachFeedback} from "../Scripts/CoachFeedback"
 import {RunStats} from "../Scripts/RunStats"
 import {BenchCoachAudio} from "../Scripts/BenchCoachAudio"
+import {IdleHint} from "../Scripts/IdleHint"
 import {MISTAKES, STEPS} from "../Scripts/StepDefinitions"
 
 /**
@@ -16,7 +17,8 @@ import {MISTAKES, STEPS} from "../Scripts/StepDefinitions"
  * step 3, a lever dropped too far, the tube end before the peel, the new tube
  * end away from the valve hole, the valve before seating the bead. RunStats
  * counts the non-lever ones as mistakes; lever ones stay lever misses.
- * Pass G3 on D2 (pass M): the amber state carries the warning badge.
+ * Pass G3 on D2 (pass M): the amber state carries the warning badge. Pass G7 on D2:
+ * a mistake made while the idle hint shows keeps its reason on the callout.
  */
 @component
 export class MistakesScenario extends Scenario {
@@ -126,6 +128,31 @@ export class MistakesScenario extends Scenario {
     n = audio.nopePlays
     await interactor.tap("Valve")
     check("inflateBeforeSeat", 9, c, n)
+    await sleep(2800)
+
+    // ── Pass G7: the reason survives an idle hint ──────────────────────────
+    const idle = root.getComponent(IdleHint.getTypeName()) as IdleHint
+    const idleSec = idle.idleSec
+    idle.idleSec = 1
+    manager.jumpToStep(2)
+    await sleep(400)
+    for (let i = 0; i < 30 && !idle.showing; i++) await sleep(100)
+    expect(idle.showing, "idle hint showing on step 2").toBe(true)
+    expect(callout.mode, "callout in its hint state").toBe("hint")
+    // Back to the real idle time before the mistake, so the hint cannot fire again inside
+    // the reason's 2.5 s (it would at 1 s; 12 s in the Lens).
+    idle.idleSec = idleSec
+    c = fb.mistakeCount
+    n = audio.nopePlays
+    await interactor.tap("Valve")
+    await sleep(100)
+    check("valveAlreadyDeflated", 2, c, n)
+    expect(idle.showing, "the mistake took the hint down").toBe(false)
+    await sleep(1000)
+    expect(callout.mode, "reason still up 1 s later, not rewritten by the hint").toBe("mistake")
+    expect(label.text, "reason text still on the callout").toBe(MISTAKES.valveAlreadyDeflated)
+    await sleep(1800)
+    expect(callout.mode, "step line back after the reason's 2.5 s").toBe("normal")
 
     manager.reset()
     await sleep(300)

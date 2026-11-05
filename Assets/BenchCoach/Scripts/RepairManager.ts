@@ -462,6 +462,11 @@ export class RepairManager extends BaseScriptComponent {
   refreshLabel(): void {
     const def = STEPS[this.step]
     if (!this.stepLabel || def.markerAnchor === "none" || this.interactionsPaused) return
+    // A mistake reason owns the callout for its showSec (pass G7, Sujeeth; on D2 in pass M):
+    // the idle hint's touch() on the same release used to rewrite the step line over the
+    // amber state in the same frame. The reason's own timer clears `showing` and then
+    // restores the line through this method; a step change cancels it.
+    if (this.feedback && this.feedback.showing) return
     this.pushLabel()
   }
 
