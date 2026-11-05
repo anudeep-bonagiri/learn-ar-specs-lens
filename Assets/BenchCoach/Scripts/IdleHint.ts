@@ -143,7 +143,7 @@ export class IdleHint extends BaseScriptComponent {
     this.showing = true
     this.hintCount += 1
     this.lastHintStep = step
-    this.stepLabel.setText(STEPS[step].hint)
+    this.stepLabel.showHint(STEPS[step].hint)
     if (this.stepMarker) {
       this.stepMarker.pulseBoost(this.boostSec)
       if (this.audio && this.stepMarker.sceneObject.enabled) {

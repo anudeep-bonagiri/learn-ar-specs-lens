@@ -1,7 +1,7 @@
 /**
  * CoachFeedback — mistake feedback with a reason. mistake(code, worldPos) plays
  * the nope cue from where it happened, puts the reason (StepDefinitions.MISTAKES)
- * on the step label for showSec, then gives the label back to the step through
+ * on the step callout in its amber mistake state for showSec, then gives the label back to the step through
  * the restore callback RepairManager installs (refreshLabel).
  * Callers: RepairManager (bead before deflate, valve already deflated, lever B
  * before A, lever too far, tube before the peel, inflate before seating) and
@@ -63,7 +63,7 @@ export class CoachFeedback extends BaseScriptComponent {
     this.lastReason = reason
     if (this.audio) this.audio.playNopeAt(worldPos)
     if (this.stepLabel && this.stepLabel.sceneObject.isEnabledInHierarchy) {
-      this.stepLabel.setText(reason)
+      this.stepLabel.showMistake(reason)
       this.showing = true
       const generation = ++this.generation
       const delay = this.createEvent("DelayedCallbackEvent")

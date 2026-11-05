@@ -29,9 +29,13 @@
   PackagePolicy: CanBeUnpacked
   ScriptInputsHidden:
     billboard: false
-    fitChars: false
-    panelHeight: false
+    leaderCm: false
+    markerGapCm: false
+    maxSideCm: false
+    minScale: false
     panelWidth: false
+    tireGapCm: false
+    totalSteps: false
     viewDistanceCm: false
   ScriptTypesHidden:
     {}
@@ -43,21 +47,29 @@
     []
   DefaultScriptInputs:
     - panelWidth: !<float> 16.000000
-      panelHeight: !<float> 5.000000
       viewDistanceCm: !<float> 90.000000
-      fitChars: !<float> 32.000000
+      totalSteps: !<float> 10.000000
+      tireGapCm: 2.500000
+      markerGapCm: 4.500000
+      maxSideCm: !<float> 12.000000
+      minScale: 0.450000
+      leaderCm: 0.140000
       billboard: true
   ScriptTypes:
     -
       {}
   InputLines:
-    - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">BenchCoachStepLabelUI – one-line step label</span>"}'
+    - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">BenchCoachStepLabelUI – the step callout</span>"}'
     - '// @ui {"widget":"separator"}'
     - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">Settings</span>"}'
     - '// @ui {"widget":"group_start", "label":"Settings"}'
-    - '// @input float panelWidth = 16 {"hint":"Panel width in cm", "widget":"slider", "min":8, "max":30, "step":0.5}'
-    - '// @input float panelHeight = 5 {"hint":"Panel height in cm", "widget":"slider", "min":2, "max":12, "step":0.5}'
-    - '// @input float viewDistanceCm = 90 {"hint":"Viewing distance in cm; scales the type size", "widget":"slider", "min":40, "max":160, "step":1}'
-    - '// @input float fitChars = 32 {"hint":"Characters that fit on one line at full type size; longer labels shrink to stay on one line", "widget":"slider", "min":10, "max":60, "step":1}'
+    - '// @input float panelWidth = 21 {"hint":"Plate width in cm (sized for the longest instruction on two lines)", "widget":"slider", "min":12, "max":30, "step":0.5}'
+    - '// @input float viewDistanceCm = 90 {"hint":"Viewing distance in cm; scales the type and the spacing grid", "widget":"slider", "min":40, "max":160, "step":1}'
+    - "// @input float totalSteps = 10 {\"hint\":\"Steps in the repair (the kicker reads 'Step N of this')\"}"
+    - "// @input float tireGapCm = 2.5 {\"hint\":\"Gap between the tire's outer edge and the plate, in cm\", \"widget\":\"slider\", \"min\":0.5, \"max\":8, \"step\":0.5}"
+    - "// @input float markerGapCm = 4.5 {\"hint\":\"Clear gap between the plate's near edge and the marker ring's center, in cm\", \"widget\":\"slider\", \"min\":2, \"max\":10, \"step\":0.5}"
+    - '// @input float maxSideCm = 12 {"hint":"Furthest the plate center moves sideways from the hub in the top / bottom zones (keeps it in view)", "widget":"slider", "min":0, "max":25, "step":0.5}'
+    - '// @input float minScale = 0.45 {"hint":"Smallest scale when the eye is close (the callout keeps its apparent size up to here)", "widget":"slider", "min":0.2, "max":1, "step":0.05}'
+    - '// @input float leaderCm = 0.14 {"hint":"Leader line thickness in cm", "widget":"slider", "min":0.05, "max":0.5, "step":0.01}'
     - '// @input bool billboard = true {"hint":"Turn to face the user (SIK Billboard, yaw only)"}'
     - '// @ui {"widget":"group_end"}'

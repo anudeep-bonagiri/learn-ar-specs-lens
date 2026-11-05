@@ -195,7 +195,7 @@ export class RepairManager extends BaseScriptComponent {
   markerStandoffCm: number = 1.5
 
   @input
-  @hint("Label distance from its marker, in cm")
+  @hint("How far the step callout stands off the wheel toward the user, in cm (pass D2)")
   @widget(new SliderWidget(4, 30, 0.5))
   labelOffsetCm: number = 10
 
@@ -462,7 +462,15 @@ export class RepairManager extends BaseScriptComponent {
   refreshLabel(): void {
     const def = STEPS[this.step]
     if (!this.stepLabel || def.markerAnchor === "none" || this.interactionsPaused) return
-    this.stepLabel.setText(this.currentLabel())
+    this.pushLabel()
+  }
+
+  /** The current step's line on the callout: green "Found it" once the cause is found. */
+  private pushLabel(): void {
+    const def = STEPS[this.step]
+    this.stepLabel.setStepNumber(this.step)
+    if (def.markerAnchor === "inspect" && this.thornFound) this.stepLabel.setFound(this.currentLabel())
+    else this.stepLabel.setText(this.currentLabel())
   }
 
   private currentLabel(): string {
@@ -568,7 +576,7 @@ export class RepairManager extends BaseScriptComponent {
     this.thornFound = true
     this.subStep = 1
     this.playClick(this.thorn)
-    this.stepLabel.setText(this.causeDef().foundLabel)
+    this.stepLabel.setFound(this.causeDef().foundLabel)
     this.placeMarkerAndLabel()
     this.log("thorn found")
     const generation = this.thornGeneration
@@ -723,7 +731,10 @@ export class RepairManager extends BaseScriptComponent {
     this.setEnabled(this.toolTray, def.showTray)
     if (this.ghost) this.setEnabled(this.ghost.sceneObject, def.showGhost)
     if (this.doneCard) this.setEnabled(this.doneCard.sceneObject, def.showDoneCard)
-    if (def.showDoneCard && this.doneCard) this.doneCard.setElapsed(this.getState().elapsedSec)
+    if (def.showDoneCard && this.doneCard) {
+      this.doneCard.setElapsed(this.getState().elapsedSec)
+      this.doneCard.setCause(this.causeDef().label)
+    }
     if (this.finishCard) this.setEnabled(this.finishCard.sceneObject, def.showFinishCard)
     if (def.showFinishCard && this.finishCard) this.pushFinishCard()
 
@@ -759,7 +770,7 @@ export class RepairManager extends BaseScriptComponent {
     if (this.stepLabel) this.setEnabled(this.stepLabel.sceneObject, showLabel)
     if (!showLabel && this.feedback) this.feedback.cancel()
     if (showLabel) {
-      this.stepLabel.setText(this.currentLabel())
+      this.pushLabel()
       this.placeMarkerAndLabel()
     } else {
       this.setEnabled(this.stepMarker, false)
@@ -776,17 +787,12 @@ export class RepairManager extends BaseScriptComponent {
   private pushFinishCard(): void {
     const cause = this.causeDef()
     const s = this.stats ? this.stats.snapshot() : {leverMisses: 0, hintsUsed: 0, mistakes: 0}
-    this.finishCard.setResult(
-      this.getState().elapsedSec,
-      `Lever misses ${s.leverMisses} · Mistakes ${s.mistakes} · Hints ${s.hintsUsed}`,
-      `Cause: ${cause.label}`,
-      cause.tip
-    )
+    this.finishCard.setResult(this.getState().elapsedSec, s, cause.label, cause.tip)
     // Pass 11 coach report: the three slowest work steps and one practice line.
     if (this.stats) {
       const slow = this.stats.slowestSteps(3)
       const parts = slow.map((id) => `${STEP_SHORT_NAMES[id] ?? STEPS[id].name} ${formatMSS(this.stats.stepSeconds(id))}`)
-      this.finishCard.setReport(parts.length > 0 ? `Slowest: ${parts.join(" · ")}` : "Slowest: no timed steps", this.stats.practiceTip())
+      this.finishCard.setReport(parts.length > 0 ? parts.join(" · ") : "no timed steps", this.stats.practiceTip())
     }
   }
 
@@ -816,16 +822,18 @@ export class RepairManager extends BaseScriptComponent {
     const anchor = this.markerAnchorFor(this.step, true)
     this.stepMarker.getTransform().setWorldPosition(anchor.pos)
 
-    // Searching: the label sits above the wheel, not next to the answer.
-    const angleDeg = def.markerAnchor === "inspect" && !this.thornFound ? 0 : anchor.angleDeg
-    const dir = new vec3(Math.sin((angleDeg * Math.PI) / 180), Math.cos((angleDeg * Math.PI) / 180), 0)
-    const labelPos = this.wheel
-      .getTransform()
-      .getWorldPosition()
-      .add(dir.uniformScale(anchor.radius + this.labelOffsetCm))
-      // On the inspect step the pulled tube hangs 10 cm in front of the wheel: the label goes in front of it.
-      .add(new vec3(0, 0, def.markerAnchor === "inspect" ? 16 : 4))
-    this.stepLabel.sceneObject.getTransform().setWorldPosition(labelPos)
+    // The callout hangs off the marker (pass D2: BenchCoachStepLabelUI picks the zone and
+    // draws the leader). Searching: no marker yet, so it sits above the wheel with no leader.
+    const searching = def.markerAnchor === "inspect" && !this.thornFound
+    this.stepLabel.setAnchor({
+      target: searching ? null : anchor.pos,
+      hub: this.wheel.getTransform().getWorldPosition(),
+      radius: this.beadRadiusCm * this.tire.getTransform().getLocalScale().x,
+      // Step 5 is worked from the far side of the stand.
+      side: def.markerAnchor === "tubeEnd" ? -1 : 1,
+      // On the inspect step the pulled tube hangs 10 cm in front of the wheel: stand off further.
+      standOff: def.markerAnchor === "inspect" ? 16 : this.labelOffsetCm,
+    })
   }
 
   /** A small dim tick on the part of every completed step that has one. */
