@@ -18,6 +18,7 @@ import {BenchCoachStartCardUI} from "./BenchCoachStartCardUI"
 import {BenchCoachControlBarUI} from "./BenchCoachControlBarUI"
 import {BenchCoachDoneCardUI} from "./BenchCoachDoneCardUI"
 import {BenchCoachFinishCardUI} from "./BenchCoachFinishCardUI"
+import {VoiceCoach} from "./VoiceCoach"
 import {BenchCoachAudio} from "./BenchCoachAudio"
 import {IdleHint} from "./IdleHint"
 import {RunStats} from "./RunStats"
@@ -92,6 +93,11 @@ export class UIBindings extends BaseScriptComponent {
   @allowUndefined
   @hint("Floor measurement: the start card's floor line follows it")
   floorLevel: FloorLevel
+
+  @input
+  @allowUndefined
+  @hint("Voice coach: BtnVoice in the More popover turns it on and off (pass V)")
+  voice: VoiceCoach
   @ui.group_end
 
   onAwake(): void {
@@ -140,6 +146,14 @@ export class UIBindings extends BaseScriptComponent {
         this.controlBar.onAsk.add((on) => {
           if (on === this.askCoach.open) return // a sync from setAskLatched, not a press
           this.press(this.controlBar, `BtnAsk (${on ? "on" : "off"})`, () => this.askCoach.setOpen(on))
+        })
+      }
+      if (this.voice) {
+        this.voice.onEnabledChanged.add((on) => this.controlBar.setVoiceLatched(on))
+        this.controlBar.setVoiceLatched(this.voice.enabled)
+        this.controlBar.onVoice.add((on) => {
+          if (on === this.voice.enabled) return // a sync from setVoiceLatched, not a press
+          this.press(this.controlBar, `BtnVoice (${on ? "on" : "off"})`, () => this.voice.setEnabled(on))
         })
       }
       if (this.finishCard) {

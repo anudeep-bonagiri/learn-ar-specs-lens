@@ -1447,6 +1447,7 @@
     - !<own> 2bbd8579-8ab9-49f0-88bc-df65cfcda5f2
     - !<own> 1a0dd6cf-4a8f-4f59-a470-8797bb2cf3c2
     - !<own> f4159267-aac4-4b3e-aaf6-1feff341b1b1
+    - !<own> 3d9e3929-b993-4ab4-ac8d-ce48412ca9b0
   Components:
     - !<own> 7407431d-eeb9-4d5c-a25e-0c11394825cf
 - !<SceneObject/2dae2a27-8ce6-466a-8bff-622195c1b3a8>
@@ -1585,6 +1586,7 @@
       director: !<MappingBased.AssignableType_11> 69f574fb-b122-40c7-a041-afce199bf43c
       askCoach: !<MappingBased.AssignableType_12> 28a8d074-10e5-4ebd-a5a2-c31e87bc65c7
       floorLevel: !<MappingBased.AssignableType_13> 61e06c67-dbb7-48bf-97af-4ac893d51f94
+      voice: !<MappingBased.AssignableType_14> 62d7e2ff-77f5-4751-b627-7af7ffa06729
   ScriptTypes:
     "":
       {}
@@ -1985,6 +1987,21 @@
     []
   Components:
     - !<own> 1905fcc5-2d22-479f-b97f-b235602b56e3
+- !<SceneObject/3d9e3929-b993-4ab4-ac8d-ce48412ca9b0>
+  PrefabRemaps:
+    []
+  Name: Voice
+  Enabled: true
+  Layers: 1
+  LocalTransform: !<TransformEntity>
+    Position: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
+    HasSegmentScaleCompensation: false
+  Children:
+    []
+  Components:
+    - !<own> 6afbead0-7fb1-4634-a814-ce3d6282b08d
 - !<SceneObject/3de2c7ea-1525-465a-9056-68565a4014a7>
   PrefabRemaps:
     []
@@ -2770,6 +2787,72 @@
   ScriptTypes:
     "":
       {}
+- !<ScriptComponent/62d7e2ff-77f5-4751-b627-7af7ffa06729>
+  PrefabRemaps:
+    []
+  Name: VoiceCoach
+  Enabled: true
+  ScriptAsset: !<reference> f04d4aae-4f4e-4c91-8542-ff0327f3b359
+  ScriptInputsDefault:
+    volume: true
+    stepDelaySec: true
+    mistakeDelaySec: true
+    hintDelaySec: true
+    repeatGuardSec: true
+    duckFactor: true
+    debugLogs: true
+  ScriptTypesDefault:
+    {}
+  ScriptInputs:
+    "":
+      manager: !<MappingBased.AssignableType_1> 622db2cb-d0c7-4791-92af-926fab500a02
+      speaker: !<reference.AudioComponent> 6afbead0-7fb1-4634-a814-ce3d6282b08d
+      tracks: !<reference.AudioTrackAsset[]>
+        - !<reference> 45c57a53-8547-48eb-b4b9-f95051fa79ff
+        - !<reference> b9225f24-1577-4ca4-94a7-c42f5724075c
+        - !<reference> eb3649d3-ab7c-42af-aff1-628147b35ba4
+        - !<reference> fa90ac67-0150-4394-9268-6a9188af285b
+        - !<reference> 818af203-f99e-42d4-866c-88bb2a906df6
+        - !<reference> 150897fb-d312-4ee3-87f2-dc66d58bbcf3
+        - !<reference> c4d564a9-d63b-4ca3-9c17-235f33dc0c8f
+        - !<reference> 26660957-d1c2-484b-9e00-d74424212df6
+        - !<reference> 73154bb0-af98-4bfe-aeb4-e36a6a76f87f
+        - !<reference> 5795d89e-d341-4e32-b2b8-c3355f2566db
+        - !<reference> fee916ba-db5b-436f-ba58-9db9e00e8828
+        - !<reference> f6da3be7-323f-4ba1-8b76-b6af3058c904
+        - !<reference> 3793b7bf-0cb1-4d2f-bcde-7c5a41bb659c
+        - !<reference> 9ef9a7a6-cb9f-45ab-b365-5d1c4590988f
+        - !<reference> b0798ba0-c012-4f60-90e1-6d4ddba1886a
+        - !<reference> 5d25c022-0290-4e3a-91ca-6020abf20b2f
+        - !<reference> 2257f665-3523-42e4-a340-8bd004c1081b
+        - !<reference> e441daa0-2c75-4c39-8162-2ad99973b866
+        - !<reference> 089a90b1-837e-488b-a71e-7cb4029a16a5
+        - !<reference> 3a538a54-1041-4a6a-b12b-cb64c8ae6851
+        - !<reference> 71641111-27c8-40cd-a34e-4272d9d486fe
+        - !<reference> e34e5c64-4509-4ca4-8035-bcee6906894e
+        - !<reference> 400bf29e-1ff2-428a-9180-682f7aff3b96
+        - !<reference> afe73451-15ba-4005-9756-71e117feb76e
+        - !<reference> da8fe2e1-b6ac-4b84-894b-941f23f7a423
+        - !<reference> 5210853c-9961-4d03-aea6-148ae699c026
+        - !<reference> 4e9ffbca-08e2-4439-9142-fd83dcf48aee
+        - !<reference> fe11d743-f16a-48f9-9ef0-fbb01030cb3b
+        - !<reference> 2386cb0d-ac35-4557-9e3d-aa24ef4c0f97
+        - !<reference> 7442c740-a0a3-4606-8f5c-7edf93193640
+      audio: !<MappingBased.AssignableType_2> 7407431d-eeb9-4d5c-a25e-0c11394825cf
+      feedback: !<MappingBased.AssignableType_3> f8035567-f4fb-4cd8-851c-a22f0c3d9d41
+      idleHint: !<MappingBased.AssignableType_4> 68bc2d07-3d0b-4c20-a0de-646d168ada8e
+      scanReveal: !<MappingBased.AssignableType_5> 760695aa-dd94-4ec6-b816-d3e6536adb12
+      startCard: !<MappingBased.AssignableType_6> caa8fc4f-6d45-4119-a6dd-457dd4b1ae9d
+      volume: !<float> 1.000000
+      stepDelaySec: 0.400000
+      mistakeDelaySec: 0.250000
+      hintDelaySec: 0.400000
+      repeatGuardSec: !<float> 6.000000
+      duckFactor: 0.500000
+      debugLogs: true
+  ScriptTypes:
+    "":
+      {}
 - !<SceneObject/638c2be2-e9c6-4cea-a697-574ba271786b>
   PrefabRemaps:
     []
@@ -2959,6 +3042,7 @@
   ScriptAsset: !<reference> de69fb1d-282e-4716-abc2-e336b0338e70
   ScriptInputsDefault:
     waitScale: true
+    voiceHoldMaxSec: true
     debugLogs: true
   ScriptTypesDefault:
     {}
@@ -2976,7 +3060,9 @@
       idle: !<MappingBased.AssignableType_10> 68bc2d07-3d0b-4c20-a0de-646d168ada8e
       stats: !<MappingBased.AssignableType_11> 7dc2f119-941e-4f70-bb4a-86205c919c86
       partInfo: !<MappingBased.AssignableType_12> 1d4ea802-2313-4544-a512-0af08fb7293b
+      voice: !<MappingBased.AssignableType_13> 62d7e2ff-77f5-4751-b627-7af7ffa06729
       waitScale: !<float> 1.000000
+      voiceHoldMaxSec: !<float> 4.000000
       debugLogs: true
   ScriptTypes:
     "":
@@ -3042,6 +3128,23 @@
     - !<own> ca40734c-262f-48d3-affa-9f99cd2940f7
   Components:
     []
+- !<AudioComponent/6afbead0-7fb1-4634-a814-ce3d6282b08d>
+  PrefabRemaps:
+    []
+  Name: Audio
+  Enabled: true
+  AudioTrack: !<reference> 00000000-0000-0000-0000-000000000000
+  EnableAutoplayLoop: false
+  Volume: 1.000000
+  EnableMixToSnap: false
+  RecordVolume: 1.000000
+  EnableSpatialAudio: false
+  EnableDistanceEffect: false
+  CurveType: Logarithm
+  MinDistance: 0.000000
+  MaxDistance: 100.000000
+  EnableDirectivityEffect: false
+  EnablePositionEffect: false
 - !<SceneObject/6c1f70d7-86d0-4972-b203-29780f8798e6>
   PrefabRemaps:
     []
@@ -3756,6 +3859,7 @@
     - !<own> f8035567-f4fb-4cd8-851c-a22f0c3d9d41
     - !<own> 69f574fb-b122-40c7-a041-afce199bf43c
     - !<own> 28a8d074-10e5-4ebd-a5a2-c31e87bc65c7
+    - !<own> 62d7e2ff-77f5-4751-b627-7af7ffa06729
 - !<SceneObject/8363e9a6-cd83-4889-abd4-6521e394f244>
   PrefabRemaps:
     []

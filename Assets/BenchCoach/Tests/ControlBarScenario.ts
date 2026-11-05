@@ -8,6 +8,7 @@ import {BenchCoachLeafInteractor, getRepairManager} from "./BenchCoachLeafIntera
 import {BenchCoachControlBarUI} from "../Scripts/BenchCoachControlBarUI"
 import {PartInfo} from "../Scripts/PartInfo"
 import {AskCoach} from "../Scripts/AskCoach"
+import {VoiceCoach} from "../Scripts/VoiceCoach"
 
 /**
  * Pass F: the control bar's hit boxes and targeting.
@@ -38,8 +39,9 @@ export class ControlBarScenario extends Scenario {
 
     // ── Hit boxes ─────────────────────────────────────────────────────────
     for (let i = 0; i < 50 && bar.hitBoxes.length === 0; i++) await sleep(100)
-    // Pass D2: the dock row (Back, Replay, Next, More) and the More popover (What's this?, Ask).
-    expect(bar.hitBoxes.length, "six hit boxes measured (dock row and More popover)").toBe(6)
+    // Pass D2: the dock row (Back, Replay, Next, More) and the More popover (What's this?, Ask);
+    // pass V: the Voice toggle on its own popover row.
+    expect(bar.hitBoxes.length, "seven hit boxes measured (dock row, More popover, Voice row)").toBe(7)
     for (let i = 0; i < bar.hitBoxes.length; i++) {
       const h = bar.hitBoxes[i]
       const w = h.right - h.left
@@ -108,6 +110,18 @@ export class ControlBarScenario extends Scenario {
     await interactor.tap("BtnAsk")
     expect(ask.open, "Ask closed").toBe(false)
     expect(bar.askIconClose, "Ask back to its help icon").toBe(false)
+
+    // Pass V: Voice is on by default; off shows the crossed-out speaker, on the speaker.
+    const voice = findSceneObjectByName("BenchCoach").getComponent(VoiceCoach.getTypeName()) as VoiceCoach
+    expect(voice, "VoiceCoach on BenchCoach").toBeTruthy()
+    expect(voice.enabled && bar.voiceOn && bar.voiceIconOn, "Voice on by default, speaker icon").toBe(true)
+    await interactor.tap("BtnVoice")
+    expect(voice.enabled, "Voice off").toBe(false)
+    expect(bar.voiceIconOn, "Voice shows the crossed-out speaker while off").toBe(false)
+    expect(manager.getState().step, "Voice keeps the step").toBe(4)
+    await interactor.tap("BtnVoice")
+    expect(voice.enabled, "Voice on again").toBe(true)
+    expect(bar.voiceIconOn, "Voice back to the speaker icon").toBe(true)
 
     await interactor.tap("BtnBack")
     expect(manager.getState().step, "Back moves one step").toBe(3)

@@ -5,6 +5,9 @@
  * Must not: decide when a cue fires — RepairManager / EdgeHint / UIBindings call it.
  * Pump is the one loop: startPumpAt() loops it while the valve is held, stopPump() ends it.
  * Expects: @inputs zipper, chime, tick, click, nope, done, hiss, pump, finish (AudioComponents on child objects).
+ * Pass V: every cue start prints `[Audio] <cue> ms=<Date.now()> vol=<volume>` (the pump loop
+ * also `[Audio] pump stop ms=...`), so a silent screen recording's soundtrack can be rebuilt;
+ * setDuck(f) scales hiss, pump and zipper by f while the voice coach speaks.
  */
 @component
 export class BenchCoachAudio extends BaseScriptComponent {
@@ -109,6 +112,8 @@ export class BenchCoachAudio extends BaseScriptComponent {
   pumpPlays: number = 0
   finishPlays: number = 0
   pumping: boolean = false
+  /** Volume factor on hiss, pump and zipper (1, or the voice coach's duck while it speaks). */
+  duck: number = 1
 
   onAwake(): void {
     this.configure(this.zipper, this.zipperVolume)
@@ -124,42 +129,42 @@ export class BenchCoachAudio extends BaseScriptComponent {
 
   playZipperAt(worldPos: vec3): void {
     this.zipperPlays += 1
-    this.playAt(this.zipper, worldPos)
+    this.playAt(this.zipper, worldPos, "zipper")
   }
 
   playChimeAt(worldPos: vec3): void {
     this.chimePlays += 1
-    this.playAt(this.chime, worldPos)
+    this.playAt(this.chime, worldPos, "chime")
   }
 
   playTickAt(worldPos: vec3): void {
     this.tickPlays += 1
-    this.playAt(this.tick, worldPos)
+    this.playAt(this.tick, worldPos, "tick")
   }
 
   playClickAt(worldPos: vec3): void {
     this.clickPlays += 1
-    this.playAt(this.click, worldPos)
+    this.playAt(this.click, worldPos, "click")
   }
 
   playNopeAt(worldPos: vec3): void {
     this.nopePlays += 1
-    this.playAt(this.nope, worldPos)
+    this.playAt(this.nope, worldPos, "nope")
   }
 
   playDoneAt(worldPos: vec3): void {
     this.donePlays += 1
-    this.playAt(this.done, worldPos)
+    this.playAt(this.done, worldPos, "done")
   }
 
   playHissAt(worldPos: vec3): void {
     this.hissPlays += 1
-    this.playAt(this.hiss, worldPos)
+    this.playAt(this.hiss, worldPos, "hiss")
   }
 
   playFinishAt(worldPos: vec3): void {
     this.finishPlays += 1
-    this.playAt(this.finish, worldPos)
+    this.playAt(this.finish, worldPos, "finish")
   }
 
   /** Start the pump loop at the valve (counts one play per hold). */
@@ -170,12 +175,39 @@ export class BenchCoachAudio extends BaseScriptComponent {
     if (!a || !a.audioTrack) return
     a.getSceneObject().getTransform().setWorldPosition(worldPos)
     if (a.isPlaying()) a.stop(false)
+    a.volume = this.pumpVolume * this.duck
     a.play(-1)
+    this.logStart("pump", a)
   }
 
   stopPump(): void {
+    const was = this.pumping
     this.pumping = false
     if (this.pump && this.pump.isPlaying()) this.pump.stop(true)
+    if (was) print(`[Audio] pump stop ms=${Date.now()}`)
+  }
+
+  /** Scale the long cues (hiss, pump, zipper) by `factor`; 1 restores them. Live on a playing cue. */
+  setDuck(factor: number): void {
+    this.duck = factor
+    if (this.hiss) this.hiss.volume = this.hissVolume * factor
+    if (this.pump) this.pump.volume = this.pumpVolume * factor
+    if (this.zipper) this.zipper.volume = this.zipperVolume * factor
+  }
+
+  /** Each cue's base volume, by cue name (the audio map for rebuilding a soundtrack lists them). */
+  baseVolumes(): {[cue: string]: number} {
+    return {
+      zipper: this.zipperVolume,
+      chime: this.chimeVolume,
+      tick: this.tickVolume,
+      click: this.feedbackVolume,
+      nope: this.feedbackVolume,
+      done: this.doneVolume,
+      hiss: this.hissVolume,
+      pump: this.pumpVolume,
+      finish: this.finishVolume,
+    }
   }
 
   private configure(a: AudioComponent | null, volume: number): void {
@@ -185,10 +217,15 @@ export class BenchCoachAudio extends BaseScriptComponent {
     a.spatialAudio.enabled = this.spatial
   }
 
-  private playAt(a: AudioComponent | null, worldPos: vec3): void {
+  private playAt(a: AudioComponent | null, worldPos: vec3, cue: string): void {
     if (!a || !a.audioTrack) return
     a.getSceneObject().getTransform().setWorldPosition(worldPos)
     if (a.isPlaying()) a.stop(false)
     a.play(1)
+    this.logStart(cue, a)
+  }
+
+  private logStart(cue: string, a: AudioComponent): void {
+    print(`[Audio] ${cue} ms=${Date.now()} vol=${a.volume.toFixed(2)}`)
   }
 }

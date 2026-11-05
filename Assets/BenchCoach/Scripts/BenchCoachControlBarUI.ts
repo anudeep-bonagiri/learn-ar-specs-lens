@@ -5,7 +5,9 @@
  *  - a row of BtnBack, BtnReplay, BtnNext (the accent primary, with its label) and BtnMore;
  *  - under it the progress: "4 / 10" and a thin bar (ControlBar/ProgressRail draws the bar).
  * BtnMore toggles a small popover on top of the dock with the two learning tools,
- * BtnWhatsThis and BtnAsk (UIKit toggles: latched in the accent while the mode is on).
+ * BtnWhatsThis and BtnAsk (UIKit toggles: latched in the accent while the mode is on),
+ * and under them BtnVoice (pass V: the voice coach, on by default; a speaker icon while
+ * on, a crossed-out speaker while off, so the state is never colour alone).
  * While watch mode plays, a pill on top of the dock says "Watching the coach" with
  * BtnStopWatch.
  * Owns: only its view. Emits onBack / onNext / onReplay / onWhatsThis(on) / onAsk(on) /
@@ -44,6 +46,9 @@ const ICON_PLAY: Texture = requireAsset("../../Icons/play_arrow.png") as Texture
 const ICON_STOP: Texture = requireAsset("../../Icons/stop.png") as Texture
 /** Pass G3 (Sujeeth), on D2's popover: a toggle that is on shows a close cross, not only the accent tint. */
 const ICON_CLOSE: Texture = requireAsset("../../Icons/close.png") as Texture
+/** Pass V: the Voice toggle's two states. */
+const ICON_VOICE_ON: Texture = requireAsset("../../Icons/volume_up.png") as Texture
+const ICON_VOICE_OFF: Texture = requireAsset("../../Icons/volume_off.png") as Texture
 
 @component
 export class BenchCoachControlBarUI extends BaseScriptComponent {
@@ -93,6 +98,9 @@ export class BenchCoachControlBarUI extends BaseScriptComponent {
   private _onAsk = new Event<boolean>()
   /** The Ask toggle changed (by a press or by setAskLatched). */
   onAsk: PublicApi<boolean> = this._onAsk.publicApi()
+  private _onVoice = new Event<boolean>()
+  /** The Voice toggle changed (by a press or by setVoiceLatched). */
+  onVoice: PublicApi<boolean> = this._onVoice.publicApi()
   /** Stop on the watch pill. */
   onStopWatch: PublicApi<void> = this._onStopWatch.publicApi()
   private _onMore = new Event<boolean>()
@@ -101,6 +109,10 @@ export class BenchCoachControlBarUI extends BaseScriptComponent {
 
   /** Current latched state of BtnAsk. */
   askOn: boolean = false
+  /** Current latched state of BtnVoice (on by default). */
+  voiceOn: boolean = true
+  /** BtnVoice shows the speaker (on) rather than the crossed-out speaker; tests read it. */
+  voiceIconOn: boolean = true
   /** Current latched state of BtnWhatsThis. */
   whatsThisOn: boolean = false
   /** The More popover is open. */
@@ -115,6 +127,7 @@ export class BenchCoachControlBarUI extends BaseScriptComponent {
 
   private whatsThis: Button | null = null
   private ask: Button | null = null
+  private voice: Button | null = null
   private more: Button | null = null
   private rowButtons: Button[] = []
   private popButtons: Button[] = []
@@ -141,6 +154,13 @@ export class BenchCoachControlBarUI extends BaseScriptComponent {
     this.syncToggleIcons()
   }
 
+  /** Show the Voice toggle as on or off (no-op if it already is). */
+  setVoiceLatched(on: boolean): void {
+    this.voiceOn = on
+    if (this.voice && this.voice.initialized && this.voice.isOn !== on) this.voice.isOn = on
+    this.syncToggleIcons()
+  }
+
   /** Show the What's this? toggle as on or off (no-op if it already is). */
   setWhatsThisLatched(on: boolean): void {
     if (this.whatsThis && this.whatsThis.isOn !== on) this.whatsThis.isOn = on
@@ -153,6 +173,8 @@ export class BenchCoachControlBarUI extends BaseScriptComponent {
     const ask = !!this.ask && this.ask.isOn
     if (setButtonIcon(this.whatsThis, info ? ICON_CLOSE : ICON_INFO)) this.whatsThisIconClose = info
     if (setButtonIcon(this.ask, ask ? ICON_CLOSE : ICON_ASK)) this.askIconClose = ask
+    const voice = this.voice && this.voice.initialized ? this.voice.isOn : this.voiceOn
+    if (setButtonIcon(this.voice, voice ? ICON_VOICE_ON : ICON_VOICE_OFF)) this.voiceIconOn = voice
   }
 
   /** Open or close the More popover (BtnMore's latch follows). */
@@ -247,16 +269,17 @@ export class BenchCoachControlBarUI extends BaseScriptComponent {
     })
   }
 
-  /** The two learning tools, on their own plate on top of the dock. */
+  /** The two learning tools and the Voice toggle, on their own plate on top of the dock. */
   private buildPopover(w: number, d: number): SceneObject {
     const g = grid(d)
     const bh = this.buttonSize * 0.9
-    const h = bh + 2 * g.pad * 0.8
+    const h = 2 * bh + this.gap + 2 * g.pad * 0.8
     const root = obj(this.sceneObject, "MorePopover")
     const plate = makePlate(root, w, h, d)
     const rowW = w - 2 * g.pad
     const bw = (rowW - this.gap) / 2
-    const row = flexRow(plate.content, rowW, bh, {gap: this.gap, justify: FlexJustify.Center, align: FlexAlign.Center})
+    const rowHolder = obj(plate.content, "LearnRow", new vec3(0, (bh + this.gap) / 2, 0))
+    const row = flexRow(rowHolder, rowW, bh, {gap: this.gap, justify: FlexJustify.Center, align: FlexAlign.Center})
     const info = addLabelButton(row, "BtnWhatsThis", "What's this?", ICON_INFO, bw, bh, d, () => {})
     const askBtn = addLabelButton(row, "BtnAsk", "Ask the coach", ICON_ASK, bw, bh, d, () => {})
     this.popButtons = [info, askBtn]
@@ -274,6 +297,22 @@ export class BenchCoachControlBarUI extends BaseScriptComponent {
       this._onAsk.invoke(this.askOn)
     })
     this.ask = askBtn
+    // Pass V: the Voice toggle, under What's this? (on by default).
+    const voiceHolder = obj(plate.content, "VoiceRow", new vec3(0, -(bh + this.gap) / 2, 0))
+    const voiceRow = flexRow(voiceHolder, rowW, bh, {gap: this.gap, justify: FlexJustify.Start, align: FlexAlign.Center})
+    const voiceBtn = addLabelButton(voiceRow, "BtnVoice", "Voice", ICON_VOICE_ON, bw, bh, d, () => {})
+    this.popButtons.push(voiceBtn)
+    this.voice = voiceBtn
+    voiceBtn.onInitialized.add(() => {
+      voiceBtn.setIsToggleable(true)
+      voiceBtn.isOn = this.voiceOn
+      this.syncToggleIcons()
+    })
+    voiceBtn.onValueChange.add((v) => {
+      this.voiceOn = v === 1
+      this.syncToggleIcons()
+      this._onVoice.invoke(this.voiceOn)
+    })
     this.popoverH = h
     return root
   }
@@ -333,7 +372,9 @@ export class BenchCoachControlBarUI extends BaseScriptComponent {
         const tr = b.collider.getSceneObject().getTransform()
         const half = ((b.collider.shape as BoxShape).size.x * tr.getWorldScale().x) / 2
         const c = tr.getWorldPosition().sub(origin).dot(right)
-        return {name: b.getSceneObject().name, row: rowName, left: c - half, right: c + half, visualWidth: b.size.x}
+        const name = b.getSceneObject().name
+        // The Voice toggle has its own row under the two learning tools (pass V).
+        return {name, row: name === "BtnVoice" ? "voice" : rowName, left: c - half, right: c + half, visualWidth: b.size.x}
       })
     this.hitBoxes = measure(this.rowButtons, "dock").concat(measure(this.popButtons, "more"))
     const parts: string[] = []

@@ -262,6 +262,9 @@ export class RepairManager extends BaseScriptComponent {
   /** reset() finished (Start over, Restart, jumpToStep): What's this? turns itself off. */
   private _onReset = new Event<void>()
   onReset: PublicApi<void> = this._onReset.publicApi()
+  /** Replay was asked for on this step (pass V: the voice coach says the step's line again). */
+  private _onReplay = new Event<number>()
+  onReplay: PublicApi<number> = this._onReplay.publicApi()
 
   getState(): RepairState {
     return {
@@ -408,6 +411,7 @@ export class RepairManager extends BaseScriptComponent {
    */
   replay(): void {
     const def = STEPS[this.step]
+    this._onReplay.invoke(this.step)
     let what: string
     if (this.refit && this.refit.ownsStep(this.step) && this.refit.replay(this.step)) {
       what = "the step module's demo" // the module showed it

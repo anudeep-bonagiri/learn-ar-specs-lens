@@ -12,6 +12,8 @@
  * suspended and What's this? is turned off.
  * Owns: the beat cursor and timers. Must not: author UI or change step state directly.
  * Expects: @inputs as listed (all on BenchCoach and the wheel parts).
+ * Pass V: a beat's wait also lasts until the voice coach has said its line (at most
+ * voiceHoldMaxSec more), so watch mode, the video's main take, never cuts a line off.
  * Known limit: a tube pull or lever flight already under way finishes after stop()
  * (they are short); a sweep and the refit demos stop where they are.
  */
@@ -37,6 +39,7 @@ import {TubeFit} from "./TubeFit"
 import {IdleHint} from "./IdleHint"
 import {RunStats} from "./RunStats"
 import {PartInfo} from "./PartInfo"
+import {VoiceCoach} from "./VoiceCoach"
 
 type Phase = "wait" | "act"
 
@@ -96,6 +99,11 @@ export class RepairDirector extends BaseScriptComponent {
   @allowUndefined
   @hint("What's this? mode: turned off when watch mode starts")
   partInfo: PartInfo
+
+  @input
+  @allowUndefined
+  @hint("Voice coach: each beat waits for its line to finish (pass V)")
+  voice: VoiceCoach
   @ui.group_end
 
   @ui.separator
@@ -105,6 +113,11 @@ export class RepairDirector extends BaseScriptComponent {
   @hint("Multiplies every beat's reading pause (1 = about 60 s end to end)")
   @widget(new SliderWidget(0.25, 3, 0.05))
   waitScale: number = 1
+
+  @input
+  @hint("Most extra seconds a beat waits for the voice coach's line")
+  @widget(new SliderWidget(0, 8, 0.5))
+  voiceHoldMaxSec: number = 4
 
   @input
   @hint("Print beats to the log")
@@ -211,7 +224,9 @@ export class RepairDirector extends BaseScriptComponent {
     const beat = WATCH_BEATS[this.beatIndex]
     this.timer += getDeltaTime()
     if (this.phase === "wait") {
-      if (this.timer >= beat.waitSec * this.waitScale) {
+      const wait = beat.waitSec * this.waitScale
+      const voiceHold = !!this.voice && this.voice.isBusy() && this.timer - wait < this.voiceHoldMaxSec
+      if (this.timer >= wait && !voiceHold) {
         this.phase = "act"
         this.timer = 0
         this.act(beat)

@@ -13,7 +13,7 @@ import {RepairManager} from "../Scripts/RepairManager"
  * position each frame and releases when it arrives or times out).
  */
 /** Buttons inside the dock's More popover. */
-const MORE_ITEMS = ["BtnWhatsThis", "BtnAsk"]
+const MORE_ITEMS = ["BtnWhatsThis", "BtnAsk", "BtnVoice"]
 
 export class BenchCoachLeafInteractor extends DefaultLeafInteractor {
   async tap(name: string): Promise<void> {

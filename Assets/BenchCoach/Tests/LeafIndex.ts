@@ -21,6 +21,7 @@ import {CoachReportScenario} from "./CoachReportScenario"
 import {ControlBarScenario} from "./ControlBarScenario"
 import {FloorLevelScenario} from "./FloorLevelScenario"
 import {UiLayoutScenario} from "./UiLayoutScenario"
+import {VoiceCoachScenario} from "./VoiceCoachScenario"
 
 @component
 export class LeafIndex extends BaseScriptComponent {
@@ -106,6 +107,10 @@ export class LeafIndex extends BaseScriptComponent {
     {
       id: "ui-layout",
       typename: UiLayoutScenario.getTypeName(),
+    },
+    {
+      id: "voice-coach",
+      typename: VoiceCoachScenario.getTypeName(),
     },
     {
       id: "jump-to-step",

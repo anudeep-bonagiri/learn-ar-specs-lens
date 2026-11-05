@@ -41,6 +41,7 @@
     partInfo: false
     startCard: false
     stats: false
+    voice: false
   ScriptTypesHidden:
     {}
   ReadMe: !<reference> 00000000-0000-0000-0000-000000000000
@@ -63,6 +64,7 @@
       director: !<MappingBased.AssignableType_11> 00000000-0000-0000-0000-000000000000
       askCoach: !<MappingBased.AssignableType_12> 00000000-0000-0000-0000-000000000000
       floorLevel: !<MappingBased.AssignableType_13> 00000000-0000-0000-0000-000000000000
+      voice: !<MappingBased.AssignableType_14> 00000000-0000-0000-0000-000000000000
   ScriptTypes:
     -
       {}
@@ -84,4 +86,5 @@
     - '// @input AssignableType_11 director {"hint":"Watch mode: every press stops it first; BtnWatch starts it"}'
     - "// @input AssignableType_12 askCoach {\"hint\":\"Ask the coach: BtnAsk toggles it; exclusive with What's this?\"}"
     - "// @input AssignableType_13 floorLevel {\"hint\":\"Floor measurement: the start card's floor line follows it\"}"
+    - '// @input AssignableType_14 voice {"hint":"Voice coach: BtnVoice in the More popover turns it on and off (pass V)"}'
     - '// @ui {"widget":"group_end"}'
