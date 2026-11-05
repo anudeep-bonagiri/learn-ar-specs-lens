@@ -148,6 +148,10 @@ export class FloorPathScenario extends Scenario {
     )
     expect(maxX, "path swings round the right side").toBeGreaterThan(25)
     expect(pts[0].z > -60, "starts in front of the stand").toBe(true)
-    expect(last.z < -110, "ends behind the wheel (wheel plane z -90)").toBe(true)
+    // Pass V: the chain ends at the far-spot marker's edge, behind the wheel (wheel plane z -90).
+    expect(last.z < -100, "ends behind the wheel (wheel plane z -90)").toBe(true)
+    const far = path.farSpotWorld()
+    expect(path.markerVisible || !path.visible, "the far-spot marker shows with the path").toBe(true)
+    expect(last.distance(new vec3(far.x - eye.x, last.y, far.z - eye.z)) < 40, "the last arrow is at the far-spot marker").toBe(true)
   }
 }
