@@ -1357,3 +1357,122 @@ Verified by hand: jump to step 3, 14 s idle (hint fires), grab lever B, drop at 
 Video notes from the same session: Lens Studio has no garage room (Plane, Sunlit Room, Evening Room, Colorful Home, two outdoors); the LEAF status line is hidden per run with `__leaf__log_level=WARN`; a bare injected `move` hovers a target, and a button or lever then needs one click, sometimes two, after a camera move; macOS screen recording captures no Lens audio; resizing or scrolling the Preview panel mid-take resets the Lens or pushes the camera back.
 
 LEAF after the fix, reset camera, one per call: `mistakes`, `progress-idle`, `whats-this`, `inspect-done` all PASSED.
+
+## 2026-11-05: Pass M, Sujeeth's G passes on the D2 UI
+
+On `main`. `origin/Sujeeth-AR-SPECS-WORK` (passes G to G7, Nov 1 to 4, built on the old UI) merged with `--no-ff`, so his seven commits and authorship stay in history. Policy: D2's UI architecture wins; every intent of his that still applies is carried onto it; nothing of his is dropped silently. Built through the CLAD skills and the Lens Studio MCP, one call at a time.
+
+### The merge
+
+- **Conflicts:** 20 files. The UI files rebuilt in D2 (dock, step callout, cards, ProgressRail, BodyFollow, chips) took D2's side; his intents on them came back as separate commits. `AskCoach` kept D2's slot plus his two timers. `Assets/Icons/close.png` was byte-identical on both sides; main's meta was kept.
+- **`Assets/Scene.scene`:** main's, not hand-merged. His scene changes were re-applied through the Editor API (`VirtualScene`, `scene-graphql`) and saved.
+- **Design notes:** every entry from both sides, in date order (D2's Oct 29 entry, then his Nov 1 to Nov 4 entries).
+- **Docs kept as he wrote them:** `devpost/video-script.md`, his `docs/INFO_SESSION_OCT29.md` and `docs/TEAM_TASKS.md` changes.
+- Lens Studio pauses its TypeScript compiler while a git merge is in progress, so the merge was type-checked with the same `lensifyts tsc-only` command against the project's `tsconfig.json` (no emit) before the merge commit.
+
+### Each G pass on D2
+
+| Pass | Item | On D2 |
+| --- | --- | --- |
+| G | Card button gaps | **Ported.** `UIHelpers.targetCm(d, deg)` holds the rule. The card button gap is at least 1 degree (1.48 cm on the start card at 85 cm, 1.43 cm on the halfway card at 82 cm). Found it and Watch are 11.2 cm, Continue 12.6 cm. |
+| G | Ask chips | **Ported.** His 3.6 cm chips with 1.6 cm gaps (2.3 and 1.0 degrees at 90 cm; D2 had 2.7 and 0.35). |
+| G | Lever B's armed box, spoke and tray-lever What's this? boxes | **Kept from the merge** (`RimDrag`, `LeverPlacement.setColliderSize`, `PART_FACTS`). |
+| G | Dock (new in D2) | **Adapted.** Buttons 3.6 cm (4.3 degrees at 48 cm) already passed. Gaps were 0.45 cm (0.54 degree); now 0.85 cm (1.0 degree). |
+| G | Ask close buttons (new in D2) | **Adapted.** `BtnAskClose` and `BtnAnswerClose` were 2.2 cm (1.4 degrees); the header rows are now at least 2 degrees (3.14 cm at 90 cm). |
+| G | Control bar 1 cm left, clear of the tray | **Moot.** D2's dock is on the opposite side from the tray. |
+| G2 | Ask closes after 10 s without a chip press; answer hides after 8 s | **Ported.** The chips' clock runs only while they are up and restarts when they come back, so an 8 s answer is not followed by a 2 s flash of chips. |
+| G2 | Ask on a step change | **Adapted to the brief.** Ask now closes on a step change (his version kept it open and refreshed the chips). The dock's toggle releases through `onOpenChanged`. |
+| G2 | Answer at the next sub-step | **Added.** A new sub-step (a bead, a peel) hides the answer, and the chips come back in the slot. |
+| G2 | Control-bar fade | **Not ported.** D2's dock sits at yaw -30, pitch -30 at 48 cm, out of frame from every working pose. His fade existed because the old bar sat in view under the tire. |
+| G3 | Toggle on-state | **Ported.** What's this? and Ask (in the More popover) show the close cross while on. D2 draws the icon as an Image, so the swap is a new `UIHelpers.setButtonIcon()`, not his `ElementContent.leadingIcon`. |
+| G3 | Mistake badge | **Ported onto D2's amber state.** His `warning.png`, tinted amber, sits on the plate's left edge, level with "Not quite". Half of it is inside the padding, so it never touches the text. |
+| G3 | Rail ticks | **Moot.** D2 replaced the dots with segments, and the dock's "4 / 10" counter gives progress in text. |
+| G4 | Scan reveal | **Ported and rebuilt in D2's style** (below). |
+| G5 | Step 6 chips clipping the left edge; step 5 label behind the bar | **Moot.** D2 keeps the callout's apparent size and moved the dock. Checked: step 6 with Ask open, everything in view. |
+| G5 | Answer's first line in Specs' faded top edge | **Still there on D2, and worse; fixed.** With a stack hung under it, D2 put the callout above the tire: with the chips open on step 2 its top was about 27 degrees above the eye (24 before the G chip sizes; Specs ends at about 18.5). Callout and stack now try D2's inside-the-rim search as one box first, and fall back to above or below the tire only if they don't fit. Measured top: 1.1 to 3.3 degrees below the eye on steps 2, 3 and 6. |
+| G6 | Tray slides away when looked at | **Moot.** D2's BodyFollow compares the camera with its settled pose (55 degree turn). Checked: looking straight at the tray (25 degrees right, 40 down) left its world position unchanged. |
+| G6 | "Lever 1 4:52" | **Kept.** "Lever A", also in D2's Finish card placeholder. |
+| G7 | Mistake reason survives an idle hint | **Ported** to D2's label path (`refreshLabel` returns while `CoachFeedback.showing`). `mistakes` now covers it. |
+
+### The scan reveal on D2 (G4)
+
+- **The sweep is the audit's outline.** Two bright heads leave 6 o'clock and run up both sides, hugging the tread (120 exact chords at 35.2 cm), and meet at the valve, where step 1's marker is, in 1.4 s, fast out and slowing in. The trail is a thin accent ring. It flashes as the heads meet, settles dimmer, holds 2.5 s and fades in 0.4 s. A chime plays as they meet.
+- **Labels in the What's this? look:** D2 plate, title role, a neutral edge that flashes the accent as each pops, and a grey leader. Rim pops first, then Valve as the heads meet, then Hub; each plays his tick.
+- **Placement:** from the recording pose only 4 cm of view is left above the tire and its sides are cut, so a first try with the labels above the tire was clipped at the top. They sit inside the rim: Valve right of the marker above the step callout, Rim at the left with a short leader to the rim, Hub right of the hub.
+- **Tire radius:** 34.6 cm with the tread, measured on screenshots against the valve (27 cm above the hub). His 38 cm floated the outline 2 cm off the tread; the Tire's bounds report 38.5, which is larger than the visible tire.
+- **Real input:** Found it pressed with the preview mouse. For the shots `sweepSec` and `holdSec` were raised to 12 and 15, then restored to 1.4 and 2.5 before the save:
+  - mid-sweep: `scratchpad/shots/merge/g4-02-sweep.png`;
+  - labels after the meeting: `scratchpad/shots/merge/g4-03-labels.png`.
+  The step callout reads "Hint" in both only because the stretched sweep let the 12 s idle hint fire.
+
+### Checked with real input (preview mouse, two taps per new spot)
+
+- **Mistake with the badge, after an idle hint:**
+  - Step 1, hint showing; a bead tapped before deflating.
+  - The callout stayed amber with the badge and "Let the air out first. Pinch the valve." (`v-04-mistake-still-up.png`; `showSec` raised to 8 for the capture, then restored).
+  - At 2.5 s the reason ran out before a capture could land (the tool round trip is about 2 s).
+- **Ask timing out:** opened from the popover at 14:04:58.22, closed itself at 14:05:08.24, and the toggle went back to its help icon (`v-07-ask-on.png`, `v-08-ask-timed-out.png`).
+- **Every button logged `triggered by ray` once and did only its own job:**
+  - dock: Next (0 to 1, 1 to 2), Replay (chime, step kept), Back (2 to 1), More (open);
+  - popover: What's this? on and off (`v-06-whatsthis-on.png` shows the cross), Ask on;
+  - Ask panel: AskChip_0 (offline answer), BtnAnswerClose (chips back), BtnAskClose (Ask off);
+  - watch pill: Stop (stopped on step 3);
+  - start card: Found it, Watch first;
+  - halfway card: Continue (7 to 8), Start over (7 to 0);
+  - finish card: Start over (11 to 0).
+- **Ask chips by mouse:** `chipsIdleSec` and `answerSec` were raised to 60 for the presses, then restored: the round trip from the dock to the wheel is longer than 10 s.
+- **Inputs:** 731 BenchCoach script inputs across 66 components are set, except the 12 optional `TorusArc.bandMaterial` slots. No Lens errors after the final recompile.
+
+### LEAF
+
+- **Scenario changes:**
+  - `start`: the D2 reveal (trace part-way at 0.3 s, closed outline and three labels in the hold, all gone after the fade);
+  - `mistakes`: the badge on and off, and the G7 case (hint showing, valve mistake, amber still up 1 s later);
+  - `control-bar`: the toggle icons; his fade asserts removed (no fade on D2);
+  - `progress-idle`: his tick asserts removed (moot);
+  - `ask-coach-fallback`: Next closes Ask, both timers (shortened in the test), the answer hiding at a bead, the inside zone;
+  - `ui-layout`: Ask on steps 2, 3, 5 and 6, chips and answer, inside the clear circle or off the tire, top at most 14 degrees above the eye;
+  - `inspect-done`: waits for the reveal's label ticks on step 1 before counting Replay's.
+- **Sweeps:** one scenario per call, `__leaf__log_level=ERROR`, the project saved first.
+
+| Scenario | Evening Room, recording pose | Sunlit Room, default pose |
+| --- | --- | --- |
+| `start` | PASSED | PASSED |
+| `deflate-loosen` | PASSED | PASSED |
+| `lever-snap` | PASSED | PASSED |
+| `peel-and-pull` | PASSED | PASSED |
+| `inspect-done` | PASSED (first run failed on the reveal's ticks, fixed in the test; one rerun timed out at about 60 s after the Lens had finished, then passed) | PASSED |
+| `step-ticks` | PASSED | PASSED |
+| `scene-dressing` | PASSED | PASSED (the first call timed out while Lens Studio took 2 minutes to reset; rerun) |
+| `refit-tube` | PASSED | PASSED |
+| `seat-inflate` | PASSED | PASSED |
+| `whats-this` | PASSED | PASSED (the first call stalled on its first button tap with Lens Studio at about 200% CPU; skipped and rerun last) |
+| `mistakes` | PASSED | PASSED |
+| `flat-causes` | PASSED | PASSED |
+| `progress-idle` | PASSED | PASSED |
+| `watch-mode` | PASSED | PASSED |
+| `ask-coach-fallback` | PASSED | PASSED |
+| `floor-path` | PASSED | PASSED |
+| `coach-report` | PASSED | PASSED |
+| `control-bar` | PASSED | PASSED |
+| `floor-level` | PASSED | PASSED |
+| `ui-layout` | PASSED | PASSED |
+| `jump-to-step` | PASSED | PASSED |
+
+- **Floor during the sweeps:**
+  - Evening Room: -179.2 cm via the world mesh in 24 decisions (one -191.2).
+  - Sunlit Room: -178.4 via the world mesh in 17, and -138.4 / -138.5 via World Query in 6 (the sofa seat, D2's left-over).
+
+Findings:
+
+- **Lens Studio crashed once,** during the first `ui-layout` run (after `control-bar` and `ask-coach-fallback` had passed). The scene had been saved before the crash, so no values were lost; `ui-layout` passed on every later run.
+- **The tool round trip (about 2 to 3 s per call) is longer than several timers:** the 2.5 s mistake reason, the 10 s Ask clock across a camera move, and the scan reveal. Real-input captures need those timers raised on the component for the shot, then put back.
+- **Edit-time `setProperty` resets the preview Lens,** so a timer change for a capture also sends the Lens back to the start card.
+- **`/opt/homebrew/bin/python3` (3.15) has no Pillow on this machine;** it is installed for another Homebrew Python, so no contact sheet was made.
+
+Left over:
+
+- **`devpost/video-script.md` still describes the old UI:** "scan line ... Valve and Rim labels" (0:25 row), "control bar low" (0:10 row), "all 20 scenarios" (now 21), and the Plane room (the recording room is Evening Room). It is his narration; it was kept as written.
+- **Step 6 with Ask open:** the chips cover the middle of the hanging tube, which is not worked on that step.
+- **Lens Studio reported the user as not signed in** (`isAuthorized` false). Nothing in this pass needed it.
+- **Untested on Specs:** everything in this pass.
