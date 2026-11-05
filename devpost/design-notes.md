@@ -900,3 +900,262 @@ Left over:
   Performance was not measured.
 - **Floor figures elsewhere:** the brief's -150.1 for Colorful Home is superseded by about -135. `docs/TEAM_TASKS.md` was not updated.
 - **Hands-on walk:** no real-hand walk was done, and the cursor-tap verification is the preview mouse, not a Specs hand ray.
+
+## 2026-10-29: Pass D2, the UI system
+
+On `main`. Built through the CLAD skills (`specs-build-ui`, preview inspection and interaction, LEAF) and the Lens Studio MCP, one call at a time. Scope: how the UI looks, where it sits and what it says. The step logic is unchanged; the few logic-adjacent changes are listed under "Placement changes outside the UI scripts" with the reason for each. The session was interrupted by a machine restart; the work resumed on 2026-11-05 from the saved working tree.
+
+### The recording room and pose
+
+- **Room: Evening Room.** It is darker than Sunlit Room, so the Lens content stands out on the additive display.
+- **Pose:**
+  - start eye (-150, 0, -225), yaw 0 (facing -Z), pitch about -10°;
+  - step 5 far side: eye (-140, 0, -349);
+  - exact steps, working poses and the room layout are in `scratchpad/recording-pose.md`.
+- **Why there:** overhead captures (1.24 px/cm, scaled from the 180 x 120 cm mat) show:
+  - from the default pose the mat runs about 40 cm under the sofa (front edge z -108), and the step-5 far spot (z -124) is inside the sofa;
+  - a low console sits under the default eye;
+  - the left half of the rug, behind the sofa, is about 2.3 x 2.3 m of open floor.
+
+  From (-150, 0, -225) the set fits there:
+  - the mat spans x -240 to -60 and z -374 to -255: 14 cm clear of the coffee table and 32 cm of a cabinet;
+  - the far side is at z -349, 100 cm short of the poster console;
+  - the background behind the wheel is the dim lamp-lit wall.
+- **Floor:** -178.6 cm via the world mesh (40 hits) in every run of the Evening sweep.
+- **The Lens must re-anchor (new `WorkspaceAnchor`, on Camera Object).**
+  - In the preview the Lens world is the simulated room: after moving the preview camera and resetting, the Lens camera sits at the moved pose but the workspace stayed at its authored room coordinates.
+  - `WorkspaceAnchor` moves the workspace roots by the start eye's position at OnStart: Lighting, Stand, Wheel, Environment and the world-placed BenchCoach panels. Translation only, so every "+Z toward the user" rule in the step code still holds.
+  - On Specs the start eye is the origin, so nothing moves.
+  - Readers of world constants add `WorkspaceAnchor.offset()`: FloorPath's spots and swing, FloorLevel's probe center, and the tests.
+
+### The design system (`UIHelpers.ts`)
+
+- **Colour tokens, one meaning each (`COLOR`):**
+
+| Token | Value | Meaning |
+| --- | --- | --- |
+| accent | cyan (0.10, 0.95, 1.0) | "Do it here": markers, the step leader line, the primary button, latched toggles, the hint pulse, the watch pill |
+| amber | (1.0, 0.72, 0.22) | A mistake or a warning (mistake edge and kicker, floor fallback) |
+| green | (0.42, 0.95, 0.52) | Done ("Floor found", "Found it", "Halfway", "Repair complete") |
+| text | white | Primary text |
+| textSecondary | light grey (0.76, 0.79, 0.82) | Secondary lines and list labels |
+| edge | light grey at 0.38 alpha | Neutral plate edge and the info leader (not a colour) |
+
+- **Text roles (`UIRole` on the existing type scale, scaled by distance):**
+  - title: Title2, card titles;
+  - instruction: Headline2, the callout line and the info title;
+  - body: Body, answers and card values;
+  - secondary: Caption, grey;
+  - button: Subheadline, bold. It was Button; that read too small on the dock in screenshots.
+- **Text rects keep glyphs in:** one-line text shrinks to its width, and wrapped text shrinks to its height.
+- **Spacing grid:** `grid(d)` at k = d / 90 gives padding 1.1k, gap 0.5k, corner radius 1.0k and edge 0.09k, so every panel has the same angular padding.
+- **One plate (`makePlate`):**
+  - a UIKit BackPlate in the **"dark"** style (linear 0.09 to 0.26 grey), which kept the most contrast under white text on screenshots;
+  - plus a thin edge on its RoundedRectangle. On the additive display every plate is mostly see-through, so the edge is what draws the panel;
+  - `setEdge()` turns the edge amber for a mistake or pulses it in the accent for a hint.
+- **Buttons:**
+  - UIKit Buttons with a custom `RoundedRectangleVisual` per state: neutral (dark, light edge, cyan on hover) and primary (cyan-tinted, cyan edge);
+  - toggles latch in the accent;
+  - still ray-only (`rayOnly`, pass F).
+- **Shared builders:**
+  - `buildCard`: kicker, title, rows, a two-column list, more rows, a button row; the height follows the content;
+  - `LeaderLine`: a thin box stretched between two points;
+  - `plateEdgePoint`;
+  - `addUIText`, `addLabelButton`, `addIconButton`, `addTextButton`.
+
+### Components, where they live and why
+
+- **Start card** (`BenchCoachStartCardUI`, eye + (0, -12, -82)):
+  - "Fix a flat", one instruction ("Put your wheel in the stand, then pinch Found it."), and a floor line:
+    - grey "Look down at your work spot" while FloorLevel is pending;
+    - green "Floor found";
+    - amber "Using a standard floor height" on the fallback.
+  - "Found it" (primary) and "Watch first".
+  - The stand-in badge is gone; the note is logged at start.
+  - Centered just below eye level.
+- **Step callout** (`BenchCoachStepLabelUI`, the object keeps the name StepLabel):
+  - Content: "Step N of 10", then the instruction on up to two lines.
+  - A cyan leader runs from the plate edge to 2.6 cm short of the marker ring.
+  - States:
+    - mistake: amber edge and "Not quite";
+    - idle hint: "Hint" with the edge pulsing in cyan;
+    - cause found: green "Found it".
+  - Placement:
+    - Default "inside": from the marker toward the hub until the near edge clears the ring by 4.5 cm, then pulled in until every corner is inside the clear circle (bead radius - 6.5 cm). It never covers the tire, a bead, the valve or a lever handle (handles stand up out of the tire), and it stays near eye level.
+    - From the live eye it never covers the ring on screen: if it would, it keeps moving toward the hub. From step 5's far side the user looks steeply down past it.
+    - It keeps its apparent size: closer than 90 cm it scales down (min 0.45), so it fits at the far side about 35 cm away.
+    - With something hung under it (Ask, the What's this? prompt), it moves above the tire (shifted away from the marker's side, clear of handles) or below it, so the stack never lies over the wheel.
+- **What's this? info callout** (new `BenchCoachInfoCalloutUI`, object InfoCallout):
+  - the part's name and one line, with a grey leader to the part, placed beside it;
+  - it tries spots toward the view center, above, below, the diagonals and outward, and takes the first that stays inside 90% of the view and doesn't overlap the step callout on screen;
+  - the prompt ("What's this?" / "Pinch any part to learn what it is.") hangs in the slot under the step callout;
+  - it never rewrites the step callout.
+- **Dock** (`BenchCoachControlBarUI` on ControlBar):
+  - Contents:
+    - Back, Replay, Next (primary, labelled) and More, as 3.6 cm buttons (6.6 cm for Next) at 48 cm;
+    - under them "4 / 10" and a thin segmented bar (ProgressRail, now nine flat segments);
+    - More opens a popover with "What's this?" and "Ask the coach" (the same toggles as before);
+    - during watch mode, a cyan-edged pill "Watching the coach" with Stop sits on top.
+  - Where: body-followed low on the user's left, yaw -30° and pitch -30° at 48 cm.
+  - Why there:
+    - **Reach:** buttons are ray-only, so arm reach does not limit it.
+    - **View:** from every working pose it is out of frame (the preview shows about ±15° x ±18°); one glance down-left brings all of it into view.
+    - **Hands:** it is out of the right hand's path to the wheel and the tray, on the opposite side from the tray.
+    - **Step-5 walk:** it follows the walk.
+  - The old bar sat 38° straight down in the hand's path.
+  - The per-press logs from pass F stay; More, BtnAskClose and BtnAnswerClose now also go through `UIBindings.press`.
+- **Ask the coach:**
+  - the chips (header with close) or the answer (source tag "Coach" / "Offline answer", close, text) take turns in the slot under the step callout, at the callout's width and scale;
+  - the answer's close brings the chips back, and the chips' close closes Ask.
+- **Watch mode:** the pill on the dock, as above. It goes away when watch mode stops: a grab (existing), any press, or Stop.
+- **Tool tray** (17 x 14 cm, ToolTray at yaw +25° right, pitch -38°, 52 cm):
+  - same plate, a small "Tools" label;
+  - both 12 cm levers and the coil sit inside it.
+  - Hidden on step 5: the levers are in the wheel by then, and the empty tray sat in the downward gaze along the floor path.
+- **Markers and the edge arrow:**
+  - the ring never covers callout text (the callout keeps clear of it);
+  - the edge arrow slides along the view edge off the dock, the step callout and the info callout.
+- **Halfway and Finish cards:** the same card component and buttons as the start card.
+  - Halfway: green "Halfway" kicker, "Tube out, cause found", Time and Cause in a two-column list, "Next skill: brake pads".
+  - Finish: green "Repair complete", "Flat fixed", a list of Time, Cause, Lever misses, Mistakes, Hints and Slowest, then the tip and practice lines.
+  - Both at eye + (0, -8, -80), just below eye level.
+
+### Voice-ready text
+
+- **Step lines:** each step's callout line is one short sentence, and `voiceLine` (in `StepDefinitions.ts`) is the same sentence spoken, at most 12 words. Step 7 and the finish card have their own lines.
+- **Other lines** come from the same file: `MISTAKES` (mistake-<code>), each step's `hint` (idle-step-NN), and `VOICE_FLOOR_FOUND`, `VOICE_HALFWAY`, `VOICE_FINISH`.
+- **Export:** `voiceLines()` lists all of them. `tools/export-voice-lines.py` writes `Assets/BenchCoach/Voice/voice-lines.json`: 30 lines with stable ids, the longest 12 words. The exporter fails on a line over 12 words.
+- **Wording change:** one hint was reworded ("lever B" became "the second lever").
+
+### Placement changes outside the UI scripts
+
+- **`BodyFollow`:**
+  - The thresholds now compare the camera with where it was when the panel last settled. Turning the head 24° toward the dock moved its target more than 20 cm, so the dock glided away as you looked at it.
+  - The turn threshold is now 55°.
+  - The panel snaps on re-enable or when more than 150 cm away. The tray is hidden until step 3, and its first placement can come before the preview's camera pose lands, so it swept 2.7 m across the room when it appeared.
+- **`WorkspaceAnchor`:** above. It re-anchors once if the eye jumps more than 5 cm in the first 1.5 s; the preview briefly reports the room's spawn point (70, 180, 304) after a room switch.
+- **Builds moved to OnStart:** FloorPath now builds at OnStart. WheelStand and FloorAnchor rebuild on a re-anchor.
+- **`StepDefinitions`:** step 5 `showTray` false (above).
+- **`RepairManager`:** it pushes the callout anchor, the step number, the found state and the halfway card's cause.
+
+### Critique rounds
+
+- **Round 1** (24 states, Evening Room, from the recording pose):
+  - On steps 3 and 4, the callout above the tire covered the ghost lever's handle and was cut off at the top of the view. **Fix:** the inside-the-rim default.
+  - From the far side, the callout covered the ring. **Fix:** the live screen-space ring check.
+  - The callout was larger than the view from about 35 cm. **Fix:** the apparent-size scale.
+  - The edge arrow drew over the step-5 callout text. **Fix:** the arrow avoids all panels.
+  - The dock glided away when looked at. **Fix:** BodyFollow.
+  - The info callout sat behind the camera, because SIK `forward()` is the transform's +Z. **Fix:** the look direction computed as rotation x (0, 0, -1).
+  - The info card hid behind the step callout. **Fix:** the candidate spots.
+  - The leader ran behind the answer card. **Fix:** it now leaves the outline of callout and stack together.
+  - Stop ran into the pill's round end. **Fix:** pill padding of half its height.
+  - The tray and dock poked in at the frame edges. **Fix:** tray at yaw 25° / pitch -38°, dock at yaw -30° / pitch -30°.
+  - The tray sat in the far side's line of sight. **Fix:** the same move.
+  - The cards were high in the frame. **Fix:** lowered.
+  - The dock labels were small. **Fix:** the button role is now Subheadline, and the counter uses body.
+- **Round 2** (`shots/pass-d2/00..23`, `contact-sheet.png`):
+  - The step-5 frame showed the empty tray. **Fix:** hidden on step 5.
+  - The floor path is clean, with the edge arrow pointing back at the wheel.
+  - All other states pass the checklist:
+    - every line is readable at full resolution;
+    - nothing is clipped;
+    - no ring, handle, bead or valve is covered;
+    - at most three panels are in view;
+    - one plate, one grid, one set of roles;
+    - cyan, amber and green each mean one thing.
+
+### Button presses (preview mouse ray, two taps per new spot)
+
+- **Method:** screen positions came from projecting world positions through the camera (fov 0.639 rad vertical, aspect 0.804). The Ask panel needed a measured correction of about 0.03.
+- **Results:** every press logged only its own `[UI] … triggered by ray` and `press …` lines:
+  - **Dock, step 4:** Replay (ghost replay, step stays 4), Back (4 to 3), Next (3 to 4), More (open), What's this? (on, off), Ask (on, off).
+  - **Dock, step 2:** Replay (chime), Back (2 to 1), Next (1 to 2), More, What's this? (on, off), Ask (on, off), More (closed).
+  - **Ask panel, step 4:** AskChip_0 (offline answer), BtnAnswerClose (chips back), BtnAskClose (Ask off).
+  - **Start card:** Watch first (watch mode from step 1), then Stop on the pill (stopped on step 2); Found it (step 1).
+  - **Halfway card:** Start over (step 0), Continue (step 8).
+  - **Finish card:** Start over (step 0).
+- **Taps right after a Lens reset:** they twice landed before the card was ready; a third tap fired.
+
+### LEAF
+
+- **Scenario changes:**
+  - **Updated for the new names and layout:**
+    - `control-bar`: six hit boxes in two rows, More, and every UI button ray-only;
+    - `ask-coach-fallback`: answer in the chips' slot, both close buttons, the callout off the wheel;
+    - `whats-this`: prompt and facts on the info callout, the step callout untouched; "beside the part" when the part is in view, otherwise "in view";
+    - `start`: no badge, a floor line;
+    - `seat-inflate`, `flat-causes`, `coach-report`: the two-column finish card;
+    - `progress-idle`: the "4 / 10" counter and the hint state;
+    - `mistakes`: the amber state;
+    - `scene-dressing`, `floor-path`: positions relative to the start eye.
+  - **Interactor:** the test interactor opens More before tapping What's this? or Ask.
+  - **New `ui-layout`:** on every repair step, from the live eye:
+    - the callout's screen rectangle does not cover the marker ring;
+    - inside the rim, every corner is in the clear circle;
+    - the leader ends at the ring;
+    - the edge arrow is not on the callout or the dock;
+    - no Text's rectangle crosses its plate (11 panels, including cards, Ask and the dock);
+    - with Ask open, the callout and chips sit above or below the tire;
+    - the info callout does not overlap the step callout for Tire, Valve and Hub.
+- **Failures found and fixed:**
+  - `refit-tube` failed from the recording pose: the new tube end was still near the world origin when grabbed, because of the BodyFollow sweep. The agent hand fitted it (1.6 cm) once the tray was in place.
+  - `whats-this` failed because the camera looked down and the valve was out of view, so the card correctly moved into view.
+
+| Scenario | Evening Room, recording pose | Sunlit Room, default pose |
+| --- | --- | --- |
+| `start` | PASSED | PASSED |
+| `deflate-loosen` | PASSED | PASSED |
+| `lever-snap` | PASSED | PASSED |
+| `peel-and-pull` | PASSED | PASSED |
+| `inspect-done` | PASSED | PASSED |
+| `step-ticks` | PASSED (the first call timed out before the Lens started the run; rerun) | PASSED |
+| `scene-dressing` | PASSED | PASSED |
+| `refit-tube` | PASSED | PASSED |
+| `seat-inflate` | PASSED | PASSED |
+| `whats-this` | PASSED | PASSED |
+| `mistakes` | PASSED | PASSED |
+| `flat-causes` | PASSED | PASSED |
+| `progress-idle` | PASSED | PASSED |
+| `watch-mode` | PASSED | PASSED |
+| `ask-coach-fallback` | PASSED | PASSED |
+| `floor-path` | PASSED | PASSED |
+| `coach-report` | PASSED | PASSED |
+| `control-bar` | PASSED | PASSED |
+| `floor-level` | PASSED | PASSED |
+| `ui-layout` (new) | PASSED | PASSED |
+| `jump-to-step` | PASSED | PASSED |
+
+- **Floor during the sweeps:**
+  - Evening Room: -178.6 cm via the world mesh in every run.
+  - Sunlit Room, default pose: -138.4 / -138.2 via World Query in 15 of 16 decisions (no world mesh this session). Once the mesh came, it corrected to -150.4.
+- **Inputs and log:**
+  - All BenchCoach script inputs are set: 716 across 64 script components, except the 12 optional `TorusArc.bandMaterial` slots.
+  - `RunAndCollectLogsTool` shows no Lens errors after the final recompile.
+- **Scene save:** the project was saved through the MCP. The save re-created the LEAF Plugin Bridge, its MessagingBridge and the AiPreviewAgent Handler with new ids; that is committed separately.
+
+Findings:
+
+- **The preview's Lens world is the room.** Moving the preview camera does not re-anchor anything on reset; the workspace has to place itself from the start eye.
+- **Camera timing at start:**
+  - at onAwake the camera is at the origin;
+  - by OnStart it has the pose;
+  - after a room switch, the first frames can report the room's spawn point (y 180).
+- **The preview camera's FOV** is 0.639 rad vertical, aspect 0.804: about ±18° x ±15°. A 74 cm wheel at 90 cm fills it, so nothing can sit beside the wheel; callouts go inside, above or below.
+- **SIK `WorldCameraFinderProvider.forward()`** returns the transform's +Z, the opposite of the look direction.
+- **LEAF drags** of a body-followed object need it to be in place first; a glide still in progress makes the drag miss.
+- **`model.project.save()`** through `ExecuteEditorCode` saves the scene, and re-creates the LEAF and preview-agent helper objects.
+
+Left over:
+
+- **Lost screenshots:** the before screenshots (`shots/audit/`, `shots/verify-q/`) and round 1 (`shots/pass-d2/r1/`) were lost when the scratchpad was wiped by the restart. Only round 2 (`shots/pass-d2/00..23`) remains.
+- **Sunlit Room floor:** from the default pose, without the world mesh, FloorLevel decides the sofa seat (-138) until the mesh comes (pass F's left-over). The recording uses Evening Room, where the mesh answered every time.
+- **Ask and the What's this? prompt** stack above the tire on top-of-wheel steps. The top of the stack is about 20° up, so the recording should tilt up a little when Ask is open.
+- **The callout covers part of the spokes and hub;** they are never worked.
+- **The watch pill is on the dock,** out of frame unless the user looks down-left, as the brief placed it.
+- **Text sizes** follow the Specs angular scale. They read at full resolution, but are small in frames downscaled for the video.
+- **Untested:**
+  - nothing in this pass was checked on Specs;
+  - `WorkspaceAnchor` is a no-op there only if the Lens starts at the origin, as it does;
+  - ray-only buttons still need a device check (pass F).
+- **Extra reset:** once, an agent-hand drag right after a LEAF jump ran on a Lens that had reset about 5 s after the jump (cause not found). Repeating the jump worked.
