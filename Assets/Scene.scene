@@ -3335,6 +3335,37 @@
     - !<own> 241be3d8-6f45-47d7-8b71-53778e375dc2
   Components:
     []
+- !<ScriptComponent/760695aa-dd94-4ec6-b816-d3e6536adb12>
+  PrefabRemaps:
+    []
+  Name: ScanReveal
+  Enabled: true
+  ScriptAsset: !<reference> c76814e1-f625-400d-a9d5-c49b8ceef204
+  ScriptInputsDefault:
+    outlineCm: true
+    holdSec: true
+    fadeSec: true
+    viewDistanceCm: true
+  ScriptTypesDefault:
+    {}
+  ScriptInputs:
+    "":
+      manager: !<MappingBased.AssignableType_1> 622db2cb-d0c7-4791-92af-926fab500a02
+      wheel: !<reference.SceneObject> 32ba4b33-674d-4969-a473-4523545d3108
+      valve: !<reference.SceneObject> 988001d4-30af-4ad7-abab-0ee69baf3c40
+      boxMesh: !<reference.RenderMesh> 6a757628-4f58-46af-851c-a5f393415bde
+      markerMaterial: !<reference.Material> 15b55a2d-25cd-4131-88ca-e7924cfbabd4
+      audio: !<MappingBased.AssignableType_2> 7407431d-eeb9-4d5c-a25e-0c11394825cf
+      wheelRadiusCm: 34.599998
+      outlineGapCm: 0.600000
+      outlineCm: 0.450000
+      sweepSec: 1.400000
+      holdSec: 2.500000
+      fadeSec: 0.400000
+      viewDistanceCm: !<float> 90.000000
+  ScriptTypes:
+    "":
+      {}
 - !<SceneObject/77a79970-63f4-4c7c-984a-539d2ef0c92a>
   PrefabRemaps:
     []
@@ -3712,6 +3743,7 @@
     - !<own> 14e20f83-a370-461e-9163-ffece741ac3d
     - !<own> 05e67ae0-5b93-47af-875b-55f7d1f52e05
     - !<own> 89ffc755-62dd-4c47-a35f-6ad4fdd8b160
+    - !<own> ec158813-b99d-4393-a550-66d8b9e9265d
   Components:
     - !<own> 622db2cb-d0c7-4791-92af-926fab500a02
     - !<own> 322de4cf-0408-4c93-be6b-45c3f47f3be1
@@ -6208,6 +6240,21 @@
   ScriptTypes:
     "":
       {}
+- !<SceneObject/ec158813-b99d-4393-a550-66d8b9e9265d>
+  PrefabRemaps:
+    []
+  Name: ScanReveal
+  Enabled: true
+  Layers: 1
+  LocalTransform: !<TransformEntity>
+    Position: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
+    HasSegmentScaleCompensation: false
+  Children:
+    []
+  Components:
+    - !<own> 760695aa-dd94-4ec6-b816-d3e6536adb12
 - !<LightSource/ec2fc065-614f-45b1-88ed-89c3dc98c820>
   PrefabRemaps:
     []

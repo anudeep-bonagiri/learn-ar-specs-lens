@@ -6,9 +6,9 @@ import {ScanReveal} from "../Scripts/ScanReveal"
 
 /**
  * Criterion 1: pinching Found it places the wheel in the stand and step 1's
- * marker sits on the valve. Pass G4: the scan reveal plays as the wheel appears
- * (line sweeping, both labels on by the end of the sweep, everything gone after
- * the hold and fade) without holding step 1 up.
+ * marker sits on the valve. Pass G4 (on D2 in pass M): the scan reveal plays as the
+ * wheel appears (the outline tracing up both sides, Rim, Valve and Hub labels on once the
+ * heads meet, everything gone after the hold and fade) without holding step 1 up.
  */
 @component
 export class StartScenario extends Scenario {
@@ -68,16 +68,20 @@ export class StartScenario extends Scenario {
     expect(scanObj, "ScanReveal exists").toBeTruthy()
     const scan = scanObj.getComponent(ScanReveal.getTypeName()) as ScanReveal
     expect(scan.playing, "scan plays on Found it").toBe(true)
-    expect(scan.phase, "scan is sweeping 0.3 s in").toBe("sweep")
-    expect(findSceneObjectByName("ScanLine").enabled, "scan line visible").toBe(true)
-    await sleep(scan.sweepSec * 1000 + 200)
-    expect(scan.labelsShown, "Valve and Rim labels on after the sweep").toBe(2)
+    expect(scan.phase, "scan is tracing 0.3 s in").toBe("sweep")
+    expect(findSceneObjectByName("ScanOutline").enabled, "outline visible").toBe(true)
+    expect(scan.litSegments > 0 && scan.litSegments < 120, "outline part-way round").toBe(true)
+    await sleep(scan.sweepSec * 1000 + 400)
+    expect(scan.phase, "heads met: holding").toBe("hold")
+    expect(scan.litSegments, "the outline is closed round the tire").toBe(120)
+    expect(scan.labelsShown, "Rim, Valve and Hub labels on after the heads meet").toBe(3)
     expect(findSceneObjectByName("ScanLabel_Valve").enabled, "Valve label on").toBe(true)
     expect(findSceneObjectByName("ScanLabel_Rim").enabled, "Rim label on").toBe(true)
-    expect(findSceneObjectByName("ScanLine").enabled, "scan line gone after the sweep").toBe(false)
+    expect(findSceneObjectByName("ScanLabel_Hub").enabled, "Hub label on").toBe(true)
     expect(manager.getState().step, "step 1 ran underneath").toBe(1)
     await sleep((scan.holdSec + scan.fadeSec) * 1000 + 300)
     expect(scan.playing, "scan over after hold and fade").toBe(false)
     expect(findSceneObjectByName("ScanLabel_Valve").enabled, "labels gone").toBe(false)
+    expect(findSceneObjectByName("ScanOutline").enabled, "outline gone").toBe(false)
   }
 }
