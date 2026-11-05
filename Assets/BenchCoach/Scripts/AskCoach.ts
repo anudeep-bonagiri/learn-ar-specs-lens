@@ -6,6 +6,8 @@
  * tag. Falls back to the step's canned answer on an error, a missing token, no
  * internet, a timeout (timeoutSec) or when forceCanned / !useLive.
  * Closes on a step change (answer hidden, chips refreshed if still open), on reset,
+ * after chipsIdleSec without a chip press or answer (pass G2, show it only when needed;
+ * the answer hides by itself after answerSec),
  * when watch mode plays, and when What's this? turns on (UIBindings keeps the two
  * exclusive). IdleHint is suspended while it is open (IdleHint.askSuspended).
  * Pass D2: the chips and the answer take turns in one slot hung under the step
@@ -102,6 +104,15 @@ export class AskCoach extends BaseScriptComponent {
   @widget(new SliderWidget(0, 4, 0.1))
   panelGapCm: number = 0.5
 
+  @input
+  @hint("Seconds a shown answer stays up before it hides on its own (0 = until the step changes); Nov 1 audit: show it only when needed")
+  @widget(new SliderWidget(0, 30, 0.5))
+  answerSec: number = 8
+
+  @input
+  @hint("Seconds the chips stay open after the last chip press or answer before Ask closes on its own (0 = never)")
+  @widget(new SliderWidget(0, 60, 0.5))
+  chipsIdleSec: number = 10
   @ui.group_end
 
   /** Ask is open (chips shown). */
@@ -127,6 +138,10 @@ export class AskCoach extends BaseScriptComponent {
   private hiddenOnce = false
   private answerShown = false
   private ownsSlot = false
+  /** getTime() at which the shown answer hides itself (Infinity = no timer). */
+  private answerHideAt = Number.POSITIVE_INFINITY
+  /** getTime() at which Ask closes itself for lack of chip presses (Infinity = no timer). */
+  private chipsCloseAt = Number.POSITIVE_INFINITY
 
   onAwake(): void {
     this.createEvent("OnStartEvent").bind(() => {
@@ -137,6 +152,7 @@ export class AskCoach extends BaseScriptComponent {
       this.chips.onChip.add((i) => {
         if (this.audio) this.audio.playTickAt(this.chips.sceneObject.getTransform().getWorldPosition())
         if (this.idle) this.idle.touch()
+        this.touchChips()
         this.ask(this.manager.getState().step, i)
       })
       this.chips.onClose.add(() => {
@@ -161,9 +177,11 @@ export class AskCoach extends BaseScriptComponent {
     this.open = on
     if (on) {
       this.chips.setQuestions(coachQuestions(this.manager.getState().step).map((c) => c.q))
+      this.touchChips()
     } else {
       this.cancel()
       this.hideAnswer()
+      this.chipsCloseAt = Number.POSITIVE_INFINITY
     }
     this.chips.sceneObject.enabled = on && !this.answerShown
     if (this.idle) this.idle.askSuspended = on
@@ -240,6 +258,8 @@ export class AskCoach extends BaseScriptComponent {
     this.lastSource = source
     this.lastFallbackReason = reason
     this.showAnswer(text, source === "live" ? "Coach" : "Offline answer")
+    if (this.answerSec > 0) this.answerHideAt = getTime() + this.answerSec
+    this.touchChips()
     const lat = source === "live" ? ` ${this.lastLatencyMs} ms` : ` (${reason})`
     print(`[AskCoach] step ${step} q${index} ${source}${lat}: ${text.substring(0, 80)}`)
     this._onAnswer.invoke({step, index, text, source})
@@ -253,6 +273,7 @@ export class AskCoach extends BaseScriptComponent {
   private showAnswer(text: string, tag: string): void {
     this.answerPanel.showAnswer(text, tag)
     this.answerShown = true
+    this.answerHideAt = Number.POSITIVE_INFINITY
     this.answerPanel.sceneObject.enabled = true
     this.chips.sceneObject.enabled = false
     this.place()
@@ -260,6 +281,7 @@ export class AskCoach extends BaseScriptComponent {
 
   private hideAnswer(): void {
     this.answerShown = false
+    this.answerHideAt = Number.POSITIVE_INFINITY
     this.lastAnswer = ""
     this.answerPanel.sceneObject.enabled = false
     if (this.open) this.chips.sceneObject.enabled = true
@@ -269,7 +291,15 @@ export class AskCoach extends BaseScriptComponent {
     this.cancel()
     this.hideAnswer()
     this.lastSource = ""
-    if (this.open) this.chips.setQuestions(coachQuestions(this.manager.getState().step).map((c) => c.q))
+    if (this.open) {
+      this.chips.setQuestions(coachQuestions(this.manager.getState().step).map((c) => c.q))
+      this.touchChips()
+    }
+  }
+
+  /** Restart the chips' idle timer: a chip press, an answer, an open or a step change counts as use. */
+  private touchChips(): void {
+    this.chipsCloseAt = this.chipsIdleSec > 0 ? getTime() + this.chipsIdleSec : Number.POSITIVE_INFINITY
   }
 
   private tick(): void {
@@ -282,6 +312,16 @@ export class AskCoach extends BaseScriptComponent {
     }
     if (!this.open) return
     if (this.director && this.director.playing) {
+      this.setOpen(false)
+      return
+    }
+    const now = getTime()
+    if (this.answerShown && !this.busy && now >= this.answerHideAt) {
+      this.hideAnswer()
+      print("[AskCoach] answer hidden after " + this.answerSec + " s")
+    }
+    if (now >= this.chipsCloseAt) {
+      print("[AskCoach] Ask closed after " + this.chipsIdleSec + " s idle")
       this.setOpen(false)
       return
     }

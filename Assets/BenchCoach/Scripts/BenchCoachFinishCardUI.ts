@@ -90,7 +90,7 @@ export class BenchCoachFinishCardUI extends BaseScriptComponent {
         {name: "FinishLeverMisses", label: "Lever misses", value: "0"},
         {name: "FinishMistakes", label: "Mistakes", value: "0"},
         {name: "FinishHints", label: "Hints", value: "0"},
-        {name: "FinishTimes", label: "Slowest", value: "Pull 0:00 · Peel 0:00 · Lever 1 0:00"},
+        {name: "FinishTimes", label: "Slowest", value: "Pull 0:00 · Peel 0:00 · Lever A 0:00"},
       ],
       rowsAfter: [
         {name: "FinishTip", text: "Next time: run a hand round inside the tire before fitting a tube.", role: "body", lines: 2},

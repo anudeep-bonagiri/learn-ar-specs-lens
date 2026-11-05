@@ -12,12 +12,14 @@ import {AskCoach} from "../Scripts/AskCoach"
 /**
  * Pass F: the control bar's hit boxes and targeting.
  * - Every bar button's live collider is as wide as its visual and none overlaps
- *   its neighbor (Next is 6 cm, the rest 3.9 cm, 0.5 cm gaps).
+ *   its neighbor (pass D2: the dock row Back, Replay, Next, More and the More popover).
  * - Every initialized UIKit button answers only a ray pinch (TargetingMode.Indirect),
  *   so a hand passing through cannot poke it; the grabbable tools and wheel parts
  *   keep direct targeting.
  * - Replay keeps the step and says what it replayed; each bar button acts alone
  *   (Back and Next move one step, What's this? and Ask toggle only their mode).
+ * - Pass G2's fade of the old bar is not carried onto the D2 dock (pass M): the dock sits
+ *   low on the left, out of frame from every working pose, so it has nothing to fade.
  * The hand pass-through itself is not simulated here (LEAF's interactor does not
  * travel through space); see the pass F notes for the preview-hand check.
  */

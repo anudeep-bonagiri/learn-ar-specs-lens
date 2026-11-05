@@ -1159,3 +1159,201 @@ Left over:
   - `WorkspaceAnchor` is a no-op there only if the Lens starts at the origin, as it does;
   - ray-only buttons still need a device check (pass F).
 - **Extra reset:** once, an agent-hand drag right after a LEAF jump ran on a Lens that had reset about 5 s after the jump (cause not found). Repeating the jump worked.
+
+## 2026-11-01: Pass G, target sizes and spacing (`docs/INFO_SESSION_OCT29.md` section 5.1)
+
+First pass on Lens Studio 5.24.1. Snap's rule is a target of at least 2 degrees and a gap of at least 1 degree, measured on the collider. The Nov 1 audit listed every target under that; this pass applies the exact values it gave, so no new measuring was done.
+
+| Target | Before | After |
+| --- | --- | --- |
+| Control bar (57 cm) | secondary buttons 3.9 cm, gap 0.5 (0.5 degrees) | buttons 3.5, gap 1.1 (1.1 degrees); Next stays 6. Bar 25.1 to 25.9 cm. Literal defaults and the scene values on `ControlBar`. |
+| `ControlBar` position | (-2.35, -35.433, -44.664) | (-3.35, same, same). At 25.1 cm the bar's bounds already met the tray's (10.2 vs 10 in x); at 25.9 they overlapped by 0.6 cm. 1 cm left puts the right edge at 9.6, 0.4 cm clear, and the left edge at -16.3, inside the -18.25 the bar had before F4. |
+| Start card: Found it and Watch (86 cm) | gap 0.8 | gap 1.6, `BtnFoundIt` 12 to 11.4 (the row still fills 21.6 cm) |
+| Halfway card: Continue and Start over (90 cm) | gap 0.8 | gap 1.6, `BtnContinue` 12.4 to 11.6 |
+| Ask question chips (89 cm) | chip 3.2, gap 0.5 | chip 3.6, gap 1.6 (defaults and the scene values on the `BenchCoachAskChipsUI` component) |
+| Lever B while sliding on the rim (91 cm) | 12 x 2 x 1 box, 1.25 degrees | `RimDrag.arm()` sets 12 x 3.5 x 2 through a new `LeverPlacement.setColliderSize()`; `disarm()`, `completeInstant()` and the peel-complete branch restore the tray size, so the two tray boxes don't overlap |
+| What's this? spoke | 2.5 x 16 x 2.5 | 4 x 16 x 4 |
+| What's this? levers | 13 x 3 x 2 (0.2 cm apart in the tray) | 13 x 2.2 x 2 (1.0 cm apart) |
+
+### LEAF
+
+All 20 scenarios passed from the default preview camera, one per call, on the first run: `start`, `deflate-loosen`, `lever-snap`, `peel-and-pull`, `inspect-done`, `step-ticks`, `scene-dressing`, `refit-tube`, `seat-inflate`, `whats-this`, `mistakes`, `flat-causes`, `progress-idle`, `watch-mode`, `ask-coach-fallback`, `floor-path`, `coach-report`, `control-bar`, `floor-level`, `jump-to-step`. `control-bar` ran once more after the 1 cm move and passed. `RunAndCollectLogsTool` shows no Lens errors.
+
+Findings:
+
+- **A live `BoxShape.size` can be changed at runtime.** `LeverPlacement` keeps the shape it created and resizes it on request; the Interactable keeps working through the change (`peel-and-pull`, `watch-mode`, `mistakes` and `coach-report` all drag lever B through an armed resize).
+- **Scene values were set on the components, not left to the recompile.** The scene flags these inputs as default (`ScriptInputsDefault`), but after pass F's lesson the values were written through `scene-graphql` and confirmed by read-back.
+- **Lens Studio 5.24.1 opened the project cleanly;** the MCP, LEAF panel and the 5.23 permission dialog were not an issue in this session.
+
+Left over:
+
+- **The taller lever box is unproven with a hand ray.** LEAF's interactor triggers the Interactable directly, so the tests prove the resize doesn't break the drag, not that a ray hits 3.5 cm more easily. The B4 mouse walk should include a grab of lever B mid-peel.
+- **The chips panel grew 4.5 cm taller** (14.9 to 19.4). `AskCoach`'s `maxElevationDeg` placement was not rechecked; `ask-coach-fallback` passes, but the panel's top edge from the start pose needs a look in the B1 check.
+- **Sections 5.2 (show and hide) and 5.3 (color-only signals) of the audit are not started.**
+
+## 2026-11-01: Pass G2, show it only when needed (`docs/INFO_SESSION_OCT29.md` section 5.2)
+
+Joe's main Design point: things appear when needed and get out of the way after. The Nov 1 audit named three things that stayed up: the control bar (always on, covering the lowest edge of the tire), the Ask chips (open across steps, no timeout, blocking idle hints) and the Ask answer (no timeout).
+
+| Item | Before | After |
+| --- | --- | --- |
+| Control bar | Always full | `BenchCoachControlBarUI` fades the bar to `faintOpacity` (0.3) while a lever or the tube end is held (`BodyFollow.isHeld()`, now public) or while the user looks at the wheel; it returns to full when any bar button is hovered by the ray, or the camera pitches down past `lookDownDeg` (22, with a 3 degree band so it doesn't flicker). Hover wins. `fadeSec` 0.3. The fade drives UIKit `Button.opacity`, each button's `ElementContent.opacity` (the icon; `Button.opacity` doesn't reach it), the BackPlate's `RoundedRectangle.opacity` and a new `ProgressRail.setOpacity()`. |
+| Ask question chips | Open until toggled, What's this?, reset or watch mode | Also close after `chipsIdleSec` (10 s) without a chip press, an answer, an open or a step change. They still follow the step while open (`ask-coach-fallback` asserts that). |
+| Ask answer | Up until the step changed or Ask closed | Also hides after `answerSec` (8 s) once a real answer is shown; the "thinking" text is never timed. |
+| What's this? fact label | Over the wheel for hub and spoke | Not changed (the audit rated it low priority). |
+
+`ProgressRail` now clones `MarkerMat` for the lit dots as well as the dim ones, with `BlendMode.Normal` on both clones (the asset has blending off), so the dots take an alpha. The dot colours are unchanged.
+
+### LEAF
+
+All 20 scenarios passed from the reset preview camera, one per call. `control-bar` gained a fade check: from the default pose the bar reads `faintReason` "wheel" at its faint opacity. The look-down and hover returns are not in LEAF (its interactor neither hovers nor moves the camera); they were checked by hand: `MovePreviewCamera lookAt (0, -35, -45)` brought the bar to full in the preview and in `CaptureRuntimeViewTool`, and `reset` sent it faint again.
+
+Findings:
+
+- **The preview camera's "default" is identity (pitch 0).** This session started at -12 degrees, left over from an earlier session; `MovePreviewCamera reset` gives 0. Both poses count as looking at the wheel for the fade.
+- **`MovePreviewCamera rotate` with `pitch: -20` turned the camera to +89 degrees** (looking straight up), not 20 degrees down. Use `lookAt` with a point for an absolute pitch.
+- **`RunAndCollectLogsTool` can return before the Lens has registered LEAF** when the log goes quiet for 800 ms during startup; the tail a few seconds later had everything. Don't read a short refresh log as a halted Lens.
+- **Script fields don't show in `QueryRuntimeSceneTool`;** `components(filter:["ScriptComponent"])` lists only `scriptAsset`. Verify script state through LEAF or prints.
+
+Left over:
+
+- **The faint bar from the default pose changes the demo's look:** the bar is at 30 % until the user looks down or hovers it. If the video wants the bar solid in a shot, hover it or set `faintOpacity` to 1 on `ControlBar` for the take.
+- **Hover counting assumes every `onHoverEnter` gets an `onHoverExit`.** If a button is destroyed or disabled mid-hover the count could stick at 1 and the bar stay full; no bar button is ever disabled today.
+- **Watch mode and the far-side step were not re-looked-at for the fade.** During watch mode nothing is held and the user watches the wheel, so the bar is faint, which is what we want; untested by eye.
+- **5.3 (colour-only signals) is not started.**
+
+## 2026-11-01: Pass G3, no signal by colour alone (`docs/INFO_SESSION_OCT29.md` section 5.3)
+
+The Nov 1 audit found three states told apart only by colour or brightness. Each now has a shape as well.
+
+| Item | Before | After |
+| --- | --- | --- |
+| Progress rail, done steps | A brighter dot than the steps ahead | A small tick (`ProgressRail.buildTick`: two stretched spheres in the `StepTicks` proportions, `tickSizeCm` 1.4, in the lit material); the current step stays a pulsing dot, steps ahead stay dim dots. `tickCount` for LEAF. |
+| What's this? and Ask toggles while on | UIKit's tint only; the icon never changed | The icon becomes a close cross while the toggle is on (`setToggleIcon`, on `onValueChange` and in the latched setters), back to info / help when off. `Assets/Icons/close.png` imported with `IconSelector` (Material Symbols, rounded, 600). |
+| Mistake reason on the step label | Same white text as an instruction, plus the nope sound | `BenchCoachStepLabelUI.setText(reason, true)`: a warning badge just outside the panel's left edge and amber text (1, 0.82, 0.35); `warning` for LEAF. `CoachFeedback` passes `true`; every other caller leaves the default. `Assets/Icons/warning.png` imported the same way. |
+
+### LEAF
+
+All 20 scenarios passed from the reset preview camera, one per call. `progress-idle` now asserts three ticks on step 4 and nine on the Finish card; `mistakes` asserts the warning state with each reason and its clearing when the label comes back. The three visuals were checked in `CaptureRuntimeViewTool` after `jump-to-step` with `mistake` and with `part`.
+
+Findings:
+
+- **`IconSelector` imports land in `Assets/Icons`** next to the hand-placed icons, so `requireAsset("../../Icons/<name>.png")` works unchanged.
+- **The first badge position (inside the panel's left edge) sat on the first letters:** the label text is centred across the whole panel. Outside the edge it reads as a badge and never collides.
+- **`jump-to-step`'s `mistake` holds the reason for 30 s,** but an earlier capture still found the step label back: something refreshed it in between (likely the lever-B highlight path on step 4). A capture straight after the run is fine.
+
+Left over:
+
+- **The bar's "on" tint plus the cross is still UIKit's default style;** no contrast check was done against the additive display.
+- **The rail ticks are 1.4 cm at 57 cm (1.4 degrees):** readable in the preview, not measured on glass.
+
+## 2026-11-01: Pass G4, the scanning moment (`docs/INFO_SESSION_OCT29.md` section 6, item 4)
+
+The audit's most valuable Design item: make "it sees what you see" visible. The wheel is hidden until Found it (the `start` scenario asserts it), so the moment plays *as* the wheel appears rather than before the pinch, and step 1 runs underneath it from the first frame.
+
+**What was built.** `ScanReveal` (new `Assets/BenchCoach/Scripts/ScanReveal.ts`, on a new `BenchCoach/ScanReveal` object; inputs manager, wheel, valve, boxMesh, markerMaterial, audio). On the step change 0 to 1 a thin cyan line (the StepTicks box mesh, 0.6 x 86 x 0.5 cm, MarkerMat clone with normal blending) sweeps across the wheel from the user's left to right in `sweepSec` 1.2 s, 4 cm in front of the wheel plane. As it passes each spot a 3D text label pops on (0.4 to 1 scale in 0.15 s) with the audio tick: **Valve** 12 cm along the rim to the right of the marker (`valveLabelAlongCm`; straight above it is where the step label panel sits), **Rim** outside the tire at 11 o'clock (`rimLabelAngleDeg` 330, `labelOutCm` 4). The line goes when the sweep ends; the labels hold `holdSec` 2.5 s, fade over `fadeSec` 0.4 s, and everything hides. Reset hides it; `jumpToStep(1)` replays it (reset then go to 1); any other jump target does not. The start card's stand-in badge is untouched. Fields for LEAF: `playing`, `phase`, `labelsShown`, `plays`.
+
+### LEAF
+
+All 20 scenarios passed from the reset preview camera, one per call. `start` now asserts: the reveal is playing and sweeping 0.3 s after Found it with the line visible; after the sweep both labels are on, the line is off and the step is 1; after the hold and fade everything is gone. Seen in the preview with `holdSec` raised to 12 for the shot: "Valve" beside the marker, "Rim" at the upper left, both inside the camera's view from the start pose.
+
+Findings:
+
+- **`Text.size` on a world object is about 0.036 cm per unit** (the step label's size 33 is 1.2 cm tall). The first size, 9, drew a speck; 80 gives 3 cm letters. The sidewall marking at 12 is a 0.45 cm engraving, which is right for a sidewall.
+- **Straight above the valve is taken:** the step label panel sits 10 cm above the marker, so a radial Valve label was hidden behind it. Along the rim's tangent it reads.
+- **10 o'clock is outside the preview camera's view** from the start pose (and Specs' 32 degree width): 39 cm left at 86 cm. 11 o'clock at 22 cm is inside both.
+- **`CaptureRuntimeViewTool` does not draw `Text`** (the sidewall marking is missing from its renders too). Use the Preview panel screenshot for anything with text.
+- **Script inputs added after the first compile store their default on the next compile;** `holdSec`, `labelOutCm`, `rimLabelAngleDeg` and `labelSize` were set on the component as well so the scene holds the final values.
+
+Left over:
+
+- **No shot of the line mid-sweep;** it lasts 1.2 s. For the video, `jump-to-step` with `step` 1 replays it on demand.
+- **The sweep is a line, not an outline that traces the wheel.** The audit wrote "an outline sweeps the wheel"; a line crossing it reads as a scan and cost one component. A rim-shaped outline (a TorusArc that draws itself round) is the richer version if there is time.
+- **Hierarchy order:** `ScanReveal` is the last child of `BenchCoach`, after `RepairManager`, so its `OnStart` subscription lands after the manager's; it reacts to step changes only, so order does not matter today.
+
+## 2026-11-01: Pass G5, the three Pass 12 layout bugs (`docs/INFO_SESSION_OCT29.md` B1)
+
+Checked from the reset preview camera with `jump-to-step` and the Preview panel screenshot. Each bug had a cause the Pass 12 notes didn't name; none needed the Ask panels resized.
+
+| Bug | Cause | Fix |
+| --- | --- | --- |
+| Step 6: the question chips clip about 2 cm at the left edge | The inspect step pulled the label 16 cm toward the user (so it sits in front of the hanging tube once the thorn is found) *while searching too*, when the label is simply above the wheel. At 74 cm the chips' outer edge (label.x - 23.5 cm) is 17.6 degrees out; the view's half-width is about 16. | `RepairManager.placeMarkerAndLabel`: the 16 cm only once `thornFound`; while searching the label is at the normal 4 cm. At 86 cm the same chips edge is 15.3 degrees: inside. |
+| Steps 2 to 4: the answer's first line sits in the faded top edge | `AskCoach.maxElevationDeg` 18 is Specs' own top edge (about 18.5 degrees), so the answer flipped under the label only when it was already off the display. | `maxElevationDeg` 14 (default and scene value). And the flipped answer no longer goes *under the label*, where it covered the marker ring and the part and ran past the view's right edge on step 2: in the high case it sits under the question chips (left of the part, in reading order). The normal case is unchanged: above the label, next to the part. |
+| Step 5: the label and answer sit behind the control bar from the start pose | The far-side label was at 6 o'clock, 71 cm below the eye at 86 cm (39 degrees down), the same band as the body-locked bar (38 degrees down, 45 cm out). | New `RepairManager.farSideLabelLiftCm` 20: the step 5 label sits at -51 cm (31 degrees down), above the bar's top edge, 8 cm above the tube end it points at. The marker ring stays on the tube end. |
+
+### LEAF
+
+All 20 scenarios passed from the reset preview camera, one per call; `ask-coach-fallback` (answer within 10 cm of the step 5 label) and `inspect-done` were run first. No scenario changes: these are placements LEAF doesn't assert, checked by screenshot — step 6 with Ask open (chips fully inside the view), step 2 with a canned answer (answer under the chips, marker clear), and step 5 looking 33 degrees down (label, answer and chips above the bar).
+
+Findings:
+
+- **The Ask timeouts from pass G2 race the screenshot workflow:** a `jump-to-step` run plus the call latency is about 10 s, so the first step 6 shot came one second after the chips had closed. For screenshot sessions set `chipsIdleSec` and `answerSec` to 60 on the `AskCoach` component, and put them back (10 and 8) before the sweep; both are restored in the committed scene.
+- **Two of the three bugs were depth, not layout:** the same panel at 74 cm instead of 86 cm is 16 % bigger on screen.
+
+Left over:
+
+- **B4, the hands-on mouse walk,** is still untested (LEAF skips the ray).
+- **The Ask panels are the friend's files** (`TEAM_TASKS.md` handoff); passes G, G2 and G5 touched `AskCoach.ts` and `BenchCoachAskChipsUI.ts` per the Nov 1 audit. Sujeeth is telling the friend; the changes are the chip size, the two timeouts, `maxElevationDeg` and the high-case answer spot.
+
+## 2026-11-02: Pass G6, the hands-on mouse walk (`docs/INFO_SESSION_OCT29.md` B4, `TEAM_TASKS.md` F5)
+
+The whole repair, What's this?, Ask, a mistake and the idle hint, driven through the preview's own mouse ray (SIK's `MouseInteractor`, the same path a person's mouse takes in the Preview panel) instead of LEAF's `trigger()`, which skips the ray. Start card to Finish card in one run from the reset camera, Plane room, SPECS 27: Found it, valve, four beads, lever A from the tray onto the ghost, lever B hooked and slid round to 5 o'clock, tube pulled, cause pinched, Continue, new tube fitted at the valve, four beads seated, valve held to inflate, Finish card, Start over; then Next twice, What's this? on a tray lever, and Ask with a chip. Every step fired through the real colliders. The synthetic SIK hand (`PreviewInteractTool`) could not reach a UIKit button in this project (pinch, poke and hover all time out), so the walk used `InjectPreviewGesture` touch events, which is closer to the mouse anyway.
+
+| What | Result |
+| --- | --- |
+| Buttons (Found it, Continue, Start over, Next, What's this?, Ask, a question chip) | All fire from the ray. |
+| Valve, beads, the glint, the valve hold | Fire on release; the 2.5 s hold inflates from 0 to 100 %. |
+| Lever A and B, tube end, new tube end | Grab, carry and drop with `InteractableManipulation`; snaps at 1.5, 1.9, 0.9 cm. |
+| Rim slide | Lever B swept 30 to 150 degrees across two head turns; beads 1 to 3 peeled in order. |
+| What's this? over a grabbable lever | The info box wins: the fact label shows, the lever does not move. |
+| Mistake with the ray | Valve on step 9 gives "Seat the bead first, or the tube pinches." |
+| Idle hint | Fires at 12 s on every step it was given the chance (12 hints in a 17 minute run). |
+| Ask | Chips open from the bar, a chip answers (canned, offline tag), the answer sits under the chips (G5 high case). |
+
+Fixes from the walk:
+
+| Bug | Cause | Fix |
+| --- | --- | --- |
+| The tool tray slides away when you turn to look at it | `BodyFollow` glides once the yaw-carried target is 20 cm from the panel. The tray's horizontal offset is 44 cm, so a 26 degree turn moves its target 20 cm, but the tray itself sits 35 degrees to the right: looking at it always moved it, and then it sat 35 degrees right of the new heading. On Specs it could only ever be seen at the right edge of the display (turn 19 to 26 degrees). | `moveThresholdCm` 20 to 35 and `turnThresholdDeg` 35 to 45 on both panels (defaults and scene values). A 35 degree look moves the target 26 cm: nothing glides. Both panels keep the same numbers, because a bar that followed under a tray that stayed overlapped it (seen when only the tray was changed). Walking 35 cm or turning 46 degrees still brings both along. |
+| Finish card: "Slowest: Lever 14:52" | Step 3's short name is "Lever 1", so "Lever 1 4:52" reads as fourteen minutes. | `STEP_SHORT_NAMES[3]` "Lever A" (the step 4 hint already says "lever B"). |
+
+### Mouse recipe (for the video and anyone testing by hand)
+
+- **A click fires on release, and the ray must already be on the target.** With a real mouse the hover comes free; with injected touches a `start` at a new spot only moves the ray, so the walk primed each new target with one click and fired with the second. Beads, the valve and the glint act on `onTriggerEnd`, so they fire on the first click; buttons, grabs and the valve hold need the second.
+- **A grab keeps the part at its grab distance from the eye.** The mouse has no depth, so a lever grabbed in the tray (52 cm away) can only be dropped on a socket that is also about 52 cm away: walk forward (W) until the wheel is about 38 cm in front of you, grab, turn your head to the ghost, drop. Snap radius is 4 cm (tube end 5 cm). Hands on Specs move in depth and do not need this.
+- **Turn your head while holding;** the panels hold still while a part is held, and the part follows the ray.
+- **The rim slide and the tube pull are depth-free:** `RimDrag` takes the angle in the wheel plane, `TubePull` the distance from the wheel center, so the cursor only has to sweep along the rim or pull down past 48 cm from the center.
+- **The Ask chips close 10 s after opening and the answer 8 s after it shows**, so click a chip straight after Ask.
+- **Everything is measured from the reset camera (pitch 0, origin).** `MovePreviewCamera reset`, not `rotate`.
+
+### LEAF
+
+All 20 scenarios passed from the reset preview camera after the two fixes, one per call (`start`, `deflate-loosen`, `lever-snap`, `peel-and-pull`, `inspect-done`, `step-ticks`, `scene-dressing`, `refit-tube`, `seat-inflate`, `whats-this`, `mistakes`, `flat-causes`, `progress-idle`, `watch-mode`, `ask-coach-fallback`, `floor-path`, `coach-report`, `control-bar`, `floor-level`, `jump-to-step`). `coach-report` only checks that each time entry ends in m:ss, so "Lever A" needed no test change; `floor-path` walks 60 cm, so the panels still follow it.
+
+Findings:
+
+- **The synthetic SIK hand does not reach this project's interactables.** `PreviewInteractTool` Pinch, Poke and Hover on `BtnFoundIt` all timed out waiting for `onTriggerStart`, with `AiPreviewAgent Handler` present and the puppet hand parented in the scene. The mouse ray works, so the walk used it; the hand path was not debugged.
+- **Injected touches are not a mouse.** The preview delivers no hover move without a button, so a `start` at a new spot moves the ray and pinches in the same frame, and the target is not yet hovered when the pinch starts. A real mouse hovers first. Script code needs no change; the notes above say which parts fire on the first click anyway.
+- **The watch demo is too quick for a grab test through the tools:** its beats are 3.5 s and a tool round trip is about 3 s, so the lever and the new tube end had flown each time. `RepairDirector.halt("grab")` stays reasoned, not seen.
+- **From the start pose, half the loosen beads are outside the view** (beads 2 and 6 at 30 cm left and right of center; the view is 23 cm wide at 90 cm). The user turns the head, which is the point of the wheel-sized layout, but the video take should show it.
+- **Close up, the step 4 label runs off the right edge:** at 38 cm from the wheel the label at 1 o'clock is cut. It is fine from the start pose, where every label was checked in pass G5.
+- **Hover on a bar button pulls the bar back to full opacity** even when the head is up (pass G2 rule), seen while clicking Next from the lever pose.
+- **`Finish` card stats are honest about a slow run:** 17:01, Hints 12, Mistakes 1, "Practice next: seat every bead before you pump."
+
+Left over:
+
+- A grab during watch mode by a person (one try, lever B at step 3, within about 5 s of the tray appearing).
+- The puppet hand (`PreviewInteractTool`) in this project: why SIK's hand interactor never targets the UIKit buttons here. Not needed for the hackathon.
+- The watch-mode screen recording (section 6 item 6) still needs a person to press Record.
+
+## 2026-11-04: Pass G7, the mistake reason survives an idle hint
+
+Found while cutting the demo video: in every recorded take of the lever B mistake the label never turned amber. The takes had a ten second lead-in, so the idle hint (12 s) was showing when the lever dropped. `CoachFeedback.mistake()` wrote the reason, and in the same frame `UIBindings` forwarded the mistake to `IdleHint.touch()`, which saw a hint showing and called `RepairManager.refreshLabel()`, rewriting the step text over the reason. By hand (no lead-in) it never happened, and the `mistakes` scenario pinches straight away, so neither caught it.
+
+Fix: `refreshLabel()` returns while `feedback.showing` is true. The reason's own 2.5 s timer clears `showing` before it restores the label through the same method, and `cancel()` clears it on a step change, so nothing else waits on it.
+
+Verified by hand: jump to step 3, 14 s idle (hint fires), grab lever B, drop at the rim: label "First lever first. Hook the other one." in amber. LEAF after the fix: `mistakes`, `progress-idle`, `whats-this`, `inspect-done` (see below).
+
+Video notes from the same session: Lens Studio has no garage room (Plane, Sunlit Room, Evening Room, Colorful Home, two outdoors); the LEAF status line is hidden per run with `__leaf__log_level=WARN`; a bare injected `move` hovers a target, and a button or lever then needs one click, sometimes two, after a camera move; macOS screen recording captures no Lens audio; resizing or scrolling the Preview panel mid-take resets the Lens or pushes the camera back.
+
+LEAF after the fix, reset camera, one per call: `mistakes`, `progress-idle`, `whats-this`, `inspect-done` all PASSED.
