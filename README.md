@@ -63,11 +63,14 @@ You stand at the wheel with a tire lever hooked under the bead. The next step is
 - The flat has one of three causes (thorn, glass, pinch), and the Finish card names it.
 - The Finish card shows your time, lever misses, mistakes, hints, slowest steps and one thing to practise.
 
-**Stand-ins used in preview**
+**Stand-ins used in preview:** see the next section.
 
-- The wheel and the stand are virtual. The Lens Studio preview cannot see a real wheel, so the Found it pinch places one.
-- The garage in the video is a simulated preview room (`preview-room/`). It is not part of the Lens.
-- No tokens are in this repo, so Ask answers offline in the tests and in the video.
+## What is real and what is simulated
+
+- **Real:** the Lens itself. Every step, mistake, hint, spoken line and card in the video is the Lens running in Lens Studio's Interactive Preview, and the tests drive that same Lens.
+- **Simulated:** the wheel and the stand are virtual. The Lens Studio preview cannot see a real wheel, so the Found it pinch places one.
+- **Simulated:** the garage in the video is a preview room (`preview-room/`). It is not part of the Lens.
+- **Offline:** no tokens are in this repo, so Ask gives its built-in answers in the tests and in the video, tagged "Offline answer".
 
 ## How it was built
 
@@ -111,6 +114,12 @@ Last full run: Nov 5, 2026, Lens Studio 5.24.1. All 21 passed in the Garage prev
 - **Logic proven** (tests and preview): the step order, the lever snap, the bead peel, the tube pull and refit, inflation, every mistake, the far-side cue and floor path, what shows when, when the coach speaks, text size and overlap, floor finding in the Garage room.
 - **Known gap:** in Sunlit Room, from the default pose, the floor finder can settle on the sofa seat instead of the floor.
 - **Feel unproven** (needs real glasses): the Lens has not run on Specs. Lining the virtual wheel up with a real one, how a lever feels in the hand, whether a ghost tool reads against a real tire, voice volume in a real workshop, text size on the real display.
+
+## Not built
+
+- Running on Specs hardware. Everything here is the Lens Studio preview.
+- Finding and lining up with a real wheel.
+- Any repair other than a flat. The halfway card names brake pads as the next skill, and it is only a name.
 
 ## Run it
 
