@@ -26,7 +26,10 @@
 import {Billboard} from "SpectaclesInteractionKit.lspkg/Components/Interaction/Billboard/Billboard"
 import WorldCameraFinderProvider from "SpectaclesInteractionKit.lspkg/Providers/CameraProvider/WorldCameraFinderProvider"
 import {FlexAlign, FlexJustify} from "SpectaclesUIKit.lspkg/Scripts/Components/Layout2D/Flex/FlexTypes"
-import {COLOR, LeaderLine, Plate, addUIText, flexColumn, lineCm, makePlate, plateEdgePoint} from "./UIHelpers"
+import {COLOR, LeaderLine, Plate, addUIText, flexColumn, imageOn, lineCm, makePlate, plateEdgePoint} from "./UIHelpers"
+
+/** Pass G3 (Sujeeth), on D2's amber state: a mistake carries a warning badge, not only amber. */
+const ICON_WARNING: Texture = requireAsset("../../Icons/warning.png") as Texture
 
 /** Where the callout hangs: the marker (or null), the wheel and which side the user works from. */
 export interface CalloutAnchor {
@@ -112,6 +115,9 @@ export class BenchCoachStepLabelUI extends BaseScriptComponent {
   private stackH = 0
   private step = 0
   private pulse = false
+  private badge: SceneObject | null = null
+  /** The mistake state shows its warning badge (pass G3 / M); tests read it. */
+  warning: boolean = false
 
   /** Normal state: the instruction, with "Step N of 10" above it. */
   setText(msg: string): void {
@@ -191,6 +197,16 @@ export class BenchCoachStepLabelUI extends BaseScriptComponent {
     this.kicker = addUIText(col, "StepKicker", this.stepLine(), "secondary", innerW, kickerH, d)
     this.label = addUIText(col, "LabelText", "", "instruction", innerW, 2 * lineH, d, {wrap: true})
     this.leader = new LeaderLine(this.sceneObject, "StepLeader", this.leaderCm, null)
+    // Warning badge (pass G3 on D2): sits on the plate's left edge, centred on the kicker
+    // line, like a tab on the amber edge. Half of it is inside the padding, so it never
+    // touches the text; it shows only in the mistake state.
+    const badgeCm = Math.min(g.pad * 1.8, kickerH * 1.5)
+    this.badge = global.scene.createSceneObject("WarnBadge")
+    this.badge.setParent(this.plate.content)
+    this.badge.getTransform().setLocalPosition(new vec3(-w / 2, probe.h / 2 - g.pad - kickerH / 2, 0.3))
+    const badgeImg = imageOn(this.badge, ICON_WARNING, badgeCm)
+    badgeImg.mainMaterial.mainPass.baseColor = COLOR.amber
+    this.badge.enabled = false
     this.createEvent("LateUpdateEvent").bind(() => this.tick())
   }
 
@@ -201,6 +217,8 @@ export class BenchCoachStepLabelUI extends BaseScriptComponent {
   private setMode(mode: string, kicker: string, kickerColor: vec4, edge: vec4): void {
     this.mode = mode
     this.pulse = mode === "hint"
+    this.warning = mode === "mistake"
+    if (this.badge) this.badge.enabled = this.warning
     if (this.kicker) {
       this.kicker.text = kicker
       this.kicker.textFill.color = kickerColor

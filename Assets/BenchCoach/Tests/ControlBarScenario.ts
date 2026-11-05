@@ -18,6 +18,7 @@ import {AskCoach} from "../Scripts/AskCoach"
  *   keep direct targeting.
  * - Replay keeps the step and says what it replayed; each bar button acts alone
  *   (Back and Next move one step, What's this? and Ask toggle only their mode).
+ * - Pass G3 on D2: What's this? and Ask show a close cross while on.
  * - Pass G2's fade of the old bar is not carried onto the D2 dock (pass M): the dock sits
  *   low on the left, out of frame from every working pose, so it has nothing to fade.
  * The hand pass-through itself is not simulated here (LEAF's interactor does not
@@ -90,18 +91,23 @@ export class ControlBarScenario extends Scenario {
     await interactor.tap("BtnMore")
     expect(bar.moreOpen, "More closes the popover").toBe(false)
 
+    // Pass G3 on D2 (pass M): a toggle that is on shows the close cross, not only a tint.
     await interactor.tap("BtnWhatsThis")
     expect(info.active, "What's this? on").toBe(true)
+    expect(bar.whatsThisIconClose, "What's this? shows the close icon while on").toBe(true)
     expect(manager.getState().step, "What's this? keeps the step").toBe(4)
     await interactor.tap("BtnWhatsThis")
     expect(info.active, "What's this? off").toBe(false)
+    expect(bar.whatsThisIconClose, "What's this? back to its info icon").toBe(false)
 
     await interactor.tap("BtnAsk")
     expect(ask.open, "Ask open").toBe(true)
+    expect(bar.askIconClose, "Ask shows the close icon while on").toBe(true)
     expect(info.active, "Ask did not turn What's this? on").toBe(false)
     expect(manager.getState().step, "Ask keeps the step").toBe(4)
     await interactor.tap("BtnAsk")
     expect(ask.open, "Ask closed").toBe(false)
+    expect(bar.askIconClose, "Ask back to its help icon").toBe(false)
 
     await interactor.tap("BtnBack")
     expect(manager.getState().step, "Back moves one step").toBe(3)

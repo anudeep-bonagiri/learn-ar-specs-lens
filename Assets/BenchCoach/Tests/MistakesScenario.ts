@@ -16,6 +16,7 @@ import {MISTAKES, STEPS} from "../Scripts/StepDefinitions"
  * step 3, a lever dropped too far, the tube end before the peel, the new tube
  * end away from the valve hole, the valve before seating the bead. RunStats
  * counts the non-lever ones as mistakes; lever ones stay lever misses.
+ * Pass G3 on D2 (pass M): the amber state carries the warning badge.
  */
 @component
 export class MistakesScenario extends Scenario {
@@ -37,6 +38,7 @@ export class MistakesScenario extends Scenario {
       expect(fb.lastCode, `${code} is the last code`).toBe(code)
       expect(label.text, `${code} reason on the label`).toBe(MISTAKES[code])
       expect(callout.mode, `${code}: callout in its amber mistake state`).toBe("mistake")
+      expect(callout.warning, `${code}: warning badge on (not colour alone)`).toBe(true)
       expect(audio.nopePlays, `${code} plays nope`).toBe(nopeBefore + 1)
       expect(manager.getState().step, `${code} leaves step ${step}`).toBe(step)
     }
@@ -54,6 +56,7 @@ export class MistakesScenario extends Scenario {
     expect(fb.showing, "reason gone after 2.5 s").toBe(false)
     expect(label.text, "step 1 label back").toBe(STEPS[1].label)
     expect(callout.mode, "callout back to normal").toBe("normal")
+    expect(callout.warning, "warning badge gone with the reason").toBe(false)
 
     // ── Step 2: the valve again ────────────────────────────────────────────
     await interactor.tap("Valve")

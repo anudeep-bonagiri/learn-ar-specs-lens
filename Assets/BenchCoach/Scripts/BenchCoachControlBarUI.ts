@@ -31,6 +31,7 @@ import {
   lineCm,
   makePlate,
   obj,
+  setButtonIcon,
 } from "./UIHelpers"
 
 const ICON_BACK: Texture = requireAsset("../../Icons/arrow_back.png") as Texture
@@ -41,6 +42,8 @@ const ICON_ASK: Texture = requireAsset("../../Icons/help.png") as Texture
 const ICON_MORE: Texture = requireAsset("../../Icons/more_horiz.png") as Texture
 const ICON_PLAY: Texture = requireAsset("../../Icons/play_arrow.png") as Texture
 const ICON_STOP: Texture = requireAsset("../../Icons/stop.png") as Texture
+/** Pass G3 (Sujeeth), on D2's popover: a toggle that is on shows a close cross, not only the accent tint. */
+const ICON_CLOSE: Texture = requireAsset("../../Icons/close.png") as Texture
 
 @component
 export class BenchCoachControlBarUI extends BaseScriptComponent {
@@ -127,14 +130,29 @@ export class BenchCoachControlBarUI extends BaseScriptComponent {
   /** True once the hit boxes were measured, each matches its visual width and none overlaps its neighbor. */
   hitBoxesClear: boolean = false
 
+  /** The What's this? toggle shows the close cross (it is on); tests read it. */
+  whatsThisIconClose: boolean = false
+  /** The Ask toggle shows the close cross (it is on); tests read it. */
+  askIconClose: boolean = false
+
   /** Show the Ask toggle as on or off (no-op if it already is). */
   setAskLatched(on: boolean): void {
     if (this.ask && this.ask.isOn !== on) this.ask.isOn = on
+    this.syncToggleIcons()
   }
 
   /** Show the What's this? toggle as on or off (no-op if it already is). */
   setWhatsThisLatched(on: boolean): void {
     if (this.whatsThis && this.whatsThis.isOn !== on) this.whatsThis.isOn = on
+    this.syncToggleIcons()
+  }
+
+  /** Each toggle's icon: its own while off, the close cross while on (never colour alone). */
+  private syncToggleIcons(): void {
+    const info = !!this.whatsThis && this.whatsThis.isOn
+    const ask = !!this.ask && this.ask.isOn
+    if (setButtonIcon(this.whatsThis, info ? ICON_CLOSE : ICON_INFO)) this.whatsThisIconClose = info
+    if (setButtonIcon(this.ask, ask ? ICON_CLOSE : ICON_ASK)) this.askIconClose = ask
   }
 
   /** Open or close the More popover (BtnMore's latch follows). */
@@ -245,12 +263,14 @@ export class BenchCoachControlBarUI extends BaseScriptComponent {
     info.onInitialized.add(() => info.setIsToggleable(true))
     info.onValueChange.add((v) => {
       this.whatsThisOn = v === 1
+      this.syncToggleIcons()
       this._onWhatsThis.invoke(this.whatsThisOn)
     })
     this.whatsThis = info
     askBtn.onInitialized.add(() => askBtn.setIsToggleable(true))
     askBtn.onValueChange.add((v) => {
       this.askOn = v === 1
+      this.syncToggleIcons()
       this._onAsk.invoke(this.askOn)
     })
     this.ask = askBtn

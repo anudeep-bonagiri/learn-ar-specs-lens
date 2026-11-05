@@ -380,6 +380,29 @@ export function imageOn(so: SceneObject, texture: Texture, sizeCM: number): Imag
   return img
 }
 
+/**
+ * Swap the leading icon of a button built by addLabelButton / addIconButton (its "Icon"
+ * child's Image). Pass G3 on D2: a toggle that is on shows a different shape, not only a tint.
+ */
+export function setButtonIcon(button: Button | null, texture: Texture): boolean {
+  if (!button) return false
+  const find = (o: SceneObject): Image | null => {
+    if (o.name === "Icon") {
+      const img = o.getComponent("Component.Image") as Image
+      if (img) return img
+    }
+    for (let i = 0; i < o.getChildrenCount(); i++) {
+      const hit = find(o.getChild(i))
+      if (hit) return hit
+    }
+    return null
+  }
+  const img = find(button.getSceneObject())
+  if (!img || !img.mainMaterial) return false
+  img.mainMaterial.mainPass.baseTex = texture
+  return true
+}
+
 export function addRowImage(parentFlex: SceneObject, texture: Texture, sizeCM: number): SceneObject {
   return flexChild(parentFlex, {w: sizeCM, h: sizeCM, name: "Icon"}, (child) => {
     imageOn(child, texture, sizeCM)
