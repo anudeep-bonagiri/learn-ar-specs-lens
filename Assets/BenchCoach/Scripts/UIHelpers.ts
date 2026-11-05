@@ -1,7 +1,12 @@
 /**
- * UIHelpers — shared UIKit composition helpers for every BenchCoach*UI module.
- * Owns: the type scale (applyTextRole), flex container/child builders, text,
- * image and icon-button builders, and the BackPlate panel skeleton.
+ * UIHelpers — the Bench Coach design system (pass D2) and the shared UIKit
+ * composition helpers for every BenchCoach*UI module.
+ * Owns: the colour tokens (COLOR: one meaning each), the text roles (UIRole on top
+ * of the type scale), the spacing grid (grid(d), scaled by viewing distance so every
+ * panel has the same angular padding), the one plate style (makePlate: a UIKit
+ * BackPlate with a thin edge), the button looks (primary / neutral, toggles latch
+ * in the accent), the leader line, the card builder (buildCard), and the flex,
+ * text, image and button builders.
  * Expects: Assets/BenchCoach/Materials/ImageMaterial.mat (ImageMaterialPreset)
  * to exist — the bootstrap creates it.
  * Must not: hold any game state or know about RepairManager.
@@ -15,6 +20,13 @@ import {
   FlexJustify,
 } from "SpectaclesUIKit.lspkg/Scripts/Components/Layout2D/Flex/FlexTypes"
 import {BackPlate} from "SpectaclesUIKit.lspkg/Scripts/BackPlate"
+import {RoundedRectangle, GradientParameters} from "SpectaclesUIKit.lspkg/Scripts/Visuals/RoundedRectangle/RoundedRectangle"
+import {
+  RoundedRectangleVisual,
+  RoundedRectangleVisualState,
+} from "SpectaclesUIKit.lspkg/Scripts/Visuals/RoundedRectangle/RoundedRectangleVisual"
+import {StateName} from "SpectaclesUIKit.lspkg/Scripts/Components/Element"
+import {MeshKit} from "./MeshKit"
 import {Button} from "SpectaclesUIKit.lspkg/Scripts/Components/Button/Button"
 import {ElementContent} from "SpectaclesUIKit.lspkg/Scripts/Components/Content/ElementContent"
 import {TargetingMode} from "SpectaclesInteractionKit.lspkg/Core/Interactor/Interactor"
@@ -25,6 +37,32 @@ export const BUTTON_LABEL_Z = 0.08
 export const PANEL_CONTENT_Z = 0.6
 
 const imageMaterial = requireAsset("../Materials/ImageMaterial.mat") as Material
+const markerMaterial = requireAsset("../Materials/MarkerMat.mat") as Material
+
+// ── Colour tokens (pass D2): one meaning each, nothing else in the UI ─────────
+// The display is additive (black is transparent), so every token is light.
+export const COLOR = {
+  /** "Do it here": markers, the step leader line, the primary button, latched toggles. */
+  accent: new vec4(0.1, 0.95, 1.0, 1),
+  /** A mistake or a warning. */
+  amber: new vec4(1.0, 0.72, 0.22, 1),
+  /** Done. */
+  green: new vec4(0.42, 0.95, 0.52, 1),
+  /** Primary text. */
+  text: new vec4(1, 1, 1, 1),
+  /** Secondary text (light grey). */
+  textSecondary: new vec4(0.76, 0.79, 0.82, 1),
+  /** Neutral plate edge and the info leader (a light grey line, not a colour). */
+  edge: new vec4(0.85, 0.88, 0.92, 0.38),
+}
+
+/**
+ * The one plate style. Checked on screenshots in the Evening and Sunlit rooms (pass
+ * D2): "dark" (a linear 0.09 to 0.26 grey) keeps the most contrast under white text;
+ * on the additive display every plate is mostly see-through, so the light edge is what
+ * draws the panel.
+ */
+export const PLATE_STYLE: "default" | "dark" | "simple" = "dark"
 
 // ── Typography: the single source of truth for text size + weight ────────────
 const FONT_SIZE_SCALE = 1.0
@@ -61,6 +99,48 @@ export function roleSize(role: TextRole, distanceCm: number = 110): number {
 export function applyTextRole(t: Text, role: TextRole, distanceCm: number = 110): void {
   t.size = roleSize(role, distanceCm)
   ;(t as Text & {weight?: number}).weight = TYPE_SCALE[role].weight
+}
+
+/**
+ * Text roles of the design system, one size each: card titles, instructions, body
+ * lines (answers, card values), secondary lines (grey), button labels.
+ */
+export type UIRole = "title" | "instruction" | "body" | "secondary" | "button"
+
+const UI_ROLES: Record<UIRole, TextRole> = {
+  title: "Title2",
+  instruction: "Headline2",
+  body: "Body",
+  secondary: "Caption",
+  button: "Subheadline",
+}
+
+export function uiSize(role: UIRole, distanceCm: number): number {
+  return roleSize(UI_ROLES[role], distanceCm)
+}
+
+/** Line height in cm for a role at a distance (em height x 1.3). */
+export function lineCm(role: UIRole, distanceCm: number): number {
+  return (uiSize(role, distanceCm) / 43.886) * 1.3
+}
+
+/** Average glyph advance in cm (0.56 em, bold-safe) for width budgets. */
+export function charCm(role: UIRole, distanceCm: number): number {
+  return (uiSize(role, distanceCm) / 43.886) * 0.56
+}
+
+/** The spacing grid at a viewing distance: the same angular padding on every panel. */
+export interface Grid {
+  k: number
+  pad: number
+  gap: number
+  radius: number
+  edge: number
+}
+
+export function grid(distanceCm: number): Grid {
+  const k = distanceCm / 90
+  return {k, pad: 1.1 * k, gap: 0.5 * k, radius: 1.0 * k, edge: 0.09 * k}
 }
 
 // ── SceneObject helpers ───────────────────────────────────────────────────────
@@ -174,6 +254,59 @@ export function textOn(
   return t
 }
 
+export interface UITextOpts {
+  color?: vec4
+  align?: HorizontalAlignment
+  /** Wrap onto more lines inside the rect (default: one line). */
+  wrap?: boolean
+}
+
+/**
+ * Design-system text: a role, a rect that never lets a glyph out (one line shrinks to
+ * fit its width; wrapped text shrinks to fit its height), secondary text in grey.
+ */
+export function uiTextOn(
+  so: SceneObject,
+  text: string,
+  role: UIRole,
+  widthCM: number,
+  heightCM: number,
+  distanceCm: number,
+  opts?: UITextOpts
+): Text {
+  const t = textOn(so, text, UI_ROLES[role], widthCM, heightCM, {
+    distanceCm,
+    align: opts?.align ?? HorizontalAlignment.Left,
+    color: opts?.color ?? (role === "secondary" ? COLOR.textSecondary : COLOR.text),
+  })
+  if (opts?.wrap) {
+    t.horizontalOverflow = HorizontalOverflow.Wrap
+    t.verticalOverflow = VerticalOverflow.Shrink
+  } else {
+    t.horizontalOverflow = HorizontalOverflow.Shrink
+    t.verticalOverflow = VerticalOverflow.Truncate
+  }
+  return t
+}
+
+/** A design-system text row in a flex column (explicit width, so it can be left aligned). */
+export function addUIText(
+  parentFlex: SceneObject,
+  name: string,
+  text: string,
+  role: UIRole,
+  widthCM: number,
+  heightCM: number,
+  distanceCm: number,
+  opts?: UITextOpts
+): Text {
+  let result: Text | null = null
+  flexChild(parentFlex, {w: widthCM, h: heightCM, name}, (child) => {
+    result = uiTextOn(child, text, role, widthCM, heightCM, distanceCm, opts)
+  })
+  return result as unknown as Text
+}
+
 /** A text row inside a column-direction flex: stretched to the column width. */
 export function addColumnText(
   parentFlex: SceneObject,
@@ -245,21 +378,94 @@ export function addRowImage(parentFlex: SceneObject, texture: Texture, sizeCM: n
   })
 }
 
+/** Button looks: "primary" is the one accent action on a panel; "neutral" is everything else. */
+export type ButtonKind = "primary" | "neutral"
+
+function grad(a: vec4, b: vec4): GradientParameters {
+  return {
+    enabled: true,
+    type: "Linear",
+    start: new vec2(-1.5, 1),
+    end: new vec2(1.5, -1),
+    stop0: {enabled: true, percent: 0, color: a},
+    stop1: {enabled: true, percent: 1, color: b},
+  }
+}
+
+function gray(v: number): vec4 {
+  return new vec4(v, v, v, 1)
+}
+
+function tint(c: vec4, k: number): vec4 {
+  return new vec4(c.x * k, c.y * k, c.z * k, 1)
+}
+
+/** Per-state look of a design-system button (UIKit RoundedRectangleVisual states). */
+function buttonStates(kind: ButtonKind, edgeCm: number): Partial<Record<StateName, RoundedRectangleVisualState>> {
+  const accent = COLOR.accent
+  const st = (base: GradientParameters, border: vec4, size: number, z: number): RoundedRectangleVisualState => ({
+    baseType: "Gradient",
+    baseGradient: base,
+    hasBorder: true,
+    borderType: "Color",
+    borderColor: border,
+    borderSize: size,
+    shouldPosition: true,
+    shouldScale: false,
+    localScale: new vec3(1, 1, 1),
+    localPosition: new vec3(0, 0, z),
+  })
+  const latched = grad(tint(accent, 0.16), tint(accent, 0.3))
+  const latchedHi = grad(tint(accent, 0.24), tint(accent, 0.4))
+  if (kind === "primary") {
+    return {
+      default: st(grad(tint(accent, 0.18), tint(accent, 0.34)), accent, edgeCm * 1.5, 0),
+      hovered: st(grad(tint(accent, 0.26), tint(accent, 0.46)), accent, edgeCm * 1.8, 0.4),
+      triggered: st(grad(tint(accent, 0.36), tint(accent, 0.58)), accent, edgeCm * 1.8, 0.2),
+      toggledDefault: st(latched, accent, edgeCm * 1.5, 0),
+      toggledHovered: st(latchedHi, accent, edgeCm * 1.8, 0.4),
+      toggledTriggered: st(latchedHi, accent, edgeCm * 1.8, 0.2),
+      inactive: st(grad(gray(0.08), gray(0.12)), COLOR.edge, edgeCm, 0),
+    }
+  }
+  return {
+    default: st(grad(gray(0.1), gray(0.19)), COLOR.edge, edgeCm, 0),
+    hovered: st(grad(gray(0.15), gray(0.26)), accent, edgeCm * 1.3, 0.4),
+    triggered: st(grad(gray(0.22), gray(0.32)), accent, edgeCm * 1.5, 0.2),
+    toggledDefault: st(latched, accent, edgeCm * 1.5, 0),
+    toggledHovered: st(latchedHi, accent, edgeCm * 1.8, 0.4),
+    toggledTriggered: st(latchedHi, accent, edgeCm * 1.8, 0.2),
+    inactive: st(grad(gray(0.08), gray(0.12)), COLOR.edge, edgeCm, 0),
+  }
+}
+
+/** A UIKit Button with the design-system look, ray-only (pass F), on `so`. */
+function styledButton(so: SceneObject, kind: ButtonKind, w: number, h: number, distanceCm: number): Button {
+  const btn = so.createComponent(Button.getTypeName()) as Button
+  rayOnly(btn)
+  const g = grid(distanceCm)
+  const visual = new RoundedRectangleVisual({sceneObject: so, style: buttonStates(kind, g.edge)})
+  visual.cornerRadius = Math.min(g.radius * 0.8, h / 2)
+  btn.visual = visual
+  btn.onInitialized.add(() => {
+    btn.size = new vec3(w, h, 1)
+  })
+  return btn
+}
+
 /** Icon-only UIKit Button named `name` (LEAF finds it by this name). */
 export function addIconButton(
   parentFlex: SceneObject,
   name: string,
   icon: Texture | null,
   sizeCM: number,
-  onClick: () => void
+  onClick: () => void,
+  distanceCm: number = 90,
+  kind: ButtonKind = "neutral"
 ): Button {
   let button: Button | null = null
   flexChild(parentFlex, {w: sizeCM, h: sizeCM, name}, (so) => {
-    const btn = so.createComponent(Button.getTypeName()) as Button
-    rayOnly(btn)
-    btn.onInitialized.add(() => {
-      btn.size = new vec3(sizeCM, sizeCM, 1)
-    })
+    const btn = styledButton(so, kind, sizeCM, sizeCM, distanceCm)
     if (icon) {
       const ec = so.createComponent(ElementContent.getTypeName()) as ElementContent
       ec.leadingIcon = icon
@@ -274,7 +480,7 @@ export function addIconButton(
   return button as unknown as Button
 }
 
-/** UIKit Button with an optional leading icon and a width-budgeted raw Text label. */
+/** UIKit Button with an optional leading icon and a width-budgeted label (design-system look). */
 export function addLabelButton(
   parentFlex: SceneObject,
   name: string,
@@ -284,27 +490,20 @@ export function addLabelButton(
   heightCM: number,
   distanceCm: number,
   onClick: () => void,
-  style?: string
+  kind: ButtonKind = "neutral"
 ): Button {
   let button: Button | null = null
   flexChild(parentFlex, {w: widthCM, h: heightCM, name}, (so) => {
-    const btn = so.createComponent(Button.getTypeName()) as Button
-    rayOnly(btn)
-    // Optional UIKit style (e.g. "Primary"): must be set before the button initializes.
-    if (style) btn.setVariant({theme: "SnapOS2", style})
-    btn.onInitialized.add(() => {
-      btn.size = new vec3(widthCM, heightCM, 1)
-    })
-    const iconSize = icon ? heightCM * 0.45 : 0
-    const row = flexRow(so, widthCM - 1, heightCM - 1, {
-      justify: FlexJustify.Center,
-      align: FlexAlign.Center,
-      gap: icon ? 0.8 : 0,
-    })
+    const btn = styledButton(so, kind, widthCM, heightCM, distanceCm)
+    const iconSize = icon ? Math.min(heightCM * 0.5, lineCm("button", distanceCm) * 1.15) : 0
+    const gap = icon ? grid(distanceCm).gap : 0
+    const labelW = Math.min(widthCM - 2 * grid(distanceCm).pad - iconSize - gap, charCm("button", distanceCm) * (label.length + 1))
+    const row = flexRow(so, widthCM - 0.5, heightCM - 0.5, {justify: FlexJustify.Center, align: FlexAlign.Center, gap})
     liftInZ(row, BUTTON_LABEL_Z)
     if (icon) addRowImage(row, icon, iconSize)
-    const labelW = widthCM - 1.5 - (icon ? iconSize + 0.8 : 0)
-    addRowText(row, "Label", label, "Button", labelW, heightCM - 1.5, {distanceCm})
+    flexChild(row, {w: labelW, h: lineCm("button", distanceCm), name: "Label"}, (child) => {
+      uiTextOn(child, label, "button", labelW, lineCm("button", distanceCm), distanceCm, {align: HorizontalAlignment.Center})
+    })
     btn.onTriggerUp.add((e) => {
       logTrigger(name, e)
       onClick()
@@ -314,24 +513,9 @@ export function addLabelButton(
   return button as unknown as Button
 }
 
-// ── Panel skeleton ────────────────────────────────────────────────────────────
-export interface Panel {
-  backPlate: BackPlate
-  content: SceneObject
-}
-
-/** Canvas + BackPlate on `root`, plus a Content child lifted +0.6 cm for the layout. */
-export function backPlatePanel(root: SceneObject, widthCM: number, heightCM: number): Panel {
-  root.createComponent("Component.Canvas")
-  const backPlate = root.createComponent(BackPlate.getTypeName()) as BackPlate
-  backPlate.size = new vec2(widthCM, heightCM)
-  const content = obj(root, "Content", new vec3(0, 0, PANEL_CONTENT_Z))
-  return {backPlate, content}
-}
-
 /**
- * Pass 12: a text-only UIKit Button whose label changes at runtime (Ask chips).
- * Same layout as addLabelButton without an icon; returns the label Text too.
+ * Pass 12: a text-only UIKit Button whose label changes at runtime (Ask chips), left
+ * aligned; returns the label Text too.
  */
 export function addTextButton(
   parentFlex: SceneObject,
@@ -345,14 +529,14 @@ export function addTextButton(
   let button: Button | null = null
   let text: Text | null = null
   flexChild(parentFlex, {w: widthCM, h: heightCM, name}, (so) => {
-    const btn = so.createComponent(Button.getTypeName()) as Button
-    rayOnly(btn)
-    btn.onInitialized.add(() => {
-      btn.size = new vec3(widthCM, heightCM, 1)
-    })
-    const row = flexRow(so, widthCM - 1, heightCM - 1, {justify: FlexJustify.Center, align: FlexAlign.Center})
+    const btn = styledButton(so, "neutral", widthCM, heightCM, distanceCm)
+    const g = grid(distanceCm)
+    const row = flexRow(so, widthCM - 0.5, heightCM - 0.5, {justify: FlexJustify.Center, align: FlexAlign.Center})
     liftInZ(row, BUTTON_LABEL_Z)
-    text = addRowText(row, "Label", label, "Button", widthCM - 1.5, heightCM - 1.5, {distanceCm})
+    const tw = widthCM - 2 * g.pad
+    flexChild(row, {w: tw, h: heightCM - 0.6, name: "Label"}, (child) => {
+      text = uiTextOn(child, label, "button", tw, heightCM - 0.6, distanceCm)
+    })
     btn.onTriggerUp.add((e) => {
       logTrigger(name, e)
       onClick()
@@ -360,4 +544,247 @@ export function addTextButton(
     button = btn
   })
   return {button: button as unknown as Button, label: text as unknown as Text}
+}
+
+// ── Plates ────────────────────────────────────────────────────────────────────
+/**
+ * The one plate: Canvas + UIKit BackPlate (PLATE_STYLE) with the grid's corner radius
+ * and a thin edge (neutral by default; setEdge() turns it amber for a mistake or pulses
+ * it in the accent for a hint), plus a Content child lifted +0.6 cm for the layout.
+ */
+export class Plate {
+  backPlate: BackPlate
+  content: SceneObject
+  width: number
+  height: number
+  g: Grid
+  private rect: RoundedRectangle | null = null
+  private edgeColor: vec4
+
+  constructor(root: SceneObject, widthCM: number, heightCM: number, distanceCm: number, edge: vec4 = COLOR.edge) {
+    this.width = widthCM
+    this.height = heightCM
+    this.g = grid(distanceCm)
+    this.edgeColor = edge
+    root.createComponent("Component.Canvas")
+    this.backPlate = root.createComponent(BackPlate.getTypeName()) as BackPlate
+    this.backPlate.style = PLATE_STYLE
+    this.backPlate.size = new vec2(widthCM, heightCM)
+    this.content = obj(root, "Content", new vec3(0, 0, PANEL_CONTENT_Z))
+    this.backPlate.onInitialized.add(() => {
+      this.rect = root.getComponent(RoundedRectangle.getTypeName()) as RoundedRectangle
+      if (!this.rect) return
+      this.rect.cornerRadius = Math.min(this.g.radius, heightCM / 2)
+      this.rect.border = true
+      this.rect.borderSize = this.g.edge
+      this.rect.borderColor = this.edgeColor
+    })
+  }
+
+  /** Edge colour (COLOR.edge, COLOR.amber, the accent at any alpha). */
+  setEdge(c: vec4): void {
+    this.edgeColor = c
+    if (this.rect) this.rect.borderColor = c
+  }
+
+  /** Corner radius in cm (a pill uses height / 2). */
+  setRadius(r: number): void {
+    this.backPlate.onInitialized.add(() => {
+      if (this.rect) this.rect.cornerRadius = r
+    })
+    if (this.rect) this.rect.cornerRadius = r
+  }
+
+  setSize(widthCM: number, heightCM: number): void {
+    this.width = widthCM
+    this.height = heightCM
+    this.backPlate.size = new vec2(widthCM, heightCM)
+  }
+}
+
+export function makePlate(root: SceneObject, widthCM: number, heightCM: number, distanceCm: number, edge?: vec4): Plate {
+  return new Plate(root, widthCM, heightCM, distanceCm, edge)
+}
+
+// ── Panel skeleton (kept for older callers) ──────────────────────────────────
+export interface Panel {
+  backPlate: BackPlate
+  content: SceneObject
+}
+
+/** Canvas + BackPlate on `root` (the design-system plate at 90 cm), plus a Content child. */
+export function backPlatePanel(root: SceneObject, widthCM: number, heightCM: number): Panel {
+  const p = makePlate(root, widthCM, heightCM, 90)
+  return {backPlate: p.backPlate, content: p.content}
+}
+
+// ── Leader line ───────────────────────────────────────────────────────────────
+/**
+ * A thin straight line from a panel to the thing it is about: the accent for the step
+ * callout ("do it here"), light grey for an info callout. A unit box along +Z,
+ * stretched and turned each frame by set(a, b).
+ */
+export class LeaderLine {
+  so: SceneObject
+  private tr: Transform
+  private thickness: number
+
+  constructor(parent: SceneObject, name: string, thicknessCm: number, color: vec4 | null) {
+    this.so = obj(parent, name)
+    this.tr = this.so.getTransform()
+    this.thickness = thicknessCm
+    const kit = new MeshKit()
+    kit.box(new vec3(0, 0, 0.5), new vec3(0.5, 0.5, 0.5), vec3.right(), vec3.up(), new vec3(0, 0, 1))
+    let mat = markerMaterial
+    if (color) {
+      mat = markerMaterial.clone()
+      mat.mainPass.baseColor = color
+    }
+    kit.toVisual(this.so, null, mat)
+    this.so.enabled = false
+  }
+
+  /** Draw from a to b (world cm); hides itself when the two are closer than 0.5 cm. */
+  set(a: vec3, b: vec3): void {
+    const d = b.sub(a)
+    const len = d.length
+    if (len < 0.5) {
+      this.setEnabled(false)
+      return
+    }
+    this.tr.setWorldPosition(a)
+    this.tr.setWorldRotation(quat.rotationFromTo(new vec3(0, 0, 1), d.uniformScale(1 / len)))
+    this.tr.setWorldScale(new vec3(this.thickness, this.thickness, len))
+    this.setEnabled(true)
+  }
+
+  setEnabled(on: boolean): void {
+    if (this.so.enabled !== on) this.so.enabled = on
+  }
+}
+
+/**
+ * The point on a billboarded plate's edge nearest to `target` (plate center `c`,
+ * right vector `right`, world up), for a leader line's start.
+ */
+export function plateEdgePoint(c: vec3, right: vec3, w: number, h: number, target: vec3): vec3 {
+  const d = target.sub(c)
+  const x = d.dot(right)
+  const y = d.y
+  const hx = w / 2
+  const hy = h / 2
+  // Scale the direction onto the rectangle's border.
+  const sx = Math.abs(x) > 1e-4 ? hx / Math.abs(x) : Number.POSITIVE_INFINITY
+  const sy = Math.abs(y) > 1e-4 ? hy / Math.abs(y) : Number.POSITIVE_INFINITY
+  const s = Math.min(sx, sy, 1)
+  return c.add(right.uniformScale(x * s)).add(new vec3(0, y * s, 0))
+}
+
+// ── Card ──────────────────────────────────────────────────────────────────────
+export interface CardRow {
+  name: string
+  text: string
+  role: UIRole
+  color?: vec4
+  /** Lines the row can hold (wraps beyond one). */
+  lines?: number
+}
+
+export interface CardPair {
+  /** Name of the value Text (tests find it); the label Text is `${name}Label`. */
+  name: string
+  label: string
+  value: string
+}
+
+export interface CardButton {
+  name: string
+  label: string
+  icon: Texture | null
+  kind: ButtonKind
+  width: number
+  onClick: () => void
+}
+
+export interface CardSpec {
+  width: number
+  distanceCm: number
+  title: {name: string; text: string; kicker?: {name: string; text: string; color: vec4}}
+  rows: CardRow[]
+  pairs?: CardPair[]
+  rowsAfter?: CardRow[]
+  buttons: CardButton[]
+}
+
+export interface Card {
+  plate: Plate
+  texts: {[name: string]: Text}
+  height: number
+}
+
+/**
+ * The card component (start, halfway and finish cards): an optional kicker, a title,
+ * rows, a tidy two-column list (label grey, value white), more rows, and a button row.
+ * Height comes from the content, so no text ever touches the plate edge.
+ */
+export function buildCard(root: SceneObject, spec: CardSpec): Card {
+  const d = spec.distanceCm
+  const g = grid(d)
+  const innerW = spec.width - 2 * g.pad * 1.3
+  const btnH = Math.max(4.4 * (d / 80), lineCm("button", d) * 2.6)
+  const rowH = (r: CardRow) => lineCm(r.role, d) * (r.lines ?? 1)
+  const pairH = lineCm("body", d)
+  const items: number[] = []
+  if (spec.title.kicker) items.push(lineCm("secondary", d))
+  items.push(lineCm("title", d))
+  for (const r of spec.rows) items.push(rowH(r))
+  const pairs = spec.pairs ?? []
+  if (pairs.length > 0) items.push(pairs.length * pairH + (pairs.length - 1) * g.gap * 0.4)
+  for (const r of spec.rowsAfter ?? []) items.push(rowH(r))
+  items.push(btnH)
+  let h = 2 * g.pad * 1.3 + items.reduce((a, b) => a + b, 0) + (items.length - 1) * g.gap
+  h += g.gap // the button row breathes a little more
+  const plate = makePlate(root, spec.width, h, d)
+  const col = flexColumn(plate.content, spec.width, h, {
+    gap: g.gap,
+    padX: g.pad * 1.3,
+    padY: g.pad * 1.3,
+    justify: FlexJustify.Center,
+    align: FlexAlign.Center,
+  })
+  const texts: {[name: string]: Text} = {}
+  const row = (r: CardRow) => {
+    texts[r.name] = addUIText(col, r.name, r.text, r.role, innerW, rowH(r), d, {color: r.color, wrap: (r.lines ?? 1) > 1})
+  }
+  if (spec.title.kicker) {
+    const k = spec.title.kicker
+    texts[k.name] = addUIText(col, k.name, k.text, "secondary", innerW, lineCm("secondary", d), d, {color: k.color})
+  }
+  texts[spec.title.name] = addUIText(col, spec.title.name, spec.title.text, "title", innerW, lineCm("title", d), d)
+  for (const r of spec.rows) row(r)
+  if (pairs.length > 0) {
+    const listH = pairs.length * pairH + (pairs.length - 1) * g.gap * 0.4
+    const labelW = innerW * 0.34
+    const valueW = innerW - labelW - g.gap
+    flexChild(col, {w: innerW, h: listH, name: "List"}, (holder) => {
+      const list = flexColumn(holder, innerW, listH, {gap: g.gap * 0.4, justify: FlexJustify.Start, align: FlexAlign.Start})
+      for (const p of pairs) {
+        flexChild(list, {w: innerW, h: pairH, name: `${p.name}Row`}, (rowSo) => {
+          const r = flexRow(rowSo, innerW, pairH, {gap: g.gap, justify: FlexJustify.Start, align: FlexAlign.Center})
+          texts[`${p.name}Label`] = addUIText(r, `${p.name}Label`, p.label, "secondary", labelW, pairH, d)
+          texts[p.name] = addUIText(r, p.name, p.value, "body", valueW, pairH, d)
+        })
+      }
+    })
+  }
+  for (const r of spec.rowsAfter ?? []) row(r)
+  const btnRowW = innerW
+  flexChild(col, {w: btnRowW, h: btnH + g.gap, name: "Buttons"}, (holder) => {
+    const r = flexRow(holder, btnRowW, btnH, {gap: g.gap * 1.5, justify: FlexJustify.Center, align: FlexAlign.Center})
+    // The extra gap goes above the buttons, between the last line and the row.
+    const rp = r.getTransform().getLocalPosition()
+    r.getTransform().setLocalPosition(new vec3(rp.x, rp.y - g.gap / 2, rp.z))
+    for (const b of spec.buttons) addLabelButton(r, b.name, b.label, b.icon, b.width, btnH, d, b.onClick, b.kind)
+  })
+  return {plate, texts, height: h}
 }
