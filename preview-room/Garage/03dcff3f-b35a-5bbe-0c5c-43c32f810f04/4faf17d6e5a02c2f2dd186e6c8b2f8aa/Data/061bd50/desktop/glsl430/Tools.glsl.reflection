@@ -1,0 +1,132 @@
+SCC_BACKEND_SHADER_FLAGS_BEGIN__
+NGS_FLAG_SHADER_TYPE Mesh3d
+SCC_BACKEND_SHADER_FLAGS_END__
+//SG_REFLECTION_BEGIN(200)
+//attribute vec4 boneData 5
+//attribute vec3 blendShape0Pos 6
+//attribute vec3 blendShape0Normal 12
+//attribute vec3 blendShape1Pos 7
+//attribute vec3 blendShape1Normal 13
+//attribute vec3 blendShape2Pos 8
+//attribute vec3 blendShape2Normal 14
+//attribute vec3 blendShape3Pos 9
+//attribute vec3 blendShape4Pos 10
+//attribute vec3 blendShape5Pos 11
+//attribute vec4 position 0
+//attribute vec3 normal 1
+//attribute vec4 tangent 2
+//attribute vec2 texture0 3
+//attribute vec2 texture1 4
+//attribute vec4 color 18
+//attribute vec3 positionNext 15
+//attribute vec3 positionPrevious 16
+//attribute vec4 strandProperties 17
+//output vec4 sc_FragData0 0
+//sampler sampler baseTexSmpSC 0:30
+//sampler sampler intensityTextureSmpSC 0:32
+//sampler sampler sc_EnvmapDiffuseSmpSC 0:35
+//sampler sampler sc_EnvmapSpecularSmpSC 0:36
+//sampler sampler sc_OITCommonSampler 0:37
+//sampler sampler sc_SSAOTextureSmpSC 0:38
+//sampler sampler sc_ScreenTextureSmpSC 0:39
+//sampler sampler sc_ShadowTextureSmpSC 0:42
+//sampler sampler sc_SpecularCubemapSmpSC 0:43
+//sampler samplerShadow sc_ShadowMapTextureSmpSC 0:41
+//texture texture2D baseTex 0:0:0:30
+//texture texture2DArray baseTexArrSC 0:1:0:30
+//texture texture2D intensityTexture 0:4:0:32
+//texture texture2DArray intensityTextureArrSC 0:5:0:32
+//texture texture2D sc_EnvmapDiffuse 0:10:0:35
+//texture texture2DArray sc_EnvmapDiffuseArrSC 0:11:0:35
+//texture texture2D sc_EnvmapSpecular 0:12:0:36
+//texture texture2DArray sc_EnvmapSpecularArrSC 0:13:0:36
+//texture texture2D sc_OITAlpha0 0:14:0:37
+//texture texture2D sc_OITAlpha1 0:15:0:37
+//texture texture2D sc_OITDepthHigh0 0:16:0:37
+//texture texture2D sc_OITDepthHigh1 0:17:0:37
+//texture texture2D sc_OITDepthLow0 0:18:0:37
+//texture texture2D sc_OITDepthLow1 0:19:0:37
+//texture texture2D sc_OITFilteredDepthBoundsTexture 0:20:0:37
+//texture texture2D sc_OITFrontDepthTexture 0:21:0:37
+//texture texture2D sc_SSAOTexture 0:22:0:38
+//texture texture2D sc_ScreenTexture 0:23:0:39
+//texture texture2DArray sc_ScreenTextureArrSC 0:24:0:39
+//texture texture2D sc_ShadowMapTexture 0:26:0:41
+//texture texture2D sc_ShadowTexture 0:27:0:42
+//texture textureCube sc_SpecularCubemap 0:28:0:43
+//spec_const bool ENABLE_STIPPLE_PATTERN_TEST 0 0
+//spec_const bool SC_USE_CLAMP_TO_BORDER_baseTex 1 0
+//spec_const bool SC_USE_CLAMP_TO_BORDER_intensityTexture 2 0
+//spec_const bool SC_USE_UV_MIN_MAX_baseTex 3 0
+//spec_const bool SC_USE_UV_MIN_MAX_intensityTexture 4 0
+//spec_const bool SC_USE_UV_TRANSFORM_baseTex 5 0
+//spec_const bool SC_USE_UV_TRANSFORM_intensityTexture 6 0
+//spec_const bool Tweak_N121 7 0
+//spec_const bool UseViewSpaceDepthVariant 8 1
+//spec_const bool baseTexHasSwappedViews 9 0
+//spec_const bool intensityTextureHasSwappedViews 10 0
+//spec_const bool sc_BlendMode_Custom 11 0
+//spec_const bool sc_DepthOnly 12 0
+//spec_const bool sc_EnvmapDiffuseHasSwappedViews 13 0
+//spec_const bool sc_EnvmapSpecularHasSwappedViews 14 0
+//spec_const bool sc_FramebufferFetch 15 0
+//spec_const bool sc_HasDiffuseEnvmap 16 0
+//spec_const bool sc_HasSpecularCubemap 17 0
+//spec_const bool sc_IsEditor 18 0
+//spec_const bool sc_LightEstimation 19 0
+//spec_const bool sc_MotionVectorsPass 20 0
+//spec_const bool sc_OITCompositingPass 21 0
+//spec_const bool sc_OITDepthBoundsPass 22 0
+//spec_const bool sc_OITDepthGatherPass 23 0
+//spec_const bool sc_OITDepthPrepass 24 0
+//spec_const bool sc_OITFrontLayerPass 25 0
+//spec_const bool sc_OITMaxLayers4Plus1 26 0
+//spec_const bool sc_OITMaxLayers8 27 0
+//spec_const bool sc_OITMaxLayersVisualizeLayerCount 28 0
+//spec_const bool sc_OutputBounds 29 0
+//spec_const bool sc_ProjectiveShadowsCaster 30 0
+//spec_const bool sc_ProjectiveShadowsReceiver 31 0
+//spec_const bool sc_RenderAlphaToColor 32 0
+//spec_const bool sc_SSAOEnabled 33 0
+//spec_const bool sc_ScreenTextureHasSwappedViews 34 0
+//spec_const bool sc_ShadowMapHardwarePCF 35 0
+//spec_const bool sc_ShadowMapIsRandomSampling 36 0
+//spec_const bool sc_ShadowMapIsSoftShadow 37 0
+//spec_const bool sc_ShadowMapReceiver 38 0
+//spec_const bool sc_TAAEnabled 39 0
+//spec_const bool sc_VertexBlending 40 0
+//spec_const bool sc_VertexBlendingUseNormals 41 0
+//spec_const bool sc_Voxelization 42 0
+//spec_const int SC_DEVICE_CLASS 43 -1
+//spec_const int SC_SOFTWARE_WRAP_MODE_U_baseTex 44 -1
+//spec_const int SC_SOFTWARE_WRAP_MODE_U_intensityTexture 45 -1
+//spec_const int SC_SOFTWARE_WRAP_MODE_V_baseTex 46 -1
+//spec_const int SC_SOFTWARE_WRAP_MODE_V_intensityTexture 47 -1
+//spec_const int baseTexLayout 48 0
+//spec_const int intensityTextureLayout 49 0
+//spec_const int sc_AmbientLightMode0 50 0
+//spec_const int sc_AmbientLightMode1 51 0
+//spec_const int sc_AmbientLightMode2 52 0
+//spec_const int sc_AmbientLightMode_Constant 53 0
+//spec_const int sc_AmbientLightMode_EnvironmentMap 54 0
+//spec_const int sc_AmbientLightMode_FromCamera 55 0
+//spec_const int sc_AmbientLightMode_SphericalHarmonics 56 0
+//spec_const int sc_AmbientLightsCount 57 0
+//spec_const int sc_BlendMode 58 0
+//spec_const int sc_DepthBufferMode 59 0
+//spec_const int sc_DirectionalLightsCount 60 0
+//spec_const int sc_EnvLightMode 61 0
+//spec_const int sc_EnvmapDiffuseLayout 62 0
+//spec_const int sc_EnvmapSpecularLayout 63 0
+//spec_const int sc_LightEstimationSGCount 64 0
+//spec_const int sc_PointLightsCount 65 0
+//spec_const int sc_RenderingSpace 66 -1
+//spec_const int sc_ScreenTextureLayout 67 0
+//spec_const int sc_ShaderCacheConstant 68 0
+//spec_const int sc_ShadowMapSampleCount 69 16
+//spec_const int sc_SkinBonesCount 70 0
+//spec_const int sc_SoftwareBlendMode 71 0
+//spec_const int sc_StereoRenderingMode 72 0
+//spec_const int sc_StereoRendering_IsClipDistanceEnabled 73 0
+//spec_const int sc_StereoViewID 74 0
+//SG_REFLECTION_END

@@ -1,0 +1,14 @@
+{
+    "lens": {
+        "desktop": {
+            "sg_gl_supported": false,
+            "sg_metal_supported": true,
+            "sg_vulkan_supported": true
+        },
+        "mobile": {
+            "sg_gl_supported": false,
+            "sg_metal_supported": false,
+            "sg_vulkan_supported": false
+        }
+    }
+}
