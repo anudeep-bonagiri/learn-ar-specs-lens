@@ -19,6 +19,7 @@ import {RepairManager} from "./RepairManager"
 import {RepairDirector} from "./RepairDirector"
 import {MeshKit} from "./MeshKit"
 import {FloorLevel} from "./FloorLevel"
+import {WorkspaceAnchor} from "./WorkspaceAnchor"
 
 /** Step that shows the path (the far-side tube pull). */
 const PATH_STEP = 5
@@ -114,9 +115,12 @@ export class FloorPath extends BaseScriptComponent {
   private showTime = 0
 
   onAwake(): void {
-    this.build()
-    this.setArrowsEnabled(false)
     this.createEvent("OnStartEvent").bind(() => {
+      // Built here, not in onAwake: the spots are relative to the start eye (WorkspaceAnchor sets it at OnStart).
+      this.build()
+      this.setArrowsEnabled(false)
+      // The arrows move with Environment; refresh their cached world positions.
+      WorkspaceAnchor.onMoved(() => this.settleOnFloor())
       // FloorLevel may sit lower in the hierarchy, so the arrows settle on the floor here.
       if (this.floorLevel) {
         this.settleOnFloor()
@@ -167,8 +171,9 @@ export class FloorPath extends BaseScriptComponent {
       return
     }
     const cam = this.camera.getTransform().getWorldPosition()
-    const dx = cam.x - this.farSpot.x
-    const dz = cam.z - this.farSpot.z
+    const far = this.farSpotWorld()
+    const dx = cam.x - far.x
+    const dz = cam.z - far.z
     if (Math.sqrt(dx * dx + dz * dz) <= this.arriveRadiusCm) {
       this.arrived = true
       this.hide()
@@ -208,12 +213,18 @@ export class FloorPath extends BaseScriptComponent {
     for (const a of this.arrows) if (a.enabled !== on) a.enabled = on
   }
 
+  /** The far spot in the live world (farSpot is authored with the start eye at the origin; WorkspaceAnchor). */
+  farSpotWorld(): vec3 {
+    return WorkspaceAnchor.place(this.farSpot)
+  }
+
   /** Cubic curve on the floor from startSpot to farSpot, both handles pulled to +X. */
   private curve(t: number): vec3 {
-    const p0 = this.startSpot
-    const p3 = this.farSpot
-    const p1 = new vec3(this.swingX, p0.y, p0.z - 10)
-    const p2 = new vec3(this.swingX, p3.y, p3.z + 10)
+    const p0 = WorkspaceAnchor.place(this.startSpot)
+    const p3 = this.farSpotWorld()
+    const sx = this.swingX + WorkspaceAnchor.offset().x
+    const p1 = new vec3(sx, p0.y, p0.z - 10)
+    const p2 = new vec3(sx, p3.y, p3.z + 10)
     const u = 1 - t
     const a = u * u * u
     const b = 3 * u * u * t

@@ -1,4 +1,5 @@
 import Event, {PublicApi} from "SpectaclesInteractionKit.lspkg/Utils/Event"
+import {WorkspaceAnchor} from "./WorkspaceAnchor"
 
 /** One up-facing floor candidate hit (world cm). `mesh` is true for world-mesh hits. */
 export interface FloorHit {
@@ -260,14 +261,16 @@ export class FloorLevel extends BaseScriptComponent {
   private ringRays(): vec3[][] {
     const out: vec3[][] = []
     const n = Math.max(3, Math.round(this.probeRays))
-    const ring = [new vec3(this.probeCenter.x, 0, this.probeCenter.z)]
+    // probeCenter is authored with the start eye at the origin (WorkspaceAnchor).
+    const c = WorkspaceAnchor.place(this.probeCenter)
+    const ring = [new vec3(c.x, 0, c.z)]
     for (const [r, count] of [
       [this.probeRadiusCm, n],
       [2 * this.probeRadiusCm, 2 * n],
     ]) {
       for (let i = 0; i < count; i++) {
         const a = (2 * Math.PI * i) / count
-        ring.push(new vec3(this.probeCenter.x + Math.cos(a) * r, 0, this.probeCenter.z + Math.sin(a) * r))
+        ring.push(new vec3(c.x + Math.cos(a) * r, 0, c.z + Math.sin(a) * r))
       }
     }
     for (const p of ring) out.push([new vec3(p.x, this.rayTopY, p.z), new vec3(p.x, this.rayBottomY, p.z)])

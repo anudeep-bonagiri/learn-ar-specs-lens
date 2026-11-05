@@ -1,4 +1,5 @@
 import {FloorLevel} from "./FloorLevel"
+import {WorkspaceAnchor} from "./WorkspaceAnchor"
 
 /**
  * FloorAnchor keeps this object's world y at the measured floor plus an offset
@@ -26,6 +27,7 @@ export class FloorAnchor extends BaseScriptComponent {
     this.createEvent("OnStartEvent").bind(() => {
       this.apply()
       this.floorLevel.onFloorChanged.add(() => this.apply())
+      WorkspaceAnchor.onMoved(() => this.apply())
     })
   }
 

@@ -1,5 +1,6 @@
 import {MeshKit} from "./MeshKit"
 import {FloorLevel} from "./FloorLevel"
+import {WorkspaceAnchor} from "./WorkspaceAnchor"
 
 /**
  * WheelStand builds the repair stand with MeshBuilder (MeshKit) and stands it on
@@ -75,6 +76,7 @@ export class WheelStand extends BaseScriptComponent {
     this.createEvent("OnStartEvent").bind(() => {
       this.rebuild()
       if (this.floorLevel) this.floorLevel.onFloorChanged.add(() => this.rebuild())
+      WorkspaceAnchor.onMoved(() => this.rebuild())
     })
   }
 
