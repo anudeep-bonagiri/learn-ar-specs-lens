@@ -1587,6 +1587,7 @@
       askCoach: !<MappingBased.AssignableType_12> 28a8d074-10e5-4ebd-a5a2-c31e87bc65c7
       floorLevel: !<MappingBased.AssignableType_13> 61e06c67-dbb7-48bf-97af-4ac893d51f94
       voice: !<MappingBased.AssignableType_14> 62d7e2ff-77f5-4751-b627-7af7ffa06729
+      watchBadge: !<MappingBased.AssignableType_15> 94841942-74e2-4c36-860b-5e1337a9965e
   ScriptTypes:
     "":
       {}
@@ -1712,6 +1713,10 @@
     brakeTrackCm: true
     bandMaterial: true
     bandBelowCos: true
+    stripeMaterial: true
+    stripeFromCos: true
+    stripeToCos: true
+    stripeMirror: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
@@ -1732,6 +1737,10 @@
       brakeTrackCm: 1.100000
       bandMaterial: !<reference.Material> 00000000-0000-0000-0000-000000000000
       bandBelowCos: 0.380000
+      stripeMaterial: !<reference.Material> 00000000-0000-0000-0000-000000000000
+      stripeFromCos: 0.100000
+      stripeToCos: 0.300000
+      stripeMirror: false
   ScriptTypes:
     "":
       {}
@@ -1877,6 +1886,8 @@
     boxWidthCm: true
     brakeTrackCm: true
     bandBelowCos: true
+    stripeFromCos: true
+    stripeToCos: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
@@ -1897,6 +1908,10 @@
       brakeTrackCm: 1.100000
       bandMaterial: !<reference.Material> 24bbc9b1-8765-4608-96c5-3a65d6eca71a
       bandBelowCos: 0.380000
+      stripeMaterial: !<reference.Material> 68b8edd6-f8e7-4050-9a73-a832c460f71e
+      stripeFromCos: 0.100000
+      stripeToCos: 0.300000
+      stripeMirror: true
   ScriptTypes:
     "":
       {}
@@ -1949,6 +1964,8 @@
     boxWidthCm: true
     brakeTrackCm: true
     bandBelowCos: true
+    stripeFromCos: true
+    stripeToCos: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
@@ -1969,6 +1986,10 @@
       brakeTrackCm: 1.100000
       bandMaterial: !<reference.Material> 24bbc9b1-8765-4608-96c5-3a65d6eca71a
       bandBelowCos: 0.380000
+      stripeMaterial: !<reference.Material> 68b8edd6-f8e7-4050-9a73-a832c460f71e
+      stripeFromCos: 0.100000
+      stripeToCos: 0.300000
+      stripeMirror: true
   ScriptTypes:
     "":
       {}
@@ -2576,6 +2597,10 @@
     brakeTrackCm: true
     bandMaterial: true
     bandBelowCos: true
+    stripeMaterial: true
+    stripeFromCos: true
+    stripeToCos: true
+    stripeMirror: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
@@ -2596,6 +2621,10 @@
       brakeTrackCm: 1.100000
       bandMaterial: !<reference.Material> 00000000-0000-0000-0000-000000000000
       bandBelowCos: 0.380000
+      stripeMaterial: !<reference.Material> 00000000-0000-0000-0000-000000000000
+      stripeFromCos: 0.100000
+      stripeToCos: 0.300000
+      stripeMirror: false
   ScriptTypes:
     "":
       {}
@@ -3583,6 +3612,10 @@
     brakeTrackCm: true
     bandMaterial: true
     bandBelowCos: true
+    stripeMaterial: true
+    stripeFromCos: true
+    stripeToCos: true
+    stripeMirror: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
@@ -3603,6 +3636,10 @@
       brakeTrackCm: 1.100000
       bandMaterial: !<reference.Material> 00000000-0000-0000-0000-000000000000
       bandBelowCos: 0.380000
+      stripeMaterial: !<reference.Material> 00000000-0000-0000-0000-000000000000
+      stripeFromCos: 0.100000
+      stripeToCos: 0.300000
+      stripeMirror: false
   ScriptTypes:
     "":
       {}
@@ -3784,6 +3821,8 @@
     boxWidthCm: true
     brakeTrackCm: true
     bandBelowCos: true
+    stripeFromCos: true
+    stripeToCos: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
@@ -3804,6 +3843,10 @@
       brakeTrackCm: 1.100000
       bandMaterial: !<reference.Material> 24bbc9b1-8765-4608-96c5-3a65d6eca71a
       bandBelowCos: 0.380000
+      stripeMaterial: !<reference.Material> 68b8edd6-f8e7-4050-9a73-a832c460f71e
+      stripeFromCos: 0.100000
+      stripeToCos: 0.300000
+      stripeMirror: true
   ScriptTypes:
     "":
       {}
@@ -3847,6 +3890,7 @@
     - !<own> 05e67ae0-5b93-47af-875b-55f7d1f52e05
     - !<own> 89ffc755-62dd-4c47-a35f-6ad4fdd8b160
     - !<own> ec158813-b99d-4393-a550-66d8b9e9265d
+    - !<own> 8fa0ecae-7730-40d9-9785-c3e505c2a086
   Components:
     - !<own> 622db2cb-d0c7-4791-92af-926fab500a02
     - !<own> 322de4cf-0408-4c93-be6b-45c3f47f3be1
@@ -3891,6 +3935,10 @@
     brakeTrackCm: true
     bandMaterial: true
     bandBelowCos: true
+    stripeMaterial: true
+    stripeFromCos: true
+    stripeToCos: true
+    stripeMirror: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
@@ -3911,6 +3959,10 @@
       brakeTrackCm: 1.100000
       bandMaterial: !<reference.Material> 00000000-0000-0000-0000-000000000000
       bandBelowCos: 0.380000
+      stripeMaterial: !<reference.Material> 00000000-0000-0000-0000-000000000000
+      stripeFromCos: 0.100000
+      stripeToCos: 0.300000
+      stripeMirror: false
   ScriptTypes:
     "":
       {}
@@ -4009,7 +4061,7 @@
   Enabled: true
   Layers: 1
   LocalTransform: !<TransformEntity>
-    Position: {x: 0.000000, y: -8.000000, z: -80.000000}
+    Position: {x: 0.000000, y: -14.000000, z: -80.000000}
     Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
     Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
     HasSegmentScaleCompensation: false
@@ -4089,6 +4141,10 @@
     brakeTrackCm: true
     bandMaterial: true
     bandBelowCos: true
+    stripeMaterial: true
+    stripeFromCos: true
+    stripeToCos: true
+    stripeMirror: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
@@ -4109,6 +4165,10 @@
       brakeTrackCm: 1.100000
       bandMaterial: !<reference.Material> 00000000-0000-0000-0000-000000000000
       bandBelowCos: 0.380000
+      stripeMaterial: !<reference.Material> 00000000-0000-0000-0000-000000000000
+      stripeFromCos: 0.100000
+      stripeToCos: 0.300000
+      stripeMirror: false
   ScriptTypes:
     "":
       {}
@@ -4322,6 +4382,21 @@
     - !<own> b859e31c-4c76-46bd-bd6a-042228e52728
   Components:
     []
+- !<SceneObject/8fa0ecae-7730-40d9-9785-c3e505c2a086>
+  PrefabRemaps:
+    []
+  Name: WatchBadge
+  Enabled: true
+  Layers: 1
+  LocalTransform: !<TransformEntity>
+    Position: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
+    HasSegmentScaleCompensation: false
+  Children:
+    []
+  Components:
+    - !<own> 94841942-74e2-4c36-860b-5e1337a9965e
 - !<SceneObject/8fe2a532-9bf3-4cde-b598-04ce5470718d>
   PrefabRemaps:
     []
@@ -4367,7 +4442,6 @@
     widthCm: true
     depthCm: true
     cornerRadiusCm: true
-    borderCm: true
     thicknessCm: true
     receiveShadows: true
   ScriptTypesDefault:
@@ -4379,7 +4453,7 @@
       widthCm: !<float> 180.000000
       depthCm: !<float> 120.000000
       cornerRadiusCm: !<float> 10.000000
-      borderCm: !<float> 7.000000
+      borderCm: 1.400000
       thicknessCm: 0.600000
       receiveShadows: true
   ScriptTypes:
@@ -4421,6 +4495,31 @@
     - !<own> e9454e66-5d09-4a8a-bcd7-dea762326a48
   Components:
     []
+- !<ScriptComponent/94841942-74e2-4c36-860b-5e1337a9965e>
+  PrefabRemaps:
+    []
+  Name: BenchCoachWatchBadgeUI
+  Enabled: true
+  ScriptAsset: !<reference> 96790c78-320a-4144-a0d6-f990c5d6ccb0
+  ScriptInputsDefault:
+    viewDistanceCm: true
+    badgeAboveHubCm: true
+    badgeSideCm: true
+    standOffCm: true
+    label: true
+  ScriptTypesDefault:
+    {}
+  ScriptInputs:
+    "":
+      wheel: !<reference.SceneObject> 32ba4b33-674d-4969-a473-4523545d3108
+      viewDistanceCm: !<float> 90.000000
+      badgeAboveHubCm: !<float> 41.000000
+      badgeSideCm: !<float> -10.000000
+      standOffCm: !<float> 4.000000
+      label: Watching
+  ScriptTypes:
+    "":
+      {}
 - !<ScriptComponent/94c67bdb-7192-48db-99b0-a98d0e67cd2f>
   PrefabRemaps:
     []
@@ -4439,6 +4538,10 @@
     brakeTrackCm: true
     bandMaterial: true
     bandBelowCos: true
+    stripeMaterial: true
+    stripeFromCos: true
+    stripeToCos: true
+    stripeMirror: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
@@ -4459,6 +4562,10 @@
       brakeTrackCm: 1.100000
       bandMaterial: !<reference.Material> 00000000-0000-0000-0000-000000000000
       bandBelowCos: 0.380000
+      stripeMaterial: !<reference.Material> 00000000-0000-0000-0000-000000000000
+      stripeFromCos: 0.100000
+      stripeToCos: 0.300000
+      stripeMirror: false
   ScriptTypes:
     "":
       {}
@@ -4593,7 +4700,7 @@
   ScriptInputs:
     "":
       panelWidth: !<float> 27.000000
-      viewDistanceCm: !<float> 80.000000
+      viewDistanceCm: !<float> 74.000000
       doneText: "Tube out, cause found"
       nextStepText: "Next: fit the new tube and pump it up."
       nextSkillText: "Next skill: brake pads"
@@ -4679,6 +4786,10 @@
     brakeTrackCm: true
     bandMaterial: true
     bandBelowCos: true
+    stripeMaterial: true
+    stripeFromCos: true
+    stripeToCos: true
+    stripeMirror: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
@@ -4699,6 +4810,10 @@
       brakeTrackCm: 1.100000
       bandMaterial: !<reference.Material> 00000000-0000-0000-0000-000000000000
       bandBelowCos: 0.380000
+      stripeMaterial: !<reference.Material> 00000000-0000-0000-0000-000000000000
+      stripeFromCos: 0.100000
+      stripeToCos: 0.300000
+      stripeMirror: false
   ScriptTypes:
     "":
       {}
@@ -4903,7 +5018,7 @@
   Enabled: true
   Layers: 1
   LocalTransform: !<TransformEntity>
-    Position: {x: 0.000000, y: -9.000000, z: -80.000000}
+    Position: {x: 0.000000, y: -9.000000, z: -72.000000}
     Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
     Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
     HasSegmentScaleCompensation: false
@@ -4919,7 +5034,6 @@
   ScriptAsset: !<reference> 8551fbd1-6e54-43cb-b578-a4d964afad21
   ScriptInputsDefault:
     panelWidth: true
-    viewDistanceCm: true
     partGapCm: true
     towardUserCm: true
     safeFraction: true
@@ -4929,7 +5043,7 @@
     "":
       stepCallout: !<MappingBased.AssignableType_1> 24460ad0-f260-4e7a-970c-05fcf6db9a81
       panelWidth: !<float> 18.000000
-      viewDistanceCm: !<float> 85.000000
+      viewDistanceCm: !<float> 90.000000
       partGapCm: !<float> 4.000000
       towardUserCm: !<float> 6.000000
       safeFraction: 0.900000
@@ -4943,7 +5057,7 @@
   Enabled: true
   Layers: 1
   LocalTransform: !<TransformEntity>
-    Position: {x: -20.799999, y: -24.000000, z: -36.000000}
+    Position: {x: -20.799999, y: -27.000000, z: -36.000000}
     Rotation: {x: -30.000000, y: 30.000000, z: 0.000000}
     Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
     HasSegmentScaleCompensation: false
@@ -4965,6 +5079,8 @@
     boxWidthCm: true
     brakeTrackCm: true
     bandBelowCos: true
+    stripeFromCos: true
+    stripeToCos: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
@@ -4985,6 +5101,10 @@
       brakeTrackCm: 1.100000
       bandMaterial: !<reference.Material> 24bbc9b1-8765-4608-96c5-3a65d6eca71a
       bandBelowCos: 0.380000
+      stripeMaterial: !<reference.Material> 68b8edd6-f8e7-4050-9a73-a832c460f71e
+      stripeFromCos: 0.100000
+      stripeToCos: 0.300000
+      stripeMirror: true
   ScriptTypes:
     "":
       {}
@@ -5331,6 +5451,10 @@
     brakeTrackCm: true
     bandMaterial: true
     bandBelowCos: true
+    stripeMaterial: true
+    stripeFromCos: true
+    stripeToCos: true
+    stripeMirror: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
@@ -5351,6 +5475,10 @@
       brakeTrackCm: 1.100000
       bandMaterial: !<reference.Material> 00000000-0000-0000-0000-000000000000
       bandBelowCos: 0.380000
+      stripeMaterial: !<reference.Material> 00000000-0000-0000-0000-000000000000
+      stripeFromCos: 0.100000
+      stripeToCos: 0.300000
+      stripeMirror: false
   ScriptTypes:
     "":
       {}
@@ -5863,6 +5991,10 @@
     brakeTrackCm: true
     bandMaterial: true
     bandBelowCos: true
+    stripeMaterial: true
+    stripeFromCos: true
+    stripeToCos: true
+    stripeMirror: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
@@ -5883,6 +6015,10 @@
       brakeTrackCm: 1.100000
       bandMaterial: !<reference.Material> 00000000-0000-0000-0000-000000000000
       bandBelowCos: 0.380000
+      stripeMaterial: !<reference.Material> 00000000-0000-0000-0000-000000000000
+      stripeFromCos: 0.100000
+      stripeToCos: 0.300000
+      stripeMirror: false
   ScriptTypes:
     "":
       {}
@@ -6077,6 +6213,10 @@
     brakeTrackCm: true
     bandMaterial: true
     bandBelowCos: true
+    stripeMaterial: true
+    stripeFromCos: true
+    stripeToCos: true
+    stripeMirror: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
@@ -6097,6 +6237,10 @@
       brakeTrackCm: 1.100000
       bandMaterial: !<reference.Material> 00000000-0000-0000-0000-000000000000
       bandBelowCos: 0.380000
+      stripeMaterial: !<reference.Material> 00000000-0000-0000-0000-000000000000
+      stripeFromCos: 0.100000
+      stripeToCos: 0.300000
+      stripeMirror: false
   ScriptTypes:
     "":
       {}
@@ -6171,6 +6315,10 @@
     brakeTrackCm: true
     bandMaterial: true
     bandBelowCos: true
+    stripeMaterial: true
+    stripeFromCos: true
+    stripeToCos: true
+    stripeMirror: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
@@ -6191,6 +6339,10 @@
       brakeTrackCm: 1.100000
       bandMaterial: !<reference.Material> 00000000-0000-0000-0000-000000000000
       bandBelowCos: 0.380000
+      stripeMaterial: !<reference.Material> 00000000-0000-0000-0000-000000000000
+      stripeFromCos: 0.100000
+      stripeToCos: 0.300000
+      stripeMirror: false
   ScriptTypes:
     "":
       {}
@@ -6321,6 +6473,8 @@
     boxWidthCm: true
     brakeTrackCm: true
     bandBelowCos: true
+    stripeFromCos: true
+    stripeToCos: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
@@ -6341,6 +6495,10 @@
       brakeTrackCm: 1.100000
       bandMaterial: !<reference.Material> 24bbc9b1-8765-4608-96c5-3a65d6eca71a
       bandBelowCos: 0.380000
+      stripeMaterial: !<reference.Material> 68b8edd6-f8e7-4050-9a73-a832c460f71e
+      stripeFromCos: 0.100000
+      stripeToCos: 0.300000
+      stripeMirror: true
   ScriptTypes:
     "":
       {}
@@ -6515,6 +6673,8 @@
     boxWidthCm: true
     brakeTrackCm: true
     bandBelowCos: true
+    stripeFromCos: true
+    stripeToCos: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
@@ -6535,6 +6695,10 @@
       brakeTrackCm: 1.100000
       bandMaterial: !<reference.Material> 24bbc9b1-8765-4608-96c5-3a65d6eca71a
       bandBelowCos: 0.380000
+      stripeMaterial: !<reference.Material> 68b8edd6-f8e7-4050-9a73-a832c460f71e
+      stripeFromCos: 0.100000
+      stripeToCos: 0.300000
+      stripeMirror: true
   ScriptTypes:
     "":
       {}
@@ -6919,6 +7083,8 @@
     boxWidthCm: true
     brakeTrackCm: true
     bandBelowCos: true
+    stripeFromCos: true
+    stripeToCos: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
@@ -6939,6 +7105,10 @@
       brakeTrackCm: 1.100000
       bandMaterial: !<reference.Material> 24bbc9b1-8765-4608-96c5-3a65d6eca71a
       bandBelowCos: 0.380000
+      stripeMaterial: !<reference.Material> 68b8edd6-f8e7-4050-9a73-a832c460f71e
+      stripeFromCos: 0.100000
+      stripeToCos: 0.300000
+      stripeMirror: true
   ScriptTypes:
     "":
       {}
@@ -6973,6 +7143,8 @@
     boxWidthCm: true
     brakeTrackCm: true
     bandBelowCos: true
+    stripeFromCos: true
+    stripeToCos: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
@@ -6993,6 +7165,10 @@
       brakeTrackCm: 1.100000
       bandMaterial: !<reference.Material> 24bbc9b1-8765-4608-96c5-3a65d6eca71a
       bandBelowCos: 0.380000
+      stripeMaterial: !<reference.Material> 68b8edd6-f8e7-4050-9a73-a832c460f71e
+      stripeFromCos: 0.100000
+      stripeToCos: 0.300000
+      stripeMirror: true
   ScriptTypes:
     "":
       {}
@@ -7042,6 +7218,10 @@
     brakeTrackCm: true
     bandMaterial: true
     bandBelowCos: true
+    stripeMaterial: true
+    stripeFromCos: true
+    stripeToCos: true
+    stripeMirror: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
@@ -7062,6 +7242,10 @@
       brakeTrackCm: 1.100000
       bandMaterial: !<reference.Material> 00000000-0000-0000-0000-000000000000
       bandBelowCos: 0.380000
+      stripeMaterial: !<reference.Material> 00000000-0000-0000-0000-000000000000
+      stripeFromCos: 0.100000
+      stripeToCos: 0.300000
+      stripeMirror: false
   ScriptTypes:
     "":
       {}
