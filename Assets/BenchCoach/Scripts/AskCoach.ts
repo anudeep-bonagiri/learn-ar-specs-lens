@@ -5,9 +5,10 @@
  * answer about this step, shown on the answer panel next to the part with a source
  * tag. Falls back to the step's canned answer on an error, a missing token, no
  * internet, a timeout (timeoutSec) or when forceCanned / !useLive.
- * Closes on a step change (answer hidden, chips refreshed if still open), on reset,
- * after chipsIdleSec without a chip press or answer (pass G2, show it only when needed;
- * the answer hides by itself after answerSec),
+ * Show it only when needed (pass G2, carried onto D2 in pass M): Ask closes on a step
+ * change, on reset, and after chipsIdleSec with the chips up and no chip press; a shown
+ * answer hides after answerSec or at the next sub-step, and the chips come back in its
+ * slot (their idle clock restarts then). It also closes
  * when watch mode plays, and when What's this? turns on (UIBindings keeps the two
  * exclusive). IdleHint is suspended while it is open (IdleHint.askSuspended).
  * Pass D2: the chips and the answer take turns in one slot hung under the step
@@ -142,6 +143,8 @@ export class AskCoach extends BaseScriptComponent {
   private answerHideAt = Number.POSITIVE_INFINITY
   /** getTime() at which Ask closes itself for lack of chip presses (Infinity = no timer). */
   private chipsCloseAt = Number.POSITIVE_INFINITY
+  /** The sub-step the shown answer belongs to (a new sub-step hides it). */
+  private answerSub = -1
 
   onAwake(): void {
     this.createEvent("OnStartEvent").bind(() => {
@@ -274,6 +277,7 @@ export class AskCoach extends BaseScriptComponent {
     this.answerPanel.showAnswer(text, tag)
     this.answerShown = true
     this.answerHideAt = Number.POSITIVE_INFINITY
+    this.answerSub = this.manager.getState().subStep
     this.answerPanel.sceneObject.enabled = true
     this.chips.sceneObject.enabled = false
     this.place()
@@ -284,20 +288,26 @@ export class AskCoach extends BaseScriptComponent {
     this.answerHideAt = Number.POSITIVE_INFINITY
     this.lastAnswer = ""
     this.answerPanel.sceneObject.enabled = false
-    if (this.open) this.chips.sceneObject.enabled = true
-  }
-
-  private stepChanged(): void {
-    this.cancel()
-    this.hideAnswer()
-    this.lastSource = ""
     if (this.open) {
-      this.chips.setQuestions(coachQuestions(this.manager.getState().step).map((c) => c.q))
+      // The chips are back in the slot: their idle clock starts again.
+      this.chips.sceneObject.enabled = true
       this.touchChips()
     }
   }
 
-  /** Restart the chips' idle timer: a chip press, an answer, an open or a step change counts as use. */
+  /** A new step: Ask closes (pass G2 / M); the next step brings its own questions when reopened. */
+  private stepChanged(): void {
+    this.cancel()
+    this.lastSource = ""
+    if (this.open) {
+      print("[AskCoach] Ask closed on a step change")
+      this.setOpen(false)
+    } else {
+      this.hideAnswer()
+    }
+  }
+
+  /** Restart the chips' idle timer: a chip press, an open, or the chips coming back counts as use. */
   private touchChips(): void {
     this.chipsCloseAt = this.chipsIdleSec > 0 ? getTime() + this.chipsIdleSec : Number.POSITIVE_INFINITY
   }
@@ -316,11 +326,16 @@ export class AskCoach extends BaseScriptComponent {
       return
     }
     const now = getTime()
-    if (this.answerShown && !this.busy && now >= this.answerHideAt) {
+    if (this.answerShown && this.manager.getState().subStep !== this.answerSub) {
+      this.cancel()
+      this.hideAnswer()
+      print("[AskCoach] answer hidden at the next sub-step")
+    } else if (this.answerShown && !this.busy && now >= this.answerHideAt) {
       this.hideAnswer()
       print("[AskCoach] answer hidden after " + this.answerSec + " s")
     }
-    if (now >= this.chipsCloseAt) {
+    // The chips' idle clock only runs while they are up (not while an answer is read).
+    if (!this.answerShown && now >= this.chipsCloseAt) {
       print("[AskCoach] Ask closed after " + this.chipsIdleSec + " s idle")
       this.setOpen(false)
       return

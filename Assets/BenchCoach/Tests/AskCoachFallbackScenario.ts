@@ -14,7 +14,9 @@ import {COACH_QUESTIONS} from "../Scripts/StepDefinitions"
  * BtnAsk opens the chips with step 5's questions (toggle latched, IdleHint
  * suspended); the first chip puts step 5's canned answer on the answer panel next
  * to the step label within 2 s, tagged "offline"; What's this? and Ask exclude each
- * other; Next hides the answer and refreshes the chips for step 6; BtnAsk closes it.
+ * other; BtnAsk closes it. Pass G2 on D2 (pass M): Next closes Ask; the answer hides
+ * after answerSec (the chips come back) and at the next sub-step; the chips close Ask
+ * after chipsIdleSec with no chip press (both timers shortened for the test).
  */
 @component
 export class AskCoachFallbackScenario extends Scenario {
@@ -107,21 +109,66 @@ export class AskCoachFallbackScenario extends Scenario {
     await sleep(300)
     expect(answerPanel.enabled, "answer shown again").toBe(true)
 
-    // ── Next: answer hidden, chips follow the step ─────────────────────────
+    // ── Next: Ask closes on a step change (pass G2 / M) ────────────────────
     await interactor.tap("BtnNext")
     await sleep(300)
     expect(manager.getState().step, "step 6").toBe(6)
+    expect(ask.open, "Ask closed by the step change").toBe(false)
     expect(answerPanel.enabled, "answer hidden after the step change").toBe(false)
+    expect(chipsPanel.enabled, "chips hidden after the step change").toBe(false)
     expect(ask.lastAnswer, "answer cleared").toBe("")
-    expect(ask.chips.questions[0], "chips show step 6's questions").toBe(COACH_QUESTIONS[6][0].q)
+    expect(bar.askOn, "Ask toggle released by the step change").toBe(false)
+    expect(idle.askSuspended, "IdleHint back on").toBe(false)
 
-    // ── Toggle off ─────────────────────────────────────────────────────────
+    // ── Reopen on step 6: its own questions; toggle off ────────────────────
+    await interactor.tap("BtnAsk")
+    await sleep(300)
+    expect(ask.open, "Ask on for step 6").toBe(true)
+    expect(ask.chips.questions[0], "chips show step 6's questions").toBe(COACH_QUESTIONS[6][0].q)
     await interactor.tap("BtnAsk")
     await sleep(300)
     expect(ask.open, "Ask off").toBe(false)
     expect(chipsPanel.enabled, "chips hidden").toBe(false)
     expect(bar.askOn, "Ask toggle released").toBe(false)
     expect(idle.askSuspended, "IdleHint back on").toBe(false)
+
+    // ── Timers (pass G2): the answer hides, the chips come back, then Ask closes ──
+    const answerSec = ask.answerSec
+    const chipsIdleSec = ask.chipsIdleSec
+    ask.answerSec = 1
+    ask.chipsIdleSec = 1.5
+    await interactor.tap("BtnAsk")
+    await sleep(300)
+    await interactor.tap("AskChip_0")
+    await sleep(300)
+    expect(answerPanel.enabled, "answer up").toBe(true)
+    await sleep(1000)
+    expect(answerPanel.enabled, "answer hidden after answerSec").toBe(false)
+    expect(chipsPanel.enabled, "chips back after the answer hides").toBe(true)
+    expect(ask.open, "Ask still open while the chips' clock runs").toBe(true)
+    await sleep(1700)
+    expect(ask.open, "Ask closed after chipsIdleSec without a chip press").toBe(false)
+    expect(bar.askOn, "Ask toggle released by the timeout").toBe(false)
+
+    // ── The answer hides at the next sub-step (step 2: a bead) ─────────────
+    ask.answerSec = 30
+    manager.jumpToStep(2)
+    await sleep(400)
+    await interactor.tap("BtnAsk")
+    await sleep(300)
+    await interactor.tap("AskChip_0")
+    await sleep(300)
+    expect(answerPanel.enabled, "step 2 answer up").toBe(true)
+    await interactor.tap("Bead_2")
+    await sleep(300)
+    expect(manager.getState().step, "still step 2 after one bead").toBe(2)
+    expect(answerPanel.enabled, "answer hidden at the next sub-step").toBe(false)
+    expect(chipsPanel.enabled, "chips back in the slot").toBe(true)
+    ask.answerSec = answerSec
+    ask.chipsIdleSec = chipsIdleSec
+    await interactor.tap("BtnAsk")
+    await sleep(300)
+    expect(ask.open, "Ask off at the end").toBe(false)
 
     ask.forceCanned = false
     manager.reset()
