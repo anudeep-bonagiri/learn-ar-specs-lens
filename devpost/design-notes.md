@@ -1476,3 +1476,101 @@ Left over:
 - **Step 6 with Ask open:** the chips cover the middle of the hanging tube, which is not worked on that step.
 - **Lens Studio reported the user as not signed in** (`isAuthorized` false). Nothing in this pass needed it.
 - **Untested on Specs:** everything in this pass.
+
+## 2026-11-05: Pass H, a garage preview room
+
+On `main`. The demo video is recorded in the Interactive Preview, whose simulated room is the "real world" the Lens sits in. Bench Coach is a garage job, so the recording now happens in a home garage instead of Evening Room. The room is a preview stand-in only, in `preview-room/` (see its README); nothing in the Lens changed. Built through the Lens Studio MCP, one call at a time.
+
+### How the room is built
+
+- **The format, read from the built-in rooms:** their `scene.scn` is a tagged binary tree (a string table, then type, key and length records), decoded with a small script.
+  - Every room has `WorldTrackingMeshSimulator > meshes` holding all its meshes, props included. Sunlit and Evening Room put the sofa, tables and shelves there too.
+  - `NavigationNodes > Start` is at eye height with identity rotation, facing -Z: (0, 150, 0) in Plane, (70, 180, 304) in Sunlit and Evening Room. Its `Camera` child has deviceProperty All.
+  - The floor is at y 0. The preview puts the Lens camera at Start.
+  - Colorful Home adds a top-level `Lighting` (an envmap and a light with shadows), so lights and shadows are allowed.
+- **The project:**
+  - `setDefaultProject()`, then `saveTo` `~/dev/bench-coach-garage-room/GarageRoom.esproj`.
+  - Start at (0, 165, 0): the eye is 165 cm above the garage floor and the Lens needs no offset.
+  - Floor plane 600 x 560 cm, walls, ceiling.
+- **Back wall (behind the wheel):** a dark slate roll-up door with section joints, tracks and an opener. It is kept medium-dark because the preview adds the Lens's light over the room.
+- **Left wall:** a 172 x 62 cm workbench (top 90 cm) with a vise. Above it, a dark charcoal pegboard with hex keys, tire levers, a chain whip, a hammer, a hacksaw and the Tools Pack hand tools. Also a warm clamp lamp, a tall cabinet, a paint-can shelf, a broom and roll carts.
+- **Right wall:** a red tool chest in the back corner, shelving with bins, a road bike and a mountain bike hung vertically on hooks, a floor pump and two spare tires on a hook.
+- **Front wall:** an entry door and a fire extinguisher.
+- **Lights:** an envmap at 0.35, a warm directional light with shadow maps, two LED shop-light points, a warm clamp-lamp point, a right-wall fill and a dim cool ambient. Floor and walls receive shadows; props cast them.
+- **Clear floor:** x -130..130, z -260..60, around the stand, mat and floor path.
+- **Asset sources:**
+  - Lens Studio primitives for the shell and most fittings.
+  - `GenerateFast3DAssets` for the two bikes, the tool chest and the vise (about 30k triangles each). The first road bike came out as two bikes crossed and was regenerated. The floor pump was refused twice ("ALD verification failed") and is primitives.
+  - `GenerateTexture` for the door and the concrete base. Its drywall and pegboard textures came back blank.
+  - Python (PIL and numpy) for the worn floor, the pegboard and the butcher-block top.
+  - The Asset Library Tools Pack for the hand tools.
+- **Licences:** no licence text was found for the Tools Pack or the generated output. The package and its listing carry none, and Lens Studio's documentation search needs a signed-in account. The README says so.
+
+### How it is exported and selected
+
+1. The CLI refuses a project that is open in the GUI ("Project is currently in use by another instance"), so the saved project is copied without its lock, `Cache/` and `Workspaces/`.
+2. Export: `"/Applications/Lens Studio.app/Contents/MacOS/Lens Studio" export-lens --source <copy>/GarageRoom.esproj --output <tmp> --pack Folder --include-all-platforms`. It writes `<tmp>/GarageRoom/` in about 75 s.
+3. The folder moves to `preview-room/Garage/` (23 MB).
+4. The export has no `checksum.json`, so one is written in the built-in format: base64 MD5 per file, which matches 17 of Plane's 19 entries.
+5. In Bench Coach: `PreviewPanelTool setConfig` (Interactive, sourcePath the folder). After a project switch or a restart the preview came back on a built-in room twice, so select it again.
+
+### Floor and placement
+
+- **FloorLevel decides -165.0 cm via World Query** in every Garage reset:
+  - 40 to 49 hits in 37 to 41 cells when the reset happens looking down;
+  - 10 hits in 10 cells from the card pose;
+  - about 11.3 s after the reset.
+- The bench top (75 cm below the eye) is never picked. The only other decision in the sweep, -177, is the lower level that `floor-level` injects on purpose.
+- WheelStand rebuilds on -165 with the hub 140 cm above it. WorkspaceAnchor logs "start eye (0.0, 0.0, 0.0): nothing moved".
+- Stand, mat and floor path stand on the floor; nothing intersects the room.
+- **Recording pose:** the start eye (0, 0, 0), lookAt (0, -16, -90). The working pose for every state and two wide establishing poses are in `scratchpad/recording-pose-garage.md`, each checked with a capture.
+
+### Critique rounds (`scratchpad/shots/pass-h/`)
+
+- **Round 0** (`author-r0-*.png`, the garage project's own camera, wide field of view):
+  - The floor was near-white and would sit behind the wheel. **Fix:** toned down to a warm mid grey.
+  - The walls read charcoal, not mid grey. **Fix:** raised.
+  - The spare tires looked like donuts (the unit torus has a 22 cm hole). **Fix:** rebuilt as rings of 24 segments.
+- **Round 1** (`r1-00..09`, in Bench Coach: start card, steps 1, 3 and 5 (path and far side), step 6 found, halfway, finish, two wide shots):
+  - Cards, callouts, cyan rings and the floor-path chevrons all read against the dark door and the floor. Nothing in the room draws through the Lens content.
+  - The bench top read as orange tiles. **Fix:** a muted butcher-block texture.
+  - The right wall (bikes, shelves) was murky. **Fix:** a warm fill light near it, away from the door.
+  - **Added:** a fire extinguisher, a power strip and a broom, so the room reads as a garage.
+- **Round 2** (`r2-00..09`, `contact-sheet.png`, `compare-r1-r2-wide.png`): every frame passes. The wide shots read as a home garage at first glance: pegboard, bench, door, chest, shelving, bikes.
+
+### LEAF
+
+One scenario per call, `__leaf__log_level=ERROR`, the project saved first, Garage room, from the recording pose. Lens Studio closed during `step-ticks`; after the relaunch the sweep resumed at `step-ticks`.
+
+| Scenario | Garage room, recording pose |
+| --- | --- |
+| `start` | PASSED |
+| `deflate-loosen` | PASSED |
+| `lever-snap` | PASSED |
+| `peel-and-pull` | PASSED |
+| `inspect-done` | PASSED |
+| `step-ticks` | PASSED (the first call was cut off when Lens Studio closed; passed after the relaunch) |
+| `scene-dressing` | PASSED |
+| `refit-tube` | PASSED |
+| `seat-inflate` | PASSED |
+| `whats-this` | PASSED |
+| `mistakes` | PASSED |
+| `flat-causes` | PASSED |
+| `progress-idle` | PASSED |
+| `watch-mode` | PASSED |
+| `ask-coach-fallback` | PASSED |
+| `floor-path` | PASSED |
+| `coach-report` | PASSED |
+| `control-bar` | PASSED |
+| `floor-level` | PASSED |
+| `ui-layout` | PASSED |
+| `jump-to-step` | PASSED |
+
+Left over:
+
+- **Licences** for the Tools Pack and the generated assets are unconfirmed (see the README).
+- **The garage project still lists the unused Vehicle Pack** (installed while looking for a bike). It cannot be removed ("Cannot remove packed package items"). None of its content is in the export; only its name is in `metainfo.json`.
+- **The exported `metainfo.json` says `api_level` "public"**, where the built-in rooms say "private". The room loads either way.
+- **Ask open on step 4:** the chips hang under the callout inside the rim, so the D2 look-up pose cuts them off here. The garage pose doc uses (2, -16, -90).
+- **`devpost/video-script.md`** still says "All takes: Plane room" (line 30). It is his narration and was not edited in this pass; the recording room is now the Garage.
+- **Untested on Specs:** nothing changes there; the room is preview-only.
