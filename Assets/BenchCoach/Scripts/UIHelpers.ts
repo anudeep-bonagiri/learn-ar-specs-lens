@@ -143,6 +143,14 @@ export function grid(distanceCm: number): Grid {
   return {k, pad: 1.1 * k, gap: 0.5 * k, radius: 1.0 * k, edge: 0.09 * k}
 }
 
+/**
+ * Size in cm that spans `deg` degrees at a viewing distance. Snap's target rule (pass G,
+ * carried onto D2 in pass M): a hit box at least 2 degrees, neighbours at least 1 degree apart.
+ */
+export function targetCm(distanceCm: number, deg: number = 2): number {
+  return distanceCm * Math.tan((deg * Math.PI) / 180)
+}
+
 // ── SceneObject helpers ───────────────────────────────────────────────────────
 export function obj(parent: SceneObject, name: string, position?: vec3): SceneObject {
   const so = global.scene.createSceneObject(name)
@@ -780,7 +788,9 @@ export function buildCard(root: SceneObject, spec: CardSpec): Card {
   for (const r of spec.rowsAfter ?? []) row(r)
   const btnRowW = innerW
   flexChild(col, {w: btnRowW, h: btnH + g.gap, name: "Buttons"}, (holder) => {
-    const r = flexRow(holder, btnRowW, btnH, {gap: g.gap * 1.5, justify: FlexJustify.Center, align: FlexAlign.Center})
+    // At least 1 degree between the buttons (pass G: 1.6 cm at 86 cm).
+    const btnGap = Math.max(g.gap * 1.5, targetCm(d, 1))
+    const r = flexRow(holder, btnRowW, btnH, {gap: btnGap, justify: FlexJustify.Center, align: FlexAlign.Center})
     // The extra gap goes above the buttons, between the last line and the row.
     const rp = r.getTransform().getLocalPosition()
     r.getTransform().setLocalPosition(new vec3(rp.x, rp.y - g.gap / 2, rp.z))

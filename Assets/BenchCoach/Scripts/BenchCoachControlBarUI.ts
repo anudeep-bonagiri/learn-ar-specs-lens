@@ -64,9 +64,9 @@ export class BenchCoachControlBarUI extends BaseScriptComponent {
   nextWidth: number = 7
 
   @input
-  @hint("Gap between buttons in cm")
+  @hint("Gap between buttons in cm (0.85 is 1 degree at 48 cm: Snap's spacing rule, pass G / M)")
   @widget(new SliderWidget(0.2, 2, 0.05))
-  gap: number = 0.45
+  gap: number = 0.85
 
   @input
   @hint("Steps in the repair (the progress reads 'N / this')")

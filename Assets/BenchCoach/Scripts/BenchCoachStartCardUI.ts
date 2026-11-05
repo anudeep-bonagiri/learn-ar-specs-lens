@@ -94,8 +94,8 @@ export class BenchCoachStartCardUI extends BaseScriptComponent {
         {name: "FloorStatus", text: this.floorPendingText, role: "secondary"},
       ],
       buttons: [
-        {name: "BtnFoundIt", label: this.buttonLabel, icon: ICON_CHECK, kind: "primary", width: 11.5, onClick: () => this._onFoundIt.invoke()},
-        {name: "BtnWatch", label: this.watchLabel, icon: ICON_PLAY, kind: "neutral", width: 11.5, onClick: () => this._onWatch.invoke()},
+        {name: "BtnFoundIt", label: this.buttonLabel, icon: ICON_CHECK, kind: "primary", width: 11.2, onClick: () => this._onFoundIt.invoke()},
+        {name: "BtnWatch", label: this.watchLabel, icon: ICON_PLAY, kind: "neutral", width: 11.2, onClick: () => this._onWatch.invoke()},
       ],
     })
     this.floorLine = card.texts["FloorStatus"]

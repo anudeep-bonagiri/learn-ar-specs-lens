@@ -29,8 +29,10 @@
   PackagePolicy: CanBeUnpacked
   ScriptInputsHidden:
     answerPanel: false
+    answerSec: false
     audio: false
     chips: false
+    chipsIdleSec: false
     director: false
     forceCanned: false
     idle: false
@@ -63,6 +65,8 @@
       model: gemini-2.5-flash
       systemPrompt: "You are a calm bike mechanic. Answer in at most 2 short sentences, specific to this step: {step}."
       panelGapCm: 0.500000
+      answerSec: !<float> 8.000000
+      chipsIdleSec: !<float> 10.000000
   ScriptTypes:
     -
       {}
@@ -88,4 +92,6 @@
     - '// @input string model = "gemini-2.5-flash" {"hint":"Gemini model id through the Remote Service Gateway"}'
     - '// @input string systemPrompt = "You are a calm bike mechanic. Answer in at most 2 short sentences, specific to this step: {step}." {"hint":"System prompt; {step} becomes the step name and label"}'
     - '// @input float panelGapCm = 0.5 {"hint":"Gap between the step callout and the Ask panel hung under it, in cm", "widget":"slider", "min":0, "max":4, "step":0.1}'
+    - '// @input float answerSec = 8 {"hint":"Seconds a shown answer stays up before it hides on its own (0 = until the step changes); Nov 1 audit: show it only when needed", "widget":"slider", "min":0, "max":30, "step":0.5}'
+    - '// @input float chipsIdleSec = 10 {"hint":"Seconds the chips stay open after the last chip press or answer before Ask closes on its own (0 = never)", "widget":"slider", "min":0, "max":60, "step":0.5}'
     - '// @ui {"widget":"group_end"}'

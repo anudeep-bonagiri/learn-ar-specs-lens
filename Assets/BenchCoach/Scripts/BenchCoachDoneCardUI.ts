@@ -81,7 +81,7 @@ export class BenchCoachDoneCardUI extends BaseScriptComponent {
       ],
       rowsAfter: [{name: "NextSkill", text: this.nextSkillText, role: "secondary"}],
       buttons: [
-        {name: "BtnContinue", label: this.continueLabel, icon: ICON_FORWARD, kind: "primary", width: 13, onClick: () => this._onContinue.invoke()},
+        {name: "BtnContinue", label: this.continueLabel, icon: ICON_FORWARD, kind: "primary", width: 12.6, onClick: () => this._onContinue.invoke()},
         {name: "BtnTryAgain", label: this.restartLabel, icon: ICON_REPLAY, kind: "neutral", width: 10, onClick: () => this._onTryAgain.invoke()},
       ],
     })

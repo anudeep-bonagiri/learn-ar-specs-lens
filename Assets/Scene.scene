@@ -11,8 +11,8 @@
     - !<own> 38128195-5d72-4fa8-b0dc-b49b04211ea8
     - !<own> 89bf56a7-af7f-46a0-85a4-cb4230432c7e
     - !<own> 621c2c74-2f18-4dc4-89cb-15857b8b1650
-    - !<own> 4620f79f-d5db-403e-823a-d02846393029
     - !<own> d425f86e-edfd-4f66-b1e6-8a5e66034654
+    - !<own> 2c250991-a4b0-451e-95e5-1c19117ca113
   layers: !<Layers/267ee9a7-aff2-4f9d-9a49-f71214747d03>
     userLayers:
       - id: 1
@@ -1287,6 +1287,8 @@
     model: true
     systemPrompt: true
     panelGapCm: true
+    answerSec: true
+    chipsIdleSec: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
@@ -1304,6 +1306,8 @@
       model: gemini-2.5-flash
       systemPrompt: "You are a calm bike mechanic. Answer in at most 2 short sentences, specific to this step: {step}."
       panelGapCm: 0.500000
+      answerSec: !<float> 8.000000
+      chipsIdleSec: !<float> 10.000000
   ScriptTypes:
     "":
       {}
@@ -1392,6 +1396,21 @@
     []
   Components:
     - !<own> 28a6b096-63cb-48ed-a7b8-b9dcd06cbc74
+- !<SceneObject/2c250991-a4b0-451e-95e5-1c19117ca113>
+  PrefabRemaps:
+    []
+  Name: LEAF Plugin Bridge
+  Enabled: true
+  Layers: 1
+  LocalTransform: !<TransformEntity>
+    Position: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
+    HasSegmentScaleCompensation: false
+  Children:
+    []
+  Components:
+    - !<own> 9751a6e6-e8ef-4fe8-a55e-36a07927f4cb
 - !<SceneObject/2d5c1cee-f247-4136-b4ae-70ad7a843fae>
   PrefabRemaps:
     []
@@ -1583,8 +1602,8 @@
   ScriptInputs:
     "":
       panelWidth: !<float> 21.000000
-      chipHeight: 2.700000
-      gap: 0.350000
+      chipHeight: 3.600000
+      gap: 1.600000
       headerText: Ask the coach
       emptyText: Ask on a repair step.
       viewDistanceCm: !<float> 90.000000
@@ -2101,21 +2120,6 @@
   ScriptTypes:
     "":
       {}
-- !<SceneObject/4620f79f-d5db-403e-823a-d02846393029>
-  PrefabRemaps:
-    []
-  Name: LEAF Plugin Bridge
-  Enabled: true
-  Layers: 1
-  LocalTransform: !<TransformEntity>
-    Position: {x: 0.000000, y: 0.000000, z: 0.000000}
-    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
-    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
-    HasSegmentScaleCompensation: false
-  Children:
-    []
-  Components:
-    - !<own> cf29ee50-8317-437a-aea8-572794e6e8fc
 - !<SceneObject/46b79537-a269-46f1-9483-500d7a4170d6>
   PrefabRemaps:
     []
@@ -3912,7 +3916,7 @@
       viewDistanceCm: !<float> 48.000000
       buttonSize: 3.600000
       nextWidth: 6.600000
-      gap: 0.450000
+      gap: 0.850000
       totalSteps: !<float> 10.000000
       nextLabel: Next
   ScriptTypes:
@@ -4337,6 +4341,22 @@
     []
   Components:
     - !<own> 4ed6c333-1350-47ef-83ed-185e37f67f44
+- !<ScriptComponent/9751a6e6-e8ef-4fe8-a55e-36a07927f4cb>
+  PrefabRemaps:
+    []
+  Name: MessagingBridge
+  Enabled: true
+  ScriptAsset: !<reference> 9aa407db-2872-4afc-a162-cf7faf2a0f29
+  ScriptInputsDefault:
+    {}
+  ScriptTypesDefault:
+    {}
+  ScriptInputs:
+    "":
+      {}
+  ScriptTypes:
+    "":
+      {}
 - !<SceneObject/988001d4-30af-4ad7-abab-0ee69baf3c40>
   PrefabRemaps:
     []
@@ -5513,22 +5533,6 @@
       snapRadiusCm: !<float> 4.000000
       returnDurationSec: 0.400000
       snapDurationSec: 0.150000
-  ScriptTypes:
-    "":
-      {}
-- !<ScriptComponent/cf29ee50-8317-437a-aea8-572794e6e8fc>
-  PrefabRemaps:
-    []
-  Name: MessagingBridge
-  Enabled: true
-  ScriptAsset: !<reference> 9aa407db-2872-4afc-a162-cf7faf2a0f29
-  ScriptInputsDefault:
-    {}
-  ScriptTypesDefault:
-    {}
-  ScriptInputs:
-    "":
-      {}
   ScriptTypes:
     "":
       {}

@@ -9,7 +9,7 @@
 import Event, {PublicApi} from "SpectaclesInteractionKit.lspkg/Utils/Event"
 import {Billboard} from "SpectaclesInteractionKit.lspkg/Components/Interaction/Billboard/Billboard"
 import {FlexAlign, FlexJustify} from "SpectaclesUIKit.lspkg/Scripts/Components/Layout2D/Flex/FlexTypes"
-import {addIconButton, addTextButton, addUIText, flexChild, flexColumn, flexRow, grid, lineCm, makePlate} from "./UIHelpers"
+import {addIconButton, addTextButton, addUIText, flexChild, flexColumn, flexRow, grid, lineCm, makePlate, targetCm} from "./UIHelpers"
 
 const ICON_CLOSE: Texture = requireAsset("../../Icons/close.png") as Texture
 
@@ -29,12 +29,12 @@ export class BenchCoachAskChipsUI extends BaseScriptComponent {
   @input
   @hint("Chip height in cm")
   @widget(new SliderWidget(2, 6, 0.1))
-  chipHeight: number = 2.7
+  chipHeight: number = 3.6
 
   @input
   @hint("Gap between chips in cm")
   @widget(new SliderWidget(0.2, 2, 0.1))
-  gap: number = 0.35
+  gap: number = 1.6
 
   @input
   @hint("Header text")
@@ -80,16 +80,19 @@ export class BenchCoachAskChipsUI extends BaseScriptComponent {
     this.sceneObject.createComponent(Billboard.getTypeName())
     const d = this.viewDistanceCm
     const g = grid(d)
-    const headerH = Math.max(lineCm("secondary", d), 2.2)
+    // The header row holds BtnAskClose, so it is at least a 2-degree target (pass M).
+    const headerH = Math.max(lineCm("secondary", d), targetCm(d))
+    // Chips 3.6 cm with 1.6 cm between them (pass G: 2.3 and 1.0 degrees at 90 cm); the
+    // header keeps the grid gap.
     const chipsH = ASK_CHIP_COUNT * this.chipHeight + (ASK_CHIP_COUNT - 1) * this.gap
-    const h = 2 * g.pad * 0.8 + headerH + this.gap + chipsH
+    const h = 2 * g.pad * 0.8 + headerH + g.gap + chipsH
     this.height = h
     const plate = makePlate(this.sceneObject, this.panelWidth, h, d)
     const innerW = this.panelWidth - 2 * g.pad * 0.8
     const col = flexColumn(plate.content, this.panelWidth, h, {
       padX: g.pad * 0.8,
       padY: g.pad * 0.8,
-      gap: this.gap,
+      gap: g.gap,
       justify: FlexJustify.Start,
       align: FlexAlign.Center,
     })

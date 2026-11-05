@@ -60,7 +60,7 @@
     - '// @input float viewDistanceCm = 48 {"hint":"Viewing distance in cm; scales the type and the spacing grid", "widget":"slider", "min":30, "max":120, "step":1}'
     - '// @input float buttonSize = 4 {"hint":"Icon button size in cm (Back, Replay, More)", "widget":"slider", "min":2.5, "max":8, "step":0.1}'
     - '// @input float nextWidth = 7 {"hint":"Width of the Next button in cm (the primary action, with its label)", "widget":"slider", "min":4, "max":12, "step":0.1}'
-    - '// @input float gap = 0.45 {"hint":"Gap between buttons in cm", "widget":"slider", "min":0.2, "max":2, "step":0.05}'
+    - "// @input float gap = 0.85 {\"hint\":\"Gap between buttons in cm (0.85 is 1 degree at 48 cm: Snap's spacing rule, pass G / M)\", \"widget\":\"slider\", \"min\":0.2, \"max\":2, \"step\":0.05}"
     - "// @input float totalSteps = 10 {\"hint\":\"Steps in the repair (the progress reads 'N / this')\"}"
     - '// @input string nextLabel = "Next" {"hint":"Label on the Next button"}'
     - '// @ui {"widget":"group_end"}'
