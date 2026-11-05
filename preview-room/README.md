@@ -5,7 +5,7 @@
 ## Use it
 
 1. Open the Preview panel's input settings, choose **Interactive**, and point the scene at this folder:
-   `/Users/anudeepbonagiri/dev/learn-ar-specs-lens/preview-room/Garage`
+   `<this repo>/preview-room/Garage` (the full path on your machine)
    (through the MCP: `PreviewPanelTool setConfig`, inputType `Interactive`, sourcePath as above).
 2. Reset the Lens with the preview camera at the start eye (0, 0, 0), looking down at the work spot for about 12 s. FloorLevel decides the floor at -165 cm (World Query).
 
