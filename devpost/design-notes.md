@@ -1574,3 +1574,136 @@ Left over:
 - **Ask open on step 4:** the chips hang under the callout inside the rim, so the D2 look-up pose cuts them off here. The garage pose doc uses (2, -16, -90).
 - **`devpost/video-script.md`** still says "All takes: Plane room" (line 30). It is his narration and was not edited in this pass; the recording room is now the Garage.
 - **Untested on Specs:** nothing changes there; the room is preview-only.
+
+## 2026-11-05: Pass V, the voice coach and video polish
+
+On `main`. The coach now speaks, and the Lens was judged as a video frame in the Garage room from the recording pose. Built through the CLAD skills (`specs-audio`, `icon-selector`, preview inspection, LEAF) and the Lens Studio MCP, one call at a time.
+
+### The voice coach
+
+- **Clips:** 30 mp3 files, one per id in `voice-lines.json`, in `Assets/BenchCoach/Voice/<id>.mp3` (Git LFS, 30 files). 1.4 to 3.2 s each.
+- **Attribution:** voice lines generated with ElevenLabs (elevenlabs.io), voice "River", on the free tier, which requires this credit. The repo has no credits list, so the line lives here.
+- **Spoken texts:** unchanged. `tools/export-voice-lines.py` writes the same `voice-lines.json`.
+- **Where:** `VoiceCoach` on BenchCoach plays every line from one AudioComponent on `Audio/Voice`. It is not spatial (the coach in your ear) and plays at volume 1.0; the cues play at 0.25 to 0.5 from where they happen.
+- **Tracks:** one array input. The script matches tracks to `voiceLines()` ids by asset name and logs an error naming any id without a track. At start it logs "30 voice tracks, one per line".
+
+| When | Line | Why |
+| --- | --- | --- |
+| A step 1 to 10 becomes active | `step-NN`, 0.4 s after the step change | After the step's own cue (done, finish, chime), so they never collide |
+| Step 1 | `step-01`, held until the scan reveal's heads meet | Nothing speaks during the 1.4 s sweep |
+| Halfway card (step 7) | `halfway` instead of `step-07` | The card is the step |
+| Finish card (step 11) | `finish` | |
+| A mistake | `mistake-<code>`, 0.25 s after the nope cue | It cuts off whatever plays: the reason matters now |
+| The idle hint shows | `idle-step-NN`, 0.4 s after the hint's chime | |
+| The start card turns to "Floor found" | `floor-found`, once | The first sign that the Lens sees the room |
+| Replay | the step's line again | Replay re-shows the step; now it also re-says it |
+
+- **Rules:**
+  - one line at a time; a new line stops the old one;
+  - a line never starts again within 6 s of its last start. This includes Replay: a second Replay inside 6 s is silent and logged as a skip;
+  - while a line plays, hiss, pump and zipper play at half volume (`BenchCoachAudio.setDuck`);
+  - Back to the start card or a reset drops a queued line.
+- **Watch mode:** each beat now also waits until its line has been said, at most 4 s more (`RepairDirector.voiceHoldMaxSec`). Before, step 1's line would have been cut off by the valve pinch at 3.5 s. In the `watch-mode` run every line played to its end (no `[Voice] stop` line).
+- **Voice toggle:** "Voice" on its own row in the dock's More popover, on by default. It latches in the accent and shows `volume_up`; off shows `volume_off` (icon tool, Rounded 600), so the state is never colour alone. Off stops the current line at once.
+- **More popover:** a choice in it (What's this?, Ask, Voice) now closes it. With the Voice row the open popover reached into the recording frame from the dock while Ask was open.
+
+### Log lines for rebuilding the soundtrack
+
+- Formats:
+  - `[Voice] <id> ms=<Date.now()> dur=<seconds>` when a line starts;
+  - `[Voice] stop <id> ms=...` when a line is cut off;
+  - `[Audio] <cue> ms=<Date.now()> vol=<volume>` for every cue `BenchCoachAudio` plays (the logged volume includes the duck);
+  - `[Audio] pump stop ms=...` when the pump loop ends;
+  - `[Sync] ms=<Date.now()> lensTime=<getTime()>` once at start.
+- Examples from the `voice-coach` run:
+  - `[Voice] step-03 ms=1793915524867 dur=2.64`
+  - `[Audio] nope ms=1793915525009 vol=0.40`
+  - `[Voice] stop step-03 ms=1793915525027`
+- **Clock check:** `Date.now()` works in the Lens runtime and is the Mac's wall clock. `[Sync] ms=1793915424452` was printed on the log line stamped 15:50:24.452, the same millisecond. Later, `[Voice] floor-found ms=1793918541725` was followed by `date +%s` = 1793918541 and Python's `time.time()` = 1793918541770, 45 ms later, the time it took to run the command. Offset: 0 within the log's 1 ms resolution.
+- **Audio map:** `scratchpad/rec/audio-map.json` lists every cue and voice id with the absolute path of its source file, the volume it plays at, whether it is spatial, loops or ducks, and the voice text.
+
+### Visual polish
+
+Captures in `scratchpad/shots/pass-v/` (`before/`, `r1/`, `r2/`, `contact-sheet.png`, `before-after.png`).
+
+| Item | Before | After |
+| --- | --- | --- |
+| Type scale (`UIHelpers` tokens) | Body and instruction lines had an x-height of 0.52 to 0.66% of the frame height from the recording pose, titles 1.27% | Role sizes at 110 cm: title 165, instruction 118, body 118, secondary 66, button 64 (D2: 93, 48, 39, 38, 41). Measured: card body 1.56 to 1.68%, step instruction 1.62%, titles 2.3%. Plates grow with the text through `plateCm()` (1.6 times the D2 width, capped at 25 degrees). `ui-layout` asserts the minimum (0.55 and 0.81 degrees of x-height) from the live eye |
+| "5 o'clock" on step 4 | Wrapped as "5 / o'clock" (`before/pose-step04.png`) | `keepTogether()` puts a no-break space after the number at display time; the step texts and voice lines are unchanged (`r2/04-step04.png`) |
+| The tire | A flat grey band | Two light lines from `RimMat` (one on the outer shoulder, one where the tire meets the rim), part of each bead's mesh in `TorusArc`, so they lift, peel and deflate with it; the darker tread band with its blocks is unchanged |
+| Step 5 far side | A light grey mat slab with a 7 cm blue band filled the bottom of the frame; the yaw-only callout was seen edge-on (text about 1.0% of the frame) | The mat is a dim fill with a thin light outline. A stand-here marker at the far spot: cyan outline, dim fill, two shoe prints toward the wheel; the chevron chain ends at its edge (6 arrows). On the far side the callout also turns in pitch (text 1.6%) (`r2/05a`, `r2/05b`) |
+| Finish card | Time and counts in body text in a list | Time, Lever misses, Mistakes and Hints as big numbers (new display role) with captions; Cause and Slowest stay a list; 6 cm lower so it is centred in the frame (`r2/11-finish.png`) |
+| Watch mode | The "Watching the coach" pill lived on the dock, out of frame | A small "Watching" pill with an icon Stop floats above the tire, left of the valve, clear of the lever handles; Stop goes through `UIBindings.press` (`r2/14-watch-mode.png`) |
+
+### Frame review rounds (Garage, recording pose, each capture scaled to 1080 px tall)
+
+States: start card, step 1 during the sweep and with the labels, steps 3 and 4, step 5 path and far side, step 6 found, halfway, step 10, Finish, a mistake (`leverTooFar`), Ask open with an offline answer, watch mode. For the reveal shots `sweepSec` and `holdSec` were raised to 12 and 15, then put back to 1.4 and 2.5 before the save.
+
+- **Round 1** (`r1/`):
+  - Step 5 path: the chevrons ran into the new marker's corner, then bunched once they stopped at its edge. **Fix:** the chain ends at the edge, one arrow length apart.
+  - Step 5 far side: the marker is under the user's feet and out of that frame; the slab in frame was the mat. **Fix:** the mat restyle, and the pitch-following callout.
+  - Footprints read as two "person" icons (round heel and ball). **Fix:** shoe-print outlines.
+  - Halfway card: the hanging old tube (z -79 to -81) drew over its buttons (already true in pass H, worse with the larger card). **Fix:** the card moved 8 cm toward the user, with its view distance set to match.
+  - Finish card: top edge 4% from the frame top; the Slowest value sat a line below its label; an empty line above the tip. **Fix:** card 6 cm lower; wrapped card rows start at the top; the line estimate is 0.43 em per glyph (measured 0.38 to 0.40).
+  - Ask open: the More popover showed in the bottom-left corner. **Fix:** a choice closes the popover.
+  - Watch badge: covered lever A's handle. **Fix:** smaller (button role, icon Stop) and moved left of the valve.
+  - What's this? Tire: the info card overlapped the wider step callout (found by `ui-layout`). **Fix:** each spot is also tried further from the part.
+  - A corner of the dock showed at the frame's bottom-left (also in pass H's start-card shot). **Fix:** dock 3 cm lower (pitch -33 degrees).
+- **Round 2** (`r2/`, `contact-sheet.png`): every frame passes. Every line reads at 1080 px, nothing clips at the frame edge, nothing overlaps, and no text sits on a bright part of the garage.
+
+### LEAF
+
+- **New `voice-coach`:** step 1's line waits for the sweep (1.70 s after Found it); `step-03` starts 0.41 s after the step change; the cues duck and no cue counter moves for speech; a mistake cuts the line off and speaks its reason; the idle hint speaks; Replay after 6 s speaks, a second inside 6 s is skipped; BtnVoice off stops the line at once and the next step stays silent; the halfway card says `halfway` and not `step-07`; the Finish card says `finish`; no line starts twice within 6 s in the whole run.
+- **Changed:**
+  - `control-bar`: seven hit boxes (BtnVoice on its own row); Voice on by default, off and on again with the icon swap;
+  - `ui-layout`: the x-height minimum; step 5's callout stack is read from the far side, so it is checked on the far-side capture instead;
+  - `floor-path`: the chain ends at the marker, behind the wheel;
+  - the test interactor opens More for BtnVoice.
+- **Sweeps:** one scenario per call, `__leaf__log_level=ERROR`, the project saved first.
+
+| Scenario | Garage room, recording pose | Sunlit Room, default pose |
+| --- | --- | --- |
+| `start` | PASSED | PASSED |
+| `deflate-loosen` | PASSED | PASSED |
+| `lever-snap` | PASSED | PASSED |
+| `peel-and-pull` | PASSED | PASSED |
+| `inspect-done` | PASSED | PASSED |
+| `step-ticks` | PASSED | PASSED |
+| `scene-dressing` | PASSED | PASSED |
+| `refit-tube` | PASSED | PASSED |
+| `seat-inflate` | PASSED | PASSED |
+| `whats-this` | PASSED | PASSED |
+| `mistakes` | PASSED | PASSED |
+| `flat-causes` | PASSED | PASSED |
+| `progress-idle` | PASSED | PASSED |
+| `watch-mode` | PASSED | PASSED |
+| `ask-coach-fallback` | PASSED | PASSED |
+| `floor-path` | PASSED | PASSED |
+| `coach-report` | PASSED | PASSED |
+| `control-bar` | PASSED | PASSED |
+| `floor-level` | PASSED | PASSED |
+| `ui-layout` | PASSED | PASSED |
+| `voice-coach` (new) | PASSED | PASSED |
+| `jump-to-step` | PASSED | PASSED |
+
+- Every scenario passed on its first run in both sweeps; no FAILED line in either log slice.
+- **Floor during the sweeps:**
+  - Garage: -165.0 cm via World Query in 16 decisions, plus the -177 that `floor-level` injects.
+  - Sunlit Room: -138.2 to -138.4 via World Query in 17 (the sofa seat, D2's left-over), -150.4 via the world mesh once.
+
+Findings:
+
+- **`asset-graphql duplicateAsset` renamed the asset instead of copying it** (SidewallMat became TireLineMat, same id). It was renamed back at once; git shows the file unchanged. The sidewall lines use the existing RimMat instead of a new material.
+- **The preview frame is portrait, about 37 x 30 degrees.** At 1.5% x-height a 7-word line does not fit in a plate that stays inside the frame. Callouts now carry 4 to 6 words per line on two lines; cards wrap their body line.
+- **A yaw-only billboard loses about 40% of its text height** when the eye looks 50 degrees down at it. Only the far-side callout follows pitch.
+- **One `jump-to-step` call (step 7) timed out on the MCP side** while the Lens reached the step; the capture after it was fine.
+
+Left over:
+
+- **I checked the audio through the log, not by ear:** every play, stop, duck and duration is logged, but nobody has listened to the mix in this pass.
+- **Clips that never play:** `step-07` (the halfway card says `halfway`) and `idle-step-07` (the halfway card has no idle hint). They are kept so every id has a track.
+- **Replay inside 6 s of a line is silent**, by the repeat rule as written.
+- **On step 5 the Ask chips and answer** under the far-side callout are still yaw-only.
+- **Dimming the mat** also makes the wheel's shadow on it hard to see. On the additive display it was faint anyway.
+- **`devpost/video-script.md`** still describes the old UI and room (see pass H). Not edited.
+- **Untested on Specs:** everything in this pass, including `Date.now()` on the device and the speech volume against the cues.
