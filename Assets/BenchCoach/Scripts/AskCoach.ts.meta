@@ -35,7 +35,6 @@
     forceCanned: false
     idle: false
     manager: false
-    maxElevationDeg: false
     model: false
     panelGapCm: false
     stepLabel: false
@@ -64,7 +63,6 @@
       model: gemini-2.5-flash
       systemPrompt: "You are a calm bike mechanic. Answer in at most 2 short sentences, specific to this step: {step}."
       panelGapCm: 0.500000
-      maxElevationDeg: !<float> 18.000000
   ScriptTypes:
     -
       {}
@@ -89,6 +87,5 @@
     - '// @input float timeoutSec = 6 {"hint":"Seconds to wait for a live answer before using the canned one", "widget":"slider", "min":1, "max":15, "step":0.5}'
     - '// @input string model = "gemini-2.5-flash" {"hint":"Gemini model id through the Remote Service Gateway"}'
     - '// @input string systemPrompt = "You are a calm bike mechanic. Answer in at most 2 short sentences, specific to this step: {step}." {"hint":"System prompt; {step} becomes the step name and label"}'
-    - '// @input float panelGapCm = 0.5 {"hint":"Gap between the step label and the Ask panels, in cm", "widget":"slider", "min":0, "max":4, "step":0.1}'
-    - "// @input float maxElevationDeg = 18 {\"hint\":\"Highest a panel's top edge may sit above the eye, in degrees; above that the answer goes under the label and the chips top-align with it\", \"widget\":\"slider\", \"min\":5, \"max\":40, \"step\":1}"
+    - '// @input float panelGapCm = 0.5 {"hint":"Gap between the step callout and the Ask panel hung under it, in cm", "widget":"slider", "min":0, "max":4, "step":0.1}'
     - '// @ui {"widget":"group_end"}'

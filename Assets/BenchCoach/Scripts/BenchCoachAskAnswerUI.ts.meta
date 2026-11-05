@@ -28,10 +28,8 @@
   ExportUid: 00000000-0000-0000-0000-000000000000
   PackagePolicy: CanBeUnpacked
   ScriptInputsHidden:
-    fitChars: false
-    panelHeight: false
+    answerLines: false
     panelWidth: false
-    tagColor: false
     thinkingText: false
     viewDistanceCm: false
   ScriptTypesHidden:
@@ -44,10 +42,8 @@
     []
   DefaultScriptInputs:
     - panelWidth: !<float> 22.000000
-      panelHeight: 7.500000
+      answerLines: !<float> 4.000000
       thinkingText: Thinking…
-      fitChars: !<float> 130.000000
-      tagColor: !<Vec4> {x: 0.550000, y: 0.850000, z: 1.000000, w: 1.000000}
       viewDistanceCm: !<float> 90.000000
   ScriptTypes:
     -
@@ -57,10 +53,8 @@
     - '// @ui {"widget":"separator"}'
     - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">Settings</span>"}'
     - '// @ui {"widget":"group_start", "label":"Settings"}'
-    - '// @input float panelWidth = 17 {"hint":"Panel width in cm", "widget":"slider", "min":12, "max":34, "step":0.5}'
-    - '// @input float panelHeight = 7 {"hint":"Panel height in cm", "widget":"slider", "min":4, "max":14, "step":0.5}'
+    - "// @input float panelWidth = 21 {\"hint\":\"Panel width in cm (the step callout's width)\", \"widget\":\"slider\", \"min\":12, \"max\":34, \"step\":0.5}"
+    - '// @input float answerLines = 4 {"hint":"Lines of answer text the panel holds at full size (longer answers shrink)", "widget":"slider", "min":2, "max":8, "step":1}'
     - '// @input string thinkingText = "Thinking…" {"hint":"Text while the answer is on its way"}'
-    - '// @input float fitChars = 130 {"hint":"Characters that fit at full type size; longer answers shrink", "widget":"slider", "min":60, "max":300, "step":5}'
-    - '// @input vec4 tagColor = "{0.55, 0.85, 1, 1}" {"hint":"Source tag color (light blue; never dark on the additive display)", "widget":"color"}'
-    - '// @input float viewDistanceCm = 110 {"hint":"Viewing distance in cm; scales the type size", "widget":"slider", "min":40, "max":160, "step":1}'
+    - '// @input float viewDistanceCm = 90 {"hint":"Viewing distance in cm; scales the type and the spacing grid", "widget":"slider", "min":40, "max":160, "step":1}'
     - '// @ui {"widget":"group_end"}'

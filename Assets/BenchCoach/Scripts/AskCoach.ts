@@ -8,13 +8,15 @@
  * Closes on a step change (answer hidden, chips refreshed if still open), on reset,
  * when watch mode plays, and when What's this? turns on (UIBindings keeps the two
  * exclusive). IdleHint is suspended while it is open (IdleHint.askSuspended).
+ * Pass D2: the chips and the answer take turns in one slot hung under the step
+ * callout (BenchCoachStepLabelUI.setStack), so they never lie over the wheel; the
+ * answer's close button brings the chips back, the chips' close button closes Ask.
  * Owns: open, busy, lastAnswer, lastSource, the request in flight, panel placement.
  * Emits onOpenChanged(on), onAnswer({step, index, text, source}).
  * Must not: change steps or author UI (the two panels are passive views).
  * Tokens: read from RemoteServiceGatewayCredentials at call time; never logged.
  */
 import Event, {PublicApi} from "SpectaclesInteractionKit.lspkg/Utils/Event"
-import WorldCameraFinderProvider from "SpectaclesInteractionKit.lspkg/Providers/CameraProvider/WorldCameraFinderProvider"
 import {Gemini} from "RemoteServiceGateway.lspkg/HostedExternal/Gemini"
 import {AvaliableApiTypes, RemoteServiceGatewayCredentials} from "RemoteServiceGateway.lspkg/RemoteServiceGatewayCredentials"
 import {STEPS, coachQuestions} from "./StepDefinitions"
@@ -96,14 +98,10 @@ export class AskCoach extends BaseScriptComponent {
   systemPrompt: string = "You are a calm bike mechanic. Answer in at most 2 short sentences, specific to this step: {step}."
 
   @input
-  @hint("Gap between the step label and the Ask panels, in cm")
+  @hint("Gap between the step callout and the Ask panel hung under it, in cm")
   @widget(new SliderWidget(0, 4, 0.1))
   panelGapCm: number = 0.5
 
-  @input
-  @hint("Highest a panel's top edge may sit above the eye, in degrees; above that the answer goes under the label and the chips top-align with it")
-  @widget(new SliderWidget(5, 40, 1))
-  maxElevationDeg: number = 18
   @ui.group_end
 
   /** Ask is open (chips shown). */
@@ -128,6 +126,7 @@ export class AskCoach extends BaseScriptComponent {
   private request = 0
   private hiddenOnce = false
   private answerShown = false
+  private ownsSlot = false
 
   onAwake(): void {
     this.createEvent("OnStartEvent").bind(() => {
@@ -139,6 +138,16 @@ export class AskCoach extends BaseScriptComponent {
         if (this.audio) this.audio.playTickAt(this.chips.sceneObject.getTransform().getWorldPosition())
         if (this.idle) this.idle.touch()
         this.ask(this.manager.getState().step, i)
+      })
+      this.chips.onClose.add(() => {
+        print("[AskCoach] chips closed")
+        this.setOpen(false)
+      })
+      this.answerPanel.onClose.add(() => {
+        print("[AskCoach] answer closed")
+        this.cancel()
+        this.hideAnswer()
+        this.place()
       })
       this.manager.onStepChanged.add(() => this.stepChanged())
       this.manager.onReset.add(() => this.setOpen(false))
@@ -156,9 +165,9 @@ export class AskCoach extends BaseScriptComponent {
       this.cancel()
       this.hideAnswer()
     }
-    this.chips.sceneObject.enabled = on
+    this.chips.sceneObject.enabled = on && !this.answerShown
     if (this.idle) this.idle.askSuspended = on
-    if (on) this.place()
+    this.place()
     print(`[AskCoach] Ask ${on ? "on" : "off"}`)
     this._onOpenChanged.invoke(on)
   }
@@ -230,7 +239,7 @@ export class AskCoach extends BaseScriptComponent {
     this.lastAnswer = text
     this.lastSource = source
     this.lastFallbackReason = reason
-    this.showAnswer(text, source === "live" ? "coach" : "offline")
+    this.showAnswer(text, source === "live" ? "Coach" : "Offline answer")
     const lat = source === "live" ? ` ${this.lastLatencyMs} ms` : ` (${reason})`
     print(`[AskCoach] step ${step} q${index} ${source}${lat}: ${text.substring(0, 80)}`)
     this._onAnswer.invoke({step, index, text, source})
@@ -245,6 +254,7 @@ export class AskCoach extends BaseScriptComponent {
     this.answerPanel.showAnswer(text, tag)
     this.answerShown = true
     this.answerPanel.sceneObject.enabled = true
+    this.chips.sceneObject.enabled = false
     this.place()
   }
 
@@ -252,6 +262,7 @@ export class AskCoach extends BaseScriptComponent {
     this.answerShown = false
     this.lastAnswer = ""
     this.answerPanel.sceneObject.enabled = false
+    if (this.open) this.chips.sceneObject.enabled = true
   }
 
   private stepChanged(): void {
@@ -266,7 +277,7 @@ export class AskCoach extends BaseScriptComponent {
     if (!this.hiddenOnce) {
       // First frame: every UIKit part has initialized while enabled; now start hidden.
       this.hiddenOnce = true
-      this.chips.sceneObject.enabled = this.open
+      this.chips.sceneObject.enabled = this.open && !this.answerShown
       this.answerPanel.sceneObject.enabled = this.answerShown
     }
     if (!this.open) return
@@ -278,35 +289,25 @@ export class AskCoach extends BaseScriptComponent {
   }
 
   /**
-   * Answer above the step label (next to the part); chips on the user's left of the
-   * label (the label is billboarded, so its right vector is the user's right; the tool
-   * tray is on the right), bottom edges level so the chips stay above the tire. When a
-   * label sits high (the inspect step's label is above the wheel and closer), panels
-   * would rise past maxElevationDeg out of view: then the answer goes under the label
-   * and the chips top-align with it.
+   * The chips, or the answer in their place, hang under the step callout (its slot);
+   * the callout keeps the slot clear of the wheel (top or bottom zone).
    */
   private place(): void {
     if (!this.stepLabel) return
-    const lt = this.stepLabel.sceneObject.getTransform()
-    const l = lt.getWorldPosition()
-    const labelH = this.stepLabel.panelHeight
-    const answerH = this.answerPanel.panelHeight
-    const chipsH = this.chips.height
-    const up = labelH / 2 + this.panelGapCm + answerH / 2
-    const high = this.tooHigh(l.add(new vec3(0, up + answerH / 2, 0)))
-    if (this.answerShown) {
-      this.answerPanel.sceneObject.getTransform().setWorldPosition(l.add(new vec3(0, high ? -up : up, 0.5)))
+    if (!this.open) {
+      // Give the slot back once (What's this? may own it next).
+      if (this.ownsSlot) this.stepLabel.setStack(0)
+      this.ownsSlot = false
+      return
     }
-    const side = this.stepLabel.panelWidth / 2 + this.panelGapCm + this.chips.panelWidth / 2
-    const dy = high ? (labelH - chipsH) / 2 : (chipsH - labelH) / 2
-    this.chips.sceneObject.getTransform().setWorldPosition(l.add(lt.right.uniformScale(-side)).add(new vec3(0, dy, 0.5)))
-  }
-
-  /** The point is more than maxElevationDeg above the eye (horizontal distance from the camera). */
-  private tooHigh(p: vec3): boolean {
-    const cam = WorldCameraFinderProvider.getInstance()
-    const c = cam ? cam.getWorldPosition() : vec3.zero()
-    const flat = Math.sqrt((p.x - c.x) * (p.x - c.x) + (p.z - c.z) * (p.z - c.z))
-    return (Math.atan2(p.y - c.y, Math.max(1, flat)) * 180) / Math.PI > this.maxElevationDeg
+    this.ownsSlot = true
+    const h = this.answerShown ? this.answerPanel.panelHeight : this.chips.height
+    this.stepLabel.setStack(h + this.panelGapCm)
+    // Same scale as the callout, so the two read as one.
+    const k = this.stepLabel.scale
+    const at = this.stepLabel.stackTop(this.panelGapCm).add(new vec3(0, (-h / 2) * k, 0))
+    const panel = this.answerShown ? this.answerPanel.sceneObject : this.chips.sceneObject
+    panel.getTransform().setWorldPosition(at)
+    panel.getTransform().setLocalScale(new vec3(k, k, k))
   }
 }
