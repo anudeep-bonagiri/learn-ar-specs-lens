@@ -7,6 +7,7 @@ import {RepairManager} from "../Scripts/RepairManager"
 import {ThornHotspot} from "../Scripts/ThornHotspot"
 import {GhostAnimator} from "../Scripts/GhostAnimator"
 import {BenchCoachAudio} from "../Scripts/BenchCoachAudio"
+import {ScanReveal} from "../Scripts/ScanReveal"
 import {Interactable} from "SpectaclesInteractionKit.lspkg/Components/Interaction/Interactable/Interactable"
 import {LAST_STEP} from "../Scripts/StepDefinitions"
 
@@ -76,6 +77,7 @@ export class InspectFinishScenario extends Scenario {
     expect(thorn, "ThornHotspot script").toBeTruthy()
     const ghost = findSceneObjectByName("GhostLever").getComponent(GhostAnimator.getTypeName()) as GhostAnimator
     const audio = findSceneObjectByName("Audio").getComponent(BenchCoachAudio.getTypeName()) as BenchCoachAudio
+    const scan = findSceneObjectByName("ScanReveal").getComponent(ScanReveal.getTypeName()) as ScanReveal
     const marker = findSceneObjectByName("StepMarker")
     const label = findSceneObjectByName("StepLabel")
     const doneCard = findSceneObjectByName("DoneCard")
@@ -154,6 +156,9 @@ export class InspectFinishScenario extends Scenario {
     for (let n = 1; n <= LAST_STEP; n++) {
       manager.jumpToStep(n)
       await sleep(1000) // let any ghost motion finish
+      // jumpToStep(1) replays the scan reveal (pass G4 / M), whose label pops tick until about
+      // 1.6 s in: let them finish so only Replay's own tick is counted.
+      for (let i = 0; i < 40 && scan.playing && scan.labelsShown < 3; i++) await sleep(50)
       const ghostBefore = ghost.playCount
       const ticksBefore = audio.tickPlays
       await interactor.tap("BtnReplay")
