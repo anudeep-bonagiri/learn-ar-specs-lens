@@ -1,16 +1,21 @@
 /**
- * BenchCoachStartCardUI — step 0 card: "Fix a flat" title, the big Found it
- * button (BtnFoundIt) with the Watch button (BtnWatch, pass 10: auto-plays the
- * whole repair) beside it, and the stand-in badge (StandInBadge).
+ * BenchCoachStartCardUI — the step 0 card (pass D2: the shared card component): the
+ * "Fix a flat" title, one instruction line, a floor status line and two big buttons,
+ * BtnFoundIt (primary; the preview stand-in for recognising the real wheel in the
+ * stand) and BtnWatch ("Watch first", pass 10: auto-plays the whole repair).
+ * setFloorStatus() shows "Look down at your work spot" until FloorLevel decides from
+ * real hits, then "Floor found" (green), or "Using a standard floor height" (amber)
+ * on the fallback. The stand-in note is logged, never shown.
  * Owns: only its view. Emits onFoundIt, onWatch. Holds no repair state.
- * Expects: to sit on the StartCard SceneObject facing the user at ~85 cm.
+ * Expects: to sit on the StartCard SceneObject facing the user at about 85 cm.
  */
 import Event, {PublicApi} from "SpectaclesInteractionKit.lspkg/Utils/Event"
-import {FlexAlign, FlexJustify} from "SpectaclesUIKit.lspkg/Scripts/Components/Layout2D/Flex/FlexTypes"
-import {addColumnText, addLabelButton, backPlatePanel, flexChild, flexColumn, flexRow} from "./UIHelpers"
+import {COLOR, buildCard} from "./UIHelpers"
 
 const ICON_CHECK: Texture = requireAsset("../../Icons/check.png") as Texture
 const ICON_PLAY: Texture = requireAsset("../../Icons/play_arrow.png") as Texture
+
+export type FloorStatus = "pending" | "found" | "fallback"
 
 @component
 export class BenchCoachStartCardUI extends BaseScriptComponent {
@@ -19,17 +24,12 @@ export class BenchCoachStartCardUI extends BaseScriptComponent {
   @ui.label('<span style="color: #60A5FA;">Settings</span>')
   @ui.group_start("Settings")
   @input
-  @hint("Panel width in cm")
-  @widget(new SliderWidget(12, 40, 0.5))
-  panelWidth: number = 24
+  @hint("Card width in cm (the height follows the content)")
+  @widget(new SliderWidget(16, 40, 0.5))
+  panelWidth: number = 27
 
   @input
-  @hint("Panel height in cm")
-  @widget(new SliderWidget(8, 30, 0.5))
-  panelHeight: number = 14
-
-  @input
-  @hint("Viewing distance in cm; scales the type size")
+  @hint("Viewing distance in cm; scales the type and the spacing grid")
   @widget(new SliderWidget(40, 160, 1))
   viewDistanceCm: number = 85
 
@@ -39,19 +39,27 @@ export class BenchCoachStartCardUI extends BaseScriptComponent {
 
   @input
   @hint("One-line instruction under the title")
-  subtitle: string = "Pinch Found it when your wheel is in the stand."
+  subtitle: string = "Put your wheel in the stand, then pinch Found it."
 
   @input
-  @hint("Label on the big button")
+  @hint("Label on the primary button")
   buttonLabel: string = "Found it"
 
   @input
   @hint("Label on the watch-mode button (plays the whole repair)")
-  watchLabel: string = "Watch"
+  watchLabel: string = "Watch first"
 
   @input
-  @hint("Stand-in badge text in the card corner")
-  badgeText: string = "stand-in: wheel placed by pinch"
+  @hint("Floor line while FloorLevel has not decided from real hits")
+  floorPendingText: string = "Look down at your work spot"
+
+  @input
+  @hint("Floor line once the floor is measured")
+  floorFoundText: string = "Floor found"
+
+  @input
+  @hint("Floor line when FloorLevel falls back to the standard height")
+  floorFallbackText: string = "Using a standard floor height"
   @ui.group_end
 
   private _onFoundIt = new Event<void>()
@@ -59,35 +67,39 @@ export class BenchCoachStartCardUI extends BaseScriptComponent {
   private _onWatch = new Event<void>()
   onWatch: PublicApi<void> = this._onWatch.publicApi()
 
+  /** The floor line's state and text now. */
+  floorStatus: FloorStatus = "pending"
+  floorText: string = ""
+
+  private floorLine: Text | null = null
+
+  /** The floor line: pending (grey), found (green) or fallback (amber). */
+  setFloorStatus(status: FloorStatus): void {
+    this.floorStatus = status
+    this.floorText =
+      status === "found" ? this.floorFoundText : status === "fallback" ? this.floorFallbackText : this.floorPendingText
+    if (!this.floorLine) return
+    this.floorLine.text = this.floorText
+    this.floorLine.textFill.color = status === "found" ? COLOR.green : status === "fallback" ? COLOR.amber : COLOR.textSecondary
+  }
+
   onAwake(): void {
     const d = this.viewDistanceCm
-    const panel = backPlatePanel(this.sceneObject, this.panelWidth, this.panelHeight)
-    const col = flexColumn(panel.content, this.panelWidth, this.panelHeight, {
-      gap: 0.5,
-      padX: 1.2,
-      padY: 0.8,
-      justify: FlexJustify.Center,
-      align: FlexAlign.Center,
-    })
-    addColumnText(col, "Title", this.title, "Title2", 3.2, {distanceCm: d})
-    addColumnText(col, "Subtitle", this.subtitle, "Caption", 1.8, {
+    const card = buildCard(this.sceneObject, {
+      width: this.panelWidth,
       distanceCm: d,
-      color: new vec4(1, 1, 1, 0.75),
+      title: {name: "Title", text: this.title},
+      rows: [
+        {name: "Subtitle", text: this.subtitle, role: "body"},
+        {name: "FloorStatus", text: this.floorPendingText, role: "secondary"},
+      ],
+      buttons: [
+        {name: "BtnFoundIt", label: this.buttonLabel, icon: ICON_CHECK, kind: "primary", width: 11.5, onClick: () => this._onFoundIt.invoke()},
+        {name: "BtnWatch", label: this.watchLabel, icon: ICON_PLAY, kind: "neutral", width: 11.5, onClick: () => this._onWatch.invoke()},
+      ],
     })
-    // Found it (the main action) and Watch side by side, same height as the old single button.
-    const rowW = this.panelWidth - 2.4
-    flexChild(col, {w: rowW, h: 6, name: "Buttons"}, (child) => {
-      const row = flexRow(child, rowW, 6, {gap: 0.8, justify: FlexJustify.Center, align: FlexAlign.Center})
-      addLabelButton(row, "BtnFoundIt", this.buttonLabel, ICON_CHECK, 12, 6, d, () => {
-        this._onFoundIt.invoke()
-      })
-      addLabelButton(row, "BtnWatch", this.watchLabel, ICON_PLAY, 8.6, 6, d, () => {
-        this._onWatch.invoke()
-      })
-    })
-    addColumnText(col, "StandInBadge", this.badgeText, "Caption", 1.6, {
-      distanceCm: d,
-      color: new vec4(0.6, 0.95, 1, 0.8),
-    })
+    this.floorLine = card.texts["FloorStatus"]
+    this.setFloorStatus(this.floorStatus)
+    print("[StartCard] preview stand-in: Found it places the wheel (on Specs this is where the real wheel is recognised)")
   }
 }

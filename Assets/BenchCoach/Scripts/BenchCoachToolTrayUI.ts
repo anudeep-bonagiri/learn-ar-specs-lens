@@ -1,12 +1,13 @@
 /**
- * BenchCoachToolTrayUI — the tool tray panel (20 x 14 cm) with a small header.
- * Owns: only the panel surface and header text. The levers and the new tube coil
- * are sibling SceneObjects (LeverA, LeverB, NewTube) authored under ToolTray, not
- * children of this panel. The panel sits 2 cm low (ToolTrayPanel y -2) so the
- * coil fits under the levers without moving them.
+ * BenchCoachToolTrayUI — the tool tray panel (pass D2: the shared plate) with a small
+ * "Tools" label in its top-left corner.
+ * Owns: only the panel surface and the label. The levers and the new tube coil are
+ * sibling SceneObjects (LeverA, LeverB, NewTube) authored under ToolTray, not children
+ * of this panel; the panel sits 2 cm low (ToolTrayPanel y -2) so the coil fits under
+ * the levers, and is sized so the 12 cm levers and the coil sit inside it.
  */
 import {FlexAlign, FlexJustify} from "SpectaclesUIKit.lspkg/Scripts/Components/Layout2D/Flex/FlexTypes"
-import {addColumnText, backPlatePanel, flexColumn} from "./UIHelpers"
+import {addUIText, flexColumn, lineCm, makePlate} from "./UIHelpers"
 
 @component
 export class BenchCoachToolTrayUI extends BaseScriptComponent {
@@ -17,7 +18,7 @@ export class BenchCoachToolTrayUI extends BaseScriptComponent {
   @input
   @hint("Panel width in cm")
   @widget(new SliderWidget(10, 40, 0.5))
-  panelWidth: number = 20
+  panelWidth: number = 17
 
   @input
   @hint("Panel height in cm")
@@ -25,26 +26,24 @@ export class BenchCoachToolTrayUI extends BaseScriptComponent {
   panelHeight: number = 14
 
   @input
-  @hint("Header text along the top edge")
+  @hint("Label in the top-left corner")
   headerText: string = "Tools"
 
   @input
-  @hint("Viewing distance in cm; scales the type size")
+  @hint("Viewing distance in cm; scales the type and the spacing grid")
   @widget(new SliderWidget(30, 120, 1))
-  viewDistanceCm: number = 45
+  viewDistanceCm: number = 52
   @ui.group_end
 
   onAwake(): void {
-    const panel = backPlatePanel(this.sceneObject, this.panelWidth, this.panelHeight)
-    const col = flexColumn(panel.content, this.panelWidth, this.panelHeight, {
-      padX: 0.8,
-      padY: 0.5,
+    const d = this.viewDistanceCm
+    const plate = makePlate(this.sceneObject, this.panelWidth, this.panelHeight, d)
+    const col = flexColumn(plate.content, this.panelWidth, this.panelHeight, {
+      padX: plate.g.pad,
+      padY: plate.g.pad * 0.7,
       justify: FlexJustify.Start,
-      align: FlexAlign.Center,
+      align: FlexAlign.Start,
     })
-    addColumnText(col, "TrayHeader", this.headerText, "Caption", 1.6, {
-      distanceCm: this.viewDistanceCm,
-      color: new vec4(1, 1, 1, 0.7),
-    })
+    addUIText(col, "TrayHeader", this.headerText, "secondary", this.panelWidth - 2 * plate.g.pad, lineCm("secondary", d), d)
   }
 }
