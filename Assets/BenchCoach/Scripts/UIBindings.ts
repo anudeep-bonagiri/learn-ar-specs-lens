@@ -18,6 +18,7 @@ import {BenchCoachStartCardUI} from "./BenchCoachStartCardUI"
 import {BenchCoachControlBarUI} from "./BenchCoachControlBarUI"
 import {BenchCoachDoneCardUI} from "./BenchCoachDoneCardUI"
 import {BenchCoachFinishCardUI} from "./BenchCoachFinishCardUI"
+import {BenchCoachWatchBadgeUI} from "./BenchCoachWatchBadgeUI"
 import {VoiceCoach} from "./VoiceCoach"
 import {BenchCoachAudio} from "./BenchCoachAudio"
 import {IdleHint} from "./IdleHint"
@@ -98,6 +99,11 @@ export class UIBindings extends BaseScriptComponent {
   @allowUndefined
   @hint("Voice coach: BtnVoice in the More popover turns it on and off (pass V)")
   voice: VoiceCoach
+
+  @input
+  @allowUndefined
+  @hint("Pass V: the in-frame 'Watching' badge above the wheel (its Stop is a press like the pill's)")
+  watchBadge: BenchCoachWatchBadgeUI
   @ui.group_end
 
   onAwake(): void {
@@ -136,6 +142,7 @@ export class UIBindings extends BaseScriptComponent {
         this.controlBar.onWhatsThis.add((on) => {
           if (on === this.partInfo.wanted) return // a sync from setWhatsThisLatched, not a press
           this.press(this.controlBar, `BtnWhatsThis (${on ? "on" : "off"})`, () => this.partInfo.setActive(on))
+          this.closeMore()
         })
       }
       if (this.askCoach) {
@@ -146,6 +153,7 @@ export class UIBindings extends BaseScriptComponent {
         this.controlBar.onAsk.add((on) => {
           if (on === this.askCoach.open) return // a sync from setAskLatched, not a press
           this.press(this.controlBar, `BtnAsk (${on ? "on" : "off"})`, () => this.askCoach.setOpen(on))
+          this.closeMore()
         })
       }
       if (this.voice) {
@@ -154,6 +162,7 @@ export class UIBindings extends BaseScriptComponent {
         this.controlBar.onVoice.add((on) => {
           if (on === this.voice.enabled) return // a sync from setVoiceLatched, not a press
           this.press(this.controlBar, `BtnVoice (${on ? "on" : "off"})`, () => this.voice.setEnabled(on))
+          this.closeMore()
         })
       }
       if (this.finishCard) {
@@ -166,6 +175,9 @@ export class UIBindings extends BaseScriptComponent {
         this.askCoach.answerPanel.onClose.add(() => this.press(this.askCoach.answerPanel, "BtnAnswerClose", () => {}))
       }
       this.controlBar.onStopWatch.add(() => this.press(this.controlBar, "BtnStopWatch", () => print("[UIBindings] watch mode stopped by Stop")))
+      if (this.watchBadge) {
+        this.watchBadge.onStop.add(() => this.press(this.watchBadge, "BtnBadgeStop", () => print("[UIBindings] watch mode stopped by the badge's Stop")))
+      }
       this.controlBar.setProgress(this.manager.getState().step)
       this.manager.onStepChanged.add((step) => {
         this.controlBar.setProgress(step)
@@ -178,7 +190,10 @@ export class UIBindings extends BaseScriptComponent {
   private lastFloor = ""
 
   private tick(): void {
-    if (this.director) this.controlBar.setWatching(this.director.playing)
+    if (this.director) {
+      this.controlBar.setWatching(this.director.playing)
+      if (this.watchBadge && this.watchBadge.watching !== this.director.playing) this.watchBadge.setWatching(this.director.playing)
+    }
     if (this.floorLevel) {
       const status = !this.floorLevel.ready ? "pending" : this.floorLevel.source === "fallback" ? "fallback" : "found"
       if (status !== this.lastFloor) {
@@ -187,6 +202,14 @@ export class UIBindings extends BaseScriptComponent {
         print(`[UIBindings] floor line: ${status} (${this.floorLevel.source})`)
       }
     }
+  }
+
+  /**
+   * Pass V: a choice in the More popover closes it (the taller popover reached into the
+   * recording frame from the dock while Ask was open). The toggles keep their state.
+   */
+  private closeMore(): void {
+    if (this.controlBar.moreOpen) this.controlBar.setMoreOpen(false)
   }
 
   /** Every button press goes through here; the log line names the button (pass F). */
