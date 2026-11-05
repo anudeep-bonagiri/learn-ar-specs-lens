@@ -1,0 +1,122 @@
+[
+  {
+    "id": "step-01",
+    "text": "Unthread the valve tip, then press it to let the air out."
+  },
+  {
+    "id": "step-02",
+    "text": "Push each glowing bead toward the middle of the rim."
+  },
+  {
+    "id": "step-03",
+    "text": "Hook the first lever under the bead, on the ghost."
+  },
+  {
+    "id": "step-04",
+    "text": "Hook the second lever, then slide it round to five o'clock."
+  },
+  {
+    "id": "step-05",
+    "text": "Go round the stand, then pull the tube out at the bottom."
+  },
+  {
+    "id": "step-06",
+    "text": "Find the cause. Look for a glint on the tire."
+  },
+  {
+    "id": "step-07",
+    "text": "Halfway. The tube is out and the cause is found."
+  },
+  {
+    "id": "step-08",
+    "text": "Start at the valve, then feed the new tube in."
+  },
+  {
+    "id": "step-09",
+    "text": "Push the bead back over the rim with your thumbs."
+  },
+  {
+    "id": "step-10",
+    "text": "Pinch and hold the valve to pump the tire up."
+  },
+  {
+    "id": "mistake-beadBeforeDeflate",
+    "text": "Let the air out first. Pinch the valve."
+  },
+  {
+    "id": "mistake-valveAlreadyDeflated",
+    "text": "It's already flat. Push the beads in."
+  },
+  {
+    "id": "mistake-leverBBeforeA",
+    "text": "First lever first. Hook the other one."
+  },
+  {
+    "id": "mistake-leverTooFar",
+    "text": "Too far. Drop the tip on the ghost."
+  },
+  {
+    "id": "mistake-tubeBeforePeel",
+    "text": "Peel the bead off first, then the tube."
+  },
+  {
+    "id": "mistake-tubeFitMiss",
+    "text": "Start at the valve hole at the top."
+  },
+  {
+    "id": "mistake-inflateBeforeSeat",
+    "text": "Seat the bead first, or the tube pinches."
+  },
+  {
+    "id": "idle-step-01",
+    "text": "Pinch the brass valve at the top."
+  },
+  {
+    "id": "idle-step-02",
+    "text": "Pinch each glowing bead."
+  },
+  {
+    "id": "idle-step-03",
+    "text": "Drag a blue lever onto the ghost."
+  },
+  {
+    "id": "idle-step-04",
+    "text": "Hook the second lever on the ghost, then slide it down."
+  },
+  {
+    "id": "idle-step-05",
+    "text": "Grab the tube end at 6 o'clock. Pull."
+  },
+  {
+    "id": "idle-step-06",
+    "text": "Look for a glint on the tire. Pinch it."
+  },
+  {
+    "id": "idle-step-07",
+    "text": "Pinch Fit the new tube to go on."
+  },
+  {
+    "id": "idle-step-08",
+    "text": "Drag the brass valve end to the top."
+  },
+  {
+    "id": "idle-step-09",
+    "text": "Pinch each glowing bead."
+  },
+  {
+    "id": "idle-step-10",
+    "text": "Pinch the valve and keep holding."
+  },
+  {
+    "id": "floor-found",
+    "text": "Floor found. You're ready to start."
+  },
+  {
+    "id": "halfway",
+    "text": "Nice work, you're halfway. Next, fit the new tube."
+  },
+  {
+    "id": "finish",
+    "text": "Flat fixed. Nice work, the wheel is ready to ride."
+  }
+]

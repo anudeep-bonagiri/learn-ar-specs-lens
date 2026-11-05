@@ -31,8 +31,14 @@ export type MarkerAnchor = "none" | "valve" | "bead" | "socket" | "tubeEnd" | "i
 export interface StepDef {
   id: number
   name: string
-  /** One-line instruction shown on StepLabel (step 0 and 7 show their card instead). */
+  /** The instruction on the step callout: one short sentence (step 0 and 7 show their card instead). */
   label: string
+  /**
+   * Pass D2: the coach's spoken line for the step (at most 12 words, plain and calm,
+   * the same meaning as the label). Exported to Assets/BenchCoach/Voice/voice-lines.json
+   * as step-NN for the pre-generated clips.
+   */
+  voiceLine: string
   /** Idle hint (IdleHint shows it on the label after idleSec without progress). */
   hint: string
   /** True if the step has a dot on the progress rail (the cards 0, 7 and 11 do not). */
@@ -238,7 +244,8 @@ export const STEPS: StepDef[] = [
   {
     id: 0,
     name: "Start",
-    label: "Fix a flat. Pinch Found it when your wheel is in the stand.",
+    label: "Put your wheel in the stand, then pinch Found it.",
+    voiceLine: "Put your wheel in the stand, then pinch Found it.",
     hint: "Pinch Found it on the card to start.",
     railDot: false,
     action: "foundIt",
@@ -257,7 +264,8 @@ export const STEPS: StepDef[] = [
   {
     id: 1,
     name: "Deflate",
-    label: "Unthread the tip and press to deflate",
+    label: "Unthread the valve tip, then press it to let the air out.",
+    voiceLine: "Unthread the valve tip, then press it to let the air out.",
     hint: "Pinch the brass valve at the top.",
     railDot: true,
     action: "valve",
@@ -276,7 +284,8 @@ export const STEPS: StepDef[] = [
   {
     id: 2,
     name: "Loosen the bead",
-    label: "Push the bead toward the rim center",
+    label: "Push each glowing bead toward the middle of the rim.",
+    voiceLine: "Push each glowing bead toward the middle of the rim.",
     hint: "Pinch each glowing bead.",
     railDot: true,
     action: "beads",
@@ -296,7 +305,8 @@ export const STEPS: StepDef[] = [
   {
     id: 3,
     name: "First lever",
-    label: "Hook the lever under the bead",
+    label: "Hook the first lever under the bead, on the ghost.",
+    voiceLine: "Hook the first lever under the bead, on the ghost.",
     hint: "Drag a blue lever onto the ghost.",
     railDot: true,
     action: "leverA",
@@ -315,8 +325,9 @@ export const STEPS: StepDef[] = [
   {
     id: 4,
     name: "Second lever and peel",
-    label: "Hook the second lever, then slide it round to 5 o'clock",
-    hint: "Hook lever B, then slide it down.",
+    label: "Hook the second lever, then slide it round to 5 o'clock.",
+    voiceLine: "Hook the second lever, then slide it round to five o'clock.",
+    hint: "Hook the second lever on the ghost, then slide it down.",
     railDot: true,
     action: "leverB",
     markerAnchor: "socket",
@@ -335,7 +346,8 @@ export const STEPS: StepDef[] = [
   {
     id: 5,
     name: "Pull the tube",
-    label: "Start opposite the valve. Pull the tube out.",
+    label: "Go round the stand, then pull the tube out at the bottom.",
+    voiceLine: "Go round the stand, then pull the tube out at the bottom.",
     hint: "Grab the tube end at 6 o'clock. Pull.",
     railDot: true,
     action: "tubePull",
@@ -343,7 +355,9 @@ export const STEPS: StepDef[] = [
     markerAngleDeg: 180,
     showStartCard: false,
     showWheel: true,
-    showTray: true,
+    // Pass D2: both levers are in the wheel by now, so the empty tray would only sit in the
+    // downward gaze along the floor path (Back to step 4 shows it again).
+    showTray: false,
     showGhost: false,
     ghostSocket: "none",
     showDoneCard: false,
@@ -354,7 +368,8 @@ export const STEPS: StepDef[] = [
   {
     id: 6,
     name: "Inspect",
-    label: "Find what caused it",
+    label: "Find the cause: look for a glint on the tire.",
+    voiceLine: "Find the cause. Look for a glint on the tire.",
     hint: "Look for a glint on the tire. Pinch it.",
     railDot: true,
     action: "thorn",
@@ -374,6 +389,7 @@ export const STEPS: StepDef[] = [
     id: 7,
     name: "Done",
     label: "Tube out, cause found. Ready for the new tube.",
+    voiceLine: "Halfway. The tube is out and the cause is found.",
     hint: "Pinch Fit the new tube to go on.",
     railDot: false,
     action: "tryAgain",
@@ -392,7 +408,8 @@ export const STEPS: StepDef[] = [
   {
     id: 8,
     name: "Fit the new tube",
-    label: "Start at the valve. Feed the new tube in.",
+    label: "Start at the valve, then feed the new tube in.",
+    voiceLine: "Start at the valve, then feed the new tube in.",
     hint: "Drag the brass valve end to the top.",
     railDot: true,
     action: "tubeFit",
@@ -412,7 +429,8 @@ export const STEPS: StepDef[] = [
   {
     id: 9,
     name: "Seat the bead",
-    label: "Push the bead back over the rim",
+    label: "Push the bead back over the rim with your thumbs.",
+    voiceLine: "Push the bead back over the rim with your thumbs.",
     hint: "Pinch each glowing bead.",
     railDot: true,
     action: "seat",
@@ -432,7 +450,8 @@ export const STEPS: StepDef[] = [
   {
     id: 10,
     name: "Inflate",
-    label: "Pinch and hold the valve to inflate",
+    label: "Pinch and hold the valve to pump the tire up.",
+    voiceLine: "Pinch and hold the valve to pump the tire up.",
     hint: "Pinch the valve and keep holding.",
     railDot: true,
     action: "inflate",
@@ -453,6 +472,7 @@ export const STEPS: StepDef[] = [
     id: 11,
     name: "Done",
     label: "Flat fixed.",
+    voiceLine: "Flat fixed. The wheel is ready to ride.",
     hint: "Pinch Start over to go again.",
     railDot: false,
     action: "restart",
@@ -537,4 +557,43 @@ export const COACH_QUESTIONS: {[step: number]: CoachQuestion[]} = {
 /** The step's preset questions ([] on the cards). */
 export function coachQuestions(step: number): CoachQuestion[] {
   return COACH_QUESTIONS[step] ? COACH_QUESTIONS[step] : []
+}
+
+/**
+ * Pass D2, voice-ready text: the lines the voice coach will speak (pre-generated clips,
+ * next pass). Plain and calm, at most 12 words each. Steps speak their `voiceLine`, a
+ * mistake its MISTAKES reason, an idle hint the step's `hint`; these are the rest.
+ */
+export const VOICE_FLOOR_FOUND = "Floor found. You're ready to start."
+export const VOICE_HALFWAY = "Nice work, you're halfway. Next, fit the new tube."
+export const VOICE_FINISH = "Flat fixed. Nice work, the wheel is ready to ride."
+
+export interface VoiceLine {
+  id: string
+  text: string
+}
+
+function pad2(n: number): string {
+  return n < 10 ? `0${n}` : `${n}`
+}
+
+/**
+ * Every voice line with its stable id: step-01..step-10, mistake-<code>,
+ * idle-step-NN, floor-found, halfway, finish. Assets/BenchCoach/Voice/voice-lines.json
+ * is this list: tools/export-voice-lines.py writes it from this file and fails if a
+ * line runs over 12 words.
+ */
+export function voiceLines(): VoiceLine[] {
+  const out: VoiceLine[] = []
+  for (const def of STEPS) {
+    if (def.id >= 1 && def.id <= LAST_STEP - 1) out.push({id: `step-${pad2(def.id)}`, text: def.voiceLine})
+  }
+  for (const code of Object.keys(MISTAKES)) out.push({id: `mistake-${code}`, text: MISTAKES[code]})
+  for (const def of STEPS) {
+    if (def.id >= 1 && def.id <= LAST_STEP - 1) out.push({id: `idle-step-${pad2(def.id)}`, text: def.hint})
+  }
+  out.push({id: "floor-found", text: VOICE_FLOOR_FOUND})
+  out.push({id: "halfway", text: VOICE_HALFWAY})
+  out.push({id: "finish", text: VOICE_FINISH})
+  return out
 }
