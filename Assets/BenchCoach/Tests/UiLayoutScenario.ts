@@ -8,6 +8,7 @@ import {BenchCoachInfoCalloutUI} from "../Scripts/BenchCoachInfoCalloutUI"
 import {BenchCoachControlBarUI} from "../Scripts/BenchCoachControlBarUI"
 import {EdgeHint} from "../Scripts/EdgeHint"
 import {AskCoach} from "../Scripts/AskCoach"
+import {BenchCoachAskAnswerUI} from "../Scripts/BenchCoachAskAnswerUI"
 import {LAST_STEP, STEPS} from "../Scripts/StepDefinitions"
 
 type Rect = {x0: number; x1: number; y0: number; y1: number}
@@ -24,7 +25,10 @@ const PANELS = ["StepLabel", "InfoCallout", "AskChipsPanel", "AskAnswerPanel", "
  *    tire, the beads, the valve and lever handles);
  *  - the edge arrow, when it shows, is not on the step callout or the dock;
  *  - no Text's rectangle crosses its plate's edge (every panel, on the step it shows);
- *  - with Ask open the callout and the chips sit above or below the tire, never over it;
+ *  - with Ask open the callout and the chips (or the answer) sit inside the rim together,
+ *    every corner in the clear circle, or above or below the tire; never over the tire,
+ *    and their top at most 14 degrees above the eye (pass M: Sujeeth's G5, Specs' top
+ *    edge is about 18.5 degrees);
  *  - the What's this? info callout does not overlap the step callout on screen.
  */
 @component
@@ -98,28 +102,44 @@ export class UiLayoutScenario extends Scenario {
       this.checkTexts(step)
     }
 
-    // ── Ask open: the callout and the stack stay off the wheel ───────────────
-    for (const step of [3, 5]) {
+    // ── Ask open: the callout and the stack stay off the tire and in view ────
+    // Steps 2 and 3 (marker at the top), 5 (far side) and 6 (inspect): Sujeeth's G5 cases.
+    const checkStack = (step: number, panelH: number, what: string) => {
+      const c = labelObj.getTransform().getWorldPosition()
+      const tireOuter = 33.4 * tire.getTransform().getLocalScale().x + 3.2
+      const hy = hub().y
+      const k = callout.scale
+      const top = c.y + callout.scaledHeight() / 2
+      const bottom = c.y - callout.scaledHeight() / 2 - (ask.panelGapCm + panelH) * k
+      const eye = camera.getTransform().getWorldPosition()
+      const flat = Math.sqrt((c.x - eye.x) * (c.x - eye.x) + (c.z - eye.z) * (c.z - eye.z))
+      const elev = (Math.atan2(top - eye.y, Math.max(1, flat)) * 180) / Math.PI
+      print(`[UiLayoutScenario] Ask on step ${step} (${what}): zone ${callout.zone}, top ${(top - hy).toFixed(1)} / bottom ${(bottom - hy).toFixed(1)} cm from the hub, top ${elev.toFixed(1)} deg above the eye`)
+      expect(elev <= 14, `Ask on step ${step} (${what}): top of callout and stack at most 14 degrees above the eye (${elev.toFixed(1)})`).toBe(true)
+      if (callout.zone === "inside") {
+        const inner = 33.4 * tire.getTransform().getLocalScale().x - 6.5
+        const dx = Math.abs(c.x - hub().x) + callout.scaledWidth() / 2
+        const dy = Math.max(Math.abs(top - hy), Math.abs(bottom - hy))
+        const far = Math.sqrt(dx * dx + dy * dy)
+        expect(far <= inner + 0.5, `Ask on step ${step} (${what}): callout and stack inside the clear circle (${far.toFixed(1)} <= ${inner.toFixed(1)} cm)`).toBe(true)
+      } else if (callout.zone === "top") {
+        expect(bottom > hy + tireOuter, `Ask on step ${step} (${what}): the stack above the tire`).toBe(true)
+      } else {
+        expect(callout.zone === "bottom", `Ask on step ${step} (${what}): callout in a known zone`).toBe(true)
+        expect(top < hy - tireOuter, `Ask on step ${step} (${what}): callout below the tire`).toBe(true)
+      }
+    }
+    for (const step of [2, 3, 5, 6]) {
       manager.jumpToStep(step)
       await sleep(400)
       ask.forceCanned = true
       await interactor.tap("BtnAsk")
       await sleep(400)
-      const c = labelObj.getTransform().getWorldPosition()
-      const chips = findSceneObjectByName("AskChipsPanel").getTransform().getWorldPosition()
-      const tireOuter = 33.4 * tire.getTransform().getLocalScale().x + 3.2
-      const hy = hub().y
-      print(`[UiLayoutScenario] Ask on step ${step}: zone ${callout.zone}, callout y ${(c.y - hy).toFixed(1)}, chips y ${(chips.y - hy).toFixed(1)} from the hub`)
-      expect(callout.zone === "top" || callout.zone === "bottom", `Ask on step ${step}: callout above or below the tire`).toBe(true)
-      if (callout.zone === "top") {
-        const chipsBottom = chips.y - (ask.chips.height * callout.scale) / 2
-        expect(chipsBottom > hy + tireOuter, `Ask on step ${step}: chips above the tire`).toBe(true)
-      } else {
-        expect(c.y + callout.scaledHeight() / 2 < hy - tireOuter, `Ask on step ${step}: callout below the tire`).toBe(true)
-      }
+      checkStack(step, ask.chips.height, "chips")
       this.checkTexts(step)
       await interactor.tap("AskChip_0")
       await sleep(400)
+      checkStack(step, (findSceneObjectByName("AskAnswerPanel").getComponent(BenchCoachAskAnswerUI.getTypeName()) as BenchCoachAskAnswerUI).panelHeight, "answer")
       this.checkTexts(step)
       await interactor.tap("BtnAsk")
       await sleep(300)

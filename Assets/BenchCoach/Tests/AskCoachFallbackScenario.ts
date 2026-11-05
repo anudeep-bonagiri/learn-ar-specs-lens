@@ -75,7 +75,7 @@ export class AskCoachFallbackScenario extends Scenario {
     print(`[AskCoachFallbackScenario] answer panel ${ap.distance(lp).toFixed(1)} cm from the step callout, ${(lp.y - ap.y).toFixed(1)} cm below it`)
     expect(ap.distance(lp), "answer hangs from the step callout").toBeLessThan(14)
     expect(lp.y - ap.y > 0, "answer under the callout").toBe(true)
-    expect(callout.zone === "top" || callout.zone === "bottom", "with Ask open the callout sits above or below the tire, off the wheel").toBe(true)
+    expect(["inside", "top", "bottom"].indexOf(callout.zone) >= 0, "with Ask open the callout and stack sit inside the rim or above / below the tire (ui-layout checks the fit)").toBe(true)
     expect(manager.getState().step, "still step 5").toBe(5)
 
     // ── Answer close: the chips come back; chips close: Ask closes ─────────

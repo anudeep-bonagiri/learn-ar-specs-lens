@@ -11,10 +11,12 @@
  *    is inside the clear circle. It never covers the tire, a bead, the valve or a lever
  *    handle (handles stand up out of the tire), and stays near eye level.
  *  - With something attached underneath (setStack: Ask chips or answer, the What's this?
- *    prompt) the stack must not lie over the wheel, so the callout goes above the tire
- *    (marker in the upper half; shifted to the side away from the marker, clear of any
- *    lever handle) or below it (lower half), with the stack between it and the tire /
- *    under it.
+ *    prompt) callout and stack go inside the rim together when they fit as one box (same
+ *    search, every corner in the clear circle; pass M, Sujeeth's G5: above the tire the
+ *    stack's top sat 24 to 27 degrees above the eye, past Specs' top edge). Otherwise
+ *    the callout goes above the tire (marker in the upper half; shifted to the side away
+ *    from the marker, clear of any lever handle) or below it (lower half), with the
+ *    stack between it and the tire / under it.
  * It keeps its apparent size: closer than viewDistanceCm it scales down (to minScale),
  * so from step 5's far side (about 35 cm away) it still fits in the view.
  * The plate stands off the wheel toward the user (or the far side on step 5). From the
@@ -242,7 +244,6 @@ export class BenchCoachStepLabelUI extends BaseScriptComponent {
     const w = this.panelWidth * this.scale
     const h = this.panelHeight * this.scale
     const tireOuter = a.radius + 3.2
-    const inner = a.radius - 6.5
     const gap = this.tireGapCm
     let dx = 0
     let dy = a.radius
@@ -253,7 +254,15 @@ export class BenchCoachStepLabelUI extends BaseScriptComponent {
     let cx = 0
     let cy = 0
     let zone: CalloutZone = "inside"
-    if (this.stackH > 0) {
+    // Pass M (Sujeeth's G5 on D2): with a stack hung under the callout, callout and stack go
+    // inside the rim together when they fit, as one box, clear of the ring. Above the tire
+    // the stack's top sat 24 to 27 degrees above the eye, past Specs' top edge (about 18.5);
+    // inside the rim it is near eye level and covers only spokes and hub, never worked.
+    const stackIn = this.stackH > 0 ? this.insideSpot(a, dx, dy, w, h + this.stackH * this.scale) : null
+    if (stackIn) {
+      cx = stackIn.x
+      cy = stackIn.y + (this.stackH * this.scale) / 2
+    } else if (this.stackH > 0) {
       const stack = this.stackH * this.scale + gap
       if (dy >= -a.radius * 0.5) {
         zone = "top"
@@ -267,30 +276,9 @@ export class BenchCoachStepLabelUI extends BaseScriptComponent {
         cy = -(tireOuter + gap + h / 2)
       }
     } else {
-      // From the marker toward the hub, clear of the ring, then inside the clear circle.
-      let ux = -dx
-      let uy = -dy
-      const len = Math.sqrt(ux * ux + uy * uy)
-      if (len < 1e-3) {
-        ux = 0
-        uy = -1
-      } else {
-        ux /= len
-        uy /= len
-      }
-      const extent = Math.abs(ux) * (w / 2) + Math.abs(uy) * (h / 2)
-      let t = this.markerGapCm + extent
-      let fits = false
-      for (let i = 0; i < 120; i++) {
-        cx = dx + ux * t
-        cy = dy + uy * t
-        const fx = Math.abs(cx) + w / 2
-        const fy = Math.abs(cy) + h / 2
-        if (!fits) fits = fx * fx + fy * fy <= inner * inner
-        if (t > len) break
-        if (fits && !(a.target && this.coversOnScreen(a.hub.add(new vec3(cx, cy, a.side * a.standOff)), a.target))) break
-        t += 0.5
-      }
+      const spot = this.insideSpot(a, dx, dy, w, h, true)
+      cx = spot ? spot.x : 0
+      cy = spot ? spot.y : 0
     }
     this.zone = zone
     const pos = a.hub.add(new vec3(cx, cy, a.side * a.standOff))
@@ -308,8 +296,46 @@ export class BenchCoachStepLabelUI extends BaseScriptComponent {
     this.drawLeader(pos, a.target)
   }
 
+  /**
+   * From the marker toward the hub: the first center for a w x h box (callout, or callout
+   * and stack) that clears the ring, has every corner inside the clear circle (bead radius
+   * - 6.5 cm) and, from the live eye, does not hide the ring. Null if no spot fits, unless
+   * `always` (the lone callout takes the last spot tried, as before).
+   */
+  private insideSpot(a: CalloutAnchor, dx: number, dy: number, w: number, h: number, always: boolean = false): vec2 | null {
+    const inner = a.radius - 6.5
+    let ux = -dx
+    let uy = -dy
+    const len = Math.sqrt(ux * ux + uy * uy)
+    if (len < 1e-3) {
+      ux = 0
+      uy = -1
+    } else {
+      ux /= len
+      uy /= len
+    }
+    const extent = Math.abs(ux) * (w / 2) + Math.abs(uy) * (h / 2)
+    let t = this.markerGapCm + extent
+    let fits = false
+    let cx = 0
+    let cy = 0
+    for (let i = 0; i < 120; i++) {
+      cx = dx + ux * t
+      cy = dy + uy * t
+      const fx = Math.abs(cx) + w / 2
+      const fy = Math.abs(cy) + h / 2
+      if (!fits) fits = fx * fx + fy * fy <= inner * inner
+      if (t > len) break
+      if (fits && !(a.target && this.coversOnScreen(a.hub.add(new vec3(cx, cy, a.side * a.standOff)), a.target, w, h))) {
+        return new vec2(cx, cy)
+      }
+      t += 0.5
+    }
+    return always ? new vec2(cx, cy) : null
+  }
+
   /** From the live eye, the plate centered at `c` hides the ring at `target` (with a margin of the ring's size). */
-  private coversOnScreen(c: vec3, target: vec3): boolean {
+  private coversOnScreen(c: vec3, target: vec3, boxW: number = this.scaledWidth(), boxH: number = this.scaledHeight()): boolean {
     const cam = WorldCameraFinderProvider.getInstance()
     if (!cam) return false
     const camera = cam.getComponent()
@@ -324,7 +350,7 @@ export class BenchCoachStepLabelUI extends BaseScriptComponent {
     let y1 = -1
     for (const sx of [-1, 1]) {
       for (const sy of [-1, 1]) {
-        const p = camera.worldSpaceToScreenSpace(c.add(right.uniformScale((sx * this.scaledWidth()) / 2)).add(up.uniformScale((sy * this.scaledHeight()) / 2)))
+        const p = camera.worldSpaceToScreenSpace(c.add(right.uniformScale((sx * boxW) / 2)).add(up.uniformScale((sy * boxH) / 2)))
         x0 = Math.min(x0, p.x)
         x1 = Math.max(x1, p.x)
         y0 = Math.min(y0, p.y)
