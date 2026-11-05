@@ -28,7 +28,7 @@
 import {Billboard} from "SpectaclesInteractionKit.lspkg/Components/Interaction/Billboard/Billboard"
 import WorldCameraFinderProvider from "SpectaclesInteractionKit.lspkg/Providers/CameraProvider/WorldCameraFinderProvider"
 import {FlexAlign, FlexJustify} from "SpectaclesUIKit.lspkg/Scripts/Components/Layout2D/Flex/FlexTypes"
-import {COLOR, LeaderLine, Plate, addUIText, flexColumn, imageOn, lineCm, makePlate, plateEdgePoint} from "./UIHelpers"
+import {COLOR, LeaderLine, Plate, addUIText, flexColumn, imageOn, lineCm, makePlate, plateEdgePoint, plateCm, keepTogether} from "./UIHelpers"
 
 /** Pass G3 (Sujeeth), on D2's amber state: a mistake carries a warning badge, not only amber. */
 const ICON_WARNING: Texture = requireAsset("../../Icons/warning.png") as Texture
@@ -118,31 +118,33 @@ export class BenchCoachStepLabelUI extends BaseScriptComponent {
   private step = 0
   private pulse = false
   private badge: SceneObject | null = null
+  private bb: Billboard | null = null
+  private pitchFollow = false
   /** The mistake state shows its warning badge (pass G3 / M); tests read it. */
   warning: boolean = false
 
   /** Normal state: the instruction, with "Step N of 10" above it. */
   setText(msg: string): void {
     this.setMode("normal", this.stepLine(), COLOR.textSecondary, COLOR.edge)
-    if (this.label) this.label.text = msg
+    if (this.label) this.label.text = keepTogether(msg)
   }
 
   /** The cause is found (green kicker). */
   setFound(msg: string): void {
     this.setMode("found", "Found it", COLOR.green, COLOR.edge)
-    if (this.label) this.label.text = msg
+    if (this.label) this.label.text = keepTogether(msg)
   }
 
   /** A mistake: amber edge and kicker, the reason as the line (CoachFeedback restores it). */
   showMistake(reason: string): void {
     this.setMode("mistake", "Not quite", COLOR.amber, COLOR.amber)
-    if (this.label) this.label.text = reason
+    if (this.label) this.label.text = keepTogether(reason)
   }
 
   /** The idle hint: "Hint" kicker, the edge pulses gently in the accent. */
   showHint(text: string): void {
     this.setMode("hint", "Hint", COLOR.accent, COLOR.accent)
-    if (this.label) this.label.text = text
+    if (this.label) this.label.text = keepTogether(text)
   }
 
   /** The step the kicker counts ("Step N of 10"); shown on the next setText. */
@@ -179,8 +181,10 @@ export class BenchCoachStepLabelUI extends BaseScriptComponent {
   }
 
   onAwake(): void {
-    if (this.billboard) this.sceneObject.createComponent(Billboard.getTypeName())
+    if (this.billboard) this.bb = this.sceneObject.createComponent(Billboard.getTypeName()) as Billboard
     const d = this.viewDistanceCm
+    // Pass V: the plate grows with the type scale (UIHelpers.plateCm).
+    this.panelWidth = plateCm(this.panelWidth, d)
     const w = this.panelWidth
     const kickerH = lineCm("secondary", d)
     const lineH = lineCm("instruction", d)
@@ -212,6 +216,18 @@ export class BenchCoachStepLabelUI extends BaseScriptComponent {
     this.createEvent("LateUpdateEvent").bind(() => this.tick())
   }
 
+  /**
+   * Pass V: on the far side (step 5) the eye looks steeply down at the callout, so a
+   * yaw-only plate was seen edge-on and its type shrank to about 60% of its height in the
+   * video frame. There the billboard also follows pitch; in front it is upright again.
+   */
+  private followPitch(on: boolean): void {
+    if (!this.bb || on === this.pitchFollow) return
+    this.pitchFollow = on
+    this.bb.xAxisEnabled = on
+    if (!on) this.sceneObject.getTransform().setWorldRotation(quat.quatIdentity())
+  }
+
   private stepLine(): string {
     return this.step > 0 ? `Step ${this.step} of ${this.totalSteps}` : ""
   }
@@ -241,6 +257,7 @@ export class BenchCoachStepLabelUI extends BaseScriptComponent {
   private place(): void {
     const a = this.anchor
     if (!a) return
+    this.followPitch(a.side < 0)
     const w = this.panelWidth * this.scale
     const h = this.panelHeight * this.scale
     const tireOuter = a.radius + 3.2

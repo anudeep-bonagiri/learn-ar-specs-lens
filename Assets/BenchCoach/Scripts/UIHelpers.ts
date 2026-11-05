@@ -103,9 +103,10 @@ export function applyTextRole(t: Text, role: TextRole, distanceCm: number = 110)
 
 /**
  * Text roles of the design system, one size each: card titles, instructions, body
- * lines (answers, card values), secondary lines (grey), button labels.
+ * lines (answers, card values), secondary lines (grey), button labels, and (pass V)
+ * display, the big numbers on the Finish card.
  */
-export type UIRole = "title" | "instruction" | "body" | "secondary" | "button"
+export type UIRole = "title" | "instruction" | "body" | "secondary" | "button" | "display"
 
 const UI_ROLES: Record<UIRole, TextRole> = {
   title: "Title2",
@@ -113,10 +114,81 @@ const UI_ROLES: Record<UIRole, TextRole> = {
   body: "Body",
   secondary: "Caption",
   button: "Subheadline",
+  display: "Title1",
+}
+
+/**
+ * Pass V, the type scale for video and the glasses: Text.size of each role at 110 cm
+ * (it scales with the viewing distance, so every panel has the same angular size).
+ * D2 used the UIKit scale (title 93, instruction 48, body 39, secondary 38, button 41);
+ * in the Garage captures from the recording pose that gave body lines an x-height of
+ * 0.6% of the frame height. These sizes give body and instruction lines at least 1.5%
+ * (MIN_BODY_XHEIGHT_DEG) and titles at least 2.2% (MIN_TITLE_XHEIGHT_DEG); ui-layout
+ * asserts both from the live eye.
+ */
+const UI_ROLE_SIZE: Record<UIRole, number> = {
+  title: 165,
+  instruction: 118,
+  body: 118,
+  secondary: 66,
+  button: 64,
+  display: 190,
 }
 
 export function uiSize(role: UIRole, distanceCm: number): number {
-  return roleSize(UI_ROLES[role], distanceCm)
+  return UI_ROLE_SIZE[role] * FONT_SIZE_SCALE * (distanceCm / 110)
+}
+
+/** x-height of the UI font as a fraction of Text.size's em (measured on captures, pass V: 0.40 to 0.44 depending on the role; 0.42 keeps the check on the safe side). */
+export const FONT_XHEIGHT_EM = 0.42
+/** The preview frame is about 36.6 degrees tall; 1.5% of it, the smallest body x-height. */
+export const MIN_BODY_XHEIGHT_DEG = 0.55
+/** 2.2% of the frame, the smallest title x-height. */
+export const MIN_TITLE_XHEIGHT_DEG = 0.81
+
+/** x-height in degrees of a Text seen from `distanceCm` (its size and world scale). */
+export function xHeightDeg(t: Text, distanceCm: number): number {
+  const s = t.getSceneObject().getTransform().getWorldScale().y
+  const xh = (t.size / 43.886) * FONT_XHEIGHT_EM * s
+  return (Math.atan2(xh, Math.max(1, distanceCm)) * 180) / Math.PI
+}
+
+/**
+ * Pass V: plates grow with the text. A panel's D2 width (its panelWidth input) times
+ * PLATE_GROW, but never wider than MAX_PLATE_DEG at its viewing distance (the recording
+ * frame is about 30 degrees wide), so lines carry fewer words instead of leaving the frame.
+ */
+export const PLATE_GROW = 1.6
+export const MAX_PLATE_DEG = 25
+
+export function plateCm(baseCm: number, distanceCm: number): number {
+  const max = 2 * distanceCm * Math.tan((MAX_PLATE_DEG * Math.PI) / 360)
+  return Math.min(baseCm * PLATE_GROW, max)
+}
+
+/**
+ * Pass V: keeps a clock position on one line ("5 o'clock" never breaks after the 5): the
+ * space becomes a no-break space at display time, so the step texts (and the voice
+ * lines exported from them) stay as written.
+ */
+export function keepTogether(text: string): string {
+  return text.replace(/(\d) o'clock/g, "$1\u00A0o'clock")
+}
+
+/** Lines a text needs at a width in a role (estimate: 0.43 em per glyph, words kept whole; measured 0.38 to 0.40). */
+export function linesFor(text: string, role: UIRole, widthCm: number, distanceCm: number): number {
+  const glyph = (uiSize(role, distanceCm) / 43.886) * 0.43
+  let lines = 1
+  let used = 0
+  for (const word of text.split(" ")) {
+    const w = word.length * glyph
+    const add = used === 0 ? w : used + glyph + w
+    if (add > widthCm && used > 0) {
+      lines += 1
+      used = w
+    } else used = add
+  }
+  return lines
 }
 
 /** Line height in cm for a role at a distance (em height x 1.3). */
@@ -287,6 +359,7 @@ export function uiTextOn(
     align: opts?.align ?? HorizontalAlignment.Left,
     color: opts?.color ?? (role === "secondary" ? COLOR.textSecondary : COLOR.text),
   })
+  t.size = uiSize(role, distanceCm)
   if (opts?.wrap) {
     t.horizontalOverflow = HorizontalOverflow.Wrap
     t.verticalOverflow = VerticalOverflow.Shrink
@@ -737,11 +810,24 @@ export interface CardButton {
   onClick: () => void
 }
 
+/** Pass V: a big number with its caption under it (the Finish card's time and counts). */
+export interface CardStat {
+  /** Name of the number Text (tests find it); the caption Text is `${name}Label`. */
+  name: string
+  label: string
+  value: string
+  /** Share of the row's width (default 1). */
+  weight?: number
+}
+
 export interface CardSpec {
+  /** The D2 width; the card grows it with plateCm (pass V). */
   width: number
   distanceCm: number
   title: {name: string; text: string; kicker?: {name: string; text: string; color: vec4}}
   rows: CardRow[]
+  /** Pass V: a row of big numbers with captions, under the title. */
+  stats?: CardStat[]
   pairs?: CardPair[]
   rowsAfter?: CardRow[]
   buttons: CardButton[]
@@ -750,6 +836,7 @@ export interface CardSpec {
 export interface Card {
   plate: Plate
   texts: {[name: string]: Text}
+  width: number
   height: number
 }
 
@@ -761,22 +848,32 @@ export interface Card {
 export function buildCard(root: SceneObject, spec: CardSpec): Card {
   const d = spec.distanceCm
   const g = grid(d)
-  const innerW = spec.width - 2 * g.pad * 1.3
+  const width = plateCm(spec.width, d)
+  const innerW = width - 2 * g.pad * 1.3
   const btnH = Math.max(4.4 * (d / 80), lineCm("button", d) * 2.6)
-  const rowH = (r: CardRow) => lineCm(r.role, d) * (r.lines ?? 1)
-  const pairH = lineCm("body", d)
+  // Pass V: a row holds as many lines as its text needs at this width (never fewer than asked).
+  const lines = (r: CardRow) => Math.max(r.lines ?? 1, linesFor(r.text, r.role, innerW, d))
+  const rowH = (r: CardRow) => lineCm(r.role, d) * lines(r)
+  const pairs = spec.pairs ?? []
+  const labelW = innerW * 0.34
+  const valueW = innerW - labelW - g.gap
+  const pairLines = (p: CardPair) => linesFor(p.value, "body", valueW, d)
+  const pairH = (p: CardPair) => lineCm("body", d) * pairLines(p)
+  const listH = pairs.reduce((a, p) => a + pairH(p), 0) + Math.max(0, pairs.length - 1) * g.gap * 0.4
+  const stats = spec.stats ?? []
+  const statH = lineCm("display", d) + lineCm("secondary", d)
   const items: number[] = []
   if (spec.title.kicker) items.push(lineCm("secondary", d))
   items.push(lineCm("title", d))
   for (const r of spec.rows) items.push(rowH(r))
-  const pairs = spec.pairs ?? []
-  if (pairs.length > 0) items.push(pairs.length * pairH + (pairs.length - 1) * g.gap * 0.4)
+  if (stats.length > 0) items.push(statH)
+  if (pairs.length > 0) items.push(listH)
   for (const r of spec.rowsAfter ?? []) items.push(rowH(r))
   items.push(btnH)
   let h = 2 * g.pad * 1.3 + items.reduce((a, b) => a + b, 0) + (items.length - 1) * g.gap
   h += g.gap // the button row breathes a little more
-  const plate = makePlate(root, spec.width, h, d)
-  const col = flexColumn(plate.content, spec.width, h, {
+  const plate = makePlate(root, width, h, d)
+  const col = flexColumn(plate.content, width, h, {
     gap: g.gap,
     padX: g.pad * 1.3,
     padY: g.pad * 1.3,
@@ -785,7 +882,9 @@ export function buildCard(root: SceneObject, spec: CardSpec): Card {
   })
   const texts: {[name: string]: Text} = {}
   const row = (r: CardRow) => {
-    texts[r.name] = addUIText(col, r.name, r.text, r.role, innerW, rowH(r), d, {color: r.color, wrap: (r.lines ?? 1) > 1})
+    texts[r.name] = addUIText(col, r.name, r.text, r.role, innerW, rowH(r), d, {color: r.color, wrap: lines(r) > 1})
+    // Pass V: a wrapped row starts at its top, so a shorter text leaves no gap above it.
+    if (lines(r) > 1) texts[r.name].verticalAlignment = VerticalAlignment.Top
   }
   if (spec.title.kicker) {
     const k = spec.title.kicker
@@ -793,17 +892,33 @@ export function buildCard(root: SceneObject, spec: CardSpec): Card {
   }
   texts[spec.title.name] = addUIText(col, spec.title.name, spec.title.text, "title", innerW, lineCm("title", d), d)
   for (const r of spec.rows) row(r)
+  if (stats.length > 0) {
+    // Pass V: the numbers in the display role, each with its caption under it.
+    const total = stats.reduce((a, st) => a + (st.weight ?? 1), 0)
+    const cellsW = innerW - (stats.length - 1) * g.gap
+    flexChild(col, {w: innerW, h: statH, name: "Stats"}, (holder) => {
+      const r = flexRow(holder, innerW, statH, {gap: g.gap, justify: FlexJustify.Start, align: FlexAlign.Start})
+      for (const st of stats) {
+        const cw = (cellsW * (st.weight ?? 1)) / total
+        flexChild(r, {w: cw, h: statH, name: `${st.name}Cell`}, (cell) => {
+          const c = flexColumn(cell, cw, statH, {gap: 0, justify: FlexJustify.Start, align: FlexAlign.Start})
+          texts[st.name] = addUIText(c, st.name, st.value, "display", cw, lineCm("display", d), d)
+          texts[`${st.name}Label`] = addUIText(c, `${st.name}Label`, st.label, "secondary", cw, lineCm("secondary", d), d)
+        })
+      }
+    })
+  }
   if (pairs.length > 0) {
-    const listH = pairs.length * pairH + (pairs.length - 1) * g.gap * 0.4
-    const labelW = innerW * 0.34
-    const valueW = innerW - labelW - g.gap
     flexChild(col, {w: innerW, h: listH, name: "List"}, (holder) => {
       const list = flexColumn(holder, innerW, listH, {gap: g.gap * 0.4, justify: FlexJustify.Start, align: FlexAlign.Start})
       for (const p of pairs) {
-        flexChild(list, {w: innerW, h: pairH, name: `${p.name}Row`}, (rowSo) => {
-          const r = flexRow(rowSo, innerW, pairH, {gap: g.gap, justify: FlexJustify.Start, align: FlexAlign.Center})
-          texts[`${p.name}Label`] = addUIText(r, `${p.name}Label`, p.label, "secondary", labelW, pairH, d)
-          texts[p.name] = addUIText(r, p.name, p.value, "body", valueW, pairH, d)
+        const ph = pairH(p)
+        flexChild(list, {w: innerW, h: ph, name: `${p.name}Row`}, (rowSo) => {
+          const r = flexRow(rowSo, innerW, ph, {gap: g.gap, justify: FlexJustify.Start, align: FlexAlign.Start})
+          texts[`${p.name}Label`] = addUIText(r, `${p.name}Label`, p.label, "secondary", labelW, lineCm("body", d), d)
+          texts[p.name] = addUIText(r, p.name, p.value, "body", valueW, ph, d, {wrap: pairLines(p) > 1})
+          // Level with its label on the first line.
+          if (pairLines(p) > 1) texts[p.name].verticalAlignment = VerticalAlignment.Top
         })
       }
     })
@@ -817,7 +932,10 @@ export function buildCard(root: SceneObject, spec: CardSpec): Card {
     // The extra gap goes above the buttons, between the last line and the row.
     const rp = r.getTransform().getLocalPosition()
     r.getTransform().setLocalPosition(new vec3(rp.x, rp.y - g.gap / 2, rp.z))
-    for (const b of spec.buttons) addLabelButton(r, b.name, b.label, b.icon, b.width, btnH, d, b.onClick, b.kind)
+    // Pass V: buttons grow with the plate, but the row always fits inside it.
+    const sum = spec.buttons.reduce((a, b) => a + b.width, 0)
+    const grow = Math.min(PLATE_GROW, (btnRowW - (spec.buttons.length - 1) * btnGap) / Math.max(1, sum))
+    for (const b of spec.buttons) addLabelButton(r, b.name, b.label, b.icon, b.width * grow, btnH, d, b.onClick, b.kind)
   })
-  return {plate, texts, height: h}
+  return {plate, texts, width, height: h}
 }

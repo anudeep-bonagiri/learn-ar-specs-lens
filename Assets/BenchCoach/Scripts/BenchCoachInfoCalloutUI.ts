@@ -12,7 +12,7 @@
 import {Billboard} from "SpectaclesInteractionKit.lspkg/Components/Interaction/Billboard/Billboard"
 import WorldCameraFinderProvider from "SpectaclesInteractionKit.lspkg/Providers/CameraProvider/WorldCameraFinderProvider"
 import {FlexAlign, FlexJustify} from "SpectaclesUIKit.lspkg/Scripts/Components/Layout2D/Flex/FlexTypes"
-import {COLOR, LeaderLine, addUIText, flexColumn, lineCm, makePlate, plateEdgePoint} from "./UIHelpers"
+import {COLOR, LeaderLine, addUIText, flexColumn, lineCm, makePlate, plateEdgePoint, plateCm} from "./UIHelpers"
 import {BenchCoachStepLabelUI} from "./BenchCoachStepLabelUI"
 
 @component
@@ -97,6 +97,8 @@ export class BenchCoachInfoCalloutUI extends BaseScriptComponent {
   onAwake(): void {
     this.sceneObject.createComponent(Billboard.getTypeName())
     const d = this.viewDistanceCm
+    // Pass V: the plate grows with the type scale (UIHelpers.plateCm).
+    this.panelWidth = plateCm(this.panelWidth, d)
     const titleH = lineCm("instruction", d)
     const lineH = lineCm("body", d) * 2
     const k = d / 90
@@ -176,12 +178,16 @@ export class BenchCoachInfoCalloutUI extends BaseScriptComponent {
     const toEye = eye.sub(p).normalize()
     const avoid = this.stepRect(camera)
     let best: vec3 | null = null
-    for (const dir of dirs) {
-      const reach = Math.abs(dir.dot(this.flatRight(eye, p))) * this.panelWidth / 2 + Math.abs(dir.y) * this.panelHeight / 2
-      let c = p.add(dir.uniformScale(reach + this.partGapCm)).add(toEye.uniformScale(this.towardUserCm))
-      c = this.intoView(c, camera, centerAtDepth, depth)
-      if (!best) best = c
-      if (!avoid || !this.overlaps(this.rectOf(camera, c, eye), avoid)) return c
+    // Pass V: with the larger type both plates are wide, so a spot right next to the part
+    // can be taken; each direction is also tried further out before giving up.
+    for (const k of [1, 1.8, 2.6]) {
+      for (const dir of dirs) {
+        const reach = Math.abs(dir.dot(this.flatRight(eye, p))) * this.panelWidth / 2 + Math.abs(dir.y) * this.panelHeight / 2
+        let c = p.add(dir.uniformScale(k * reach + this.partGapCm)).add(toEye.uniformScale(this.towardUserCm))
+        c = this.intoView(c, camera, centerAtDepth, depth)
+        if (!best) best = c
+        if (!avoid || !this.overlaps(this.rectOf(camera, c, eye), avoid)) return c
+      }
     }
     return best as vec3
   }

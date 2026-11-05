@@ -64,7 +64,7 @@ export class SeatInflateScenario extends Scenario {
     // ── Step 11: Finish card ───────────────────────────────────────────────
     expect(finishCard.enabled, "FinishCard enabled").toBe(true)
     expect(findSceneObjectByName("DoneCard").enabled, "halfway card hidden").toBe(false)
-    // Pass D2: the stats are rows of a two-column list.
+    // Pass V: the time and counts are big numbers with captions (FinishLeverMissesLabel is a caption).
     const stats = findSceneObjectByName("FinishLeverMissesLabel").getComponent("Component.Text") as Text
     const time = findSceneObjectByName("FinishTime").getComponent("Component.Text") as Text
     print(`[SeatInflateScenario] finish card: "${time.text}" / "${stats.text}"`)

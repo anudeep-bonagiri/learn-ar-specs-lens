@@ -10,11 +10,16 @@ import {EdgeHint} from "../Scripts/EdgeHint"
 import {AskCoach} from "../Scripts/AskCoach"
 import {BenchCoachAskAnswerUI} from "../Scripts/BenchCoachAskAnswerUI"
 import {LAST_STEP, STEPS} from "../Scripts/StepDefinitions"
+import {MIN_BODY_XHEIGHT_DEG, MIN_TITLE_XHEIGHT_DEG, xHeightDeg} from "../Scripts/UIHelpers"
 
 type Rect = {x0: number; x1: number; y0: number; y1: number}
 
 /** Panels whose texts must stay inside their plate (root object names). */
-const PANELS = ["StepLabel", "InfoCallout", "AskChipsPanel", "AskAnswerPanel", "StartCard", "DoneCard", "FinishCard", "ControlBar", "MorePopover", "WatchPill", "ToolTrayPanel"]
+const PANELS = ["StepLabel", "InfoCallout", "AskChipsPanel", "AskAnswerPanel", "StartCard", "DoneCard", "FinishCard", "ControlBar", "MorePopover", "WatchPill", "ToolTrayPanel", "WatchBadgeRoot"]
+
+/** Pass V: body and instruction lines (x-height at least 1.5% of the frame) and titles (2.2%). */
+const BODY_TEXTS = ["LabelText", "Subtitle", "DoneNext", "FinishTip", "AskAnswerText", "InfoLine", "TimeText", "DoneCause", "FinishCause", "FinishTimes"]
+const TITLE_TEXTS = ["Title", "DoneText", "FinishTitle", "FinishTime"]
 
 /**
  * Pass D2, the layout rules that can be checked in code, from the live eye (run it from
@@ -29,7 +34,10 @@ const PANELS = ["StepLabel", "InfoCallout", "AskChipsPanel", "AskAnswerPanel", "
  *    every corner in the clear circle, or above or below the tire; never over the tire,
  *    and their top at most 14 degrees above the eye (pass M: Sujeeth's G5, Specs' top
  *    edge is about 18.5 degrees);
- *  - the What's this? info callout does not overlap the step callout on screen.
+ *  - the What's this? info callout does not overlap the step callout on screen;
+ *  - pass V, the type scale for video: from the live eye every body and instruction line
+ *    has an x-height of at least MIN_BODY_XHEIGHT_DEG (1.5% of the 36.6-degree frame) and
+ *    every title at least MIN_TITLE_XHEIGHT_DEG (2.2%).
  */
 @component
 export class UiLayoutScenario extends Scenario {
@@ -187,9 +195,25 @@ export class UiLayoutScenario extends Scenario {
           expect(ok, `step ${step}: text "${t.getSceneObject().name}" inside the ${name} plate`).toBe(true)
         }
         checked++
+        this.checkSize(step, name, t)
       }
     }
     if (checked === 0) print(`[UiLayoutScenario] step ${step}: no panel texts to check`)
+  }
+
+  /** Pass V: the text's x-height in degrees from the live eye meets its role's minimum. */
+  private checkSize(step: number, panel: string, t: Text): void {
+    const name = t.getSceneObject().name
+    const min = BODY_TEXTS.indexOf(name) >= 0 ? MIN_BODY_XHEIGHT_DEG : TITLE_TEXTS.indexOf(name) >= 0 ? MIN_TITLE_XHEIGHT_DEG : 0
+    if (min === 0) return
+    // Step 5's callout (and the Ask stack under it) faces the far side: it is read from there,
+    // about 35 cm away, and keeps its apparent size; from the start eye it is seen past the
+    // wheel. Checked on the far-side capture instead.
+    if (step === 5 && ["StepLabel", "AskChipsPanel", "AskAnswerPanel"].indexOf(panel) >= 0) return
+    const cam = findSceneObjectByName("Camera Object").getTransform().getWorldPosition()
+    const deg = xHeightDeg(t, t.getSceneObject().getTransform().getWorldPosition().distance(cam))
+    print(`[UiLayoutScenario] step ${step}: ${panel}/${name} x-height ${deg.toFixed(2)} deg (min ${min})`)
+    expect(deg >= min, `step ${step}: ${panel}/${name} x-height ${deg.toFixed(2)} >= ${min} degrees`).toBe(true)
   }
 
   /** Texts under a panel, not descending into nested panels with their own plate (checked on their own). */

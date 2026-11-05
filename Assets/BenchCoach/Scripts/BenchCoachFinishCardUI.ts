@@ -84,17 +84,22 @@ export class BenchCoachFinishCardUI extends BaseScriptComponent {
       distanceCm: this.viewDistanceCm,
       title: {name: "FinishTitle", text: this.titleText, kicker: {name: "FinishKicker", text: "Repair complete", color: COLOR.green}},
       rows: [],
-      pairs: [
-        {name: "FinishTime", label: "Time", value: "0:00"},
-        {name: "FinishCause", label: "Cause", value: "Thorn"},
+      // Pass V: the time and the counts are big numbers (display role) with captions, so
+      // the time reads in a 1080p video; the cause and the slowest steps stay a list.
+      stats: [
+        {name: "FinishTime", label: "Time", value: "0:00", weight: 1.5},
         {name: "FinishLeverMisses", label: "Lever misses", value: "0"},
         {name: "FinishMistakes", label: "Mistakes", value: "0"},
         {name: "FinishHints", label: "Hints", value: "0"},
+      ],
+      pairs: [
+        {name: "FinishCause", label: "Cause", value: "Thorn"},
         {name: "FinishTimes", label: "Slowest", value: "Pull 0:00 · Peel 0:00 · Lever A 0:00"},
       ],
       rowsAfter: [
         {name: "FinishTip", text: "Next time: run a hand round inside the tire before fitting a tube.", role: "body", lines: 2},
-        {name: "FinishPractice", text: "Practice next: nothing stands out.", role: "secondary", lines: 2},
+        // Sized for the longest line it can get (RunStats.practiceTip()).
+        {name: "FinishPractice", text: "Practice next: Second lever and peel, your slowest step at 10:00", role: "secondary", lines: 2},
       ],
       buttons: [{name: "BtnRestart", label: this.restartLabel, icon: ICON_REPLAY, kind: "primary", width: 12, onClick: () => this._onRestart.invoke()}],
     })

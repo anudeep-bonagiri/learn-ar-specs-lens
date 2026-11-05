@@ -10,7 +10,7 @@
 import Event, {PublicApi} from "SpectaclesInteractionKit.lspkg/Utils/Event"
 import {Billboard} from "SpectaclesInteractionKit.lspkg/Components/Interaction/Billboard/Billboard"
 import {FlexAlign, FlexJustify} from "SpectaclesUIKit.lspkg/Scripts/Components/Layout2D/Flex/FlexTypes"
-import {addIconButton, addUIText, flexChild, flexColumn, flexRow, grid, lineCm, makePlate, targetCm} from "./UIHelpers"
+import {addIconButton, addUIText, flexChild, flexColumn, flexRow, grid, lineCm, makePlate, targetCm, plateCm} from "./UIHelpers"
 
 const ICON_CLOSE: Texture = requireAsset("../../Icons/close.png") as Texture
 
@@ -72,6 +72,8 @@ export class BenchCoachAskAnswerUI extends BaseScriptComponent {
   onAwake(): void {
     this.sceneObject.createComponent(Billboard.getTypeName())
     const d = this.viewDistanceCm
+    // Pass V: the plate grows with the type scale (UIHelpers.plateCm).
+    this.panelWidth = plateCm(this.panelWidth, d)
     const g = grid(d)
     // The header row holds BtnAnswerClose, so it is at least a 2-degree target (pass M).
     const headerH = Math.max(lineCm("secondary", d), targetCm(d))
