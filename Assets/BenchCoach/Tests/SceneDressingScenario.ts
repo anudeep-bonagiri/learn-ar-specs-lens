@@ -1,5 +1,6 @@
 import {Scenario} from "Leaf.lspkg/Scenarios/scenario/Scenario"
 import {expect} from "Leaf.lspkg/Utils/common/Expect"
+import {WorkspaceAnchor} from "../Scripts/WorkspaceAnchor"
 import {findSceneObjectByName, sleep} from "Leaf.lspkg/Utils/common/Utils"
 import {BenchCoachLeafInteractor, getRepairManager} from "./BenchCoachLeafInteractor"
 import {Highlighter} from "../Scripts/Highlighter"
@@ -109,9 +110,12 @@ export class SceneDressingScenario extends Scenario {
     const clampPos = findSceneObjectByName("StandClamp").getTransform().getWorldPosition()
     expect(Math.abs(clampPos.x - hubPos.x) + Math.abs(clampPos.y - hubPos.y), "clamp level with the hub").toBeLessThan(0.5)
     expect(hubPos.z - clampPos.z > 6 && hubPos.z - clampPos.z < 11, "clamp just behind the hub").toBe(true)
-    print(`[SceneDressingScenario] hub (${hubPos.x.toFixed(1)}, ${hubPos.y.toFixed(1)}, ${hubPos.z.toFixed(1)})`)
-    expect(hubPos.y < -20 && hubPos.y > -30, "hub 20 to 30 cm below the eye").toBe(true)
-    expect(hubPos.z < -85 && hubPos.z > -95, "hub 85 to 95 cm in front").toBe(true)
+    // Pass D2: the workspace is placed from the start eye (WorkspaceAnchor; zero offset on Specs).
+    const eye = WorkspaceAnchor.offset()
+    const rel = hubPos.sub(eye)
+    print(`[SceneDressingScenario] hub (${hubPos.x.toFixed(1)}, ${hubPos.y.toFixed(1)}, ${hubPos.z.toFixed(1)}), start eye (${eye.x.toFixed(1)}, ${eye.y.toFixed(1)}, ${eye.z.toFixed(1)})`)
+    expect(rel.y < -20 && rel.y > -30, "hub 20 to 30 cm below the start eye").toBe(true)
+    expect(rel.z < -85 && rel.z > -95, "hub 85 to 95 cm in front of the start eye").toBe(true)
 
 
     manager.reset()

@@ -1,5 +1,6 @@
 import {Scenario} from "Leaf.lspkg/Scenarios/scenario/Scenario"
 import {expect} from "Leaf.lspkg/Utils/common/Expect"
+import {WorkspaceAnchor} from "../Scripts/WorkspaceAnchor"
 import {findSceneObjectByName, sleep} from "Leaf.lspkg/Utils/common/Utils"
 import {BenchCoachLeafInteractor, getRepairManager} from "./BenchCoachLeafInteractor"
 import {FloorPath} from "../Scripts/FloorPath"
@@ -53,7 +54,7 @@ export class FloorPathScenario extends Scenario {
     const camTr = camObj.getTransform()
     const camHome = camTr.getWorldPosition()
     const camRot = camTr.getWorldRotation()
-    const far = path.farSpot
+    const far = path.farSpotWorld()
     const goal = new vec3(far.x, camHome.y, far.z)
     let held = 0
     const end = getTime() + 4
@@ -129,12 +130,15 @@ export class FloorPathScenario extends Scenario {
     const stand = findSceneObjectByName("Stand").getComponent(WheelStand.getTypeName()) as WheelStand
     const base = findSceneObjectByName("StandBase").getTransform().getWorldPosition()
     const tripodMaxX = base.x + stand.legSpreadCm + 2
-    const pts = path.arrowPositions
+    // Pass D2: positions relative to the start eye (WorkspaceAnchor; zero offset on Specs).
+    const eye = WorkspaceAnchor.offset()
+    const pts = path.arrowPositions.map((p) => new vec3(p.x - eye.x, p.y, p.z - eye.z))
+    const tripodRel = tripodMaxX - eye.x
     let maxX = -1e9
     for (const p of pts) {
       expect(p.y > matTop && p.y < matTop + 1, "arrow just above the mat").toBe(true)
       expect(p.x > -90 && p.x < 90 && p.z > -150 && p.z < -30, "arrow on the floor mat").toBe(true)
-      expect(p.x > tripodMaxX + 6, "clear of the stand's tripod").toBe(true)
+      expect(p.x > tripodRel + 6, "clear of the stand's tripod").toBe(true)
       maxX = Math.max(maxX, p.x)
     }
     const last = pts[pts.length - 1]

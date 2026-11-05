@@ -3,6 +3,8 @@ import {expect} from "Leaf.lspkg/Utils/common/Expect"
 import {findSceneObjectByName, sleep} from "Leaf.lspkg/Utils/common/Utils"
 import {BenchCoachLeafInteractor, getRepairManager} from "./BenchCoachLeafInteractor"
 import {ProgressRail} from "../Scripts/ProgressRail"
+import {BenchCoachControlBarUI} from "../Scripts/BenchCoachControlBarUI"
+import {BenchCoachStepLabelUI} from "../Scripts/BenchCoachStepLabelUI"
 import {IdleHint} from "../Scripts/IdleHint"
 import {StepMarker} from "../Scripts/StepMarker"
 import {RunStats} from "../Scripts/RunStats"
@@ -43,6 +45,9 @@ export class ProgressIdleScenario extends Scenario {
     print(`[ProgressIdleScenario] step 4: lit ${rail.litCount}, current ${rail.currentIndex}`)
     expect(rail.litCount, "three dots lit on step 4").toBe(3)
     expect(rail.currentIndex, "fourth dot pulses on step 4").toBe(3)
+    // Pass D2: the dock's counter reads "4 / 10".
+    const dock = findSceneObjectByName("ControlBar").getComponent(BenchCoachControlBarUI.getTypeName()) as BenchCoachControlBarUI
+    expect(dock.progressText, "dock counter on step 4").toBe("4 / 10")
     manager.jumpToStep(8)
     await sleep(300)
     expect(rail.litCount, "six dots lit on step 8").toBe(6)
@@ -67,6 +72,8 @@ export class ProgressIdleScenario extends Scenario {
       expect(idle.hintCount, "one hint after a quiet second").toBe(hintsBefore + 1)
       expect(idle.showing, "hint showing").toBe(true)
       expect(label.text, "label shows the step's hint").toBe(STEPS[2].hint)
+      const callout = findSceneObjectByName("StepLabel").getComponent(BenchCoachStepLabelUI.getTypeName()) as BenchCoachStepLabelUI
+      expect(callout.mode, "callout in its hint state (pulsing accent edge)").toBe("hint")
       expect(marker.boostCount, "marker pulse boosted").toBe(boostsBefore + 1)
       expect(marker.isBoosted(), "marker boosted now").toBe(true)
       expect(stats.hintsUsed, "RunStats counts the hint").toBe(statsBefore + 1)

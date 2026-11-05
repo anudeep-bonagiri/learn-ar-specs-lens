@@ -64,10 +64,11 @@ export class SeatInflateScenario extends Scenario {
     // ── Step 11: Finish card ───────────────────────────────────────────────
     expect(finishCard.enabled, "FinishCard enabled").toBe(true)
     expect(findSceneObjectByName("DoneCard").enabled, "halfway card hidden").toBe(false)
-    const stats = findSceneObjectByName("FinishStats").getComponent("Component.Text") as Text
+    // Pass D2: the stats are rows of a two-column list.
+    const stats = findSceneObjectByName("FinishLeverMissesLabel").getComponent("Component.Text") as Text
     const time = findSceneObjectByName("FinishTime").getComponent("Component.Text") as Text
     print(`[SeatInflateScenario] finish card: "${time.text}" / "${stats.text}"`)
-    expect(stats.text.indexOf("misses") >= 0, "stats line names the misses").toBe(true)
+    expect(stats.text.indexOf("misses") >= 0, "stats list names the misses").toBe(true)
     expect(time.text.indexOf(":") >= 0, "time on the Finish card").toBe(true)
     expect(audio.finishPlays, "Finish cue once").toBe(finishBefore + 1)
     expect(audio.donePlays, "no halfway Done cue on the Finish").toBe(doneBefore)

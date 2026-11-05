@@ -27,6 +27,10 @@ export class WhatsThisScenario extends Scenario {
     const leverA = leverAObj.getComponent(LeverPlacement.getTypeName()) as LeverPlacement
     const label = findSceneObjectByName("LabelText").getComponent("Component.Text") as Text
     const labelObj = findSceneObjectByName("StepLabel")
+    // Pass D2: prompt and facts show on the info callout; the step callout keeps its instruction.
+    const infoObj = findSceneObjectByName("InfoCallout")
+    const infoTitle = findSceneObjectByName("InfoTitle").getComponent("Component.Text") as Text
+    const infoLine = findSceneObjectByName("InfoLine").getComponent("Component.Text") as Text
     const valve = findSceneObjectByName("Valve")
     expect(info, "PartInfo script").toBeTruthy()
     const fact = (id: string) => PART_FACTS.filter((f) => f.id === id)[0]
@@ -42,17 +46,29 @@ export class WhatsThisScenario extends Scenario {
     expect(manager.interactionsPaused, "step interactions paused").toBe(true)
     expect(bar.whatsThisOn, "toggle latched").toBe(true)
     expect(valveTarget.enabled, "valve pinch target off while paused").toBe(false)
-    expect(label.text, "prompt on the label").toBe(info.promptText)
+    expect(infoObj.enabled, "info callout shown").toBe(true)
+    expect(infoTitle.text, "prompt on the info callout").toBe(info.promptText)
+    expect(infoLine.text, "prompt line on the info callout").toBe(info.promptLine)
+    expect(label.text, "the step callout keeps its instruction").toBe(STEPS[1].label)
 
     // ── Pinch the valve's info box ──────────────────────────────────────────
     await interactor.tap("InfoHit_Valve")
     await sleep(200)
-    print(`[WhatsThisScenario] valve: "${label.text}"`)
+    print(`[WhatsThisScenario] valve: "${infoTitle.text}: ${infoLine.text}"`)
     expect(info.lastPart, "valve picked").toBe("Valve")
-    expect(label.text, "valve fact on the label").toBe(`Valve: ${fact("Valve").fact}`)
-    const labelToValve = labelObj.getTransform().getWorldPosition().distance(valve.getTransform().getWorldPosition())
-    print(`[WhatsThisScenario] label ${labelToValve.toFixed(1)} cm from the valve`)
-    expect(labelToValve, "label next to the valve").toBeLessThan(12)
+    expect(info.lastText, "valve fact").toBe(`Valve: ${fact("Valve").fact}`)
+    expect(infoTitle.text, "valve name on the info callout").toBe("Valve")
+    expect(infoLine.text.toLowerCase(), "valve fact on the info callout").toBe(fact("Valve").fact.toLowerCase())
+    expect(label.text, "the step callout still shows step 1").toBe(STEPS[1].label)
+    // Beside the valve when the valve is in view; otherwise it slides into view (never cut off).
+    const camera = findSceneObjectByName("Camera Object").getComponent("Component.Camera") as Camera
+    const vs = camera.worldSpaceToScreenSpace(valve.getTransform().getWorldPosition())
+    const is = camera.worldSpaceToScreenSpace(infoObj.getTransform().getWorldPosition())
+    const infoToValve = infoObj.getTransform().getWorldPosition().distance(valve.getTransform().getWorldPosition())
+    const valveInView = vs.x > 0 && vs.x < 1 && vs.y > 0 && vs.y < 1
+    print(`[WhatsThisScenario] info callout ${infoToValve.toFixed(1)} cm from the valve; valve ${valveInView ? "in" : "out of"} view; card at screen (${is.x.toFixed(2)}, ${is.y.toFixed(2)})`)
+    if (valveInView) expect(infoToValve, "info callout beside the valve").toBeLessThan(25)
+    expect(is.x > 0.05 && is.x < 0.95 && is.y > 0.05 && is.y < 0.95, "info callout inside the view").toBe(true)
     expect(manager.getState().step, "still step 1 (the valve pinch did not deflate)").toBe(1)
     expect(findSceneObjectByName("InfoHit_Cause").enabled, "no cause box before the cause is found").toBe(false)
 
@@ -69,6 +85,7 @@ export class WhatsThisScenario extends Scenario {
     expect(valveTarget.enabled, "valve takes pinches again").toBe(true)
     expect(label.text, "step 1 label back").toBe(STEPS[1].label)
     expect(findSceneObjectByName("InfoHits").enabled, "info boxes hidden").toBe(false)
+    expect(infoObj.enabled, "info callout hidden").toBe(false)
 
     // ── Levers: their boxes follow them; snapping is off while paused ──────
     manager.jumpToStep(3)
@@ -104,15 +121,18 @@ export class WhatsThisScenario extends Scenario {
     expect(labelObj.enabled, "no step label on the halfway card").toBe(false)
     await interactor.tap("BtnWhatsThis")
     await sleep(300)
-    expect(labelObj.enabled, "prompt shown on the halfway card").toBe(true)
+    expect(infoObj.enabled, "prompt shown on the halfway card").toBe(true)
+    expect(labelObj.enabled, "the step callout stays hidden on the card").toBe(false)
     await interactor.tap("InfoHit_Cause")
     await sleep(200)
-    print(`[WhatsThisScenario] cause: "${label.text}"`)
-    expect(label.text, "cause fact names the glass").toBe("Cause: a sliver cut through the tread.")
+    print(`[WhatsThisScenario] cause: "${info.lastText}"`)
+    expect(info.lastText, "cause fact names the glass").toBe("Cause: a sliver cut through the tread.")
+    expect(infoTitle.text, "cause on the info callout").toBe("Cause")
     expect(FLAT_CAUSES.glass.fact.indexOf("sliver") >= 0, "fact comes from FLAT_CAUSES").toBe(true)
     await interactor.tap("BtnWhatsThis")
     await sleep(300)
     expect(labelObj.enabled, "label hidden again on the halfway card").toBe(false)
+    expect(infoObj.enabled, "info callout hidden again").toBe(false)
 
     manager.forceCause = ""
     manager.reset()

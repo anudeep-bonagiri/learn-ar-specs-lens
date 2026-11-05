@@ -25,7 +25,14 @@ export class StartScenario extends Scenario {
     expect(startCard, "StartCard exists").toBeTruthy()
     expect(marker, "StepMarker exists").toBeTruthy()
     expect(valve, "Valve exists").toBeTruthy()
-    expect(findSceneObjectByName("StandInBadge"), "StandInBadge exists").toBeTruthy()
+    // Pass D2: no debug text on the card (the stand-in note is logged); a floor status line instead.
+    expect(findSceneObjectByName("StandInBadge"), "no stand-in badge on the start card").toBeFalsy()
+    const floorLine = (findSceneObjectByName("FloorStatus").getComponent("Component.Text") as Text).text
+    print(`[StartScenario] floor line: "${floorLine}"`)
+    expect(
+      ["Look down at your work spot", "Floor found", "Using a standard floor height"].indexOf(floorLine) >= 0,
+      "floor line shows the floor status"
+    ).toBe(true)
 
     expect(manager.getState().step, "starts at step 0").toBe(0)
     expect(wheel.enabled, "Wheel hidden before Found it").toBe(false)

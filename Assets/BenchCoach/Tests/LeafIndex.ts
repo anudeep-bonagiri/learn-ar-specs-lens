@@ -20,6 +20,7 @@ import {FloorPathScenario} from "./FloorPathScenario"
 import {CoachReportScenario} from "./CoachReportScenario"
 import {ControlBarScenario} from "./ControlBarScenario"
 import {FloorLevelScenario} from "./FloorLevelScenario"
+import {UiLayoutScenario} from "./UiLayoutScenario"
 
 @component
 export class LeafIndex extends BaseScriptComponent {
@@ -101,6 +102,10 @@ export class LeafIndex extends BaseScriptComponent {
     {
       id: "floor-level",
       typename: FloorLevelScenario.getTypeName(),
+    },
+    {
+      id: "ui-layout",
+      typename: UiLayoutScenario.getTypeName(),
     },
     {
       id: "jump-to-step",

@@ -86,14 +86,16 @@ export class CoachReportScenario extends Scenario {
     for (let s = 1; s < LAST_STEP; s++) print(`[CoachReportScenario]   step ${s} ${STEPS[s].name}: ${stats.stepSeconds(s).toFixed(2)} s`)
     expect(practice, "practice line is the leverTooFar tip").toBe(MISTAKE_TIPS["leverTooFar"])
     expect(stats.practiceTip(), "practiceTip() matches").toBe(MISTAKE_TIPS["leverTooFar"])
-    expect(times.indexOf("Slowest: ") === 0, "time row starts with Slowest:").toBe(true)
-    const entries = times.substring("Slowest: ".length).split(" · ")
+    // Pass D2: the card is a two-column list; "Slowest" is the row's label, the steps its value.
+    expect(this.text("FinishTimesLabel"), "time row label").toBe("Slowest")
+    const entries = times.split(" · ")
     expect(entries.length, "three entries in the time row").toBe(3)
     for (const e of entries) expect(/\d+:\d\d$/.test(e), `"${e}" ends in m:ss`).toBe(true)
     expect(stats.slowestStep(), "step 3 is the slowest").toBe(3)
     for (let s = 1; s < LAST_STEP; s++) expect(stats.stepSeconds(s) >= 0, `step ${s} timed`).toBe(true)
-    expect(this.text("FinishCause").indexOf("Cause:") === 0, "cause line kept").toBe(true)
-    expect(this.text("FinishStats").indexOf("Lever misses 2") === 0, "stats line kept (2 lever misses)").toBe(true)
+    expect(this.text("FinishCauseLabel"), "cause row label").toBe("Cause")
+    expect(this.text("FinishCause").length > 0, "cause row has the cause").toBe(true)
+    expect(this.text("FinishLeverMisses"), "lever misses row (2 lever misses)").toBe("2")
     expect(this.text("FinishTip").indexOf("Next time:") === 0, "tip line kept").toBe(true)
     if (stay > 0) return
 
@@ -116,7 +118,7 @@ export class CoachReportScenario extends Scenario {
     await sleep(300)
     expect(stats.slowestStep(), "jumpToStep records no times").toBe(-1)
     expect(this.text("FinishPractice"), "clean line after a jump").toBe(PRACTICE_CLEAN)
-    expect(this.text("FinishTimes"), "no timed steps after a jump").toBe("Slowest: no timed steps")
+    expect(this.text("FinishTimes"), "no timed steps after a jump").toBe("no timed steps")
 
     manager.reset()
     await sleep(300)

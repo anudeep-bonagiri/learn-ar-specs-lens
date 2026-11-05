@@ -12,8 +12,20 @@ import {RepairManager} from "../Scripts/RepairManager"
  * total-displacement drag is frame-rate dependent; this one checks the actual
  * position each frame and releases when it arrives or times out).
  */
+/** Buttons inside the dock's More popover. */
+const MORE_ITEMS = ["BtnWhatsThis", "BtnAsk"]
+
 export class BenchCoachLeafInteractor extends DefaultLeafInteractor {
   async tap(name: string): Promise<void> {
+    // Pass D2: What's this? and Ask the coach live in the dock's More popover; open it
+    // first, as a user would.
+    if (MORE_ITEMS.indexOf(name) >= 0 && !findInteractablesByName(name, undefined, true)[0]) {
+      const more = findInteractablesByName("BtnMore", undefined, true)[0]
+      if (more) {
+        await this.trigger(more)
+        await sleep(400)
+      }
+    }
     const target = findInteractablesByName(name, undefined, true)[0]
     if (!target) throw new Error(`Interactable "${name}" not found or not enabled`)
     await this.trigger(target)

@@ -35,14 +35,16 @@ export class ControlBarScenario extends Scenario {
 
     // ── Hit boxes ─────────────────────────────────────────────────────────
     for (let i = 0; i < 50 && bar.hitBoxes.length === 0; i++) await sleep(100)
-    expect(bar.hitBoxes.length, "five hit boxes measured").toBe(5)
+    // Pass D2: the dock row (Back, Replay, Next, More) and the More popover (What's this?, Ask).
+    expect(bar.hitBoxes.length, "six hit boxes measured (dock row and More popover)").toBe(6)
     for (let i = 0; i < bar.hitBoxes.length; i++) {
       const h = bar.hitBoxes[i]
       const w = h.right - h.left
-      print(`[ControlBarScenario] ${h.name} ${h.left.toFixed(2)}..${h.right.toFixed(2)} (visual ${h.visualWidth.toFixed(2)})`)
+      print(`[ControlBarScenario] ${h.row} ${h.name} ${h.left.toFixed(2)}..${h.right.toFixed(2)} (visual ${h.visualWidth.toFixed(2)})`)
       expect(Math.abs(w - h.visualWidth), `${h.name} hit box as wide as its visual`).toBeLessThan(0.05)
-      if (i + 1 < bar.hitBoxes.length) {
-        expect(bar.hitBoxes[i + 1].left - h.right, `${h.name} clear of ${bar.hitBoxes[i + 1].name}`).toBeGreaterThan(0.4)
+      const next = bar.hitBoxes[i + 1]
+      if (next && next.row === h.row) {
+        expect(next.left - h.right, `${h.name} clear of ${next.name}`).toBeGreaterThan(0.4)
       }
     }
     expect(bar.hitBoxesClear, "bar reports its hit boxes clear").toBe(true)
@@ -55,7 +57,7 @@ export class ControlBarScenario extends Scenario {
     }
     for (let i = 0; i < global.scene.getRootObjectsCount(); i++) walk(global.scene.getRootObject(i))
     const live = buttons.filter((b) => b.initialized)
-    expect(live.length, "bar and start card buttons are up").toBeGreaterThan(6)
+    expect(live.length, "dock, popover, pill, Ask and card buttons are up").toBeGreaterThan(12)
     for (const b of live) {
       expect(b.interactable.targetingMode, `${b.getSceneObject().name} answers only a ray pinch`).toBe(TargetingMode.Indirect)
     }
@@ -78,6 +80,13 @@ export class ControlBarScenario extends Scenario {
     expect(manager.getState().step, "Replay keeps step 4").toBe(4)
     expect(manager.replayCount, "Replay acted once").toBe(1)
     expect(manager.lastReplay.indexOf("ghost") >= 0, "Replay showed the ghost lever on step 4").toBe(true)
+
+    // More opens and closes its popover and changes nothing else.
+    await interactor.tap("BtnMore")
+    expect(bar.moreOpen, "More opens the popover").toBe(true)
+    expect(manager.getState().step, "More keeps the step").toBe(4)
+    await interactor.tap("BtnMore")
+    expect(bar.moreOpen, "More closes the popover").toBe(false)
 
     await interactor.tap("BtnWhatsThis")
     expect(info.active, "What's this? on").toBe(true)

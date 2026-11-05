@@ -6,6 +6,7 @@ import {AskCoach} from "../Scripts/AskCoach"
 import {PartInfo} from "../Scripts/PartInfo"
 import {IdleHint} from "../Scripts/IdleHint"
 import {BenchCoachControlBarUI} from "../Scripts/BenchCoachControlBarUI"
+import {BenchCoachStepLabelUI} from "../Scripts/BenchCoachStepLabelUI"
 import {COACH_QUESTIONS} from "../Scripts/StepDefinitions"
 
 /**
@@ -31,6 +32,7 @@ export class AskCoachFallbackScenario extends Scenario {
     const answerText = findSceneObjectByName("AskAnswerText").getComponent("Component.Text") as Text
     const tagText = findSceneObjectByName("AskSourceTag").getComponent("Component.Text") as Text
     const labelObj = findSceneObjectByName("StepLabel")
+    const callout = labelObj.getComponent(BenchCoachStepLabelUI.getTypeName()) as BenchCoachStepLabelUI
     expect(ask, "AskCoach on BenchCoach").toBeTruthy()
 
     ask.forceCanned = true
@@ -62,12 +64,33 @@ export class AskCoachFallbackScenario extends Scenario {
     expect(ms, "answer within 2 s").toBeLessThan(2000)
     expect(ask.lastAnswer, "canned answer").toBe(q[0].a)
     expect(answerText.text, "answer label shows the canned answer").toBe(q[0].a)
-    expect(tagText.text, "source tag").toBe("offline")
+    expect(tagText.text, "source tag").toBe("Offline answer")
     expect(answerPanel.enabled, "answer panel shown").toBe(true)
-    const toLabel = answerPanel.getTransform().getWorldPosition().distance(labelObj.getTransform().getWorldPosition())
-    print(`[AskCoachFallbackScenario] answer panel ${toLabel.toFixed(1)} cm from the step label`)
-    expect(toLabel, "answer next to the step label (by the part)").toBeLessThan(10)
+    // Pass D2: the answer takes the chips' slot under the step callout.
+    expect(chipsPanel.enabled, "chips give way to the answer").toBe(false)
+    const lp = labelObj.getTransform().getWorldPosition()
+    const ap = answerPanel.getTransform().getWorldPosition()
+    print(`[AskCoachFallbackScenario] answer panel ${ap.distance(lp).toFixed(1)} cm from the step callout, ${(lp.y - ap.y).toFixed(1)} cm below it`)
+    expect(ap.distance(lp), "answer hangs from the step callout").toBeLessThan(14)
+    expect(lp.y - ap.y > 0, "answer under the callout").toBe(true)
+    expect(callout.zone === "top" || callout.zone === "bottom", "with Ask open the callout sits above or below the tire, off the wheel").toBe(true)
     expect(manager.getState().step, "still step 5").toBe(5)
+
+    // ── Answer close: the chips come back; chips close: Ask closes ─────────
+    await interactor.tap("BtnAnswerClose")
+    await sleep(300)
+    expect(answerPanel.enabled, "answer closed").toBe(false)
+    expect(chipsPanel.enabled, "chips back after closing the answer").toBe(true)
+    expect(ask.open, "Ask still open").toBe(true)
+    await interactor.tap("BtnAskClose")
+    await sleep(300)
+    expect(ask.open, "chips close button closes Ask").toBe(false)
+    expect(bar.askOn, "Ask toggle released by the close button").toBe(false)
+    await interactor.tap("BtnAsk")
+    await sleep(300)
+    await interactor.tap("AskChip_0")
+    await sleep(300)
+    expect(answerPanel.enabled, "answer shown after reopening").toBe(true)
 
     // ── What's this? and Ask exclude each other ────────────────────────────
     await interactor.tap("BtnWhatsThis")

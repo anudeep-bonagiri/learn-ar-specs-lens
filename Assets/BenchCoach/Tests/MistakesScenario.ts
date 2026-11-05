@@ -1,5 +1,6 @@
 import {Scenario} from "Leaf.lspkg/Scenarios/scenario/Scenario"
 import {expect} from "Leaf.lspkg/Utils/common/Expect"
+import {BenchCoachStepLabelUI} from "../Scripts/BenchCoachStepLabelUI"
 import {findSceneObjectByName, sleep} from "Leaf.lspkg/Utils/common/Utils"
 import {findInteractablesByName} from "Leaf.lspkg/Interactors/InteractableUtils"
 import {BenchCoachLeafInteractor, getRepairManager} from "./BenchCoachLeafInteractor"
@@ -27,6 +28,7 @@ export class MistakesScenario extends Scenario {
     const stats = root.getComponent(RunStats.getTypeName()) as RunStats
     const audio = findSceneObjectByName("Audio").getComponent(BenchCoachAudio.getTypeName()) as BenchCoachAudio
     const label = findSceneObjectByName("LabelText").getComponent("Component.Text") as Text
+    const callout = findSceneObjectByName("StepLabel").getComponent(BenchCoachStepLabelUI.getTypeName()) as BenchCoachStepLabelUI
     expect(fb, "CoachFeedback script").toBeTruthy()
 
     const check = (code: string, step: number, countBefore: number, nopeBefore: number) => {
@@ -34,6 +36,7 @@ export class MistakesScenario extends Scenario {
       expect(fb.mistakeCount, `${code} counted`).toBe(countBefore + 1)
       expect(fb.lastCode, `${code} is the last code`).toBe(code)
       expect(label.text, `${code} reason on the label`).toBe(MISTAKES[code])
+      expect(callout.mode, `${code}: callout in its amber mistake state`).toBe("mistake")
       expect(audio.nopePlays, `${code} plays nope`).toBe(nopeBefore + 1)
       expect(manager.getState().step, `${code} leaves step ${step}`).toBe(step)
     }
@@ -50,6 +53,7 @@ export class MistakesScenario extends Scenario {
     await sleep(2800)
     expect(fb.showing, "reason gone after 2.5 s").toBe(false)
     expect(label.text, "step 1 label back").toBe(STEPS[1].label)
+    expect(callout.mode, "callout back to normal").toBe("normal")
 
     // ── Step 2: the valve again ────────────────────────────────────────────
     await interactor.tap("Valve")

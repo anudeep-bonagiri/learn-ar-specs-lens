@@ -61,7 +61,8 @@ export class FlatCausesScenario extends Scenario {
         const causeText = (findSceneObjectByName("FinishCause").getComponent("Component.Text") as Text).text
         const tipText = (findSceneObjectByName("FinishTip").getComponent("Component.Text") as Text).text
         print(`[FlatCausesScenario] ${id}: finish "${causeText}" / "${tipText}"`)
-        expect(causeText, `${id}: Finish card names the cause`).toBe(`Cause: ${cause.label}`)
+        // Pass D2: "Cause" is the row label; the value is the cause, capitalized.
+        expect(causeText, `${id}: Finish card names the cause`).toBe(cause.label.charAt(0).toUpperCase() + cause.label.substring(1))
         expect(tipText, `${id}: Finish card tip`).toBe(`Next time: ${cause.tip}`)
       }
 
