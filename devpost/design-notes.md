@@ -1757,3 +1757,129 @@ Not possible:
 - **Nobody has listened to the cut.** The mix was checked by level only (about -16 LUFS).
 - **The footage, narration, edit list and tools are kept outside the repo.**
 - **The video is not uploaded.**
+
+## 2026-11-06: Pass P, what the footage showed
+
+On `main`. Each flaw that pass R's footage showed was reproduced, fixed at its cause where that was small, and checked by a capture and a LEAF assertion. Built through the CLAD skills (preview inspection, preview interaction, LEAF in preview) and the Lens Studio MCP, one call at a time. Captures are in `scratchpad/shots/pass-p/` (`before-*`, `after-*`, `judge/`, `contact-sheet.png`). The before captures for items 2 to 7 are frames of the Nov 5 takes (the same build), at the moments pass R noted.
+
+### Items
+
+1. **Doubled callout text.**
+   - Wrong: at a step change the callout looked doubled.
+   - Cause: there is no cross-fade; the text swaps in one frame. UIKit's `FlexLayout` runs its first layout from `OnStartEvent`, in the next `LateUpdate`. A panel that is off at Lens start (the step callout, the cards, What's this?, Ask) drew every child at the column's centre on the frame it first showed: "Step 2 of 10" over the instruction. In t05-oner this is the frame at 12.97 s. The step 5 "doubling" in t04 and t05 was the spokes in front of the text (item 7).
+   - Fix: `UIHelpers.makeFlex` keeps a root flex column at zero scale until its first layout is done (one frame at a normal frame rate). It covers every panel.
+   - Checked: every frame of a jump to step 2 (`before-1-callout-frames.png`: frame 44 has the kicker on the text; `after-1-callout-frames.png`: one empty plate, then the laid-out text). `ui-layout` now watches every frame of its run for two visible texts overlapping on one plate. With the fix switched off it failed on the step callout and the halfway card; with it on, 1,521 frames and no overlap.
+2. **What's this? covered the part.**
+   - Cause: the candidates were toward the view centre, up, down and the diagonals. `intoView()` then slid each one back toward the centre, so with the valve at the top of the frame "up" came back down onto the valve and lever A. Nothing checked the part itself.
+   - Fix (`BenchCoachInfoCalloutUI`, `PartInfo`): the card searches 12 directions round its part at growing distances.
+     - It must keep off its part's pinch box and the step callout, and stay inside the view.
+     - Where a spot allows it, it also keeps off the marker ring, off the valve and the levers within 40 cm, off any other part within 18 cm, and keeps its leader off the callout.
+     - It stands at least as far out as the step callout's plane; the axle end poked through it.
+     - A spot that still passes is kept.
+   - Checked: `after-2-whats-valve-step6.png` and `after-2b-whats-tire-step6.png`: valve, lever A and the top of the tire are visible. `ui-layout` checks every pinchable part on screen on steps 1, 4 and 5: card off the part, the callout and the frame edge, the ring clear for Valve and Tire. `whats-this` measures "beside" from the card's side (within 15 cm).
+3. **Step 2's callout ran off the frame.**
+   - Cause: the inside-the-rim search took the first spot that cleared the ring. Nothing checked the frame.
+   - Fix (`BenchCoachStepLabelUI.insideSpot`): a spot must have every corner in the view, with a 2% margin, while the hub is in view (so it does not chase the frame when the user looks away). This also applies when the marker itself is out of view, as on step 2's low beads. If no spot on the marker-to-hub line is in view, it tries straight above and below the hub. That was needed from Sunlit Room's default pose, where the hub sits at the frame's bottom edge.
+   - Checked: `after-3-step2-watch-frames.png`. `ui-layout` asserts the plate's corners inside the frame (1% margin) on every step and after each bead of steps 2 and 9, in both rooms.
+4. **The floor drop.**
+   - Cause of the 12 s: a level seen only by World Query waited `maxWaitSec + meshWaitSec` (3 + 8 s) for world-mesh support, and in the preview the mesh mostly never answers.
+   - Fix (`FloorLevel`, `WheelStand`, `FloorAnchor`, `FloorPath`):
+     - A World-Query-only level decides early when 16 hits in 12 cells, spread over at least 120 cm, have agreed on it for 1 s.
+     - Every change of the shown floor eases out over 0.5 s, advanced per frame with the frame time capped at 1/20 s so a stall cannot skip it.
+     - Stand, mat and path move together each frame; the stand stretches its post and keeps the clamp at the hub. They rebuild once at the end.
+     - The correction window is unchanged, so criterion 19 holds: a lower wide level found later moves everything down, now eased.
+   - Time to floor:
+
+     | Room and pose | Before | After |
+     | --- | --- | --- |
+     | Garage, looking down at the work spot (the README's procedure) | about 11.3 s | 4.4 and 4.6 s (early, 42 to 46 hits) |
+     | Garage, start-card pose | 11 to 12 s | 11.0 to 11.5 s (10 hits, below the early rule, so unchanged) |
+     | Sunlit Room, default pose | about 11 s | 11.0 to 11.4 s (5 or 6 hits, unchanged) |
+
+   - Checked: `after-4-floor-settle-frames.png` (the mat edge and a tripod leg slide down over about 10 frames). `floor-level` asserts the eased correction: in the Garage, 16 samples, 10 between the levels, largest step 2.2 cm, mat with the stand. `floor-level` and `scene-dressing` wait for the ease before they read the stand.
+5. **The idle hint hid the instruction.**
+   - Fix (`BenchCoachStepLabelUI.showHint`, `Plate.setHeight`): the instruction stays, and the plate grows by a "Hint" kicker and the hint line (one or two lines).
+   - Steps 4, 6 and 10 keep the old swap, because their hints state the whole step:
+     - 4: "Hook the second lever on the ghost, then slide it down."
+     - 6: "Look for a glint on the tire. Pinch it."
+     - 10: "Pinch the valve and keep holding."
+   - A mistake reason still survives a hint (pass G7; `mistakes` passes).
+   - Checked: `after-5-idle-hint-step2.png`. `progress-idle` asserts the instruction stays and the hint line shows under it.
+6. **Step 8 was hard to see.**
+   - Cause: each segment slid in from 4 cm for 0.3 s and vanished into the tire, so the whole fit took about 1.3 s.
+   - Fix (`TubePull`, `RefitSteps`, scene timing):
+     - The new tube feeds in from the valve both ways in a lighter amber (`refitTint`), 0.18 s apart, 0.45 s each, from 8 cm.
+     - Each segment stops 1.5 cm in front of the tire, so a ring builds round the wheel.
+     - Then the whole tube presses in over 0.3 s while its tone fades back: the seated moment. No particles.
+     - Watch mode budgets the beat from the same numbers. The fit now takes about 2.4 s.
+   - Checked: `after-6-refit-frames.png`. `refit-tube` asserts 29 samples lighter than the tire (0.51 against 0.38), the ring, the seat and the tone back.
+7. **Step 5 from the near side.**
+   - Fix (`BenchCoachStepLabelUI`): on step 5 the far-side callout hides while the line from the eye to it crosses the wheel disc, unless Ask or What's this? hangs under it. The edge arrow (`EdgeHint` ignores the hidden plate) and the floor path send the user round. The full callout comes in once the user is behind the wheel or sees it clear of the tire. No extra line was added.
+   - Checked: `after-7-step5-near-and-far.png`. `floor-path` asserts the hide from the start eye and the full callout with its leader at the far spot (31 polls). `peel-and-pull` passes.
+8. **The freeze under load in `setDuck`.**
+   - Fix (`BenchCoachAudio`, `VoiceCoach`):
+     - `setDuck` writes only to a long cue that is playing, and only when the value changes;
+     - a cue that starts later gets the duck when it starts;
+     - `cut()` no longer touches the duck, and the voice coach applies it only from its own `UpdateEvent`.
+   - The `[Voice]` and `[Audio]` lines are unchanged.
+   - Checked: `voice-coach` asserts the duck writes no volume while no long cue plays. Not chased further.
+9. **Sunlit Room, the sofa.** Not fixed.
+   - From the default pose World Query sees 5 or 6 hits at -138.2 to -138.4, and never the floor. The world mesh saw -150.4 once in this pass.
+   - The suggested rule does not apply: the level is 138 cm below the eye, not under 110.
+   - Item 4 does not change it: 5 hits are below the early rule.
+   - The README's known gap stands.
+
+### Judged as a judge would (Garage, recording pose)
+
+Watch first from the start card to the Finish card was recorded at 1080 px (2,058 frames) and checked frame by frame. So were a mistake (`leverTooFar`), What's this? on the valve and on the tire, Ask with the offline answer, and the halfway card (`judge/`).
+- Every word reads.
+- Nothing overlaps or leaves the frame.
+- Nothing is doubled.
+
+### LEAF
+
+One scenario per call, `__leaf__log_level=ERROR`, the project saved first.
+
+| Scenario | Garage room, recording pose | Sunlit Room, default pose |
+| --- | --- | --- |
+| `start` | PASSED | PASSED (FAILED once, first run after the room switch, see below) |
+| `deflate-loosen` | PASSED | PASSED |
+| `lever-snap` | PASSED | PASSED |
+| `peel-and-pull` | PASSED | PASSED |
+| `inspect-done` | PASSED | PASSED |
+| `step-ticks` | PASSED | PASSED |
+| `scene-dressing` | PASSED | PASSED |
+| `refit-tube` | PASSED | PASSED |
+| `seat-inflate` | PASSED | PASSED |
+| `whats-this` | PASSED | PASSED |
+| `mistakes` | PASSED | PASSED |
+| `flat-causes` | PASSED | PASSED |
+| `progress-idle` | PASSED | PASSED |
+| `watch-mode` | PASSED (plugin line; the MCP call timed out) | PASSED (plugin line; the MCP call timed out) |
+| `ask-coach-fallback` | PASSED | PASSED |
+| `floor-path` | PASSED | PASSED |
+| `coach-report` | PASSED | PASSED |
+| `control-bar` | PASSED | PASSED |
+| `floor-level` | PASSED | FAILED, then not re-run (see below) |
+| `ui-layout` | PASSED | PASSED |
+| `voice-coach` | PASSED | PASSED |
+| `jump-to-step` | PASSED | PASSED |
+
+- **`watch-mode`** takes 59 to 60 s, at the MCP call's limit (one more second for the step 8 fit). In the Garage sweep the call timed out and the next run reset the scene while it ran. Run again alone, the plugin logged "Scenario watch-mode completed successfully" after 59.8 s. In Sunlit Room it completed too.
+- **`start` in Sunlit Room** failed once: 0.3 s after Found it the 1.4 s scan sweep was already holding. This was the first run after switching rooms, with frames stalling; it passed when run again. The scan reveal was not changed.
+- **`floor-level` in Sunlit Room** failed: one stalled frame covered the whole 0.5 s ease (1 sample, a 12 cm step). That led to the per-frame cap on the ease. The project compiles with it (offline `lensifyts tsc-only`, no errors), but **neither sweep was run on it**: the next `floor-level` run never reported and Lens Studio stopped answering the MCP. Every other row ran on the code before that one change.
+
+### Findings
+
+- **The screen locked at 01:11.** From then on the Preview paused itself, and macOS background jobs (`mediaanalysisd`, Spotlight) held the load at 100 to 160 for about an hour. LEAF runs hung and the Lens took minutes to start. `PreviewPanelTool resume` and waiting were the only remedies. Nothing ran usefully until about 02:15.
+- **New inputs are stored in the scene at their first compiled value.** `earlyHits` and `earlyCells` were later lowered to 8 and 6 in code, but the scene kept 16 and 12. So every run used 16 and 12, and the code defaults were set back to match.
+- **From the start-card pose World Query gets only about 10 floor hits in the Garage,** and none at all when looking straight at the wheel. A reset from the wheel pose falls back to -150.
+
+### Left over
+
+- **The full sweeps were not repeated on the last `FloorLevel` change** (the per-frame cap on the ease). The README's "Last full run" line is not updated.
+- **What's this? Valve at the recording pose** sits under the step callout, close to it, with its leader passing behind the callout. There is no room above the valve for a card 60% of the frame's width.
+- **Lever A on step 4 from Sunlit Room's default pose** has no spot clear of the lever, the callout and the frame. The card covers the lever's handle, and `ui-layout` logs it.
+- **In Watch mode, step 5 from the near side shows no text.** Watch hides the floor path, and the callout is hidden while seen through the wheel; the voice line carries the step.
+- **Item 9** stays a known gap.
+- **The Preview is left in Sunlit Room on a stalled `floor-level` run,** not on the Garage start card. Lens Studio stopped answering the MCP at 03:27. The project was saved before that run.
