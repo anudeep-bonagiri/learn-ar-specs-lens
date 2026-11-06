@@ -83,7 +83,7 @@ You stand at the wheel with a tire lever hooked under the bead. The next step is
 
 ## Done criteria and test results
 
-Last full run: Nov 5, 2026, Lens Studio 5.24.1. All 21 passed in the Garage preview room and in Sunlit Room.
+Last full run: Nov 6, 2026, Lens Studio 5.24.1. All 21 passed in the Garage preview room and in Sunlit Room.
 
 | # | Done criterion | LEAF test | Status |
 |---|---|---|---|
