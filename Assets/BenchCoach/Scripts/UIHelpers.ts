@@ -708,6 +708,14 @@ export class Plate {
     })
   }
 
+  /** Pass P: a new plate height in cm (the step callout grows by its hint line). */
+  setHeight(h: number): void {
+    if (Math.abs(h - this.height) < 1e-3) return
+    this.height = h
+    this.backPlate.size = new vec2(this.width, h)
+    if (this.rect) this.rect.cornerRadius = Math.min(this.g.radius, h / 2)
+  }
+
   /** Edge colour (COLOR.edge, COLOR.amber, the accent at any alpha). */
   setEdge(c: vec4): void {
     this.edgeColor = c

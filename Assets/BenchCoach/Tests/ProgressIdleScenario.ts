@@ -71,9 +71,15 @@ export class ProgressIdleScenario extends Scenario {
       print(`[ProgressIdleScenario] hint on step 2: "${label.text}" (hints +${idle.hintCount - hintsBefore})`)
       expect(idle.hintCount, "one hint after a quiet second").toBe(hintsBefore + 1)
       expect(idle.showing, "hint showing").toBe(true)
-      expect(label.text, "label shows the step's hint").toBe(STEPS[2].hint)
+      // Pass P: the instruction stays readable; the hint goes under it with its "Hint" kicker.
+      expect(label.text, "the step's instruction stays on the callout").toBe(STEPS[2].label)
       const callout = findSceneObjectByName("StepLabel").getComponent(BenchCoachStepLabelUI.getTypeName()) as BenchCoachStepLabelUI
       expect(callout.mode, "callout in its hint state (pulsing accent edge)").toBe("hint")
+      expect(callout.hintText, "the hint shows under the instruction").toBe(STEPS[2].hint)
+      const hintText = findSceneObjectByName("HintText")
+      expect(hintText && hintText.isEnabledInHierarchy, "hint line visible").toBe(true)
+      const hintY = hintText.getTransform().getWorldPosition().y
+      expect(hintY < label.getSceneObject().getTransform().getWorldPosition().y, "the hint line is under the instruction").toBe(true)
       expect(marker.boostCount, "marker pulse boosted").toBe(boostsBefore + 1)
       expect(marker.isBoosted(), "marker boosted now").toBe(true)
       expect(stats.hintsUsed, "RunStats counts the hint").toBe(statsBefore + 1)
@@ -84,6 +90,7 @@ export class ProgressIdleScenario extends Scenario {
       await sleep(300)
       expect(manager.getState().step, "Next to step 3").toBe(3)
       expect(idle.showing, "hint gone after Next").toBe(false)
+      expect(callout.hintText, "hint line gone after Next").toBe("")
       expect(label.text, "step 3 label after Next").toBe(STEPS[3].label)
     } finally {
       idle.idleSec = savedIdle

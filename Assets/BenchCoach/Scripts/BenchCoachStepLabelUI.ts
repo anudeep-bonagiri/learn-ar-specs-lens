@@ -4,7 +4,10 @@
  * lines), on the design-system plate, turned to the user (yaw only), with a thin
  * accent leader line from the plate edge to the marker.
  * States: normal (setText), found (setFound: green kicker), mistake (showMistake: amber
- * edge and kicker), idle hint (showHint: "Hint" kicker, the edge pulses in the accent).
+ * edge and kicker), idle hint (showHint: the edge pulses in the accent). Pass P: the
+ * hint no longer replaces the instruction (someone who looked away could not read what
+ * the step is): the plate grows by a "Hint" kicker and the hint line under it. Only where
+ * the hint already states the whole step (WHOLE_STEP_HINTS) does it replace the line.
  * Placement (setAnchor, re-applied every frame):
  *  - inside (the default): inside the rim, moved from the marker toward the hub until
  *    its near edge clears the ring by markerGapCm, then pulled in until every corner
@@ -28,10 +31,20 @@
 import {Billboard} from "SpectaclesInteractionKit.lspkg/Components/Interaction/Billboard/Billboard"
 import WorldCameraFinderProvider from "SpectaclesInteractionKit.lspkg/Providers/CameraProvider/WorldCameraFinderProvider"
 import {FlexAlign, FlexJustify} from "SpectaclesUIKit.lspkg/Scripts/Components/Layout2D/Flex/FlexTypes"
-import {COLOR, LeaderLine, Plate, addUIText, flexColumn, imageOn, lineCm, makePlate, plateEdgePoint, plateCm, keepTogether} from "./UIHelpers"
+import {COLOR, LAYOUT_Z_LIFT, LeaderLine, Plate, addUIText, flexColumn, imageOn, lineCm, linesFor, makePlate, plateEdgePoint, plateCm, keepTogether, uiTextOn} from "./UIHelpers"
 
 /** Pass G3 (Sujeeth), on D2's amber state: a mistake carries a warning badge, not only amber. */
 const ICON_WARNING: Texture = requireAsset("../../Icons/warning.png") as Texture
+
+/**
+ * Pass P: steps whose idle hint already states the whole step, so it replaces the
+ * instruction as before: 4 ("Hook the second lever on the ghost, then slide it down."),
+ * 6 ("Look for a glint on the tire. Pinch it.") and 10 ("Pinch the valve and keep holding.").
+ */
+export const WHOLE_STEP_HINTS = [4, 6, 10]
+
+/** Pass P: screen margin (fraction of the frame) a callout keeps inside the view. */
+export const VIEW_MARGIN = 0.02
 
 /** Where the callout hangs: the marker (or null), the wheel and which side the user works from. */
 export interface CalloutAnchor {
@@ -122,6 +135,24 @@ export class BenchCoachStepLabelUI extends BaseScriptComponent {
   private pitchFollow = false
   /** The mistake state shows its warning badge (pass G3 / M); tests read it. */
   warning: boolean = false
+  /**
+   * Pass P: step 5 from the near side. The far-side callout would be read through the
+   * spokes, so it hides while the line from the eye to it crosses the wheel disc (the
+   * edge arrow and the floor path send the user round); it comes in once the user has
+   * come round far enough to see it clear of the wheel, or stands behind the wheel. Not
+   * while something hangs under it (Ask, What's this?).
+   */
+  throughWheel: boolean = false
+  /** Pass P: the hint line under the instruction ("" while none shows); tests read it. */
+  hintText: string = ""
+  private baseHeight = 0
+  private column: SceneObject | null = null
+  private hintRoot: SceneObject | null = null
+  private hintKicker: Text | null = null
+  private hintLabel: Text | null = null
+  private kickerH = 0
+  private lineH = 0
+  private innerW = 0
 
   /** Normal state: the instruction, with "Step N of 10" above it. */
   setText(msg: string): void {
@@ -141,10 +172,19 @@ export class BenchCoachStepLabelUI extends BaseScriptComponent {
     if (this.label) this.label.text = keepTogether(reason)
   }
 
-  /** The idle hint: "Hint" kicker, the edge pulses gently in the accent. */
+  /**
+   * The idle hint: the edge pulses gently in the accent. Pass P: the instruction stays and
+   * the hint goes under it with its "Hint" kicker; on a WHOLE_STEP_HINTS step the hint
+   * replaces the line ("Hint" kicker), as before.
+   */
   showHint(text: string): void {
-    this.setMode("hint", "Hint", COLOR.accent, COLOR.accent)
-    if (this.label) this.label.text = keepTogether(text)
+    if (WHOLE_STEP_HINTS.indexOf(this.step) >= 0) {
+      this.setMode("hint", "Hint", COLOR.accent, COLOR.accent)
+      if (this.label) this.label.text = keepTogether(text)
+      return
+    }
+    this.setMode("hint", this.stepLine(), COLOR.textSecondary, COLOR.accent)
+    this.setHintLine(text)
   }
 
   /** The step the kicker counts ("Step N of 10"); shown on the next setText. */
@@ -169,6 +209,21 @@ export class BenchCoachStepLabelUI extends BaseScriptComponent {
   stackTop(gapCm: number): vec3 {
     const c = this.sceneObject.getTransform().getWorldPosition()
     return c.add(new vec3(0, -(this.panelHeight / 2 + gapCm) * this.scale, 0))
+  }
+
+  /**
+   * Pass P: the world z of the callout's plane (the wheel plane plus its stand-off toward
+   * the user), or null; the info card keeps at least this far out so the axle end and the
+   * hub never poke through it.
+   */
+  frontZ(): number | null {
+    const a = this.anchor
+    return a && a.side > 0 ? a.hub.z + a.standOff : null
+  }
+
+  /** Pass P: the marker ring's centre while the leader points at it (null when there is none). */
+  markerAt(): vec3 | null {
+    return this.leaderTo && this.anchor && this.anchor.target ? this.anchor.target : null
   }
 
   /** Plate size in cm at the current scale. */
@@ -202,6 +257,22 @@ export class BenchCoachStepLabelUI extends BaseScriptComponent {
     })
     this.kicker = addUIText(col, "StepKicker", this.stepLine(), "secondary", innerW, kickerH, d)
     this.label = addUIText(col, "LabelText", "", "instruction", innerW, 2 * lineH, d, {wrap: true})
+    // Pass P: the hint block under the instruction, placed by hand (setHintLine), off until a hint shows.
+    this.baseHeight = probe.h
+    this.column = col
+    this.kickerH = kickerH
+    this.lineH = lineH
+    this.innerW = innerW
+    this.hintRoot = global.scene.createSceneObject("StepHint")
+    this.hintRoot.setParent(this.plate.content)
+    this.hintRoot.getTransform().setLocalPosition(new vec3(0, 0, 2 * LAYOUT_Z_LIFT))
+    const hk = global.scene.createSceneObject("HintKicker")
+    hk.setParent(this.hintRoot)
+    this.hintKicker = uiTextOn(hk, "Hint", "secondary", innerW, kickerH, d, {color: COLOR.accent})
+    const hl = global.scene.createSceneObject("HintText")
+    hl.setParent(this.hintRoot)
+    this.hintLabel = uiTextOn(hl, "", "body", innerW, 2 * lineH, d, {wrap: true})
+    this.hintRoot.enabled = false
     this.leader = new LeaderLine(this.sceneObject, "StepLeader", this.leaderCm, null)
     // Warning badge (pass G3 on D2): sits on the plate's left edge, centred on the kicker
     // line, like a tab on the amber edge. Half of it is inside the padding, so it never
@@ -232,7 +303,39 @@ export class BenchCoachStepLabelUI extends BaseScriptComponent {
     return this.step > 0 ? `Step ${this.step} of ${this.totalSteps}` : ""
   }
 
+  /**
+   * Pass P: shows `text` under the instruction (null hides it). The plate grows downward
+   * by the hint's kicker and its one or two lines; the instruction block keeps its place
+   * at the plate's top, and the placement reads the new panelHeight.
+   */
+  private setHintLine(text: string | null): void {
+    if (!this.plate || !this.hintRoot || !this.column || !this.hintLabel || !this.hintKicker) return
+    const g = this.plate.g
+    let H = this.baseHeight
+    if (text) {
+      const lines = Math.min(2, linesFor(text, "body", this.innerW, this.viewDistanceCm))
+      const hH = lines * this.lineH
+      const gap2 = g.gap * 0.3
+      H = this.baseHeight + this.kickerH + gap2 + hH + g.pad
+      const top = H / 2 - this.baseHeight
+      this.hintKicker.getSceneObject().getTransform().setLocalPosition(new vec3(0, top - this.kickerH / 2, 0))
+      this.hintLabel.getSceneObject().getTransform().setLocalPosition(new vec3(0, top - this.kickerH - gap2 - hH / 2, 0))
+      this.hintLabel.layoutRect = Rect.create(-this.innerW / 2, this.innerW / 2, -hH / 2, hH / 2)
+      this.hintLabel.text = keepTogether(text)
+      this.hintText = text
+    } else {
+      this.hintText = ""
+    }
+    if (this.hintRoot.enabled !== !!text) this.hintRoot.enabled = !!text
+    this.panelHeight = H
+    this.plate.setHeight(H)
+    const ct = this.column.getTransform()
+    const cp = ct.getLocalPosition()
+    ct.setLocalPosition(new vec3(cp.x, (H - this.baseHeight) / 2, cp.z))
+  }
+
   private setMode(mode: string, kicker: string, kickerColor: vec4, edge: vec4): void {
+    if (mode !== "hint" || this.hintText) this.setHintLine(null)
     this.mode = mode
     this.pulse = mode === "hint"
     this.warning = mode === "mistake"
@@ -301,6 +404,7 @@ export class BenchCoachStepLabelUI extends BaseScriptComponent {
     const pos = a.hub.add(new vec3(cx, cy, a.side * a.standOff))
     const tr = this.sceneObject.getTransform()
     tr.setWorldPosition(pos)
+    this.setThroughWheel(a.side < 0 && this.stackH === 0 && this.seenThroughWheel(pos, a, w))
     // Keep the apparent size: scale for the next frame from this frame's distance.
     const cam = WorldCameraFinderProvider.getInstance()
     if (cam) {
@@ -336,6 +440,10 @@ export class BenchCoachStepLabelUI extends BaseScriptComponent {
     let fits = false
     let cx = 0
     let cy = 0
+    // Pass P: a spot that clears the ring but leaves the view (step 2 on beads 3 and 4 at
+    // the wheel pose ran off the frame's bottom edge) is kept only as a fallback; the search
+    // goes on toward the hub for one that is fully in view.
+    let clearOfRing: vec2 | null = null
     for (let i = 0; i < 120; i++) {
       cx = dx + ux * t
       cy = dy + uy * t
@@ -343,12 +451,52 @@ export class BenchCoachStepLabelUI extends BaseScriptComponent {
       const fy = Math.abs(cy) + h / 2
       if (!fits) fits = fx * fx + fy * fy <= inner * inner
       if (t > len) break
-      if (fits && !(a.target && this.coversOnScreen(a.hub.add(new vec3(cx, cy, a.side * a.standOff)), a.target, w, h))) {
-        return new vec2(cx, cy)
+      const at = a.hub.add(new vec3(cx, cy, a.side * a.standOff))
+      if (fits && !(a.target && this.coversOnScreen(at, a.target, w, h))) {
+        if (this.inView(at, a.hub, w, h)) return new vec2(cx, cy)
+        if (!clearOfRing) clearOfRing = new vec2(cx, cy)
       }
       t += 0.5
     }
+    // Second pass (pass P): none of those is in view (from Sunlit Room's default pose the
+    // hub sits at the frame's bottom edge), so try straight above and below the hub, inside
+    // the clear circle and clear of the ring.
+    if (clearOfRing) {
+      for (let k = 0; k <= inner; k += 0.5) {
+        for (const sy of [1, -1]) {
+          const fy = k + h / 2
+          if ((w / 2) * (w / 2) + fy * fy > inner * inner) continue
+          const at = a.hub.add(new vec3(0, sy * k, a.side * a.standOff))
+          if (a.target && this.coversOnScreen(at, a.target, w, h)) continue
+          if (this.inView(at, a.hub, w, h)) return new vec2(0, sy * k)
+        }
+      }
+      return clearOfRing
+    }
     return always ? new vec2(cx, cy) : null
+  }
+
+  /**
+   * Pass P: from the live eye, every corner of a w x h plate centered at `c` is inside the
+   * view with VIEW_MARGIN to spare. Only while the hub is in view, i.e. the user looks at
+   * the wheel (when they look elsewhere the callout does not chase the frame edge). The
+   * marker itself may be out of view (step 2's beads 3 and 4 at the wheel pose).
+   */
+  private inView(c: vec3, hub: vec3, w: number, h: number): boolean {
+    const cam = WorldCameraFinderProvider.getInstance()
+    if (!cam) return true
+    const camera = cam.getComponent()
+    const m = VIEW_MARGIN
+    const hp = camera.worldSpaceToScreenSpace(hub)
+    if (!camera.isSphereVisible(hub, 0.1) || hp.x < 0 || hp.x > 1 || hp.y < 0 || hp.y > 1) return true
+    const right = this.rightVector(c)
+    for (const sx of [-1, 1]) {
+      for (const sy of [-1, 1]) {
+        const p = camera.worldSpaceToScreenSpace(c.add(right.uniformScale((sx * w) / 2)).add(new vec3(0, (sy * h) / 2, 0)))
+        if (p.x < m || p.x > 1 - m || p.y < m || p.y > 1 - m) return false
+      }
+    }
+    return true
   }
 
   /** From the live eye, the plate centered at `c` hides the ring at `target` (with a margin of the ring's size). */
@@ -379,9 +527,32 @@ export class BenchCoachStepLabelUI extends BaseScriptComponent {
     return m.x > x0 - r && m.x < x1 + r && m.y > y0 - r && m.y < y1 + r
   }
 
+  /**
+   * From the live eye, the plate centered at `c` (w wide) is seen through the wheel: the
+   * eye is in front of the wheel plane and the sight line meets that plane inside the
+   * tire's outer edge plus half the plate (2 cm of hysteresis once hidden).
+   */
+  private seenThroughWheel(c: vec3, a: CalloutAnchor, w: number): boolean {
+    const cam = WorldCameraFinderProvider.getInstance()
+    if (!cam) return false
+    const eye = cam.getWorldPosition()
+    if (eye.z <= a.hub.z || eye.z <= c.z) return false
+    const t = (eye.z - a.hub.z) / (eye.z - c.z)
+    const hit = eye.add(c.sub(eye).uniformScale(t))
+    const d = Math.sqrt((hit.x - a.hub.x) * (hit.x - a.hub.x) + (hit.y - a.hub.y) * (hit.y - a.hub.y))
+    return d < a.radius + 3.2 + w / 2 + (this.throughWheel ? 2 : 0)
+  }
+
+  private setThroughWheel(on: boolean): void {
+    if (on === this.throughWheel || !this.plate) return
+    this.throughWheel = on
+    this.plate.content.enabled = !on
+    for (const r of this.sceneObject.getComponents("Component.RenderMeshVisual") as RenderMeshVisual[]) r.enabled = !on
+  }
+
   private drawLeader(c: vec3, target: vec3 | null): void {
     if (!this.leader) return
-    if (!target || !this.sceneObject.isEnabledInHierarchy) {
+    if (!target || !this.sceneObject.isEnabledInHierarchy || this.throughWheel) {
       this.leader.setEnabled(false)
       this.leaderFrom = null
       this.leaderTo = null

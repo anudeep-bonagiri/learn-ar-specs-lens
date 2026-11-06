@@ -209,7 +209,17 @@ export class PartInfo extends BaseScriptComponent {
     if (this.stepLabel) this.stepLabel.setStack(0)
     if (this.infoCallout) {
       this.infoCallout.sceneObject.getTransform().setLocalScale(vec3.one())
-      this.infoCallout.showPart(hit.fact.title, capitalize(fact), hit.so)
+      // Pass P: the parts around it stay visible too when a spot allows it: the valve and the
+      // levers within 40 cm (the card used to cover them), any other part within 18 cm.
+      const here = hit.so.getTransform().getWorldPosition()
+      const near = this.hits
+        .filter((h) => {
+          if (h === hit || !h.so.enabled || h.fact.cause || h.fact.size[1] >= 40) return false
+          const d = h.so.getTransform().getWorldPosition().distance(here)
+          return d < 18 || (d < 40 && ["Valve", "LeverA", "LeverB"].indexOf(h.fact.id) >= 0)
+        })
+        .map((h) => h.so)
+      this.infoCallout.showPart(hit.fact.title, capitalize(fact), hit.so, near)
     }
     if (this.audio) this.audio.playClickAt(hit.so.getTransform().getWorldPosition())
     print(`[PartInfo] ${text}`)

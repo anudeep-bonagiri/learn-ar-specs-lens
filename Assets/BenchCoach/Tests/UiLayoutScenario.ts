@@ -18,7 +18,7 @@ type Rect = {x0: number; x1: number; y0: number; y1: number}
 const PANELS = ["StepLabel", "InfoCallout", "AskChipsPanel", "AskAnswerPanel", "StartCard", "DoneCard", "FinishCard", "ControlBar", "MorePopover", "WatchPill", "ToolTrayPanel", "WatchBadgeRoot"]
 
 /** Pass V: body and instruction lines (x-height at least 1.5% of the frame) and titles (2.2%). */
-const BODY_TEXTS = ["LabelText", "Subtitle", "DoneNext", "FinishTip", "AskAnswerText", "InfoLine", "TimeText", "DoneCause", "FinishCause", "FinishTimes"]
+const BODY_TEXTS = ["LabelText", "HintText", "Subtitle", "DoneNext", "FinishTip", "AskAnswerText", "InfoLine", "TimeText", "DoneCause", "FinishCause", "FinishTimes"]
 const TITLE_TEXTS = ["Title", "DoneText", "FinishTitle", "FinishTime"]
 
 /**
@@ -37,12 +37,22 @@ const TITLE_TEXTS = ["Title", "DoneText", "FinishTitle", "FinishTime"]
  *  - the What's this? info callout does not overlap the step callout on screen;
  *  - pass V, the type scale for video: from the live eye every body and instruction line
  *    has an x-height of at least MIN_BODY_XHEIGHT_DEG (1.5% of the 36.6-degree frame) and
- *    every title at least MIN_TITLE_XHEIGHT_DEG (2.2%).
+ *    every title at least MIN_TITLE_XHEIGHT_DEG (2.2%);
+ *  - pass P, in view: while the hub is in view, the callout is fully inside the frame
+ *    on every step and every sub-target (step 2's and step 9's beads);
+ *  - pass P, no doubled text: on every frame of the run (an UpdateEvent sees what the
+ *    last frame drew), no two visible Texts of one panel overlap. The first show of a
+ *    panel after the reset used to draw every child at the column's centre for a frame.
  */
 @component
 export class UiLayoutScenario extends Scenario {
+  private overlapsSeen: string[] = []
+  private framesWatched = 0
+
   async run(): Promise<void> {
     await sleep(1000)
+    const watcher = this.createEvent("UpdateEvent")
+    watcher.bind(() => this.watchOverlaps())
     const manager = getRepairManager()
     const interactor = new BenchCoachLeafInteractor()
     const root = findSceneObjectByName("BenchCoach")
@@ -70,6 +80,13 @@ export class UiLayoutScenario extends Scenario {
       const plate = this.screenRect(camera, c, right, w, h)
       const markerOn = marker.isEnabledInHierarchy
       let note = `zone ${callout.zone}, scale ${callout.scale.toFixed(2)}`
+      // Pass P: step 5's far-side callout hides while it would be read through the wheel.
+      if (callout.throughWheel) {
+        expect(step, "only step 5's callout hides behind the wheel").toBe(5)
+        expect(callout.leaderFrom, "no leader while the callout is hidden").toBe(null)
+        print(`[UiLayoutScenario] step ${step}: callout hidden (seen through the wheel from here), edge arrow ${arrow.isEnabledInHierarchy ? "on" : "off"}`)
+        continue
+      }
       if (markerOn) {
         const m = marker.getTransform().getWorldPosition()
         const ring = this.screenRect(camera, m, right, 2 * 2.2, 2 * 2.2)
@@ -99,14 +116,24 @@ export class UiLayoutScenario extends Scenario {
         }
         note += ", edge arrow clear"
       }
+      await this.laidOut()
       this.checkTexts(step)
+      note += this.checkInFrame(camera, step, "")
       print(`[UiLayoutScenario] step ${step}: ${note}`)
+      // Pass P: every sub-target of the step too (step 2's beads, step 9's beads).
+      const subBeads = step === 2 ? [0, 2, 4] : step === 9 ? [0, 1, 2] : []
+      for (const b of subBeads) {
+        await interactor.tap(`Bead_${b}`)
+        await sleep(400)
+        print(`[UiLayoutScenario] step ${step} after Bead_${b}:${this.checkInFrame(camera, step, ` after Bead_${b}`)}`)
+      }
     }
 
     // ── Cards: texts inside their plates ─────────────────────────────────────
     for (const step of [0, 7, LAST_STEP]) {
       manager.jumpToStep(step)
       await sleep(500)
+      await this.laidOut()
       this.checkTexts(step)
     }
 
@@ -144,35 +171,154 @@ export class UiLayoutScenario extends Scenario {
       await interactor.tap("BtnAsk")
       await sleep(400)
       checkStack(step, ask.chips.height, "chips")
+      await this.laidOut()
       this.checkTexts(step)
       await interactor.tap("AskChip_0")
       await sleep(400)
       checkStack(step, (findSceneObjectByName("AskAnswerPanel").getComponent(BenchCoachAskAnswerUI.getTypeName()) as BenchCoachAskAnswerUI).panelHeight, "answer")
+      await this.laidOut()
       this.checkTexts(step)
       await interactor.tap("BtnAsk")
       await sleep(300)
       ask.forceCanned = false
     }
 
-    // ── What's this?: the info callout never overlaps the step callout ──────
-    manager.jumpToStep(1)
-    await sleep(400)
-    await interactor.tap("BtnWhatsThis")
-    await sleep(300)
-    for (const part of ["Tire", "Valve", "Hub"]) {
-      await interactor.tap(`InfoHit_${part}`)
+    // ── What's this?: the info card sits beside its part ─────────────────────
+    // Never on the step callout; pass P: never on the part's own pinch box or the marker
+    // ring, and inside the view, for every part that can be pinched (steps 1, 4 and 5).
+    for (const step of [1, 4, 5]) {
+      manager.jumpToStep(step)
+      await sleep(400)
+      await interactor.tap("BtnWhatsThis")
       await sleep(300)
-      const ic = info.sceneObject.getTransform().getWorldPosition()
-      const sc = labelObj.getTransform().getWorldPosition()
-      const ir = this.screenRect(camera, ic, this.flatRight(ic), info.panelWidth, info.panelHeight)
-      const sr = this.screenRect(camera, sc, this.flatRight(sc), callout.scaledWidth(), callout.scaledHeight())
-      expect(this.overlaps(ir, sr), `What's this? ${part}: the info callout does not overlap the step callout`).toBe(false)
-      this.checkTexts(1)
+      const hits = findSceneObjectByName("InfoHits")
+      const parts: string[] = []
+      for (let i = 0; i < hits.getChildrenCount(); i++) {
+        const h = hits.getChild(i)
+        if (h.enabled && this.onScreen(camera, h.getTransform().getWorldPosition())) parts.push(h.name.substring("InfoHit_".length))
+      }
+      for (const part of parts) {
+        await interactor.tap(`InfoHit_${part}`)
+        await sleep(300)
+        const ic = info.sceneObject.getTransform().getWorldPosition()
+        const k = info.sceneObject.getTransform().getWorldScale().x
+        const ir = this.screenRect(camera, ic, this.flatRight(ic), info.panelWidth * k, info.panelHeight * k)
+        // Hard for the footage parts (Valve, Tire) at any pose, and for every part whose card
+        // found a spot clear of the part, the step callout and the frame edge (from Sunlit
+        // Room's straight-ahead default pose lever A's tall handle leaves no such spot).
+        const hard = part === "Valve" || part === "Tire" || info.clearOfPart
+        const must = (ok: boolean, what: string) => {
+          if (hard) expect(ok, `What's this? ${part} on step ${step}: ${what}`).toBe(true)
+          else if (!ok) print(`[UiLayoutScenario] What's this? ${part} on step ${step}: no clean spot from this pose (${what} fails)`)
+        }
+        if (labelObj.isEnabledInHierarchy && !callout.throughWheel) {
+          const sc = labelObj.getTransform().getWorldPosition()
+          const sr = this.screenRect(camera, sc, this.flatRight(sc), callout.scaledWidth(), callout.scaledHeight())
+          must(!this.overlaps(ir, sr), "the card does not overlap the step callout")
+        }
+        const box = this.boxRect(camera, findSceneObjectByName(`InfoHit_${part}`))
+        must(!this.overlaps(ir, box), "the card does not cover the part")
+        // The marker ring: kept clear whenever a spot allows it. Asserted for the valve and the
+        // tire (the footage cases); logged for the rest (on step 1 the Hub has no spot clear of
+        // the valve ring, the callout and the hub at once).
+        const ring = callout.markerAt()
+        let ringNote = "no ring"
+        if (ring) {
+          const rr = this.screenRect(camera, ring, this.flatRight(ring), 4.4, 4.4)
+          const covers = this.overlaps(ir, rr)
+          ringNote = covers ? "covers the marker ring" : "ring clear"
+          if (part === "Valve" || part === "Tire") expect(covers, `What's this? ${part} on step ${step}: the card does not cover the marker ring`).toBe(false)
+        }
+        must(ir.x0 >= 0 && ir.x1 <= 1 && ir.y0 >= 0 && ir.y1 <= 1, "the card is inside the view")
+        print(`[UiLayoutScenario] What's this? ${part} on step ${step}: card x ${ir.x0.toFixed(2)}..${ir.x1.toFixed(2)}, y ${ir.y0.toFixed(2)}..${ir.y1.toFixed(2)}, ${ringNote}`)
+        await this.laidOut()
+        this.checkTexts(step)
+      }
+      await interactor.tap("BtnWhatsThis")
+      await sleep(300)
     }
-    await interactor.tap("BtnWhatsThis")
-    await sleep(300)
     manager.reset()
     await sleep(300)
+    watcher.enabled = false
+    print(`[UiLayoutScenario] ${this.framesWatched} frames watched for overlapping texts, ${this.overlapsSeen.length} with an overlap`)
+    expect(this.overlapsSeen.length === 0, `no two texts overlap on one plate in any frame (${this.overlapsSeen.slice(0, 3).join("; ")})`).toBe(true)
+  }
+
+  /** Pass P: every frame, the visible Texts of each panel, as rectangles in the plate's plane, do not overlap. */
+  private watchOverlaps(): void {
+    this.framesWatched++
+    for (const name of PANELS) {
+      const so = findSceneObjectByName(name)
+      if (!so || !so.isEnabledInHierarchy) continue
+      const inv = so.getTransform().getInvertedWorldTransform()
+      const rects: {n: string; r: Rect}[] = []
+      for (const t of this.texts(so)) {
+        const tr = t.getSceneObject().getTransform()
+        if (tr.getWorldScale().x < 1e-3 || tr.getWorldScale().y < 1e-3) continue
+        const r = t.layoutRect
+        const m = tr.getWorldTransform()
+        let x0 = 1e9
+        let x1 = -1e9
+        let y0 = 1e9
+        let y1 = -1e9
+        for (const p of [new vec3(r.left, r.bottom, 0), new vec3(r.right, r.top, 0)]) {
+          const l = inv.multiplyPoint(m.multiplyPoint(p))
+          x0 = Math.min(x0, l.x)
+          x1 = Math.max(x1, l.x)
+          y0 = Math.min(y0, l.y)
+          y1 = Math.max(y1, l.y)
+        }
+        // 0.05 cm of slack: touching rows are not an overlap.
+        rects.push({n: t.getSceneObject().name, r: {x0: x0 + 0.05, x1: x1 - 0.05, y0: y0 + 0.05, y1: y1 - 0.05}})
+      }
+      for (let i = 0; i < rects.length; i++) {
+        for (let j = i + 1; j < rects.length; j++) {
+          if (this.overlaps(rects[i].r, rects[j].r)) {
+            const what = `frame ${this.framesWatched}: ${name} ${rects[i].n} over ${rects[j].n}`
+            if (this.overlapsSeen.length < 20) print(`[UiLayoutScenario] overlap ${what}`)
+            this.overlapsSeen.push(what)
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * Pass P: while the hub is in view, every corner of the step callout is inside the view
+   * with 1% to spare (the callout keeps VIEW_MARGIN, 2%, so this is not flaky).
+   */
+  private checkInFrame(camera: Camera, step: number, what: string): string {
+    const labelObj = findSceneObjectByName("StepLabel")
+    const marker = findSceneObjectByName("StepMarker")
+    const callout = labelObj.getComponent(BenchCoachStepLabelUI.getTypeName()) as BenchCoachStepLabelUI
+    if (!labelObj.isEnabledInHierarchy || !marker.isEnabledInHierarchy || callout.throughWheel) return ""
+    // While the user looks at the wheel (hub in view), even if the marker is not (step 2's beads 3 and 4).
+    const hub = findSceneObjectByName("Wheel").getTransform().getWorldPosition()
+    const hp = camera.worldSpaceToScreenSpace(hub)
+    if (!camera.isSphereVisible(hub, 0.1) || hp.x < 0 || hp.x > 1 || hp.y < 0 || hp.y > 1) return ", hub out of view (frame not checked)"
+    const c = labelObj.getTransform().getWorldPosition()
+    const r = this.screenRect(camera, c, this.flatRight(c), callout.scaledWidth(), callout.scaledHeight())
+    const ok = r.x0 >= 0.01 && r.x1 <= 0.99 && r.y0 >= 0.01 && r.y1 <= 0.99
+    const desc = `x ${r.x0.toFixed(3)}..${r.x1.toFixed(3)}, y ${r.y0.toFixed(3)}..${r.y1.toFixed(3)}`
+    expect(ok, `step ${step}${what}: the callout is fully inside the view (${desc})`).toBe(true)
+    return `, in frame (${desc})`
+  }
+
+  /**
+   * Pass P: a panel's flex column stays at zero scale until its first layout (one frame
+   * at a normal frame rate; longer right after a slow Lens start). Waits for it, at most 3 s.
+   */
+  private async laidOut(): Promise<void> {
+    for (let i = 0; i < 30; i++) {
+      let pending = false
+      for (const name of PANELS) {
+        const so = findSceneObjectByName(name)
+        if (!so || !so.isEnabledInHierarchy) continue
+        for (const t of this.texts(so)) if (t.getSceneObject().getTransform().getWorldScale().x < 1e-3) pending = true
+      }
+      if (!pending) return
+      await sleep(100)
+    }
   }
 
   /** Every enabled Text under each enabled panel stays inside that panel's plate. */
@@ -250,6 +396,34 @@ export class UiLayoutScenario extends Scenario {
         x1 = Math.max(x1, p.x)
         y0 = Math.min(y0, p.y)
         y1 = Math.max(y1, p.y)
+      }
+    }
+    return {x0, x1, y0, y1}
+  }
+
+  private onScreen(camera: Camera, p: vec3): boolean {
+    const q = camera.worldSpaceToScreenSpace(p)
+    return camera.isSphereVisible(p, 0.1) && q.x > 0.02 && q.x < 0.98 && q.y > 0.02 && q.y < 0.98
+  }
+
+  /** Screen rectangle of a pinch box (its box collider, from its world transform). */
+  private boxRect(camera: Camera, so: SceneObject): Rect {
+    const col = so.getComponent("Physics.ColliderComponent") as ColliderComponent
+    const s = col ? (col.shape as BoxShape).size : new vec3(4, 4, 4)
+    const m = so.getTransform().getWorldTransform()
+    let x0 = 2
+    let x1 = -1
+    let y0 = 2
+    let y1 = -1
+    for (const sx of [-0.5, 0.5]) {
+      for (const sy of [-0.5, 0.5]) {
+        for (const sz of [-0.5, 0.5]) {
+          const q = camera.worldSpaceToScreenSpace(m.multiplyPoint(new vec3(sx * s.x, sy * s.y, sz * s.z)))
+          x0 = Math.min(x0, q.x)
+          x1 = Math.max(x1, q.x)
+          y0 = Math.min(y0, q.y)
+          y1 = Math.max(y1, q.y)
+        }
       }
     }
     return {x0, x1, y0, y1}

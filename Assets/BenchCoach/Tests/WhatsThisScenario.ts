@@ -1,3 +1,4 @@
+import {BenchCoachInfoCalloutUI} from "../Scripts/BenchCoachInfoCalloutUI"
 import {Scenario} from "Leaf.lspkg/Scenarios/scenario/Scenario"
 import {expect} from "Leaf.lspkg/Utils/common/Expect"
 import {findSceneObjectByName, sleep} from "Leaf.lspkg/Utils/common/Utils"
@@ -67,7 +68,12 @@ export class WhatsThisScenario extends Scenario {
     const infoToValve = infoObj.getTransform().getWorldPosition().distance(valve.getTransform().getWorldPosition())
     const valveInView = vs.x > 0 && vs.x < 1 && vs.y > 0 && vs.y < 1
     print(`[WhatsThisScenario] info callout ${infoToValve.toFixed(1)} cm from the valve; valve ${valveInView ? "in" : "out of"} view; card at screen (${is.x.toFixed(2)}, ${is.y.toFixed(2)})`)
-    if (valveInView) expect(infoToValve, "info callout beside the valve").toBeLessThan(25)
+    // Pass P: the card now keeps off the valve, its ring and the step callout, so "beside" is
+    // measured from the card's side (centre distance less half its width), not its centre.
+    const infoComp = infoObj.getComponent(BenchCoachInfoCalloutUI.getTypeName()) as BenchCoachInfoCalloutUI
+    const edgeToValve = infoToValve - infoComp.panelWidth / 2
+    print(`[WhatsThisScenario] card side ${edgeToValve.toFixed(1)} cm from the valve`)
+    if (valveInView) expect(edgeToValve, "info callout beside the valve (its side within 15 cm)").toBeLessThan(15)
     expect(is.x > 0.05 && is.x < 0.95 && is.y > 0.05 && is.y < 0.95, "info callout inside the view").toBe(true)
     expect(manager.getState().step, "still step 1 (the valve pinch did not deflate)").toBe(1)
     expect(findSceneObjectByName("InfoHit_Cause").enabled, "no cause box before the cause is found").toBe(false)

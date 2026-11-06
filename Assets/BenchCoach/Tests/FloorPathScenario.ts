@@ -1,3 +1,4 @@
+import {BenchCoachStepLabelUI} from "../Scripts/BenchCoachStepLabelUI"
 import {Scenario} from "Leaf.lspkg/Scenarios/scenario/Scenario"
 import {expect} from "Leaf.lspkg/Utils/common/Expect"
 import {WorkspaceAnchor} from "../Scripts/WorkspaceAnchor"
@@ -48,6 +49,10 @@ export class FloorPathScenario extends Scenario {
     expect(path.arrived, "not arrived on entry").toBe(false)
     expect(shown, "at least 6 arrows shown").toBeGreaterThan(5)
     this.checkLayout(path)
+    // Pass P: from the near side the far-side callout would be read through the spokes:
+    // only the path (and the edge arrow) send the user round.
+    const callout = findSceneObjectByName("StepLabel").getComponent(BenchCoachStepLabelUI.getTypeName()) as BenchCoachStepLabelUI
+    expect(callout.throughWheel, "step 5 callout hidden from the near side").toBe(true)
 
     // ── Arrive at the far spot ──────────────────────────────────────────────
     const camObj = findSceneObjectByName("Camera Object")
@@ -73,6 +78,17 @@ export class FloorPathScenario extends Scenario {
     expect(path.visible, "path hidden on arrival").toBe(false)
     expect(this.shownArrows(pathObj), "no arrow enabled after arrival").toBe(0)
     expect(manager.getState().step, "arrival does not complete step 5").toBe(5)
+    // The preview puts the camera back every frame, so hold it at the far spot for a second
+    // and read the callout in those frames.
+    let fullAtFar = 0
+    const holdEnd = getTime() + 1
+    while (getTime() < holdEnd) {
+      camTr.setWorldPosition(goal)
+      await sleep(30)
+      if (!callout.throughWheel && callout.leaderFrom !== null) fullAtFar++
+    }
+    print(`[FloorPathScenario] at the far spot: full callout with its leader in ${fullAtFar} polls`)
+    expect(fullAtFar, "the full callout (with its leader) is in at the far spot").toBeGreaterThan(0)
     camTr.setWorldPosition(camHome)
     camTr.setWorldRotation(camRot)
     await sleep(300)
