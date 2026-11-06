@@ -1707,3 +1707,53 @@ Left over:
 - **Dimming the mat** also makes the wheel's shadow on it hard to see. On the additive display it was faint anyway.
 - **`devpost/video-script.md`** still describes the old UI and room (see pass H). Not edited.
 - **Untested on Specs:** everything in this pass, including `Date.now()` on the device and the speech volume against the cues.
+
+## 2026-11-05: Pass R, recording the demo footage
+
+No change to the Lens, the scene or any repo file. Three recording passes through the Lens Studio MCP, one call at a time.
+
+### Why this way
+
+- The Mac's screen was locked while the footage was due. macOS refuses screen and window capture while locked ("could not create image from window", a ScreenCaptureKit stream error). A Lens Studio window on another desktop also stops repainting.
+- The MCP's CapturePanelScreenshotTool still worked. It asks the Preview panel for its next rendered frame (`panel.tryScreenshot`).
+- So the recorder is that same call in a loop inside the editor, started with ExecuteEditorCode: 96 requests in flight, frames saved as jpg 90 by an interval drain. Each frame's time comes from the Preview worker's own per-frame log stamp, because results arrive in batches and out of order.
+- A script turns the frames into a constant 30 fps video that keeps real time. The sound is rebuilt from the `[Voice]` and `[Audio]` log lines that pass V added.
+
+### Numbers
+
+- **Frame:** 1392 x 1731, the preview render only, no cursor.
+- **Rate:** 28.6 fps mean in the probe, 25 to 28 fps in the takes.
+- **Holes:** one of 0.22 to 0.33 s about every 3 s, locked to the Lens reset. Each take's LEAF start step was chosen so the holes miss the key motion.
+- **Recording does not change the Lens:** steps 3, 4 and 5 came 7.22 / 11.52 / 19.71 s after step 2 while recording, and 7.18 / 11.45 / 19.71 s without.
+- **Takes:** 25, about 13 minutes.
+
+### What drove the takes
+
+- **Watch first** (`jump-to-step` with `watch=1`): steps 1 to 5 and 7 to 10.
+- **Real preview mouse input:** Found it, the glint on step 6, Continue on the halfway card, and the mistake (the second lever grabbed from the tray and let go first).
+- **Parameters:** `part=Valve` for What's this?, `ask=0 canned=1` for Ask (the offline answer; no tokens were set).
+- **LEAF scenarios on camera:** `start`, `lever-snap` and `mistakes` passed during their take. `coach-report` with `stay=1` gave the Finish card after a run with mistakes: 0:30, 2 lever misses, 1 mistake, slowest "Lever A 0:18, Deflate 0:02, Pull 0:02", and the practice line for lever tips.
+- **The step 5 walk:** one camera track from the start eye round to the far spot, started by the Lens reset. At eye height the arrow path passes about 7 cm from the tire, so the camera walks a line 31 cm outside it.
+
+### What the footage showed about the Lens
+
+- **A freeze under load.** While the machine was overloaded (load average 25 to 30, swap full) every step 5 froze the Lens for about 30 s: "TimeoutError: Javascript execution has timed out" inside an AudioComponent volume call from `VoiceCoach.setDuck`. `setDuck` only runs when speech starts or stops. It did not happen before the load rose or after it fell. Not changed.
+- **The floor drop.** The floor is decided about 12 s after a reset. Until then the stand is on the -150 fallback, then it drops 15 cm. It shows in any take that starts within 12 s of a reset.
+- **Doubled callout text** for about 0.6 s while a new step fades in.
+- **Step 5 from the near side:** the callout sits on the far side, so it is read through the spokes.
+- **What's this? on the valve:** the card covers the valve and lever A.
+- **Step 2 at the wheel pose:** the callout follows beads 3 and 4 partly off the frame edge.
+- **Step 8:** the new tube's fit is hard to see.
+- **The idle hint** replaces the step callout 12 s after a step change, also on a wide shot.
+- **LEAF's drag** carries the lever through the camera, because the tray follows the camera.
+
+Not possible:
+
+- **A simulated-hand take of step 3.** The hand's drag failed twice ("Blocked by InteractionPlaneColliderRoot").
+- **A capture of the LEAF panel.** The panel's plugin "is loaded in a different module". The video shows a test driving the Lens next to the list of the 21 scenarios.
+
+### Left over
+
+- **Nobody has listened to the cut.** The mix was checked by level only (about -16 LUFS).
+- **The footage, narration, edit list and tools are kept outside the repo.**
+- **The video is not uploaded.**

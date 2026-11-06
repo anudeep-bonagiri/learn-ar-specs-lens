@@ -25,21 +25,52 @@ Rules this script is built around:
 | 2:35 to 2:50 | Two labels over the preview: "Logic: proven" and "Feel: unproven" | "What's proven: the logic, every step, every mistake, every test. What isn't: how it feels on real glasses, lining up with a real wheel, how a lever feels in the hand. That's what we'd test next." |
 | 2:50 to 2:55 | Title card: Bench Coach, repo link | "Bench Coach. The repair, on the part, for Specs." |
 
-## Recording recipe (what to capture, in order)
+## How it was recorded and cut (Nov 5)
 
-All takes: Plane room, Specs device, cursor visible, Lens audio on, macOS `Cmd + Shift + 5`
-with "Show Mouse Clicks" ticked. Record the whole Preview panel.
+The recipe that stood here (Plane room, macOS screen recording, cursor visible) was not used. What happened instead:
 
-1. **Watch-mode take, uncut, about 57 s.** Press Record, say "go", the agent runs
-   `jump-to-step` with `step=0, watch=1`. Covers shots 0:00, 0:10, 0:25, 0:45 (the clean lever), 1:10 and 1:50.
-2. **Mistake take, 10 s.** `jump-to-step step=3`, then grab lever B from the tray first. The amber warning and sound.
-3. **Inspect take, 20 s.** `jump-to-step step=6`. Pinch the thorn, open What's this? on a lever, pinch an Ask chip. For the internet line, show the live answer if online, otherwise the offline fallback and say so.
-4. **Finish card, 10 s.** `jump-to-step step=10`, hold the valve, let the card come up.
-5. **Testing shot, 25 s.** Screen record the terminal and the LEAF panel during a real run of all 21 scenarios.
-6. **Design brief, 10 s.** Scroll `devpost/design-brief.md` in the editor.
+- **Room:** the Garage preview room (`preview-room/Garage`), from the start eye.
+- **Recording:** the Mac's screen was locked, and macOS refuses screen and window capture while locked. The footage was captured with the Preview panel's own screenshot call in a loop inside Lens Studio, through the MCP: the preview render only, 1392 x 1731, 25 to 28 frames a second, no cursor. See the design notes, "Pass R".
+- **Sound:** the frames are silent. Every take's sound was rebuilt from the Lens log (`[Voice]` and `[Audio]` lines with wall-clock times) and the Lens's own audio files.
+- **Takes:** 25, about 13 minutes. Watch first drives steps 1 to 5 and 7 to 10. Real preview mouse input drives Found it, the glint, Continue and the mistake (the second lever grabbed first). Ask shows the offline answer.
+- **Narration:** the table above, read by an ElevenLabs voice. Two rows were split so the coach's own voice can be heard in between. The "design brief" clause in the 2:10 row is left out until `devpost/design-brief.md` exists; a second clip with the clause is ready.
+- **Cut:** 2:29 long, 1920 x 1080. The preview is on the right from the first frame, a title and a note on the left, captions under them. The cold open is the second lever on the rim with the coach speaking.
 
-Cut order follows the table. The cold open is the lever B peel from take 1, trimmed so the lever
-is already on the rim at frame one.
+| At | On screen | Footage |
+| --- | --- | --- |
+| 0:00 | A flat-repair coach for SPECS | `t04-step4` 10.3 to 18.2 s |
+| 0:07 | Hook, slide, peel | `t04-wide-right` 22.9 to 27.5 s |
+| 0:12 | A bike, a flat, and no one to ask | `t11-wide-right` 3.9 to 10.4 s |
+| 0:19 | A bike, a flat, and no one to ask | `t11-wide-left` 4.3 to 10.4 s |
+| 0:25 | One honest note | `t01-start` 25.8 to 31.8 s, 0.75x speed |
+| 0:33 | It names what it sees | `t01-start` 31.8 to 36.6 s |
+| 0:37 | Let the air out, loosen the bead | `t02-step1-2` 7.3 to 16.9 s |
+| 0:47 | A ghost shows where the lever goes | `t03-step3` 5.6 to 8.4 s |
+| 0:50 | A ghost shows where the lever goes | `t03-step3-tray` 9.6 to 11.2 s |
+| 0:51 | A ghost shows where the lever goes | `t03-step3` 8.6 to 11.6 s |
+| 0:54 | Second lever before the first | `t07-mistake` 13.5 to 16.0 s |
+| 0:57 | Do it wrong and the coach says why | `t07-mistake` 38.0 to 45.0 s |
+| 1:04 | The next step is behind the wheel | `t04-step4` 18.2 to 21.6 s |
+| 1:07 | The floor shows where to stand | `t05-oner` 13.7 to 27.5 s |
+| 1:21 | Pull the tube out | `t05-far` 8.4 to 13.4 s |
+| 1:26 | Find what caused the flat | `t06-inspect` 18.3 to 23.8 s |
+| 1:32 | Pinch a part to learn its name | `t06-whats` 6.5 to 10.0 s |
+| 1:35 | A question, answered next to the part | `t06-ask` 5.8 to 13.0 s |
+| 1:42 | New tube in, bead on, pump | `t09-refit` 13.8 to 29.2 s, 2.6x speed |
+| 1:48 | A report, and one thing to practise | `t10-report` 37.9 to 47.4 s |
+| 1:58 | Built in Lens Studio | still of the Lens Studio window |
+| 2:02 | 21 of 21 scenarios pass | `t12-tests` 10.4 to 13.15 s |
+| 2:05 | 21 of 21 scenarios pass | `t12-tests` 14.5 to 17.4 s |
+| 2:08 | Logic: proven | `t04-wide-left` 4.0 to 10.5 s |
+| 2:14 | Feel: unproven | `t04-wide-left` 10.5 to 20.9 s |
+| 2:24 | Bench Coach | title card |
+
+Differences from the plan above:
+
+- The testing shot shows the `lever-snap` scenario driving the Lens next to the list of the 21 scenarios. The LEAF panel itself could not be captured.
+- The Finish card is from the `coach-report` test run (two wrong lever drops, one early pinch), so it shows real numbers. The video says so on screen.
+- The refit (steps 8 to 10) plays at 2.6 times speed, and the video says so on screen.
+- There is no shot of the design brief.
 
 ## Checks before upload
 
@@ -47,5 +78,6 @@ is already on the rim at frame one.
 - Total under 3:00.
 - Narration says "needs internet, falls back offline" (1:35 row).
 - Narration says the preview stands the wheel in with a pinch (0:25 row).
-- Lens audio audible: hiss, zipper, chime.
+- Lens audio audible: hiss, zipper, chime, and the coach's voice at the cold open, after Found it, on the mistake and on the Finish card.
+- Someone has listened to the whole cut. So far the mix was checked by level only.
 - YouTube visibility set to Public, link pasted into the Devpost form.
