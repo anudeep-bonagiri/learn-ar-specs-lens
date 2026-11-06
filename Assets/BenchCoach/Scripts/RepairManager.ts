@@ -478,6 +478,7 @@ export class RepairManager extends BaseScriptComponent {
   private pushLabel(): void {
     const def = STEPS[this.step]
     this.stepLabel.setStepNumber(this.step)
+    this.stepLabel.setNearSideLine(def.nearSideLine ?? "")
     if (def.markerAnchor === "inspect" && this.thornFound) this.stepLabel.setFound(this.currentLabel())
     else this.stepLabel.setText(this.currentLabel())
   }

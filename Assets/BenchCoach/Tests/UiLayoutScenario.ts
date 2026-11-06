@@ -80,11 +80,21 @@ export class UiLayoutScenario extends Scenario {
       const plate = this.screenRect(camera, c, right, w, h)
       const markerOn = marker.isEnabledInHierarchy
       let note = `zone ${callout.zone}, scale ${callout.scale.toFixed(2)}`
-      // Pass P: step 5's far-side callout hides while it would be read through the wheel.
+      // Pass P: while step 5's far-side callout would be read through the wheel, the plate
+      // is the near-side note: kicker and nearSideLine, on the near side, no leader.
       if (callout.throughWheel) {
-        expect(step, "only step 5's callout hides behind the wheel").toBe(5)
-        expect(callout.leaderFrom, "no leader while the callout is hidden").toBe(null)
-        print(`[UiLayoutScenario] step ${step}: callout hidden (seen through the wheel from here), edge arrow ${arrow.isEnabledInHierarchy ? "on" : "off"}`)
+        expect(step, "only step 5's callout turns into the near-side note").toBe(5)
+        expect(callout.nearNote, "the near-side note shows").toBe(true)
+        const text = (findSceneObjectByName("LabelText").getComponent("Component.Text") as Text).text
+        expect(text, "the note's line").toBe(STEPS[5].nearSideLine)
+        expect(callout.leaderFrom, "no leader on the note").toBe(null)
+        if (arrow.isEnabledInHierarchy) {
+          const ap = camera.worldSpaceToScreenSpace(arrow.getTransform().getWorldPosition())
+          expect(this.inside(ap, plate), `step ${step}: the edge arrow is not on the note`).toBe(false)
+        }
+        await this.laidOut()
+        this.checkTexts(step)
+        print(`[UiLayoutScenario] step ${step}: near-side note "${text}"${this.checkInFrame(camera, step, " (note)")}, edge arrow ${arrow.isEnabledInHierarchy ? "on" : "off"}`)
         continue
       }
       if (markerOn) {
@@ -211,7 +221,7 @@ export class UiLayoutScenario extends Scenario {
           if (hard) expect(ok, `What's this? ${part} on step ${step}: ${what}`).toBe(true)
           else if (!ok) print(`[UiLayoutScenario] What's this? ${part} on step ${step}: no clean spot from this pose (${what} fails)`)
         }
-        if (labelObj.isEnabledInHierarchy && !callout.throughWheel) {
+        if (labelObj.isEnabledInHierarchy && !(callout.throughWheel && !callout.nearNote)) {
           const sc = labelObj.getTransform().getWorldPosition()
           const sr = this.screenRect(camera, sc, this.flatRight(sc), callout.scaledWidth(), callout.scaledHeight())
           must(!this.overlaps(ir, sr), "the card does not overlap the step callout")
@@ -291,7 +301,7 @@ export class UiLayoutScenario extends Scenario {
     const labelObj = findSceneObjectByName("StepLabel")
     const marker = findSceneObjectByName("StepMarker")
     const callout = labelObj.getComponent(BenchCoachStepLabelUI.getTypeName()) as BenchCoachStepLabelUI
-    if (!labelObj.isEnabledInHierarchy || !marker.isEnabledInHierarchy || callout.throughWheel) return ""
+    if (!labelObj.isEnabledInHierarchy || (!marker.isEnabledInHierarchy && !callout.nearNote) || (callout.throughWheel && !callout.nearNote)) return ""
     // While the user looks at the wheel (hub in view), even if the marker is not (step 2's beads 3 and 4).
     const hub = findSceneObjectByName("Wheel").getTransform().getWorldPosition()
     const hp = camera.worldSpaceToScreenSpace(hub)
@@ -355,7 +365,9 @@ export class UiLayoutScenario extends Scenario {
     // Step 5's callout (and the Ask stack under it) faces the far side: it is read from there,
     // about 35 cm away, and keeps its apparent size; from the start eye it is seen past the
     // wheel. Checked on the far-side capture instead.
-    if (step === 5 && ["StepLabel", "AskChipsPanel", "AskAnswerPanel"].indexOf(panel) >= 0) return
+    // Pass P: the near-side note is read from here, so it is checked.
+    const note = (findSceneObjectByName("StepLabel").getComponent(BenchCoachStepLabelUI.getTypeName()) as BenchCoachStepLabelUI).nearNote
+    if (step === 5 && !(note && panel === "StepLabel") && ["StepLabel", "AskChipsPanel", "AskAnswerPanel"].indexOf(panel) >= 0) return
     const cam = findSceneObjectByName("Camera Object").getTransform().getWorldPosition()
     const deg = xHeightDeg(t, t.getSceneObject().getTransform().getWorldPosition().distance(cam))
     print(`[UiLayoutScenario] step ${step}: ${panel}/${name} x-height ${deg.toFixed(2)} deg (min ${min})`)

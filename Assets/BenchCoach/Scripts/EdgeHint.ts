@@ -188,7 +188,7 @@ export class EdgeHint extends BaseScriptComponent {
       if (r) out.push(r)
     }
     if (this.dock) add(this.dock.sceneObject, this.dock.width, this.dock.height)
-    if (this.stepCallout && !this.stepCallout.throughWheel) add(this.stepCallout.sceneObject, this.stepCallout.scaledWidth(), this.stepCallout.scaledHeight())
+    if (this.stepCallout && !(this.stepCallout.throughWheel && !this.stepCallout.nearNote)) add(this.stepCallout.sceneObject, this.stepCallout.scaledWidth(), this.stepCallout.scaledHeight())
     if (this.infoCallout) add(this.infoCallout.sceneObject, this.infoCallout.panelWidth, this.infoCallout.panelHeight)
     return out
   }

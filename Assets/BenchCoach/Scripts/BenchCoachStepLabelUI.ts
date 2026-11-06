@@ -137,12 +137,20 @@ export class BenchCoachStepLabelUI extends BaseScriptComponent {
   warning: boolean = false
   /**
    * Pass P: step 5 from the near side. The far-side callout would be read through the
-   * spokes, so it hides while the line from the eye to it crosses the wheel disc (the
-   * edge arrow and the floor path send the user round); it comes in once the user has
-   * come round far enough to see it clear of the wheel, or stands behind the wheel. Not
-   * while something hangs under it (Ask, What's this?).
+   * spokes, so while the line from the eye to it crosses the wheel disc the plate turns
+   * into the near-side note (nearNote: "Step 5 of 10" and the step's nearSideLine, on the
+   * near side, no leader) beside the edge arrow and the floor path; the full callout comes
+   * back once the user has come round far enough to see it clear of the wheel, or stands
+   * behind the wheel. Not while something hangs under it (Ask, What's this?).
    */
   throughWheel: boolean = false
+  /** Pass P: while throughWheel, the plate shows the near-side note (kicker and nearSideLine, no leader) on the near side. */
+  nearNote: boolean = false
+  private nearLine = ""
+  /** What the current mode puts on LabelText (the note replaces it while nearNote). */
+  private labelText = ""
+  /** The idle hint line the hint mode wants (shown once the full callout is back). */
+  private hintWanted: string | null = null
   /** Pass P: the hint line under the instruction ("" while none shows); tests read it. */
   hintText: string = ""
   private baseHeight = 0
@@ -157,19 +165,30 @@ export class BenchCoachStepLabelUI extends BaseScriptComponent {
   /** Normal state: the instruction, with "Step N of 10" above it. */
   setText(msg: string): void {
     this.setMode("normal", this.stepLine(), COLOR.textSecondary, COLOR.edge)
-    if (this.label) this.label.text = keepTogether(msg)
+    this.setLabel(msg)
+  }
+
+  /** Pass P: the step's near-side note line ("" for none); RepairManager pushes it with the step. */
+  setNearSideLine(line: string): void {
+    this.nearLine = line
+    if (!line && this.nearNote) this.setThroughWheel(false, false)
+  }
+
+  private setLabel(text: string): void {
+    this.labelText = text
+    if (this.label) this.label.text = keepTogether(this.nearNote ? this.nearLine : text)
   }
 
   /** The cause is found (green kicker). */
   setFound(msg: string): void {
     this.setMode("found", "Found it", COLOR.green, COLOR.edge)
-    if (this.label) this.label.text = keepTogether(msg)
+    this.setLabel(msg)
   }
 
   /** A mistake: amber edge and kicker, the reason as the line (CoachFeedback restores it). */
   showMistake(reason: string): void {
     this.setMode("mistake", "Not quite", COLOR.amber, COLOR.amber)
-    if (this.label) this.label.text = keepTogether(reason)
+    this.setLabel(reason)
   }
 
   /**
@@ -180,11 +199,12 @@ export class BenchCoachStepLabelUI extends BaseScriptComponent {
   showHint(text: string): void {
     if (WHOLE_STEP_HINTS.indexOf(this.step) >= 0) {
       this.setMode("hint", "Hint", COLOR.accent, COLOR.accent)
-      if (this.label) this.label.text = keepTogether(text)
+      this.setLabel(text)
       return
     }
     this.setMode("hint", this.stepLine(), COLOR.textSecondary, COLOR.accent)
-    this.setHintLine(text)
+    this.hintWanted = text
+    if (!this.nearNote) this.setHintLine(text)
   }
 
   /** The step the kicker counts ("Step N of 10"); shown on the next setText. */
@@ -336,6 +356,7 @@ export class BenchCoachStepLabelUI extends BaseScriptComponent {
 
   private setMode(mode: string, kicker: string, kickerColor: vec4, edge: vec4): void {
     if (mode !== "hint" || this.hintText) this.setHintLine(null)
+    this.hintWanted = null
     this.mode = mode
     this.pulse = mode === "hint"
     this.warning = mode === "mistake"
@@ -360,7 +381,6 @@ export class BenchCoachStepLabelUI extends BaseScriptComponent {
   private place(): void {
     const a = this.anchor
     if (!a) return
-    this.followPitch(a.side < 0)
     const w = this.panelWidth * this.scale
     const h = this.panelHeight * this.scale
     const tireOuter = a.radius + 3.2
@@ -401,10 +421,15 @@ export class BenchCoachStepLabelUI extends BaseScriptComponent {
       cy = spot ? spot.y : 0
     }
     this.zone = zone
-    const pos = a.hub.add(new vec3(cx, cy, a.side * a.standOff))
+    let pos = a.hub.add(new vec3(cx, cy, a.side * a.standOff))
+    const through = a.side < 0 && this.stackH === 0 && this.seenThroughWheel(pos, a, w)
+    // Pass P: the near-side note in the normal and hint states (a mistake or "found" keeps its text).
+    const note = through && !!this.nearLine && (this.mode === "normal" || this.mode === "hint")
+    this.setThroughWheel(through, note)
+    if (note) pos = this.nearSpot(a, w, h)
+    this.followPitch(a.side < 0 && !note)
     const tr = this.sceneObject.getTransform()
     tr.setWorldPosition(pos)
-    this.setThroughWheel(a.side < 0 && this.stackH === 0 && this.seenThroughWheel(pos, a, w))
     // Keep the apparent size: scale for the next frame from this frame's distance.
     const cam = WorldCameraFinderProvider.getInstance()
     if (cam) {
@@ -414,7 +439,28 @@ export class BenchCoachStepLabelUI extends BaseScriptComponent {
         tr.setLocalScale(new vec3(k, k, k))
       }
     }
-    this.drawLeader(pos, a.target)
+    this.drawLeader(pos, this.nearNote ? null : a.target)
+  }
+
+  /**
+   * Pass P: where the near-side note goes: on the near side of the wheel, at the first spot
+   * straight above (then below) the hub with every corner inside the clear circle and in
+   * the view. No marker on this side, so no leader and no ring to keep clear.
+   */
+  private nearSpot(a: CalloutAnchor, w: number, h: number): vec3 {
+    const inner = a.radius - 6.5
+    const z = a.standOff
+    let fallback: vec3 | null = null
+    for (let k = 0; k <= inner; k += 0.5) {
+      for (const sy of [1, -1]) {
+        const fy = k + h / 2
+        if ((w / 2) * (w / 2) + fy * fy > inner * inner) continue
+        const at = a.hub.add(new vec3(0, sy * k, z))
+        if (!fallback) fallback = at
+        if (this.inView(at, a.hub, w, h)) return at
+      }
+    }
+    return fallback ?? a.hub.add(new vec3(0, 0, z))
   }
 
   /**
@@ -543,16 +589,32 @@ export class BenchCoachStepLabelUI extends BaseScriptComponent {
     return d < a.radius + 3.2 + w / 2 + (this.throughWheel ? 2 : 0)
   }
 
-  private setThroughWheel(on: boolean): void {
-    if (on === this.throughWheel || !this.plate) return
+  /**
+   * `on`: the far-side callout would be read through the wheel. With `note` the same plate
+   * shows the near-side note (one plate, so never both; the text swaps in one frame on a
+   * column that is already laid out); without it the plate hides, as before.
+   */
+  private setThroughWheel(on: boolean, note: boolean): void {
+    if (!this.plate) return
+    note = on && note
+    if (on === this.throughWheel && note === this.nearNote) return
     this.throughWheel = on
-    this.plate.content.enabled = !on
-    for (const r of this.sceneObject.getComponents("Component.RenderMeshVisual") as RenderMeshVisual[]) r.enabled = !on
+    const wasNote = this.nearNote
+    this.nearNote = note
+    const hide = on && !note
+    this.plate.content.enabled = !hide
+    for (const r of this.sceneObject.getComponents("Component.RenderMeshVisual") as RenderMeshVisual[]) r.enabled = !hide
+    if (note !== wasNote) {
+      if (this.label) this.label.text = keepTogether(note ? this.nearLine : this.labelText)
+      // The idle hint's line waits for the full callout.
+      if (note && this.hintText) this.setHintLine(null)
+      else if (!note && this.mode === "hint" && this.hintWanted) this.setHintLine(this.hintWanted)
+    }
   }
 
   private drawLeader(c: vec3, target: vec3 | null): void {
     if (!this.leader) return
-    if (!target || !this.sceneObject.isEnabledInHierarchy || this.throughWheel) {
+    if (!target || !this.sceneObject.isEnabledInHierarchy || (this.throughWheel && !this.nearNote)) {
       this.leader.setEnabled(false)
       this.leaderFrom = null
       this.leaderTo = null

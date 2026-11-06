@@ -41,6 +41,11 @@ export interface StepDef {
   voiceLine: string
   /** Idle hint (IdleHint shows it on the label after idleSec without progress). */
   hint: string
+  /**
+   * Pass P: display only, never spoken. Step 5's callout faces the far side; while it
+   * would be read through the spokes the near side shows this short note instead.
+   */
+  nearSideLine?: string
   /** True if the step has a dot on the progress rail (the cards 0, 7 and 11 do not). */
   railDot: boolean
   /** What the user must do to complete the step (Next always works too). */
@@ -349,6 +354,7 @@ export const STEPS: StepDef[] = [
     label: "Go round the stand, then pull the tube out at the bottom.",
     voiceLine: "Go round the stand, then pull the tube out at the bottom.",
     hint: "Grab the tube end at 6 o'clock. Pull.",
+    nearSideLine: "Go round the stand",
     railDot: true,
     action: "tubePull",
     markerAnchor: "tubeEnd",

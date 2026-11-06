@@ -15,7 +15,7 @@
 import {Billboard} from "SpectaclesInteractionKit.lspkg/Components/Interaction/Billboard/Billboard"
 import WorldCameraFinderProvider from "SpectaclesInteractionKit.lspkg/Providers/CameraProvider/WorldCameraFinderProvider"
 import {FlexAlign, FlexJustify} from "SpectaclesUIKit.lspkg/Scripts/Components/Layout2D/Flex/FlexTypes"
-import {COLOR, LeaderLine, addUIText, flexColumn, lineCm, makePlate, plateEdgePoint, plateCm} from "./UIHelpers"
+import {COLOR, LeaderLine, MIN_BODY_XHEIGHT_DEG, addUIText, flexColumn, lineCm, makePlate, plateEdgePoint, plateCm, xHeightDeg} from "./UIHelpers"
 import {BenchCoachStepLabelUI} from "./BenchCoachStepLabelUI"
 
 @component
@@ -211,10 +211,13 @@ export class BenchCoachInfoCalloutUI extends BaseScriptComponent {
       if (rects === must && (r[0] < 0.01 || r[1] > 0.99 || r[2] < 0.01 || r[3] > 0.99)) n++
       return n
     }
+    // Pass P: a spot so far from the eye that the line reads under the body minimum ranks
+    // below every readable one (on step 5 the near-side note pushed the card down and away).
+    const far = (c: vec3): number => (this.line && xHeightDeg(this.line, c.distance(eye)) < MIN_BODY_XHEIGHT_DEG * 1.02 ? 10 : 0)
     // The spot in use stays while it is still as good as when it was picked.
     if (this.pick) {
       const c = this.inFront(this.intoView(p.add(this.pick), camera, centerAtDepth, depth))
-      if (clear(c, must) === 0 && clear(c, soft) + (step && this.leaderCrosses(camera, c, p, step) ? 1 : 0) <= this.pickSoft) return c
+      if (clear(c, must) === 0 && far(c) + clear(c, soft) + (step && this.leaderCrosses(camera, c, p, step) ? 1 : 0) <= this.pickSoft) return c
     }
     // 12 directions in the plate's plane, nearest to "toward the view centre" first.
     const a0 = Math.atan2(inward.dot(up), inward.dot(right))
@@ -232,7 +235,7 @@ export class BenchCoachInfoCalloutUI extends BaseScriptComponent {
         const reach = Math.abs(dir.dot(right)) * this.panelWidth / 2 + Math.abs(dir.y) * this.panelHeight / 2
         let c = p.add(dir.uniformScale(k * reach + this.partGapCm)).add(toEye.uniformScale(this.towardUserCm))
         c = this.inFront(this.intoView(c, camera, centerAtDepth, depth))
-        const score = 100 * clear(c, must) + clear(c, soft) + (step && this.leaderCrosses(camera, c, p, step) ? 1 : 0)
+        const score = 100 * clear(c, must) + far(c) + clear(c, soft) + (step && this.leaderCrosses(camera, c, p, step) ? 1 : 0)
         if (score < bestScore) {
           bestScore = score
           best = c
@@ -334,7 +337,7 @@ export class BenchCoachInfoCalloutUI extends BaseScriptComponent {
 
   private stepRect(camera: Camera): number[] | null {
     const sc = this.stepCallout
-    if (!sc || !sc.sceneObject.isEnabledInHierarchy || sc.throughWheel) return null
+    if (!sc || !sc.sceneObject.isEnabledInHierarchy || (sc.throughWheel && !sc.nearNote)) return null
     const cam = WorldCameraFinderProvider.getInstance()
     const eye = cam ? cam.getWorldPosition() : vec3.zero()
     return this.rectOf(camera, sc.sceneObject.getTransform().getWorldPosition(), eye, sc.scaledWidth(), sc.scaledHeight())

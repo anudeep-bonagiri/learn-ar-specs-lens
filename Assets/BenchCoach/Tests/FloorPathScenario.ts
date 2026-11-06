@@ -1,3 +1,4 @@
+import {STEPS} from "../Scripts/StepDefinitions"
 import {BenchCoachStepLabelUI} from "../Scripts/BenchCoachStepLabelUI"
 import {Scenario} from "Leaf.lspkg/Scenarios/scenario/Scenario"
 import {expect} from "Leaf.lspkg/Utils/common/Expect"
@@ -52,7 +53,10 @@ export class FloorPathScenario extends Scenario {
     // Pass P: from the near side the far-side callout would be read through the spokes:
     // only the path (and the edge arrow) send the user round.
     const callout = findSceneObjectByName("StepLabel").getComponent(BenchCoachStepLabelUI.getTypeName()) as BenchCoachStepLabelUI
-    expect(callout.throughWheel, "step 5 callout hidden from the near side").toBe(true)
+    const labelText = findSceneObjectByName("LabelText").getComponent("Component.Text") as Text
+    const noteShown = () => callout.throughWheel && callout.nearNote && callout.sceneObject.isEnabledInHierarchy && labelText.getSceneObject().isEnabledInHierarchy && labelText.text === STEPS[5].nearSideLine && callout.leaderFrom === null
+    expect(callout.throughWheel, "step 5's full callout is not shown from the near side").toBe(true)
+    expect(noteShown(), `near side: the note "${STEPS[5].nearSideLine}" shows, no leader (reads "${labelText.text}")`).toBe(true)
 
     // ── Arrive at the far spot ──────────────────────────────────────────────
     const camObj = findSceneObjectByName("Camera Object")
@@ -85,10 +89,10 @@ export class FloorPathScenario extends Scenario {
     while (getTime() < holdEnd) {
       camTr.setWorldPosition(goal)
       await sleep(30)
-      if (!callout.throughWheel && callout.leaderFrom !== null) fullAtFar++
+      if (!callout.throughWheel && !callout.nearNote && callout.leaderFrom !== null && labelText.text === STEPS[5].label) fullAtFar++
     }
     print(`[FloorPathScenario] at the far spot: full callout with its leader in ${fullAtFar} polls`)
-    expect(fullAtFar, "the full callout (with its leader) is in at the far spot").toBeGreaterThan(0)
+    expect(fullAtFar, "the full callout (its instruction and leader, no note) is in at the far spot").toBeGreaterThan(0)
     camTr.setWorldPosition(camHome)
     camTr.setWorldRotation(camRot)
     await sleep(300)
@@ -115,16 +119,19 @@ export class FloorPathScenario extends Scenario {
     let everVisible = false
     let sawStep5 = false
     const wEnd = getTime() + 40
+    let noteInWatch = false
     while (getTime() < wEnd && manager.getState().step < 6) {
       if (manager.getState().step === 5) sawStep5 = true
+      if (manager.getState().step === 5 && noteShown()) noteInWatch = true
       if (path.visible || this.shownArrows(pathObj) > 0) everVisible = true
       await sleep(100)
     }
-    print(`[FloorPathScenario] watch: reached step ${manager.getState().step}, saw step 5 ${sawStep5}, ever visible ${everVisible}`)
+    print(`[FloorPathScenario] watch: reached step ${manager.getState().step}, saw step 5 ${sawStep5}, ever visible ${everVisible}, note ${noteInWatch}`)
     director.stop()
     expect(sawStep5, "watch mode passed through step 5").toBe(true)
     expect(manager.getState().step >= 6, "watch mode pulled the tube").toBe(true)
     expect(everVisible, "path never visible in watch mode").toBe(false)
+    expect(noteInWatch, "watch mode, step 5 from the near side: the note shows").toBe(true)
 
     manager.reset()
     await sleep(300)
