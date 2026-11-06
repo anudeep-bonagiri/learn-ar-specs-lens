@@ -27,6 +27,7 @@ export class FloorAnchor extends BaseScriptComponent {
     this.createEvent("OnStartEvent").bind(() => {
       this.apply()
       this.floorLevel.onFloorChanged.add(() => this.apply())
+      this.floorLevel.onFloorMoving.add(() => this.apply())
       WorkspaceAnchor.onMoved(() => this.apply())
     })
   }

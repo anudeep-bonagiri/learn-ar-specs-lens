@@ -180,6 +180,26 @@ export class FloorLevel extends BaseScriptComponent {
   @hint("Half the height band (cm) that hits must share to count as one level")
   @widget(new SliderWidget(0.5, 20, 0.5))
   outlierCm: number = 4
+
+  @input
+  @hint("Pass P: a World-Query-only level decides before the mesh wait ends when this many hits agree on it...")
+  @widget(new SliderWidget(4, 80, 1))
+  earlyHits: number = 16
+
+  @input
+  @hint("...over at least this many distinct 10 cm cells (and twice minSpreadCm of spread)...")
+  @widget(new SliderWidget(3, 60, 1))
+  earlyCells: number = 12
+
+  @input
+  @hint("...and it has stayed the lowest wide level (within the band) for this many seconds")
+  @widget(new SliderWidget(0, 5, 0.25))
+  earlyStableSec: number = 1
+
+  @input
+  @hint("Seconds a change of floor level takes on screen (ease-out): stand, mat and path settle together")
+  @widget(new SliderWidget(0, 2, 0.05))
+  easeSec: number = 0.5
   @ui.group_end
 
   /** Published floor height (world y, cm). */
@@ -199,8 +219,21 @@ export class FloorLevel extends BaseScriptComponent {
   final: boolean = false
 
   private _onFloorChanged = new Event<number>()
-  /** Fires with floorY on the first decision and again on each correction. */
+  /**
+   * Fires with floorY once the floor has settled on a decision (the first one and each
+   * correction), at the end of its ease; readers rebuild here.
+   */
   onFloorChanged: PublicApi<number> = this._onFloorChanged.publicApi()
+  private _onFloorMoving = new Event<number>()
+  /** Pass P: fires every frame of an ease with the shown floor height; readers only move. */
+  onFloorMoving: PublicApi<number> = this._onFloorMoving.publicApi()
+
+  /** The floor height on screen now (world y, cm): eases from the last level to floorY. */
+  shownFloorY: number = -150
+  private easeFrom = 0
+  private easeStart = -1
+  private easeU = 0
+  private easeLastT = -1
 
   private session: HitTestSession | null = null
   private hits: {[k: string]: FloorHit} = {}
@@ -212,9 +245,13 @@ export class FloorLevel extends BaseScriptComponent {
   private callbacks = 0
   private meshOff = false
   private meshFirstSec = -1
+  /** Pass P: the candidate level and since when it has been the pick (for the early decision). */
+  private candY = NaN
+  private candSince = -1
 
   onAwake(): void {
     this.floorY = this.fallbackFloorY
+    this.shownFloorY = this.fallbackFloorY
     try {
       const wq = require("LensStudio:WorldQueryModule") as WorldQueryModule
       const options = HitTestSessionOptions.create()
@@ -236,9 +273,37 @@ export class FloorLevel extends BaseScriptComponent {
     this.createEvent("UpdateEvent").bind(() => this.tick())
   }
 
-  /** The floor height to build on right now (fallback until measured). */
+  /**
+   * The floor height to build on right now: the fallback until measured, then the shown
+   * level (pass P: a change eases over easeSec instead of a 15 cm drop in one frame).
+   */
   currentFloorY(): number {
-    return this.ready ? this.floorY : this.fallbackFloorY
+    return this.shownFloorY
+  }
+
+  /** True while the shown floor is still easing toward floorY. */
+  isEasing(): boolean {
+    return this.easeStart >= 0
+  }
+
+  /** Pass P: ease-out from the last shown level to floorY; readers move each frame, then rebuild. */
+  private easeTick(): void {
+    if (this.easeStart < 0) return
+    // Advanced per frame with the frame time capped at 1/20 s, so a stalled frame (the
+    // preview under load) cannot skip the ease: it always takes at least 10 frames.
+    const now = getTime()
+    if (now !== this.easeLastT) this.easeU += Math.min(getDeltaTime(), 0.05)
+    this.easeLastT = now
+    const u = this.easeSec > 0 ? Math.min(1, this.easeU / this.easeSec) : 1
+    const e = 1 - (1 - u) * (1 - u) * (1 - u)
+    this.shownFloorY = this.easeFrom + (this.floorY - this.easeFrom) * e
+    if (u < 1) {
+      this._onFloorMoving.invoke(this.shownFloorY)
+      return
+    }
+    this.easeStart = -1
+    this.shownFloorY = this.floorY
+    this._onFloorChanged.invoke(this.floorY)
   }
 
   /**
@@ -325,6 +390,7 @@ export class FloorLevel extends BaseScriptComponent {
   }
 
   private tick(): void {
+    this.easeTick()
     if (this.final) return
     const t = this.elapsed()
     if (this.session && t >= this.nextQuery && this.pendingCallbacks === 0) {
@@ -386,12 +452,29 @@ export class FloorLevel extends BaseScriptComponent {
     if (!this.ready) {
       const meshTimeUp = t >= this.maxWaitSec + this.meshWaitSec
       if (best && (best.fromMesh > 0 || meshTimeUp)) this.decide(best, "")
+      else if (best && this.agreed(best, t)) this.decide(best, ` (early: ${best.hits} agreeing hits, stable ${this.earlyStableSec} s)`)
       else if (!best && meshTimeUp) this.decideFallback()
       return
     }
     if (!best) return
     if (this.source === "fallback") this.decide(best, " (replaces the fallback)")
     else if (best.y < this.floorY - this.outlierCm) this.decide(best, ` (corrected down from ${this.floorY.toFixed(1)})`)
+  }
+
+  /**
+   * Pass P: the first decision used to wait maxWaitSec + meshWaitSec (11 s) for the world
+   * mesh, which in the preview mostly never answers; the stand stood on the -150 fallback
+   * until then. Enough agreeing hits on a wide level that stays the lowest one for
+   * earlyStableSec decide it now. The correction window is unchanged: a lower wide level
+   * found later still moves everything down.
+   */
+  private agreed(c: FloorCluster, t: number): boolean {
+    if (isNaN(this.candY) || Math.abs(c.y - this.candY) > this.outlierCm) {
+      this.candY = c.y
+      this.candSince = t
+      return false
+    }
+    return c.hits >= this.earlyHits && c.cells >= this.earlyCells && c.spreadCm >= 2 * this.minSpreadCm && t - this.candSince >= this.earlyStableSec
   }
 
   private decide(c: FloorCluster, note: string): void {
@@ -422,7 +505,12 @@ export class FloorLevel extends BaseScriptComponent {
       `[FloorLevel] ${what} at ${this.elapsed().toFixed(1)} s (eye y ${this.eye().y.toFixed(1)}); pooled ${this.histogram(this.pooled())}; ` +
         `ignored as higher than ${this.minDropCm} cm below the eye: ${this.histogram(Object.keys(this.tooHigh).map((k) => this.tooHigh[k]))}`
     )
-    this._onFloorChanged.invoke(this.floorY)
+    // Pass P: the readers settle over easeSec (stand, mat and path together).
+    this.easeFrom = this.shownFloorY
+    this.easeStart = getTime()
+    this.easeU = 0
+    this.easeLastT = this.easeStart
+    this.easeTick()
   }
 
   private finish(): void {

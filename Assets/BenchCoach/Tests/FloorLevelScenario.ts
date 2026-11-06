@@ -66,6 +66,8 @@ export class FloorLevelScenario extends Scenario {
     expect(floorLevel && stand && path, "FloorLevel, WheelStand and FloorPath exist").toBeTruthy()
     for (let i = 0; i < 300 && !floorLevel.ready; i++) await sleep(100)
     expect(floorLevel.ready, "floor decided within 30 s").toBe(true)
+    // Pass P: the readers settle over FloorLevel.easeSec (0.5 s) after a decision.
+    for (let i = 0; i < 30 && floorLevel.isEasing(); i++) await sleep(50)
     const y0 = floorLevel.floorY
     print(`[FloorLevelScenario] live floor ${y0.toFixed(1)} via ${floorLevel.source}, ${floorLevel.inliers} hits, spread ${floorLevel.spreadCm.toFixed(0)} cm`)
     if (floorLevel.source !== "fallback") {
@@ -83,7 +85,27 @@ export class FloorLevelScenario extends Scenario {
     print(`[FloorLevelScenario] after a lower wide level: ${floorLevel.floorY.toFixed(1)} (${floorLevel.decisions} decisions)`)
     expect(Math.abs(floorLevel.floorY - (y0 - 12)), "a lower wide level corrects the floor down").toBeLessThan(1)
     expect(floorLevel.decisions, "the correction is a new decision").toBe(decisions + 1)
-    await sleep(100)
+    // Pass P: the drop eases (ease-out over 0.5 s): stand, mat and path together, never one 12 cm jump.
+    const baseY = () => findSceneObjectByName("StandBase").getTransform().getWorldPosition().y
+    const matY = () => findSceneObjectByName("FloorMat").getTransform().getWorldPosition().y
+    const samples: number[] = []
+    let together = true
+    for (let i = 0; i < 40 && (floorLevel.isEasing() || samples.length === 0); i++) {
+      await sleep(30)
+      samples.push(baseY())
+      if (Math.abs(matY() - 0.5 - baseY()) > 0.6) together = false
+    }
+    const mids = samples.filter((y) => y < y0 - 0.5 && y > y0 - 11.5).length
+    let maxStep = 0
+    let prev = y0
+    for (const y of samples) {
+      maxStep = Math.max(maxStep, Math.abs(y - prev))
+      prev = y
+    }
+    print(`[FloorLevelScenario] ease: ${samples.length} samples, ${mids} between the levels, largest step ${maxStep.toFixed(1)} cm, mat with the stand ${together}`)
+    expect(mids, "the stand passes through in-between heights (eased, not one frame)").toBeGreaterThan(0)
+    expect(maxStep < 10, "no single jump of the whole 12 cm").toBe(true)
+    expect(together, "the mat moves with the stand").toBe(true)
     this.checkReaders(floorLevel, stand, path, floorLevel.floorY, "after the correction")
   }
 

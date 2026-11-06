@@ -75,7 +75,10 @@ export class WheelStand extends BaseScriptComponent {
     // OnStart: FloorLevel may sit lower in the hierarchy and not be awake yet.
     this.createEvent("OnStartEvent").bind(() => {
       this.rebuild()
-      if (this.floorLevel) this.floorLevel.onFloorChanged.add(() => this.rebuild())
+      if (this.floorLevel) {
+        this.floorLevel.onFloorChanged.add(() => this.rebuild())
+        this.floorLevel.onFloorMoving.add((y) => this.settle(y))
+      }
       WorkspaceAnchor.onMoved(() => this.rebuild())
     })
   }
@@ -100,6 +103,27 @@ export class WheelStand extends BaseScriptComponent {
     this.buildClamp(new vec3(0, H, pz), px)
     this.builtFloorY = floor
     print(`[WheelStand] built on floor y ${floor.toFixed(1)} cm, hub ${H.toFixed(1)} cm above it, ${this.tris} tris`)
+  }
+
+  /**
+   * Pass P: while the floor eases, the built stand follows without a rebuild: the root
+   * (base) goes to the shown floor, the post stretches between floor and hub, the clamp
+   * stays at the hub. The rebuild at the end of the ease makes it exact.
+   */
+  private settle(floor: number): void {
+    if (isNaN(this.builtFloorY)) return
+    const hubW = this.hub.getTransform().getWorldPosition()
+    const builtH = hubW.y - this.builtFloorY
+    const H = hubW.y - floor
+    if (builtH <= 1) return
+    this.sceneObject.getTransform().setWorldPosition(new vec3(hubW.x, floor, hubW.z))
+    const pt = this.post.getTransform()
+    const pp = pt.getLocalPosition()
+    pt.setLocalPosition(new vec3(pp.x, H / 2, pp.z))
+    pt.setLocalScale(new vec3(1, H / builtH, 1))
+    const ct = this.clamp.getTransform()
+    const cp = ct.getLocalPosition()
+    ct.setLocalPosition(new vec3(cp.x, H, cp.z))
   }
 
   private place(so: SceneObject, local: vec3): void {

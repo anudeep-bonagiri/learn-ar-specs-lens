@@ -93,6 +93,8 @@ export class SceneDressingScenario extends Scenario {
     expect(floorLevel, "FloorLevel exists").toBeTruthy()
     for (let i = 0; i < 300 && !floorLevel.ready; i++) await sleep(100)
     expect(floorLevel.ready, "floor decided within 30 s").toBe(true)
+    // Pass P: the stand, mat and path settle over FloorLevel.easeSec (0.5 s) after a decision.
+    for (let i = 0; i < 30 && floorLevel.isEasing(); i++) await sleep(50)
     await sleep(200)
     const floorY = floorLevel.floorY
     print(`[SceneDressingScenario] floor y ${floorY.toFixed(1)} cm via ${floorLevel.source} (${floorLevel.inliers} inliers)`)

@@ -142,6 +142,7 @@ export class FloorPath extends BaseScriptComponent {
       if (this.floorLevel) {
         this.settleOnFloor()
         this.floorLevel.onFloorChanged.add(() => this.settleOnFloor())
+        this.floorLevel.onFloorMoving.add(() => this.settleOnFloor())
       }
       if (!this.manager || !this.camera || !this.arrowMaterial) {
         print("[FloorPath] ERROR: missing @input refs (manager, camera, arrowMaterial)")
