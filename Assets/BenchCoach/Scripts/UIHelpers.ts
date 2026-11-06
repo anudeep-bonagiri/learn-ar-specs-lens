@@ -275,7 +275,30 @@ export function makeFlex(
     flex.justifyContent = opts?.justify ?? FlexJustify.Start
     flex.alignItems = opts?.align ?? FlexAlign.Stretch
   })
+  hideUntilLaidOut(container, flex, parent)
   return container
+}
+
+/**
+ * Pass P: UIKit's FlexLayout runs its first layout from OnStartEvent, in the next
+ * LateUpdate. A panel that is off at Lens start (the step callout, the cards, What's
+ * this?, Ask) starts on the frame it first shows, so for that one frame every child sat
+ * at the column's centre: the kicker "Step 2 of 10" was drawn over the instruction (the
+ * "doubled text" in the pass R footage). The container stays at zero scale until its
+ * first layout is done. Only when no parent flex owns its scale (a FlexItem's scale is
+ * set by the parent's layout pass).
+ */
+function hideUntilLaidOut(container: SceneObject, flex: FlexLayout, parent: SceneObject): void {
+  if (parent.getComponent(FlexLayout.getTypeName())) return
+  const tr = container.getTransform()
+  const scale = tr.getLocalScale()
+  tr.setLocalScale(vec3.zero())
+  let shown = false
+  flex.onLayoutComplete.add(() => {
+    if (shown) return
+    shown = true
+    tr.setLocalScale(scale)
+  })
 }
 
 export function flexColumn(parent: SceneObject, w: number, h: number, opts?: FlexOpts): SceneObject {
