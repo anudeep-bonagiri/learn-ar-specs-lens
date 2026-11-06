@@ -97,8 +97,8 @@
     - "// @input float minSpreadCm = 60 {\"hint\":\"Horizontal spread (cm) a level's hits need; a floor is the lowest WIDE surface\", \"widget\":\"slider\", \"min\":10, \"max\":200, \"step\":5}"
     - "// @input float minDropCm = 120 {\"hint\":\"A floor must be at least this far below the eye (cm); higher levels are table tops or seats. 120, not 140: Colorful Home's floor is 135 cm below the eye, and table tops lose to a lower wide floor anyway\", \"widget\":\"slider\", \"min\":60, \"max\":200, \"step\":5}"
     - '// @input float outlierCm = 4 {"hint":"Half the height band (cm) that hits must share to count as one level", "widget":"slider", "min":0.5, "max":20, "step":0.5}'
-    - '// @input float earlyHits = 8 {"hint":"Pass P: a World-Query-only level decides before the mesh wait ends when this many hits agree on it...", "widget":"slider", "min":4, "max":80, "step":1}'
-    - '// @input float earlyCells = 6 {"hint":"...over at least this many distinct 10 cm cells (and twice minSpreadCm of spread)...", "widget":"slider", "min":3, "max":60, "step":1}'
+    - '// @input float earlyHits = 16 {"hint":"Pass P: a World-Query-only level decides before the mesh wait ends when this many hits agree on it...", "widget":"slider", "min":4, "max":80, "step":1}'
+    - '// @input float earlyCells = 12 {"hint":"...over at least this many distinct 10 cm cells (and twice minSpreadCm of spread)...", "widget":"slider", "min":3, "max":60, "step":1}'
     - '// @input float earlyStableSec = 1 {"hint":"...and it has stayed the lowest wide level (within the band) for this many seconds", "widget":"slider", "min":0, "max":5, "step":0.25}'
     - '// @input float easeSec = 0.5 {"hint":"Seconds a change of floor level takes on screen (ease-out): stand, mat and path settle together", "widget":"slider", "min":0, "max":2, "step":0.05}'
     - '// @ui {"widget":"group_end"}'
