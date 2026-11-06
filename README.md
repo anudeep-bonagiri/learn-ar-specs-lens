@@ -126,7 +126,7 @@ Last full run: Nov 6, 2026, Lens Studio 5.24.1. All 21 passed in the Garage prev
 1. Install Lens Studio 5.24.1 or newer and Git LFS (`git lfs install`), then clone this repo. The voice clips and textures are LFS files.
 2. Open `Specs Base Template.esproj`.
 3. In the Preview panel pick the Specs device and Interactive Preview. Any built-in room works. To use the garage from the video, see [preview-room/README.md](preview-room/README.md).
-4. Look down at the floor until the start card says "Floor found" (about 12 s), then click Found it, or Watch first to see the whole repair.
+4. Look down at the floor until the start card says "Floor found" (about 5 s looking straight down, up to 12 s otherwise), then click Found it, or Watch first to see the whole repair.
 5. Move with WASD, Q and E for down and up, right-drag or Shift to look. A click acts as a pinch.
 6. To run the tests, open the LEAF panel and run the scenarios one at a time.
 7. Ask works offline as is. For live answers follow [tools/set-coach-tokens.md](tools/set-coach-tokens.md). Never commit tokens; `tools/check-no-tokens.sh` checks.

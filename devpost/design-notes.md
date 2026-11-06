@@ -1283,7 +1283,7 @@ Checked from the reset preview camera with `jump-to-step` and the Preview panel 
 
 ### LEAF
 
-All 20 scenarios passed from the reset preview camera, one per call; `ask-coach-fallback` (answer within 10 cm of the step 5 label) and `inspect-done` were run first. No scenario changes: these are placements LEAF doesn't assert, checked by screenshot — step 6 with Ask open (chips fully inside the view), step 2 with a canned answer (answer under the chips, marker clear), and step 5 looking 33 degrees down (label, answer and chips above the bar).
+All 20 scenarios passed from the reset preview camera, one per call; `ask-coach-fallback` (answer within 10 cm of the step 5 label) and `inspect-done` were run first. No scenario changes: these are placements LEAF doesn't assert, checked by screenshot: step 6 with Ask open (chips fully inside the view), step 2 with a canned answer (answer under the chips, marker clear), and step 5 looking 33 degrees down (label, answer and chips above the bar).
 
 Findings:
 
@@ -1974,3 +1974,55 @@ One scenario per call, `__leaf__log_level=ERROR`, the project saved before every
 - **The Preview paused itself once more** at 05:51, with the screen locked: a reset printed nothing for two minutes. `PreviewPanelTool resume` brought it back.
 - The What's this? Valve card at the recording pose, Lever A on step 4 from Sunlit Room's default pose, and item 9 stand as listed above. They were not re-checked.
 - The commits are on `main` and not pushed.
+
+## 2026-11-06: Pass R4, pickup takes and the second cut
+
+No change to the Lens, the scene or any repo file besides these notes, the shot list and two README lines. One recording pass through the Lens Studio MCP, 20 minutes, then the cut was rendered again.
+
+### Why
+
+Pass P changed what five shots of the Nov 5 cut show: steps 1 and 2, the step 4 opening shot with the step 5 cue, the step 5 walk, What's this?, and the refit. The other shots were compared with the Lens as it is now, frame by frame, and stay.
+
+### Lens Studio was throttled while the screen was locked
+
+- With the screen locked, macOS App Nap ran Lens Studio at background priority. `ps` showed priority 4, and timers started from editor snippets ticked at 3 to 20 Hz. That is where the earlier passes' slow timers came from.
+- It mattered once macOS photo analysis (`mediaanalysisd`) filled the efficiency cores after the system update. The load average sat at 30 to 130 while the CPU was 70% idle, and the Lens ran slow: the floor found in 8.5 s instead of 4.6 s, a voice line 4 s late.
+- Fix: Lens Studio was quit and started again with `-NSAppSleepDisabled YES` on its command line. That applies to the one launch and saves nothing. Priority stayed at 58.
+- After it, at a load average of 20 to 50: the floor was decided 4.71 s after a reset with the eye looking down, and `[Voice] floor-found` started 0.08 s later. The recorder's drain timer ticked at about 78 Hz. One camera timer gave 77 to 79 Hz with no repeated frames, so the three interleaved timers of pass R are not needed. Step changes came 1.4 to 1.5 s after a reset instead of 2.3 to 2.5 s.
+- The recorder's 0.25 s gaps every 3 s now follow the recorder's start, not the Lens reset.
+
+### The takes
+
+Same recorder, same room and poses as pass R. Each take was made in one attempt except the walk (two).
+
+| Take | Driven by | Used span | Rate, worst gap |
+| --- | --- | --- | --- |
+| `t02-step1-2-p` | `jump-to-step` step=1 watch=1, wheel pose | 9.72 to 19.32 s | 27.2 fps, 0.28 s |
+| `t04-step4-p` | step=3 watch=1, wheel pose | 14.25 to 25.55 s | 28.0 fps, 0.29 s |
+| `t05-oner-p` | step=5, camera track from the Lens reset | 12.9 to 24.55 s | 28.2 fps, 0.26 s |
+| `t06-whats-p` | step=6 part=Valve | not used | 28.3 fps, 0.26 s |
+| `t06-whats-b-p` | step=6 part=Tire | 10.57 to 14.07 s | 26.2 fps, 0.32 s |
+| `t09-refit-p` | step=7 watch=1, card pose | 14.74 to 31.02 s | 27.4 fps, 0.32 s |
+
+- **The walk.** The arrows and the marker read the same positions as on Nov 5. The walk is 5.6 s. The track's start is delayed so the tilt and the look-up fall between two recorder gaps. The floor settles 0.34 s into the walk, while the camera looks down at the arrows.
+- **What's this?** The cut uses the Tire card: it sits right of centre with its leader up to the tire. The Valve card no longer covers the valve, but its leader runs behind the step callout.
+- **The refit.** Step 8 is 6.94 s in Watch (6.01 s before). The amber ring feeds in from 15.94 s and seats at 18.44 s.
+
+### The cut
+
+- 2:28 long (147.8 s), 1920 x 1080, -15.7 LUFS, the same as the Nov 5 cut. The Nov 5 cut is kept beside it.
+- The walk shot ends 0.1 s before the idle hint. It is 2.2 s shorter than before, which is where the length went.
+- "Walk round, peel the bead the rest of the way" now starts as the camera looks up, 0.7 s earlier in the shot.
+- Every changed shot was checked on frames from the rendered file. Nobody has listened to it yet. The level was scanned second by second: no new silence, and the same pauses between narration lines as before.
+
+### What the takes showed about the Lens
+
+- **Step 5, far side, idle hint.** When the hint grows the plate upward, the stand's post covers part of the first line ("Go roun he stand"). The cut ends the shot before the hint.
+- **What's this? Hub:** the card goes above the step callout and covers the valve stem.
+- **What's this? Rim:** the leader runs to the lower left, and the rim it names is at the frame's edge.
+- **No doubled text** in any take. A change is a one-frame swap, or one empty plate and then the laid-out text.
+
+### Left over
+
+- The three items above.
+- Listening to the cut, the upload, and the design brief line in the narration (clip n12a is used once `devpost/design-brief.md` exists).
