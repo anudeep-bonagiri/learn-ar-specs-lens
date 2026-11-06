@@ -114,6 +114,8 @@ export class BenchCoachAudio extends BaseScriptComponent {
   pumping: boolean = false
   /** Volume factor on hiss, pump and zipper (1, or the voice coach's duck while it speaks). */
   duck: number = 1
+  /** Pass P: volume writes setDuck made (only on cues that were playing); tests read it. */
+  duckWrites: number = 0
 
   onAwake(): void {
     this.configure(this.zipper, this.zipperVolume)
@@ -175,7 +177,7 @@ export class BenchCoachAudio extends BaseScriptComponent {
     if (!a || !a.audioTrack) return
     a.getSceneObject().getTransform().setWorldPosition(worldPos)
     if (a.isPlaying()) a.stop(false)
-    a.volume = this.pumpVolume * this.duck
+    this.applyVolume(a, this.pumpVolume * this.duck, false)
     a.play(-1)
     this.logStart("pump", a)
   }
@@ -187,12 +189,34 @@ export class BenchCoachAudio extends BaseScriptComponent {
     if (was) print(`[Audio] pump stop ms=${Date.now()}`)
   }
 
-  /** Scale the long cues (hiss, pump, zipper) by `factor`; 1 restores them. Live on a playing cue. */
+  /**
+   * Scale the long cues (hiss, pump, zipper) by `factor`; 1 restores them. Pass P: as
+   * cheap as it can be (a Lens freeze under load was a timed-out volume call from here):
+   * only a cue that is playing now is touched, and never to the value it already has; a
+   * cue that starts later gets the duck when it starts (startPumpAt, playAt).
+   */
   setDuck(factor: number): void {
+    if (factor === this.duck) return
     this.duck = factor
-    if (this.hiss) this.hiss.volume = this.hissVolume * factor
-    if (this.pump) this.pump.volume = this.pumpVolume * factor
-    if (this.zipper) this.zipper.volume = this.zipperVolume * factor
+    for (const [a, v] of [[this.hiss, this.hissVolume], [this.pump, this.pumpVolume], [this.zipper, this.zipperVolume]] as [AudioComponent, number][]) {
+      if (this.applyVolume(a, v * factor, true)) this.duckWrites++
+    }
+  }
+
+  /** Sets a cue's volume only if it differs (and, with onlyPlaying, only while it plays). */
+  private applyVolume(a: AudioComponent | null, v: number, onlyPlaying: boolean): boolean {
+    if (!a || (onlyPlaying && !a.isPlaying())) return false
+    if (Math.abs(a.volume - v) <= 1e-4) return false
+    a.volume = v
+    return true
+  }
+
+  /** The volume a cue starts at: hiss, pump and zipper carry the duck. */
+  private startVolume(a: AudioComponent): number {
+    if (a === this.hiss) return this.hissVolume * this.duck
+    if (a === this.pump) return this.pumpVolume * this.duck
+    if (a === this.zipper) return this.zipperVolume * this.duck
+    return a.volume
   }
 
   /** Each cue's base volume, by cue name (the audio map for rebuilding a soundtrack lists them). */
@@ -221,6 +245,7 @@ export class BenchCoachAudio extends BaseScriptComponent {
     if (!a || !a.audioTrack) return
     a.getSceneObject().getTransform().setWorldPosition(worldPos)
     if (a.isPlaying()) a.stop(false)
+    this.applyVolume(a, this.startVolume(a), false)
     a.play(1)
     this.logStart(cue, a)
   }

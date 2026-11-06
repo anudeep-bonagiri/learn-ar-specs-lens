@@ -59,6 +59,8 @@ export class VoiceCoachScenario extends Scenario {
     await sleep(800)
     n = voice.history.length
     const ticks = audio.tickPlays
+    const writes0 = audio.duckWrites
+    const longBefore = [audio.hiss, audio.pump, audio.zipper].some((a) => a && a.isPlaying())
     const chimes = audio.chimePlays
     t0 = getTime()
     manager.next()
@@ -71,6 +73,9 @@ export class VoiceCoachScenario extends Scenario {
     expect(voice.speaking, "step-03 playing").toBe("step-03")
     await sleep(100)
     expect(audio.duck, "long cues ducked while the line plays").toBeLessThan(0.75)
+    // Pass P: the duck writes no volume unless a long cue is playing (a freeze under load was a volume call from setDuck).
+    const longPlaying = [audio.hiss, audio.pump, audio.zipper].some((a) => a && a.isPlaying())
+    if (!longPlaying && !longBefore) expect(audio.duckWrites, "no long cue playing, so the duck wrote no volume").toBe(writes0)
     expect(audio.tickPlays === ticks && audio.chimePlays === chimes, "speech moves no cue counter").toBe(true)
 
     // ── A mistake interrupts ───────────────────────────────────────────────────

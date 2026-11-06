@@ -294,9 +294,11 @@ export class VoiceCoach extends BaseScriptComponent {
     this.stops.push(id)
     print(`[Voice] stop ${id} ms=${Date.now()}`)
     this.log(`stopped ${id}: ${why}`)
-    this.setDuck(false)
+    // Pass P: the duck is lifted by tick() on the next update, never from here (cut() can
+    // run inside another script's callback; under load the volume call timed out there).
   }
 
+  /** Applied only from tick() (UpdateEvent), and only when the state changes. */
   private setDuck(on: boolean): void {
     if (on === this.ducked) return
     this.ducked = on
