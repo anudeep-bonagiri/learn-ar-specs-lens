@@ -14,11 +14,15 @@ import {LAST_STEP} from "../Scripts/StepDefinitions"
  * advances exactly one step; play() resumes and runs to the Finish card with
  * IdleHint back on, no lever misses or hints counted, and no fallback next() calls.
  * Every wait is a poll with a hard timeout, so a stall fails an assertion instead of hanging.
+ * Pass P: the run had grown to 59.8 s, at the MCP call's limit. After the stop, Next is
+ * pressed twice more (step 6, the halfway card) and play() resumes from step 8, the
+ * refit module's own demos; the Lens's Watch timings are unchanged. Watch's steps 6 and 7
+ * (the glint found, the halfway card continuing) are no longer played by this scenario.
  */
 @component
 export class WatchModeScenario extends Scenario {
   async run(): Promise<void> {
-    await sleep(1000)
+    await sleep(500)
     const manager = getRepairManager()
     const interactor = new BenchCoachLeafInteractor()
     const root = findSceneObjectByName("BenchCoach")
@@ -63,6 +67,14 @@ export class WatchModeScenario extends Scenario {
     expect(idle.suspended, "idle hints back on after the stop").toBe(false)
     await sleep(1500)
     expect(manager.getState().step, "nothing advances by itself after the stop").toBe(before + 1)
+
+    // ── Next twice more (the glint step, the halfway card), then resume ─────
+    for (const want of [before + 2, before + 3]) {
+      await interactor.tap("BtnNext")
+      await sleep(300)
+      expect(manager.getState().step, `Next to step ${want}`).toBe(want)
+    }
+    expect(director.playing, "still stopped").toBe(false)
 
     // ── Resume to the Finish card ────────────────────────────────────────────
     const t1 = getTime()
