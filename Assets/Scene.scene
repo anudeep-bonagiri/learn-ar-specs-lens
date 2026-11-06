@@ -12,7 +12,7 @@
     - !<own> 89bf56a7-af7f-46a0-85a4-cb4230432c7e
     - !<own> 621c2c74-2f18-4dc4-89cb-15857b8b1650
     - !<own> d425f86e-edfd-4f66-b1e6-8a5e66034654
-    - !<own> 2c250991-a4b0-451e-95e5-1c19117ca113
+    - !<own> 53e320bc-4ee4-4594-9565-37d47c7af2be
   layers: !<Layers/267ee9a7-aff2-4f9d-9a49-f71214747d03>
     userLayers:
       - id: 1
@@ -1396,21 +1396,6 @@
     []
   Components:
     - !<own> 28a6b096-63cb-48ed-a7b8-b9dcd06cbc74
-- !<SceneObject/2c250991-a4b0-451e-95e5-1c19117ca113>
-  PrefabRemaps:
-    []
-  Name: LEAF Plugin Bridge
-  Enabled: true
-  Layers: 1
-  LocalTransform: !<TransformEntity>
-    Position: {x: 0.000000, y: 0.000000, z: 0.000000}
-    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
-    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
-    HasSegmentScaleCompensation: false
-  Children:
-    []
-  Components:
-    - !<own> 9751a6e6-e8ef-4fe8-a55e-36a07927f4cb
 - !<SceneObject/2d5c1cee-f247-4136-b4ae-70ad7a843fae>
   PrefabRemaps:
     []
@@ -2446,6 +2431,21 @@
     []
   Components:
     - !<own> fa172dd0-e0c4-4dc2-b393-0caccde1a966
+- !<SceneObject/53e320bc-4ee4-4594-9565-37d47c7af2be>
+  PrefabRemaps:
+    []
+  Name: LEAF Plugin Bridge
+  Enabled: true
+  Layers: 1
+  LocalTransform: !<TransformEntity>
+    Position: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Rotation: {x: 0.000000, y: 0.000000, z: 0.000000}
+    Scale: {x: 1.000000, y: 1.000000, z: 1.000000}
+    HasSegmentScaleCompensation: false
+  Children:
+    []
+  Components:
+    - !<own> dae710c0-7c21-4669-81dd-a4aef7eecc52
 - !<SceneObject/54130007-65c1-48d3-b9df-0866d8112e01>
   PrefabRemaps:
     []
@@ -2694,6 +2694,10 @@
     minHits: true
     minSpreadCm: true
     outlierCm: true
+    earlyHits: true
+    earlyCells: true
+    earlyStableSec: true
+    easeSec: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
@@ -2712,6 +2716,10 @@
       minSpreadCm: !<float> 60.000000
       minDropCm: !<float> 120.000000
       outlierCm: !<float> 4.000000
+      earlyHits: !<float> 16.000000
+      earlyCells: !<float> 12.000000
+      earlyStableSec: !<float> 1.000000
+      easeSec: 0.500000
   ScriptTypes:
     "":
       {}
@@ -4584,22 +4592,6 @@
     []
   Components:
     - !<own> 4ed6c333-1350-47ef-83ed-185e37f67f44
-- !<ScriptComponent/9751a6e6-e8ef-4fe8-a55e-36a07927f4cb>
-  PrefabRemaps:
-    []
-  Name: MessagingBridge
-  Enabled: true
-  ScriptAsset: !<reference> 9aa407db-2872-4afc-a162-cf7faf2a0f29
-  ScriptInputsDefault:
-    {}
-  ScriptTypesDefault:
-    {}
-  ScriptInputs:
-    "":
-      {}
-  ScriptTypes:
-    "":
-      {}
 - !<SceneObject/988001d4-30af-4ad7-abab-0ee69baf3c40>
   PrefabRemaps:
     []
@@ -6117,6 +6109,22 @@
     - !<own> f74a6bbb-4fba-4d8b-9b4e-64dd1c3e9ac3
   Components:
     []
+- !<ScriptComponent/dae710c0-7c21-4669-81dd-a4aef7eecc52>
+  PrefabRemaps:
+    []
+  Name: MessagingBridge
+  Enabled: true
+  ScriptAsset: !<reference> 9aa407db-2872-4afc-a162-cf7faf2a0f29
+  ScriptInputsDefault:
+    {}
+  ScriptTypesDefault:
+    {}
+  ScriptInputs:
+    "":
+      {}
+  ScriptTypes:
+    "":
+      {}
 - !<RenderMeshVisual/dbf5d370-85e9-4102-b075-d7c68fad8d41>
   PrefabRemaps:
     []
@@ -6719,9 +6727,9 @@
     tweenSec: true
     valveLiftCm: true
     valveTweenSec: true
-    refitStaggerSec: true
-    refitTweenSec: true
-    refitFromCm: true
+    refitProudCm: true
+    refitSeatSec: true
+    refitTint: true
     debugLogs: true
   ScriptTypesDefault:
     {}
@@ -6741,9 +6749,12 @@
       tweenSec: 0.500000
       valveLiftCm: !<float> 6.000000
       valveTweenSec: 0.400000
-      refitStaggerSec: 0.120000
-      refitTweenSec: 0.300000
-      refitFromCm: !<float> 4.000000
+      refitStaggerSec: 0.180000
+      refitTweenSec: 0.450000
+      refitFromCm: !<float> 8.000000
+      refitProudCm: 1.500000
+      refitSeatSec: 0.300000
+      refitTint: !<Vec4> {x: 1.000000, y: 0.780000, z: 0.450000, w: 1.000000}
       debugLogs: false
   ScriptTypes:
     "":

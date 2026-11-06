@@ -32,7 +32,10 @@
     debugLogs: false
     pullDistanceCm: false
     refitFromCm: false
+    refitProudCm: false
+    refitSeatSec: false
     refitStaggerSec: false
+    refitTint: false
     refitTweenSec: false
     rimRadiusCm: false
     segmentDropCm: false
@@ -72,6 +75,9 @@
       refitStaggerSec: 0.120000
       refitTweenSec: 0.300000
       refitFromCm: !<float> 4.000000
+      refitProudCm: 1.500000
+      refitSeatSec: 0.300000
+      refitTint: !<Vec4> {x: 1.000000, y: 0.780000, z: 0.450000, w: 1.000000}
       debugLogs: false
   ScriptTypes:
     -
@@ -102,5 +108,8 @@
     - '// @input float refitStaggerSec = 0.12 {"hint":"Refit: delay between consecutive segments going back in, in seconds", "widget":"slider", "min":0, "max":0.5, "step":0.01}'
     - '// @input float refitTweenSec = 0.3 {"hint":"Refit: per-segment slide-in length, in seconds", "widget":"slider", "min":0.05, "max":1, "step":0.05}'
     - '// @input float refitFromCm = 4 {"hint":"Refit: how far in front of the tire (wheel +Z) each segment starts its slide in, in cm", "widget":"slider", "min":0, "max":15, "step":0.5}'
+    - '// @input float refitProudCm = 1.5 {"hint":"Pass P, refit: each segment stops this far in front of the tire (cm) until all are in; then they seat together", "widget":"slider", "min":0, "max":5, "step":0.1}'
+    - '// @input float refitSeatSec = 0.3 {"hint":"Pass P, refit: seconds the whole new tube takes to press into the tire (the seated moment)", "widget":"slider", "min":0.05, "max":1, "step":0.05}'
+    - "// @input vec4 refitTint = \"{1.0, 0.78, 0.45, 1}\" {\"hint\":\"Pass P, refit: the new tube's tone while it feeds in (lighter than the tire); it fades back as it seats\", \"widget\":\"color\"}"
     - '// @input bool debugLogs {"hint":"Print pull progress to the log"}'
     - '// @ui {"widget":"group_end"}'

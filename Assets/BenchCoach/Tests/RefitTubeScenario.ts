@@ -78,7 +78,33 @@ export class RefitTubeScenario extends Scenario {
 
     // ── Fit: the same eight segments go back in, valve home, step 9 ─────────
     await interactor.dragTo(handle, socketPos.add(new vec3(1.5, 0, 0)), 1.0, 8000, 0.5)
-    await sleep(2800) // snap + valve + staggered slide-in
+    // Pass P: the new tube feeds in, in a lighter tone than the tire, stops proud of the
+    // tire as a ring, then seats all at once (the seated moment) and takes its own tone back.
+    const lum = (c: vec4) => 0.2126 * c.x + 0.7152 * c.y + 0.0722 * c.z
+    const tireLum = lum((findSceneObjectByName("Bead_0").getComponent("Component.RenderMeshVisual") as RenderMeshVisual).mainMaterial.mainPass.baseColor)
+    const seg0 = () => {
+      const t = findSceneObjectByName("Tube")
+      for (let c = 0; c < t.getChildrenCount(); c++) if (t.getChild(c).name === "TubeSeg_0") return t.getChild(c)
+      return null
+    }
+    const segLum = () => lum((seg0().getComponent("Component.RenderMeshVisual") as RenderMeshVisual).mainMaterial.mainPass.baseColor)
+    const restLum = segLum()
+    let lighter = 0
+    let sawRing = false
+    let sawSeat = false
+    for (let i = 0; i < 160 && (tubePull.refitting || manager.getState().step === 8); i++) {
+      await sleep(50)
+      if (!tubePull.refitting) continue
+      if (seg0().enabled && segLum() > Math.max(tireLum, restLum) + 0.1) lighter++
+      if (tubePull.enabledSegmentCount() === 8 && tubePull.segmentHomeError() > 0.8 && tubePull["seatElapsed"] < 0) sawRing = true
+      if (tubePull["seatElapsed"] >= 0) sawSeat = true
+    }
+    print(`[RefitTubeScenario] feed: ${lighter} samples lighter than the tire (tire ${tireLum.toFixed(2)}, tube ${restLum.toFixed(2)}), ring ${sawRing}, seat ${sawSeat}`)
+    expect(lighter, "the new tube feeds in lighter than the tire").toBeGreaterThan(2)
+    expect(sawRing, "the whole new tube stands in front of the tire before it seats").toBe(true)
+    expect(sawSeat, "a seated moment: the tube presses into the tire together").toBe(true)
+    expect(Math.abs(segLum() - restLum) < 0.02, "the tube's own tone is back once seated").toBe(true)
+    await sleep(200)
     print(`[RefitTubeScenario] after fit: ${tubePull.enabledSegmentCount()} segments on, worst ${tubePull.segmentHomeError().toFixed(3)} cm from home, valve ${tubePull.valveHomeError().toFixed(3)} cm`)
     expect(tubePull.enabledSegmentCount(), "all eight TubeSeg_i enabled").toBe(8)
     const tube = findSceneObjectByName("Tube")

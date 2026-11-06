@@ -117,6 +117,21 @@ export class TubePull extends BaseScriptComponent {
   refitFromCm: number = 4
 
   @input
+  @hint("Pass P, refit: each segment stops this far in front of the tire (cm) until all are in; then they seat together")
+  @widget(new SliderWidget(0, 5, 0.1))
+  refitProudCm: number = 1.5
+
+  @input
+  @hint("Pass P, refit: seconds the whole new tube takes to press into the tire (the seated moment)")
+  @widget(new SliderWidget(0.05, 1, 0.05))
+  refitSeatSec: number = 0.3
+
+  @input("vec4", "{1.0, 0.78, 0.45, 1}")
+  @hint("Pass P, refit: the new tube's tone while it feeds in (lighter than the tire); it fades back as it seats")
+  @widget(new ColorWidget())
+  refitTint: vec4 = new vec4(1.0, 0.78, 0.45, 1)
+
+  @input
   @hint("Print pull progress to the log")
   debugLogs: boolean = false
   @ui.group_end
@@ -150,6 +165,12 @@ export class TubePull extends BaseScriptComponent {
   private demoSec = 1.6
   private refitElapsed = 0
   private valveRefitFrom = vec3.zero()
+  /** Pass P: the feed-in tone (a clone of the tube's material), and the originals it replaced. */
+  private feedMat: Material | null = null
+  private feedBase = new vec4(1, 1, 1, 1)
+  private feedOriginals: {rmv: RenderMeshVisual; mat: Material}[] = []
+  /** Seconds since the last segment reached its proud spot (-1: still feeding). */
+  private seatElapsed = -1
 
   private _onPullComplete = new Event<void>()
   onPullComplete: PublicApi<void> = this._onPullComplete.publicApi()
@@ -251,6 +272,7 @@ export class TubePull extends BaseScriptComponent {
 
   /** Back / reset: tube, tube end and valve back in the tire. */
   restore(): void {
+    this.setFeedTone(0)
     this.demoPulling = false
     this.armed = false
     this.refitting = false
@@ -315,11 +337,46 @@ export class TubePull extends BaseScriptComponent {
     }
     this.sceneObject.getTransform().setLocalPosition(this.endHome)
     for (const seg of this.segments) if (seg.enabled) seg.enabled = false
+    this.seatElapsed = -1
+    this.setFeedTone(1)
     this.log("refit started")
+  }
+
+  /**
+   * Pass P (step 8 was hard to see: the segments flashed in for 0.3 s each and vanished
+   * inside the tire): while the new tube feeds in, its segments wear a lighter tone
+   * (refitTint, blend k); k = 0 puts the tube's own materials back.
+   */
+  private setFeedTone(k: number): void {
+    if (k <= 0) {
+      for (const o of this.feedOriginals) o.rmv.mainMaterial = o.mat
+      this.feedOriginals = []
+      return
+    }
+    if (this.feedOriginals.length === 0) {
+      for (const seg of this.segments) {
+        for (const rmv of seg.getComponents("Component.RenderMeshVisual") as RenderMeshVisual[]) {
+          if (!rmv.mainMaterial) continue
+          if (!this.feedMat) {
+            this.feedMat = rmv.mainMaterial.clone()
+            this.feedBase = rmv.mainMaterial.mainPass.baseColor
+          }
+          this.feedOriginals.push({rmv, mat: rmv.mainMaterial})
+          rmv.mainMaterial = this.feedMat
+        }
+      }
+    }
+    if (this.feedMat) {
+      const b = this.feedBase
+      const t = this.refitTint
+      this.feedMat.mainPass.baseColor = new vec4(b.x + (t.x - b.x) * k, b.y + (t.y - b.y) * k, b.z + (t.z - b.z) * k, 1)
+    }
   }
 
   /** Jump to the refitted tube (Next / jumpToStep): everything home, visible, no events. */
   refitInstant(): void {
+    this.setFeedTone(0)
+    this.seatElapsed = -1
     this.recordHomes()
     this.removed = false
     this.refitting = false
@@ -339,6 +396,7 @@ export class TubePull extends BaseScriptComponent {
 
   /** Back from step 8: the old tube is out again, hanging where the pull left it (as jumpToStep(7)). */
   unrefit(): void {
+    this.setFeedTone(0)
     this.removed = false
     this.refitting = false
     this.completeInstant()
@@ -383,7 +441,11 @@ export class TubePull extends BaseScriptComponent {
     const vt = Math.max(0, Math.min(1, this.refitElapsed / Math.max(0.01, this.valveTweenSec)))
     if (this.valve) this.valve.getTransform().setLocalPosition(vec3.lerp(this.valveRefitFrom, this.valveHome, this.ease(vt)))
     const segStart = this.valveTweenSec
-    const from = new vec3(0, 0, this.refitFromCm)
+    // Pass P: each segment slides from refitFromCm to refitProudCm in front of the tire,
+    // so a light ring builds round the wheel from the valve both ways; once all are in,
+    // the whole tube presses into the tire together over refitSeatSec while its tone
+    // fades back (the seated moment).
+    const proud = Math.min(this.refitProudCm, this.refitFromCm)
     let last = 0
     for (let i = 0; i < this.segments.length; i++) {
       const n = parseInt(this.segments[i].name.substring("TubeSeg_".length))
@@ -393,10 +455,20 @@ export class TubePull extends BaseScriptComponent {
       if (this.refitElapsed < t0) continue
       if (!this.segments[i].enabled) this.segments[i].enabled = true
       const t = Math.min(1, (this.refitElapsed - t0) / Math.max(0.01, this.refitTweenSec))
-      this.segments[i].getTransform().setLocalPosition(this.segmentHomes[i].add(from.uniformScale(1 - this.ease(t))))
+      const z = this.seatElapsed >= 0 ? proud * (1 - this.ease(Math.min(1, this.seatElapsed / Math.max(0.01, this.refitSeatSec)))) : proud + (this.refitFromCm - proud) * (1 - this.ease(t))
+      this.segments[i].getTransform().setLocalPosition(this.segmentHomes[i].add(new vec3(0, 0, z)))
       this.progress[i] = 0
     }
-    if (this.refitElapsed >= last && vt >= 1) {
+    if (this.refitElapsed < last || vt < 1) return
+    if (this.seatElapsed < 0) {
+      this.seatElapsed = 0
+      this.log("new tube in front of the tire: seating")
+      return
+    }
+    this.seatElapsed += getDeltaTime()
+    const u = Math.min(1, this.seatElapsed / Math.max(0.01, this.refitSeatSec))
+    this.setFeedTone(1 - u)
+    if (u >= 1) {
       this.refitInstant()
       this.log("refit complete")
       this._onRefitComplete.invoke()
