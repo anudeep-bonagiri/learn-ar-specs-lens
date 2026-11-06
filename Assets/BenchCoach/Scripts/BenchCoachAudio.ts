@@ -116,6 +116,9 @@ export class BenchCoachAudio extends BaseScriptComponent {
   duck: number = 1
   /** Pass P: volume writes setDuck made (only on cues that were playing); tests read it. */
   duckWrites: number = 0
+  /** Pass P: when each long cue (hiss, zipper) stops playing, by our own clock, so the duck makes no isPlaying() calls. */
+  private playingUntil = new Map<AudioComponent, number>()
+  private durations = new Map<AudioComponent, number>()
 
   onAwake(): void {
     this.configure(this.zipper, this.zipperVolume)
@@ -192,15 +195,38 @@ export class BenchCoachAudio extends BaseScriptComponent {
   /**
    * Scale the long cues (hiss, pump, zipper) by `factor`; 1 restores them. Pass P: as
    * cheap as it can be (a Lens freeze under load was a timed-out volume call from here):
-   * only a cue that is playing now is touched, and never to the value it already has; a
-   * cue that starts later gets the duck when it starts (startPumpAt, playAt).
+   * only a cue that is playing now (by our own record, no AudioComponent query) is
+   * touched, and never to the value it already has; a cue that starts later gets the duck
+   * when it starts (startPumpAt, playAt).
    */
   setDuck(factor: number): void {
     if (factor === this.duck) return
     this.duck = factor
     for (const [a, v] of [[this.hiss, this.hissVolume], [this.pump, this.pumpVolume], [this.zipper, this.zipperVolume]] as [AudioComponent, number][]) {
-      if (this.applyVolume(a, v * factor, true)) this.duckWrites++
+      if (!a || !this.cuePlaying(a)) continue
+      if (this.applyVolume(a, v * factor, false)) this.duckWrites++
     }
+  }
+
+  /**
+   * Pass P, a second freeze under load: a TimeoutError in setDuck again, now in the
+   * isPlaying() calls, in the frame a voice line had just started. Whether a long cue is
+   * playing is now our own record (the pump's flag; hiss and zipper by their duration).
+   */
+  private cuePlaying(a: AudioComponent): boolean {
+    if (a === this.pump) return this.pumping
+    const until = this.playingUntil.get(a)
+    return until !== undefined && getTime() < until
+  }
+
+  /** Records a cue start for cuePlaying(); the duration is read once, at a start. */
+  private markStarted(a: AudioComponent): void {
+    let d = this.durations.get(a)
+    if (d === undefined || d <= 0) {
+      d = a.duration
+      if (d > 0) this.durations.set(a, d)
+    }
+    this.playingUntil.set(a, getTime() + (d > 0 ? d : 3))
   }
 
   /** Sets a cue's volume only if it differs (and, with onlyPlaying, only while it plays). */
@@ -247,6 +273,7 @@ export class BenchCoachAudio extends BaseScriptComponent {
     if (a.isPlaying()) a.stop(false)
     this.applyVolume(a, this.startVolume(a), false)
     a.play(1)
+    this.markStarted(a)
     this.logStart(cue, a)
   }
 

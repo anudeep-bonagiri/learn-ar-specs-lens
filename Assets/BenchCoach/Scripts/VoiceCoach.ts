@@ -254,7 +254,8 @@ export class VoiceCoach extends BaseScriptComponent {
       this.pending = null
       this.start(p.id, p.why)
     }
-    this.setDuck(this.speaking !== "")
+    // Pass P: never in the frame a line started (the audio engine is busy with play()).
+    if (!(this.speaking && this.startedAt === getTime())) this.setDuck(this.speaking !== "")
   }
 
   private sweeping(): boolean {
