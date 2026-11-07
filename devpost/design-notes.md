@@ -2409,4 +2409,20 @@ One scenario per call, `__leaf__log_level=ERROR`, the project saved before every
 - **Next counts as a completion**, as the rule says: a step skipped with Next quickly and without slips counts as clean.
 - Only lever A's struggling ghost and step 1's mastered hint are run in LEAF. Step 4's ghost (socket B) uses the same path and was not tried.
 - The video is not recorded again in this pass.
-- The commits are on `main` and not pushed.
+- The commits were pushed to `main` on Nov 7 evening, after the pass was checked against its tool results.
+
+### Nov 7, night: the coach adapts on screen, the seventh cut, the repo public
+
+What changed after pass A:
+
+- **Pass R6, four takes driven by the `adaptive-coach` scenario's `stay` parameter** (the frame recorder from pass R2, card pose for the cards, wheel pose for the steps): `t16-memory` (run 1 and the More view), `t17-run2` (the start card with the Run 2 line), `t18-struggle` (run 2's step 3, the ghost looping, the hint at 6.07 s), `t19-quiet` (run 2's step 1, no hint for 24 s). One retake: the Mac slept on battery 10 s into the first `t18`. About 15 minutes of recording.
+- **The More view is not usable on screen.** The scenario jumps to the Finish card, and a jump leaves the run's counts at zero, so the card reads "Lever misses 0, Mistakes 0, Hints 0" and "nothing stands out" above "Coach memory: lever A needs help". The line is right (it comes from the scores, which the jump does not touch) and the counts are right for a jumped run, but together they read as a contradiction. The cut uses run 1's second drop and the Run 2 start card instead, and the gallery image of the More view was taken out for the same reason.
+- **The seventh cut, 2:56** (`bench-coach-demo.mp4`; the sixth, 2:43, kept as `bench-coach-demo.sixth.mp4`): the floor-found moment now opens the unbroken take (looking down at the floor, the coach's "floor found" line, the tilt to the card: 53 s with no cuts instead of 46); the audience line narrowed to a first-time home cyclist; a 13 s beat after the drill, "The coach keeps a score per step", "Quiet where you're good", "Sooner where you slipped", each labelled "Driven by the adaptive-coach test."; "23 of 23 scenarios pass"; and trims elsewhere (the wide shots, the refit at 3x, the old and new Finish cards, the tests, unproven, the title) so the whole stays under three minutes. Four narration lines generated (681 characters, about 985 left this month). Loudness -15.2 LUFS, 41 captions. Uploaded unlisted as https://youtu.be/e6xrLPaSkyY with the captions file and the thumbnail; the old link stays up, unlisted.
+- **README, page, facts.** The adapting coach described in plain words in both ("a score and a rule; nothing is trained"), row 23 in the tests table, 23 of 23 everywhere, 36 passes, 22 sessions, 3406 MCP calls, 1005 LEAF runs, the tested gallery image regenerated, a Run 2 gallery image added. The checker fails only on the three human-only rows.
+- **The repo is public** since the afternoon, with its history rewritten so the private planning and research notes never appear in it; only the facts file stays under `docs/`.
+
+Left over:
+
+- A More view with real counts and the memory line would need a scenario that plays a whole run with slips instead of jumping; `coach-report` with the adaptive coach now counting could be that take. Not recorded.
+- `t19-quiet` (step 1 with no hint for 24 s) is not in the cut; the Run 2 card says it.
+- Only Anudeep can write "What we learned" in his own words, tick the rules box, press Submit, and set the video to Public.

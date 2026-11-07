@@ -2,7 +2,7 @@
 
 **A hands-free coach for fixing a bike flat, on Snap Specs. Every step sits on the part it is about, the coach says it out loud, and when the next step is behind the wheel, it makes you walk there.**
 
-[![Demo video, 2:43](https://img.shields.io/badge/demo%20video-2%3A43-red)](https://youtu.be/TJmcKnGiFw4)
+[![Demo video, 2:56](https://img.shields.io/badge/demo%20video-2%3A56-red)](https://youtu.be/e6xrLPaSkyY)
 [![LEAF 23 of 23 passing](https://img.shields.io/badge/LEAF%20scenarios-23%20of%2023%20passing-2dd4e0)](#tests-and-evidence)
 [![Lens Studio 5.24.1](https://img.shields.io/badge/Lens%20Studio-5.24.1-lightgrey)](#run-it)
 [![Status: preview prototype](https://img.shields.io/badge/status-preview%20prototype%2C%20never%20run%20on%20Specs-orange)](#what-is-real-and-what-is-simulated)
@@ -15,7 +15,7 @@ Built for [Learn AR with SPECS](https://learn-specs.devpost.com/) on Devpost Lea
 
 ## See it in 30 seconds
 
-- **Video:** [youtu.be/TJmcKnGiFw4](https://youtu.be/TJmcKnGiFw4). The Lens is on screen from 0:09. 0:29 to 1:15 is one unbroken take at real speed: Found it, Watch first, the far side, the tube out. Captions are on.
+- **Video:** [youtu.be/e6xrLPaSkyY](https://youtu.be/e6xrLPaSkyY). The Lens is on screen from 0:09. 0:26 to 1:19 is one unbroken take at real speed: the floor found, Found it, Watch first, the far side, the tube out. At 2:08 the coach adapts: run 1's slip, run 2's start card, the early hint. Captions are on.
 - **In Lens Studio:** open the project, pick the Specs device and Interactive Preview, look down until the start card says "Floor found", click **Watch first**. The Lens plays steps 1 to 4 itself. At step 5 it shows the path and waits for you to walk round the stand (W, A, S, D) before it pulls the tube.
 - **The moment to judge:** step 5. A screen on the bench cannot follow you round the stand.
 
@@ -59,6 +59,8 @@ The gap is real. In Cycling UK's figures 47% of adults can't fix a flat ([Cyclin
 **What the coach does:** speaks every step, every mistake and every hint (30 recorded lines; Voice can be turned off). Explains seven kinds of mistake on the callout and aloud, for example the second lever before the first. Gives a hint when a step sits idle. Names any part you pinch (What's this?). Answers three questions per step next to the part (Ask). Plays the whole repair by itself (Watch first), and at step 5 waits for you to walk round. Names the cause of the flat (thorn, glass or pinch) on the Finish card with your time and one tip for next time; More opens the rest, and one button drills the step you got wrong three times.
 
 **The coach adapts.** Each of the ten steps keeps a score from 0 to 1, starting at 0.5. When you finish a step the score moves 40% of the way toward a target: 1 for a clean step inside its par time, 0.5 for one slip (a lever miss, a mistake or a hint) or a slow one, 0 for two or more slips. Above 0.75 the step is yours: the hint waits 24 s instead of 12, the ghost lever shows the motion once and goes, and the hint is shown but not spoken. At 0.35 or below the step needs help: the hint comes at 6 s, the ghost keeps looping until the lever is placed, and the hint is spoken. The scores and a run count are kept in the Lens's persistent store, so on your second run the start card says so and the More view of the Finish card reads, for example, "Coach memory: lever A needs help; deflate and loosen are yours." The steps themselves never change; only how much the coach helps. Two clean runs make a step yours; two slips on one run make it need help. It is a score and a rule, nothing is trained.
+
+<img src="devpost/gallery/12-run2.png" alt="Run 2: the start card says the coach will go quiet on the steps you have and help sooner where you struggled" width="60%">
 
 | What | Where it is decided |
 | --- | --- |
