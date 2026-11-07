@@ -1,33 +1,33 @@
 # Build log
 
-Written by `tools/build-log.py` at 2026-11-07T03:36:02+00:00 from the Claude Code session transcripts on one machine. Nothing in it is typed by hand. Sessions run on teammates' machines are not in it.
+Written by `tools/build-log.py` at 2026-11-07T22:29:25+00:00 from the Claude Code session transcripts on one machine. Nothing in it is typed by hand. Sessions run on teammates' machines are not in it.
 
 | Fact | Value |
 | --- | --- |
-| build sessions | 21 |
+| build sessions | 22 |
 | first session | 2026-10-18 |
 | last session | 2026-11-07 |
-| assistant turns | 10905 |
-| tool calls, all tools | 6189 |
-| Lens Studio MCP calls | 3189 |
-| LEAF scenario runs through the MCP | 908 |
-| TypeScript recompiles through the MCP | 130 |
-| preview captures through the MCP | 363 |
+| assistant turns | 11430 |
+| tool calls, all tools | 6519 |
+| Lens Studio MCP calls | 3406 |
+| LEAF scenario runs through the MCP | 1005 |
+| TypeScript recompiles through the MCP | 135 |
+| preview captures through the MCP | 373 |
 
 ## Lens Studio MCP calls by tool
 
 | Tool | Calls |
 | --- | --- |
-| `run_leaf_scenario` | 908 |
-| `ExecuteEditorCode` | 599 |
+| `run_leaf_scenario` | 1005 |
+| `ExecuteEditorCode` | 698 |
 | `MovePreviewCamera` | 500 |
-| `CapturePanelScreenshotTool` | 363 |
+| `CapturePanelScreenshotTool` | 373 |
 | `PreviewPanelTool` | 163 |
+| `RecompileTypeScriptTool` | 135 |
 | `InjectPreviewGesture` | 134 |
-| `RecompileTypeScriptTool` | 130 |
 | `QueryRuntimeSceneTool` | 129 |
 | `PreviewInteractTool` | 88 |
-| `RunAndCollectLogsTool` | 58 |
+| `RunAndCollectLogsTool` | 64 |
 | `asset-graphql` | 31 |
 | `scene-graphql` | 20 |
 | `open_leaf_panel` | 16 |
@@ -68,5 +68,6 @@ Written by `tools/build-log.py` at 2026-11-07T03:36:02+00:00 from the Claude Cod
 | 2026-11-07 | Pass S2 | 345 | 125 |
 | 2026-11-07 | Pass R5 | 598 | 130 |
 | 2026-11-07 | Pass R5c | 143 | 25 |
+| 2026-11-07 | Pass A | 525 | 217 |
 
 Regenerate: `tools/build-log.py ~/.claude/projects/<project transcript folders>`.

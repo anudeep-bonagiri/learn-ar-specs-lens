@@ -1,9 +1,9 @@
 {
-  "asOf": "2026-11-07T20:57:27+00:00",
+  "asOf": "2026-11-07T22:29:33+00:00",
   "facts": [
     {
       "fact": "commits",
-      "value": "115",
+      "value": "123",
       "command": "git rev-list --count HEAD"
     },
     {
@@ -13,7 +13,7 @@
     },
     {
       "fact": "last commit",
-      "value": "2026-11-07T14:57:06-06:00",
+      "value": "2026-11-07T16:28:50-06:00",
       "command": "git log -1 --format=%cI"
     },
     {
@@ -23,7 +23,7 @@
     },
     {
       "fact": "tracked files",
-      "value": "461",
+      "value": "467",
       "command": "git ls-files | wc -l | tr -d ' '"
     },
     {
@@ -53,7 +53,7 @@
     },
     {
       "fact": "lines of .ts",
-      "value": "17168",
+      "value": "17769",
       "command": "git ls-files '*.ts' | xargs wc -l"
     },
     {
@@ -63,27 +63,27 @@
     },
     {
       "fact": "LEAF scenarios registered",
-      "value": "23",
+      "value": "24",
       "command": "grep -c \"typename:\" Assets/BenchCoach/Tests/LeafIndex.ts"
     },
     {
       "fact": "LEAF criterion scenarios (without the jump-to-step helper)",
-      "value": "22",
+      "value": "23",
       "command": "grep \"id:\" Assets/BenchCoach/Tests/LeafIndex.ts | grep -vc jump-to-step"
     },
     {
       "fact": "Lens script files (own TypeScript)",
-      "value": "49",
+      "value": "50",
       "command": "ls Assets/BenchCoach/Scripts/*.ts | wc -l | tr -d ' '"
     },
     {
       "fact": "lines of own Lens TypeScript",
-      "value": "13381",
+      "value": "13830",
       "command": "cat Assets/BenchCoach/Scripts/*.ts | wc -l | tr -d ' '"
     },
     {
       "fact": "lines of LEAF test TypeScript",
-      "value": "3729",
+      "value": "3881",
       "command": "cat Assets/BenchCoach/Tests/*.ts | wc -l | tr -d ' '"
     },
     {
@@ -113,12 +113,12 @@
     },
     {
       "fact": "build passes written up in the design notes",
-      "value": "35",
+      "value": "36",
       "command": "grep -c \"^## 20\" devpost/design-notes.md"
     },
     {
       "fact": "lines of design notes",
-      "value": "2325",
+      "value": "2412",
       "command": "wc -l < devpost/design-notes.md | tr -d ' '"
     },
     {
@@ -128,17 +128,17 @@
     },
     {
       "fact": "build sessions on this machine (build log)",
-      "value": "21",
+      "value": "22",
       "command": "grep \"^| build sessions\" devpost/build-log.md | awk -F'|' '{print $3}' | tr -d ' '"
     },
     {
       "fact": "Lens Studio MCP calls in those sessions (build log)",
-      "value": "3189",
+      "value": "3406",
       "command": "grep \"^| Lens Studio MCP calls\" devpost/build-log.md | awk -F'|' '{print $3}' | tr -d ' '"
     },
     {
       "fact": "LEAF scenario runs through the MCP (build log)",
-      "value": "908",
+      "value": "1005",
       "command": "grep \"^| LEAF scenario runs\" devpost/build-log.md | awk -F'|' '{print $3}' | tr -d ' '"
     }
   ]
