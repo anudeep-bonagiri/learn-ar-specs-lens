@@ -2280,6 +2280,10 @@ Anudeep read the judges' six takeaways ("know who it's for") and asked why a use
 - Video: the drill's titles read "If you want it" and its line was recorded again to say so (n15b). The Who it's for note names anything broken.
 - Mistake, recorded here so it is not repeated: `tools/gen_voice.py` was run on the whole lines file to make one clip, and its manifest did not know the Nov 5 clips, so it generated all 19 of them again (about 2,300 characters; 2,482 left on the free tier). The old clips are gone. The new ones were laid on the timeline and checked: no overlap anywhere, no leading silence, the longest change was the lever A line at 1.5 s longer, replaced by a shorter wording (n05b). Generate one clip at a time from a one-line file.
 
+### Nov 7, later: the numbers behind "who it's for"
+
+Anudeep asked for stats on people paying for easy fixes and on money lost to not knowing how. Found and added, each with its source link and an allow-list line: 47% of adults can't fix a flat (Cycling UK figures, Cycling Plus, Oct 2022); 41% of 4,500 UK adults lack basic bike maintenance skills (Halfords); mechanics on r/BikeMechanics quote £15 to £30 in London and about $50 in Switzerland for a puncture; U.S. PIRG's "Repair Saves Families Big II" (2023) puts repair over replacement at $382 a household and $49.6 billion a year, about electronics, and the page says so. Not found: any figure for money lost each year to not knowing how to fix something; the PIRG number is the nearest and is labelled for what it is. On the page under Inspiration, in the README's Problem bullet, and the 47% on screen in the video's who-it's-for shot. pirg.org answers 403 to the checker's fetch, so the page names the report and the README carries the link.
+
 ### Left over
 
 - Anudeep has not reworded the README or the page in his own voice; he chose to keep the drafts.

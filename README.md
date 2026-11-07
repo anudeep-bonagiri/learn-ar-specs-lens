@@ -15,7 +15,7 @@ You stand at the wheel with a tire lever hooked under the bead. The next step is
 
 ## Problem and audience
 
-- **Problem:** fixing a flat is easy once someone has shown you. Learning it from a paused video, with greasy hands, is not.
+- **Problem:** fixing a flat is easy once someone has shown you. Learning it from a paused video, with greasy hands, is not. In Cycling UK's figures 47% of adults can't fix a flat ([Cycling Plus, 2022](https://www.pressreader.com/australia/cycling-plus/20221028/281724093468028)); a shop charges £15 to £30 or more for the ten minutes ([r/BikeMechanics](https://www.reddit.com/r/BikeMechanics/comments/1glx027/how_much_are_yall_charging_for_punctures/)); and U.S. PIRG puts what American households could keep by repairing electronics instead of replacing them at about $49.6 billion a year ([Repair Saves Families Big II, 2023](https://pirg.org/edfund/media-center/report-fixing-instead-of-replacing-devices-could-save-americans-nearly-50-billion-a-year/)). That last number is about electronics, not bikes; the habit is the same.
 - **Who it's for:** anyone with something broken and no one to ask. They put the glasses on, do the repair once with the coach, and get on with their day. The first repair is a bike flat, start to finish.
 - **Why glasses:** both hands stay on the wheel and the levers. Each instruction is on the part, seen from your own angle. The next marker makes you walk to where the work is. A phone propped on the bench cannot follow you round the stand.
 
