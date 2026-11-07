@@ -27,9 +27,18 @@
  * a mistake reason or a part fact.
  * Pass 11: goTo reports each step change to RunStats.noteStep (step times), and
  * the Finish card also gets the slowest-steps row and RunStats.practiceTip().
+ * Pass S2, Practise it now: practise() drills one step (RunStats.practiseStep(), kept in
+ * the Finish record) three times. Each rep is jumpToStep(step), the same path the tests
+ * use; the callout's kicker reads "Practise, rep n of 3"; the step's line is spoken on
+ * rep 1 only (quietStep). A forward completion of the drilled step is caught in goTo:
+ * the rep's time is kept, the tick plays, the result holds drillHoldSec, then the next
+ * rep. After rep 3, or on Next / Back, jumpToStep(LAST_STEP) brings the Finish card back
+ * with the run's own record (time, counts, report: the drill's resets clear RunStats, so
+ * the record is kept from the run) and the practised line. Mistakes in a drill count
+ * toward the drill only.
  */
 import Event, {PublicApi} from "SpectaclesInteractionKit.lspkg/Utils/Event"
-import {FLAT_CAUSE_IDS, FLAT_CAUSES, LAST_STEP, LOOSEN_BEADS, STEPS, SOCKET_B_ANGLE_DEG, STEP_SHORT_NAMES} from "./StepDefinitions"
+import {FLAT_CAUSE_IDS, FLAT_CAUSES, LAST_STEP, LOOSEN_BEADS, PRACTISE_NAMES, PRACTISE_REPS, STEPS, SOCKET_B_ANGLE_DEG, STEP_SHORT_NAMES} from "./StepDefinitions"
 import {beadMidDeg, findChild, setBeadOffset} from "./WheelMath"
 import {WheelTargets} from "./WheelTargets"
 import {LeverPlacement} from "./LeverPlacement"
@@ -48,6 +57,38 @@ import {RunStats, formatMSS} from "./RunStats"
 import {CoachFeedback} from "./CoachFeedback"
 
 const ALL_BEADS = [0, 1, 2, 3, 4, 5, 6, 7]
+
+/** Pass S2: what the Finish card shows for a run, kept while the run's drills reset the step machine. */
+interface FinishRecord {
+  elapsed: number
+  stats: {leverMisses: number; hintsUsed: number; mistakes: number}
+  cause: string
+  slowest: string
+  practiceTip: string
+  /** The step the Practise button drills, or -1 (no button). */
+  practiseStep: number
+}
+
+/** Pass S2: a drill in progress. */
+export interface DrillState {
+  step: number
+  /** The rep under way, 1-based. */
+  rep: number
+  /** Seconds of each completed rep, from its reset to its completion. */
+  times: number[]
+  mistakes: number
+  repStart: number
+  /** True while a completed rep holds its result before the next reset. */
+  holding: boolean
+}
+
+/** Pass S2: the last drill's result, for the practised line. */
+export interface DrillResult {
+  step: number
+  reps: number
+  best: number
+  mistakes: number
+}
 
 export interface RepairState {
   step: number
@@ -228,6 +269,11 @@ export class RepairManager extends BaseScriptComponent {
   forceCause: string = ""
 
   @input
+  @hint("Pass S2: seconds a completed drill rep holds its result before the next rep")
+  @widget(new SliderWidget(0, 3, 0.1))
+  drillHoldSec: number = 0.8
+
+  @input
   @hint("Print step transitions to the log")
   debugLogs: boolean = true
   @ui.group_end
@@ -256,6 +302,17 @@ export class RepairManager extends BaseScriptComponent {
   replayCount: number = 0
   /** What the last Replay showed (pass F; logged and read by tests), or "nothing". */
   lastReplay: string = ""
+
+  /** Pass S2: the drill under way, or null. */
+  drill: DrillState | null = null
+  /** Pass S2: the last drill's result since the run ended (null until one ran). */
+  lastDrill: DrillResult | null = null
+  /** Pass S2: VoiceCoach says nothing for a step change while this is set (drill reps 2 and 3, the return). */
+  quietStep: boolean = false
+  private finish: FinishRecord | null = null
+  /** True while the drill itself jumps (a rep reset, the return): reset() keeps the drill and the record. */
+  private drillJumping = false
+  private drillGeneration = 0
 
   private _onStepChanged = new Event<number>()
   onStepChanged: PublicApi<number> = this._onStepChanged.publicApi()
@@ -337,7 +394,13 @@ export class RepairManager extends BaseScriptComponent {
     this.tubePull.onEarlyPinch.add(() => {
       if (this.step === 4) this.mistake("tubeBeforePeel", this.tubeEnd.getTransform().getWorldPosition())
     })
-    if (this.feedback) this.feedback.restoreLabel = () => this.refreshLabel()
+    if (this.feedback) {
+      this.feedback.restoreLabel = () => this.refreshLabel()
+      // Pass S2: mistakes in a drill count toward the drill (they are coached as always).
+      this.feedback.onMistake.add(() => {
+        if (this.drill && !this.drill.holding) this.drill.mistakes += 1
+      })
+    }
     this.cause = this.defaultCause()
     this.thorn.setCause(this.cause)
     if (this.refit) {
@@ -384,6 +447,10 @@ export class RepairManager extends BaseScriptComponent {
 
   /** Next applies the current step's model change (as if the user did it), then advances. */
   next(): void {
+    if (this.drill) {
+      this.endDrill("Next")
+      return
+    }
     if (this.step === 0) {
       this.foundIt()
       return
@@ -395,6 +462,10 @@ export class RepairManager extends BaseScriptComponent {
 
   /** Back drops any partial work on the current step, then undoes the previous one. */
   back(): void {
+    if (this.drill) {
+      this.endDrill("Back")
+      return
+    }
     if (this.step <= 0) return
     this.instant = true
     this.undoStep(this.step)
@@ -444,6 +515,14 @@ export class RepairManager extends BaseScriptComponent {
     const wasInstant = this.instant
     this.instant = true
     for (let s = LAST_STEP; s >= 0; s--) this.undoStep(s)
+    // Pass S2: a reset from outside the drill (Start over, a test's jump) ends any drill and forgets the run.
+    if (!this.drillJumping) {
+      this.drillGeneration += 1
+      this.drill = null
+      this.lastDrill = null
+      this.finish = null
+      if (this.stepLabel) this.stepLabel.setKickerLine("")
+    }
     this.startTime = 0
     if (this.stats) this.stats.reset()
     this.setCause(this.defaultCause())
@@ -462,6 +541,96 @@ export class RepairManager extends BaseScriptComponent {
     this.instant = false
   }
 
+  // ── Pass S2: Practise it now ──────────────────────────────────────────────
+  /** The step the Finish card's Practise button drills (-1: no button). */
+  practiseStep(): number {
+    return this.finish ? this.finish.practiseStep : -1
+  }
+
+  /** Drill the Finish record's practise step PRACTISE_REPS times (the Finish card's Practise button). */
+  practise(): void {
+    const step = this.practiseStep()
+    if (this.drill || this.step !== LAST_STEP || step < 1) return
+    this.drillGeneration += 1
+    this.drill = {step, rep: 0, times: [], mistakes: 0, repStart: 0, holding: false}
+    this.log(`practise: ${STEPS[step].name} (step ${step}), ${PRACTISE_REPS} reps`)
+    this.startRep()
+  }
+
+  /** Puts the Lens in the state before the drilled step (jumpToStep) for the next rep. */
+  private startRep(): void {
+    const d = this.drill
+    if (!d) return
+    d.rep = d.times.length + 1
+    d.holding = false
+    this.drillJump(d.step, d.rep > 1)
+    d.repStart = getTime()
+    this.log(`practise rep ${d.rep} of ${PRACTISE_REPS}`)
+  }
+
+  /** jumpToStep from inside the drill: the run's cause and record stay; `quiet` keeps the voice still. */
+  private drillJump(step: number, quiet: boolean): void {
+    const savedForce = this.forceCause
+    if (this.finish) this.forceCause = this.finish.cause
+    this.drillJumping = true
+    this.quietStep = quiet
+    this.jumpToStep(step)
+    this.quietStep = false
+    this.drillJumping = false
+    this.forceCause = savedForce
+  }
+
+  /** The drilled step was completed: keep the time, play the tick, hold the result, then the next rep or the end. */
+  private repDone(): void {
+    const d = this.drill
+    if (!d || d.holding) return
+    d.holding = true
+    const t = getTime() - d.repStart
+    d.times.push(t)
+    if (this.feedback) this.feedback.cancel()
+    const at = this.stepMarker.enabled ? this.stepMarker.getTransform().getWorldPosition() : this.markerAnchorFor(d.step, false).pos
+    if (this.audio) this.audio.playTickAt(at)
+    if (this.ticks && this.wheel.enabled) {
+      const positions: vec3[] = []
+      for (let s = 1; s <= d.step; s++) if (STEPS[s].markerAnchor !== "none") positions.push(this.markerAnchorFor(s, false).pos)
+      this.ticks.setTicks(positions)
+    }
+    if (this.stepLabel && this.stepLabel.sceneObject.enabled) this.stepLabel.showRepDone(`Rep ${d.times.length} of ${PRACTISE_REPS} done in ${formatMSS(t)}`)
+    this.log(`practise rep ${d.times.length} done in ${t.toFixed(2)} s`)
+    const generation = this.drillGeneration
+    const delay = this.createEvent("DelayedCallbackEvent")
+    delay.bind(() => {
+      if (generation !== this.drillGeneration || this.drill !== d) return
+      if (d.times.length >= PRACTISE_REPS) this.endDrill("done")
+      else this.startRep()
+    })
+    delay.reset(this.drillHoldSec)
+  }
+
+  /** Ends the drill (after the last rep, or Next / Back) and brings the Finish card back with the practised line. */
+  private endDrill(why: string): void {
+    const d = this.drill
+    if (!d) return
+    this.drillGeneration += 1
+    const best = d.times.length > 0 ? Math.min(...d.times) : -1
+    this.lastDrill = {step: d.step, reps: d.times.length, best, mistakes: d.mistakes}
+    this.drill = null
+    if (this.stepLabel) this.stepLabel.setKickerLine("")
+    this.log(`practise ended (${why}): ${d.times.length} of ${PRACTISE_REPS} reps, best ${best.toFixed(2)} s, ${d.mistakes} mistakes`)
+    this.drillJump(LAST_STEP, true)
+  }
+
+  /** "Practised lever A: 3 reps, best 0:06, 1 mistake" (plain words). */
+  practisedLine(): string {
+    const r = this.lastDrill
+    if (!r) return ""
+    const name = PRACTISE_NAMES[r.step] ?? STEPS[r.step].name
+    const parts = [r.reps >= PRACTISE_REPS ? `${r.reps} reps` : `${r.reps} of ${PRACTISE_REPS} reps`]
+    if (r.best >= 0) parts.push(`best ${formatMSS(r.best)}`)
+    parts.push(r.mistakes === 0 ? "no mistakes" : `${r.mistakes} mistake${r.mistakes === 1 ? "" : "s"}`)
+    return `Practised ${name}: ${parts.join(", ")}`
+  }
+
   /** Put the current step's own label back (after a hint, a mistake reason or a part fact). */
   refreshLabel(): void {
     const def = STEPS[this.step]
@@ -477,6 +646,7 @@ export class RepairManager extends BaseScriptComponent {
   /** The current step's line on the callout: green "Found it" once the cause is found. */
   private pushLabel(): void {
     const def = STEPS[this.step]
+    this.stepLabel.setKickerLine(this.drill ? `Practise, rep ${this.drill.rep} of ${PRACTISE_REPS}` : "")
     this.stepLabel.setStepNumber(this.step)
     this.stepLabel.setNearSideLine(def.nearSideLine ?? "")
     if (def.markerAnchor === "inspect" && this.thornFound) this.stepLabel.setFound(this.currentLabel())
@@ -589,6 +759,11 @@ export class RepairManager extends BaseScriptComponent {
     this.stepLabel.setFound(this.causeDef().foundLabel)
     this.placeMarkerAndLabel()
     this.log("thorn found")
+    // Pass S2: in a drill the find is the rep's completion (no wait for the halfway card).
+    if (this.drill && this.drill.step === 6) {
+      this.repDone()
+      return
+    }
     const generation = this.thornGeneration
     const delay = this.createEvent("DelayedCallbackEvent")
     delay.bind(() => {
@@ -674,6 +849,13 @@ export class RepairManager extends BaseScriptComponent {
   // ── Step transitions ───────────────────────────────────────────────────────
   private goTo(step: number): void {
     const from = this.step
+    // Pass S2: in a drill, completing the drilled step ends the rep instead of moving on.
+    if (this.drill && !this.drillJumping && from === this.drill.step && step === from + 1) {
+      this.repDone()
+      return
+    }
+    // A new arrival on the Finish card builds its record; after a drill the run's record stays.
+    if (step === LAST_STEP && from !== LAST_STEP && !this.lastDrill) this.finish = null
     this.step = Math.max(0, Math.min(LAST_STEP, step))
     this.subStep = 0
     this.replayCount = 0
@@ -685,7 +867,7 @@ export class RepairManager extends BaseScriptComponent {
     if (this.step !== from && STEPS[this.step].showDoneCard && this.audio && this.doneCard) {
       this.audio.playDoneAt(this.doneCard.sceneObject.getTransform().getWorldPosition())
     }
-    if (this.step === LAST_STEP && from !== LAST_STEP && this.audio && this.finishCard) {
+    if (this.step === LAST_STEP && from !== LAST_STEP && !this.quietStep && this.audio && this.finishCard) {
       this.audio.playFinishAt(this.finishCard.sceneObject.getTransform().getWorldPosition())
     }
     this._onStepChanged.invoke(this.step)
@@ -795,15 +977,32 @@ export class RepairManager extends BaseScriptComponent {
 
   /** Pushes time, stats and the cause into the Finish card (step 11). */
   private pushFinishCard(): void {
-    const cause = this.causeDef()
+    if (!this.finish) this.finish = this.buildFinish()
+    const f = this.finish
+    const cause = FLAT_CAUSES[f.cause] ? FLAT_CAUSES[f.cause] : FLAT_CAUSES["thorn"]
+    this.finishCard.setResult(f.elapsed, f.stats, cause.label, cause.tip)
+    if (this.stats) this.finishCard.setReport(f.slowest, f.practiceTip)
+    // Pass S2: the Practise button and, after a drill, the practised line.
+    const name = f.practiseStep >= 1 ? PRACTISE_NAMES[f.practiseStep] ?? STEPS[f.practiseStep].name : ""
+    this.finishCard.setPractise(!name ? "" : this.lastDrill ? "Practise again" : `Practise ${name}`)
+    this.finishCard.setPractised(this.practisedLine())
+  }
+
+  /** The run's Finish record: time, counts, cause, the coach report and the step to practise. */
+  private buildFinish(): FinishRecord {
     const s = this.stats ? this.stats.snapshot() : {leverMisses: 0, hintsUsed: 0, mistakes: 0}
-    this.finishCard.setResult(this.getState().elapsedSec, s, cause.label, cause.tip)
+    let slowest = "no timed steps"
+    let practiceTip = ""
+    let practiseStep = -1
     // Pass 11 coach report: the three slowest work steps and one practice line.
     if (this.stats) {
       const slow = this.stats.slowestSteps(3)
       const parts = slow.map((id) => `${STEP_SHORT_NAMES[id] ?? STEPS[id].name} ${formatMSS(this.stats.stepSeconds(id))}`)
-      this.finishCard.setReport(parts.length > 0 ? parts.join(" · ") : "no timed steps", this.stats.practiceTip())
+      if (parts.length > 0) slowest = parts.join(" · ")
+      practiceTip = this.stats.practiceTip()
+      practiseStep = this.stats.practiseStep()
     }
+    return {elapsed: this.getState().elapsedSec, stats: s, cause: this.cause, slowest, practiceTip, practiseStep}
   }
 
   /** Step 1 lights the valve, step 2 the beads still to loosen; every other step none (RefitSteps lights 8..10). */

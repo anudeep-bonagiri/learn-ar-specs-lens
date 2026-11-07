@@ -147,6 +147,8 @@ export class BenchCoachStepLabelUI extends BaseScriptComponent {
   /** Pass P: while throughWheel, the plate shows the near-side note (kicker and nearSideLine, no leader) on the near side. */
   nearNote: boolean = false
   private nearLine = ""
+  /** Pass S2: the drill's kicker ("" outside a drill). */
+  private kickerLine = ""
   /** What the current mode puts on LabelText (the note replaces it while nearNote). */
   private labelText = ""
   /** The idle hint line the hint mode wants (shown once the full callout is back). */
@@ -177,6 +179,21 @@ export class BenchCoachStepLabelUI extends BaseScriptComponent {
   private setLabel(text: string): void {
     this.labelText = text
     if (this.label) this.label.text = keepTogether(this.nearNote ? this.nearLine : text)
+  }
+
+  /**
+   * Pass S2: during a Practise drill the kicker reads `line` ("Practise, rep 1 of 3")
+   * instead of "Step N of 10"; "" gives the step count back. Shown on the next setText.
+   */
+  setKickerLine(line: string): void {
+    this.kickerLine = line
+    if (this.mode === "normal" && this.kicker) this.kicker.text = this.stepLine()
+  }
+
+  /** Pass S2: a drill rep is done (green kicker, "Rep 1 of 3 done in 0:06"); the instruction stays. */
+  showRepDone(kicker: string): void {
+    this.setMode("found", kicker, COLOR.green, COLOR.edge)
+    this.setLabel(this.labelText)
   }
 
   /** The cause is found (green kicker). */
@@ -320,6 +337,7 @@ export class BenchCoachStepLabelUI extends BaseScriptComponent {
   }
 
   private stepLine(): string {
+    if (this.kickerLine) return this.kickerLine
     return this.step > 0 ? `Step ${this.step} of ${this.totalSteps}` : ""
   }
 

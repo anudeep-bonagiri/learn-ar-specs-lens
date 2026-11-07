@@ -2739,6 +2739,7 @@
     thornRevealSec: true
     causeId: true
     forceCause: true
+    drillHoldSec: true
     debugLogs: true
   ScriptTypesDefault:
     {}
@@ -2781,6 +2782,7 @@
       thornRevealSec: 2.500000
       causeId: thorn
       forceCause: ""
+      drillHoldSec: 0.800000
       debugLogs: true
   ScriptTypes:
     "":

@@ -8,7 +8,9 @@
  *  - mistake-<code> when CoachFeedback reports that mistake (it cuts off whatever plays);
  *  - idle-step-NN when IdleHint shows the step's hint;
  *  - floor-found once, when the start card's floor line turns to "Floor found";
- *  - the step's line again on Replay (RepairManager.onReplay).
+ *  - the step's line again on Replay (RepairManager.onReplay);
+ *  - pass S2: nothing for a step change while RepairManager.quietStep is set (a Practise
+ *    drill's reps 2 and 3, and its return to the Finish card).
  * Rules: one line at a time (a new line stops the old one); never the same line twice
  * within repeatGuardSec; nothing starts while ScanReveal sweeps (a queued line waits for
  * the heads to meet); while a line plays BenchCoachAudio ducks hiss, pump and zipper.
@@ -212,7 +214,8 @@ export class VoiceCoach extends BaseScriptComponent {
 
   private onStep(step: number): void {
     const id = this.lineForStep(step)
-    if (!id) {
+    // Pass S2: a Practise drill speaks the step's line on rep 1 only (and not on its way back to the Finish card).
+    if (!id || this.manager.quietStep) {
       // Back on the start card: nothing to say; drop a queued line.
       this.pending = null
       return

@@ -36,6 +36,7 @@
     debugLogs: false
     deflateScale: false
     doneCard: false
+    drillHoldSec: false
     environment: false
     feedback: false
     finishCard: false
@@ -112,6 +113,7 @@
       thornRevealSec: 2.500000
       causeId: thorn
       forceCause: ""
+      drillHoldSec: 0.800000
       debugLogs: true
   ScriptTypes:
     -
@@ -162,5 +164,6 @@
     - '// @input float thornRevealSec = 2.5 {"hint":"Seconds the found thorn and its label stay up before the Done card", "widget":"slider", "min":0, "max":6, "step":0.1}'
     - '// @input string causeId = "thorn" {"hint":"Default flat cause after reset / jumpToStep (Found it picks one at random)"}'
     - '// @input string forceCause {"hint":"Force this flat cause every run (thorn, glass, snakebite); empty = random on Found it"}'
+    - '// @input float drillHoldSec = 0.8 {"hint":"Pass S2: seconds a completed drill rep holds its result before the next rep", "widget":"slider", "min":0, "max":3, "step":0.1}'
     - '// @input bool debugLogs = true {"hint":"Print step transitions to the log"}'
     - '// @ui {"widget":"group_end"}'

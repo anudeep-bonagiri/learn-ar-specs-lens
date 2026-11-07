@@ -211,6 +211,42 @@ export const STEP_SHORT_NAMES: {[step: number]: string} = {
 }
 
 /**
+ * Pass S2, Practise it now: the step each mistake kind belongs to. The Finish card's
+ * Practise button drills the step of the run's most frequent mistake
+ * (RunStats.practiseStep()). Display only: nothing here is spoken. leverTooFar also
+ * happens with lever B on step 4, but it is first and most often lever A, on step 3.
+ */
+export const MISTAKE_STEPS: {[code: string]: number} = {
+  beadBeforeDeflate: 1,
+  valveAlreadyDeflated: 2,
+  leverBBeforeA: 3,
+  leverTooFar: 3,
+  tubeBeforePeel: 4,
+  tubeFitMiss: 8,
+  inflateBeforeSeat: 9,
+}
+
+/**
+ * Pass S2: short step names for the Practise button and the practised line on the
+ * Finish card ("Practise lever A", "Practised lever A: 3 reps"). Display only, never
+ * spoken. Repair steps only (the rail-dot steps).
+ */
+export const PRACTISE_NAMES: {[step: number]: string} = {
+  1: "deflate",
+  2: "loosen",
+  3: "lever A",
+  4: "peel",
+  5: "tube out",
+  6: "inspect",
+  8: "fit tube",
+  9: "seat",
+  10: "inflate",
+}
+
+/** Pass S2: reps in one drill. */
+export const PRACTISE_REPS = 3
+
+/**
  * What's this? facts. `target` is the SceneObject the pinch box follows (found by
  * name under the wheel, stand and tray); `offset` is in the target's rotated frame,
  * in cm; `size` is the box in cm (a little larger than any collider it encloses, so

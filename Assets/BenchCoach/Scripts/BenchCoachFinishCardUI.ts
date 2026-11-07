@@ -9,8 +9,15 @@
  * card is authored, so both states stay in the view. Every show starts compact.
  * Buttons are at least minButtonDeg tall at the viewing distance (the dock's buttons are
  * 4 cm at 48 cm, about 4.8 degrees).
+ * Pass S2, Practise it now: a third button, Practise <step> (BtnFinishPractise, between
+ * More and Start over), drills one step three times (RepairManager.practise()). It shows
+ * only when setPractise() gets a label. After a drill the compact card has one more
+ * line under the tip (FinishPractised: "Practised lever A: 3 reps, best 0:06, 1 mistake")
+ * and the button reads "Practise again". The buttons are placed by hand in one row, each
+ * at least minButtonDeg tall and as wide as it is tall.
  * Owns: only its view and its compact / expanded state. setResult() pushes time, stats,
- * cause and tip in; setReport() the slowest steps and the practice line. Emits onRestart.
+ * cause and tip in; setReport() the slowest steps and the practice line; setPractise() and
+ * setPractised() the drill's button and line. Emits onRestart and onPractise.
  * Must not: hold repair state or count anything (RunStats counts, RepairManager pushes).
  */
 import Event, {PublicApi} from "SpectaclesInteractionKit.lspkg/Utils/Event"
@@ -20,17 +27,20 @@ import {
   COLOR,
   Plate,
   addLabelButton,
+  LAYOUT_Z_LIFT,
   addUIText,
   flexChild,
   flexColumn,
   flexRow,
   grid,
+  liftInZ,
   lineCm,
   linesFor,
   makePlate,
   obj,
   plateCm,
   targetCm,
+  uiTextOn,
 } from "./UIHelpers"
 
 const ICON_REPLAY: Texture = requireAsset("../../Icons/replay.png") as Texture
@@ -95,6 +105,18 @@ export class BenchCoachFinishCardUI extends BaseScriptComponent {
   private details: SceneObject | null = null
   private buttons: SceneObject | null = null
   private moreLabel: Text | null = null
+  private practiseLabel: Text | null = null
+  /** Button holders (More, Practise, Start over) and their widths, placed by layout(). */
+  private holders: SceneObject[] = []
+  private holderW: number[] = []
+  private btnGap = 0
+  private practised: SceneObject | null = null
+  private practisedText: Text | null = null
+  private practisedH = 0
+  private lineH = 0
+  private innerW = 0
+  /** Pass S2: the Practise button shows (setPractise got a label). */
+  practiseShown: boolean = false
   private basePos: vec3 = vec3.zero()
   private pad = 0
   private gap = 0
@@ -102,6 +124,40 @@ export class BenchCoachFinishCardUI extends BaseScriptComponent {
   private detailsH = 0
   private _onRestart = new Event<void>()
   onRestart: PublicApi<void> = this._onRestart.publicApi()
+  private _onPractise = new Event<void>()
+  /** Pass S2: the Practise button was pressed. */
+  onPractise: PublicApi<void> = this._onPractise.publicApi()
+
+  /** Pass S2: the Practise button's label ("Practise lever A", "Practise again"); "" hides it. */
+  setPractise(label: string): void {
+    this.practiseShown = label.length > 0
+    if (this.practiseLabel && label) this.practiseLabel.text = label
+    this.layout()
+  }
+
+  /** Pass S2: the line under the tip after a drill, as given ("" for none); tests read it. */
+  practisedLine: string = ""
+
+  /**
+   * Pass S2: the line under the tip after a drill ("" for none). When it needs two lines it
+   * breaks after the step name ("Practised lever A:" / "3 reps, best 0:06, 1 mistake"), so
+   * the numbers stay together.
+   */
+  setPractised(line: string): void {
+    if (!this.practisedText) return
+    this.practisedLine = line
+    const lines = line ? Math.min(2, linesFor(line, "body", this.innerW, this.viewDistanceCm)) : 0
+    const colon = line.indexOf(": ")
+    this.practisedText.text = lines > 1 && colon > 0 ? `${line.substring(0, colon + 1)}\n${line.substring(colon + 2)}` : line
+    this.practisedH = lines * this.lineH
+    this.practisedText.layoutRect = Rect.create(-this.innerW / 2, this.innerW / 2, -this.practisedH / 2, this.practisedH / 2)
+    this.layout()
+  }
+
+  /** Pass S2: the Practise button's label ("" while hidden), for tests. */
+  practiseText(): string {
+    return this.practiseShown && this.practiseLabel ? this.practiseLabel.text : ""
+  }
 
   /** Time from Found it, the run's counts, the cause and its prevention tip. */
   setResult(seconds: number, stats: FinishStats, causeLabel: string, tip: string): void {
@@ -157,6 +213,8 @@ export class BenchCoachFinishCardUI extends BaseScriptComponent {
     const titleH = lineCm("title", d)
     const tipH = lineCm("body", d) * 2
     this.headH = kickerH + titleH + tipH + 2 * g.gap
+    this.lineH = lineCm("body", d)
+    this.innerW = innerW
     const labelW = innerW * 0.34
     const valueW = innerW - labelW - g.gap
     // A row holds as many lines as its sample value needs (the slowest steps take two).
@@ -170,8 +228,6 @@ export class BenchCoachFinishCardUI extends BaseScriptComponent {
     this.width = width
     this.buttonHeight = btnH
     // Compact: head, a wider gap, the buttons. Expanded: the details between them.
-    this.compactHeight = 2 * pad + this.headH + 2 * g.gap + btnH
-    this.expandedHeight = this.compactHeight + this.detailsH + 2 * g.gap
     this.plate = makePlate(this.sceneObject, width, this.compactHeight, d)
 
     // ── Head: kicker, "Flat fixed" with the time, the tip ──
@@ -210,27 +266,66 @@ export class BenchCoachFinishCardUI extends BaseScriptComponent {
     practice.verticalAlignment = VerticalAlignment.Top
     this.texts["FinishPractice"] = practice
 
-    // ── Buttons: More / Less and Start over ──
+    // ── Pass S2: the practised line, under the tip (shown after a drill) ──
+    this.practised = obj(this.plate.content, "Practised")
+    liftInZ(this.practised, 2 * LAYOUT_Z_LIFT)
+    const pt = obj(this.practised, "FinishPractised")
+    this.practisedText = uiTextOn(pt, "", "body", innerW, 2 * this.lineH, d, {wrap: true})
+    this.practisedText.verticalAlignment = VerticalAlignment.Top
+    this.texts["FinishPractised"] = this.practisedText
+    this.practised.enabled = false
+
+    // ── Buttons: More / Less, Practise <step> and Start over, in one row ──
+    // Each holder is its own one-item row, so a hidden Practise button leaves no gap.
     this.buttons = obj(this.plate.content, "Buttons")
-    const btnGap = Math.max(g.gap * 1.5, targetCm(d, 1))
-    const brow = flexRow(this.buttons, innerW, btnH, {gap: btnGap, justify: FlexJustify.Center, align: FlexAlign.Center})
-    const moreW = (innerW - btnGap) * 0.4
-    const restartW = innerW - btnGap - moreW
-    const more = addLabelButton(brow, "BtnFinishMore", "More", null, moreW, btnH, d, () => this.setExpanded(!this.expanded))
+    this.btnGap = Math.max(g.gap * 1.5, targetCm(d, 1))
+    const moreW = btnH
+    const restartW = Math.max(btnH, (innerW - 2 * this.btnGap - moreW) * 0.46)
+    const practiseW = innerW - 2 * this.btnGap - moreW - restartW
+    const holder = (name: string, w: number): SceneObject => {
+      const so = obj(this.buttons as SceneObject, name)
+      this.holders.push(so)
+      this.holderW.push(w)
+      return flexRow(so, w, btnH, {justify: FlexJustify.Center, align: FlexAlign.Center})
+    }
+    const more = addLabelButton(holder("MoreHolder", moreW), "BtnFinishMore", "More", null, moreW, btnH, d, () => this.setExpanded(!this.expanded))
     this.moreLabel = firstText(more.getSceneObject())
-    addLabelButton(brow, "BtnRestart", this.restartLabel, ICON_REPLAY, restartW, btnH, d, () => this._onRestart.invoke(), "primary")
+    // Sized for the longest label it can get ("Practise fit tube").
+    const practise = addLabelButton(holder("PractiseHolder", practiseW), "BtnFinishPractise", "Practise fit tube", null, practiseW, btnH, d, () => this._onPractise.invoke())
+    this.practiseLabel = firstText(practise.getSceneObject())
+    addLabelButton(holder("RestartHolder", restartW), "BtnRestart", this.restartLabel, ICON_REPLAY, restartW, btnH, d, () => this._onRestart.invoke(), "primary")
   }
 
-  /** Places the sections for the current state and keeps the card's top edge where it is. */
+  /**
+   * Places the sections for the current state and keeps the card's top edge where it is:
+   * head, the practised line (after a drill), the details (expanded), the buttons.
+   */
   private layout(): void {
-    if (!this.plate || !this.head || !this.details || !this.buttons) return
+    if (!this.plate || !this.head || !this.details || !this.buttons || !this.practised) return
+    const g = this.gap
+    const extra = this.practisedH > 0 ? this.practisedH + g : 0
+    this.compactHeight = 2 * this.pad + this.headH + extra + 2 * g + this.buttonHeight
+    this.expandedHeight = this.compactHeight + this.detailsH + 2 * g
     const h = this.expanded ? this.expandedHeight : this.compactHeight
     this.plate.setHeight(h)
     const top = h / 2 - this.pad
     this.head.getTransform().setLocalPosition(new vec3(0, top - this.headH / 2, 0))
-    this.details.getTransform().setLocalPosition(new vec3(0, top - this.headH - 2 * this.gap - this.detailsH / 2, 0))
+    if (this.practised.enabled !== extra > 0) this.practised.enabled = extra > 0
+    this.practised.getTransform().setLocalPosition(new vec3(0, top - this.headH - g - this.practisedH / 2, 2 * LAYOUT_Z_LIFT))
+    this.details.getTransform().setLocalPosition(new vec3(0, top - this.headH - extra - 2 * g - this.detailsH / 2, 0))
     if (this.details.enabled !== this.expanded) this.details.enabled = this.expanded
     this.buttons.getTransform().setLocalPosition(new vec3(0, -h / 2 + this.pad + this.buttonHeight / 2, 0))
+    // The row: More, Practise (when shown), Start over, centred.
+    const shown = [0, 1, 2].filter((i) => i !== 1 || this.practiseShown)
+    const total = shown.reduce((a, i) => a + this.holderW[i], 0) + (shown.length - 1) * this.btnGap
+    let x = -total / 2
+    for (let i = 0; i < this.holders.length; i++) {
+      const on = shown.indexOf(i) >= 0
+      if (this.holders[i].enabled !== on) this.holders[i].enabled = on
+      if (!on) continue
+      this.holders[i].getTransform().setLocalPosition(new vec3(x + this.holderW[i] / 2, 0, 0))
+      x += this.holderW[i] + this.btnGap
+    }
     if (this.moreLabel) this.moreLabel.text = this.expanded ? "Less" : "More"
     // The expanded card is centred where the card is authored; the compact one shares its top edge.
     const lift = (this.expandedHeight - h) / 2

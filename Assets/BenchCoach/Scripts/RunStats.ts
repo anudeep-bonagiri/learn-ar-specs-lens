@@ -17,7 +17,7 @@
  * Expects: @inputs leverA, leverB (subscribed in OnStart).
  */
 import {LeverPlacement} from "./LeverPlacement"
-import {LAST_STEP, MISTAKE_TIPS, STEPS} from "./StepDefinitions"
+import {LAST_STEP, MISTAKE_STEPS, MISTAKE_TIPS, STEPS} from "./StepDefinitions"
 
 /** Seconds as m:ss. */
 export function formatMSS(seconds: number): string {
@@ -133,6 +133,17 @@ export class RunStats extends BaseScriptComponent {
       }
     }
     return best
+  }
+
+  /**
+   * Pass S2: the step the Finish card's Practise button drills. The step of the most
+   * frequent mistake (MISTAKE_STEPS), else the slowest timed step, else -1 (nothing
+   * was timed, as in a Watch run from the start card: no button).
+   */
+  practiseStep(): number {
+    const code = this.topMistake()
+    if (code && MISTAKE_STEPS[code] !== undefined) return MISTAKE_STEPS[code]
+    return this.slowestStep()
   }
 
   /** One line: the tip for the most frequent mistake, else the slowest step, else a positive line. */

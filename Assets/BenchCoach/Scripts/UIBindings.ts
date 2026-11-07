@@ -167,6 +167,8 @@ export class UIBindings extends BaseScriptComponent {
       }
       if (this.finishCard) {
         this.finishCard.onRestart.add(() => this.press(this.finishCard, "BtnRestart", () => this.manager.reset()))
+        // Pass S2: Practise <step> drills that step three times.
+        this.finishCard.onPractise.add(() => this.press(this.finishCard, "BtnFinishPractise", () => this.manager.practise()))
       }
       // Pass D2: the dock's progress, the watch pill's Stop, the floor line.
       this.controlBar.onMore.add((on) => this.press(this.controlBar, `BtnMore (${on ? "open" : "closed"})`, () => {}))
