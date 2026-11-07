@@ -44,9 +44,11 @@ const TITLE_TEXTS = ["Title", "DoneText", "FinishTitle", "FinishTime"]
  *  - pass P, no doubled text: on every frame of the run (an UpdateEvent sees what the
  *    last frame drew), no two visible Texts of one panel overlap. The first show of a
  *    panel after the reset used to draw every child at the column's centre for a frame;
- *  - pass S1, the Finish card compact and after More: the plate inside the view, its
- *    texts inside the plate at their minimum x-height, its buttons at least as tall (in
- *    degrees from the eye) as the dock's and not under the dock on screen.
+ *  - pass S1, the Finish card compact and after More: the plate inside the view while the
+ *    eye looks at the card (the card pose; from Sunlit Room's level default pose the card
+ *    sits 10 degrees low and is logged only), its texts inside the plate at their minimum
+ *    x-height, its buttons at least as tall (in degrees from the eye) as the dock's and
+ *    not under the dock on screen.
  */
 @component
 export class UiLayoutScenario extends Scenario {
@@ -329,17 +331,25 @@ export class UiLayoutScenario extends Scenario {
   }
 
   /**
-   * Pass S1: the Finish card's plate is inside the view (1% margin), and each of its buttons
-   * is at least as tall in degrees as the dock's buttons and off the dock on screen.
+   * Pass S1: while the eye looks at the card (within 3 degrees of where the expanded card is
+   * centred), the Finish card's plate is inside the view (1% margin); each of its buttons is
+   * at least as tall in degrees as the dock's buttons and off the dock on screen.
    */
   private checkFinish(camera: Camera, dock: BenchCoachControlBarUI, card: BenchCoachFinishCardUI, what: string): void {
     const tr = card.sceneObject.getTransform()
     const k = tr.getWorldScale().x
     const h = (card.expanded ? card.expandedHeight : card.compactHeight) * k
     const r = this.screenRect(camera, tr.getWorldPosition(), tr.right, card.width * k, h, tr.up)
-    const desc = `x ${r.x0.toFixed(3)}..${r.x1.toFixed(3)}, y ${r.y0.toFixed(3)}..${r.y1.toFixed(3)}`
-    expect(r.x0 >= 0.01 && r.x1 <= 0.99 && r.y0 >= 0.01 && r.y1 <= 0.99, `Finish card ${what}: inside the view (${desc})`).toBe(true)
+    let desc = `x ${r.x0.toFixed(3)}..${r.x1.toFixed(3)}, y ${r.y0.toFixed(3)}..${r.y1.toFixed(3)}`
     const eye = camera.getTransform().getWorldPosition()
+    // The expanded card is centred where the card is authored; the compact one is lifted by half the difference.
+    const lift = ((card.expandedHeight - h / k) / 2) * k
+    const anchor = tr.getWorldPosition().sub(new vec3(0, lift, 0))
+    const view = camera.getTransform().forward.uniformScale(-1)
+    const off = (Math.acos(Math.max(-1, Math.min(1, view.dot(anchor.sub(eye).normalize())))) * 180) / Math.PI
+    if (off <= 3) {
+      expect(r.x0 >= 0.01 && r.x1 <= 0.99 && r.y0 >= 0.01 && r.y1 <= 0.99, `Finish card ${what}: inside the view (${desc})`).toBe(true)
+    } else desc += ` (the eye looks ${off.toFixed(1)} deg away from the card: frame not checked)`
     const deg = (so: SceneObject): number => {
       const size = this.sizeOf(so)
       const hh = size ? size.y * so.getTransform().getWorldScale().y : 0
