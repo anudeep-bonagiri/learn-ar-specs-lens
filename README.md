@@ -61,7 +61,7 @@ You stand at the wheel with a tire lever hooked under the bead. The next step is
 - Ask: three questions per step, answered next to the part. Live answers come from Gemini through Snap's Remote Service Gateway and need internet. Offline, or without tokens, built-in answers are used and tagged "Offline answer".
 - Watch first: the Lens plays the whole repair by itself.
 - The flat has one of three causes (thorn, glass, pinch), and the Finish card names it.
-- The Finish card shows your time, lever misses, mistakes, hints, slowest steps and one thing to practise.
+- The Finish card shows your time and one tip for next time. More opens the rest: the cause, lever misses, mistakes, hints, slowest steps and one thing to practise.
 
 **Stand-ins used in preview:** see the next section.
 

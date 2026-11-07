@@ -2026,3 +2026,93 @@ Same recorder, same room and poses as pass R. Each take was made in one attempt 
 
 - The three items above.
 - Listening to the cut, the upload, and the design brief line in the narration (clip n12a is used once `devpost/design-brief.md` exists).
+
+## 2026-11-06: Pass S1, Watch walks and a compact Finish card
+
+On `main`. At the live review on Nov 5 the judges asked for an unbroken minute of the experience ("no cuts, what it feels like") and called the dense end screen "a website on your face". The video's unbroken minute will be Watch mode from Found it to the far side, so Watch has to walk. The Finish card gets progressive disclosure. Built through the CLAD skills (preview inspection, LEAF in preview) and the Lens Studio MCP, one call at a time. Captures are in `scratchpad/shots/pass-s1/`, each scaled to 1080 px tall and looked at.
+
+### Items
+
+1. **Watch mode walks at step 5.**
+   - Wrong: `FloorPath` stayed hidden while `director.playing`, and the step 5 beat pulled the tube 3.5 s into the step with the viewer still on the near side. Watch never showed the far side.
+   - Changed (`RepairDirector`, `FloorPath`):
+     - The floor path, its stand-here marker, the near-side note and the edge arrow show on step 5 in Watch mode as in normal mode.
+     - `FloorPath` registers itself as the director's `walkCue` at start. It already imports the director, so no import loops back.
+     - The step 5 beat waits until the viewer arrives at the far spot (the arrival `FloorPath` detects, which hides the path), at most `watchWalkMaxSec` from the step's start. That is a new `@input` on `RepairDirector`, 12 s. The beat's 3.5 s wait and the voice hold still apply.
+     - The beat logs `beat 5: pull after arrival, at most 12.0 s` when the step starts, then `beat 5: pull after arrival (3.5 s)` or `beat 5: pull after timeout (12.0 s)`.
+     - Next or a grab during the walk stops Watch as before. The full callout comes in at the far spot as in normal mode: the `throughWheel` rule does not look at Watch mode.
+   - Watch from Found it to the Finish card, Garage room, start eye (`jump-to-step` step 0, watch 1):
+
+     | Viewer | Step 5 beat | Found it to the Finish card |
+     | --- | --- | --- |
+     | Never walks (pull after timeout, 12.0 s) | 15.2 s | 67.9 s |
+     | Walks at once (eye at the far spot before step 5; pull after arrival at 3.5 s, as before this pass) | 6.7 s | 59.4 s |
+
+   - Checked:
+     - `watch-mode`: on step 5 the path shows and the pull has not started. The eye then walks round the stand's right side to the far spot over 3 s, set every 50 ms, as soon as step 5 starts. The path shows until the arrival, nothing pulls during the walk, and the arrival hides the path without completing the step. The pull starts 0.90 s (Garage) and 0.86 s (Sunlit Room) after the arrival, logged `after arrival`. Next then stops Watch on step 6 and moves to the halfway card, one more Next reaches step 8, and play() resumes to the Finish card as before.
+     - Why a 3 s walk and not a jump: with an instant jump the pull still waits for the beat's own 3.5 s, about 3.2 s after the arrival, so the 2 s check would only measure that wait.
+     - `floor-path`: "path never visible in watch mode" became "in Watch mode on step 5 the path, its marker and at least six arrows show, and the near-side note shows". Watch is then stopped there. The normal-mode near and far assertions are unchanged.
+     - Captures (Garage room, `jump-to-step` step 5 watch 1, the camera driven from the Lens reset by an editor timer, the floor decided at -165 looking down first):
+       - `watch-step5-near.png`, the wheel pose: the Watching pill, the note "Step 5 of 10 / Go round the stand", the edge arrow at the lower right.
+       - `watch-step5-near-path.png`, lookAt (8, -100, -75): the edge arrow pointing up, the stand-here marker and the arrows.
+       - `watch-step5-far.png`, eye (10, 0, -124) lookAt (0, -45, -90), 1.15 s after the arrival: the full callout with its leader, the ring, the tube end coming out.
+     - One frame cannot hold all four near-side cues from the start eye. The pill floats about 7 degrees above eye level, the note about 27 degrees below, and the path 53 to 74 degrees below, in a frame 36.6 degrees tall. So the near side is two captures.
+2. **The Finish card: three lines by default, the rest behind More.**
+   - Wrong: one card with a kicker, the title, a row of big numbers (time, lever misses, mistakes, hints), the cause and slowest steps, the tip, the practice line and Start over.
+   - Changed (`BenchCoachFinishCardUI`):
+     - Compact by default: the green kicker "Repair complete", "Flat fixed" with the time on the same row (both title size, the time right-aligned), the "Next time" tip (up to two lines), and two buttons, More and Start over.
+     - More (`BtnFinishMore`; the dock already has a `BtnMore`) shows the list (Cause, Lever misses, Mistakes, Hints, Slowest) and the practice line, and reads Less. Less collapses it. The Slowest row wraps to two lines: a real run's three steps need about 37 characters, and about 25 fit.
+     - The card grows downward: its top edge stays put. The expanded card is centred where the card is authored; the compact one shares its top edge. Every show starts compact (`OnEnableEvent`).
+     - Buttons are at least `minButtonDeg` tall (a new `@input`, 4.8 degrees, 6.9 cm at the 82 cm viewing distance). The dock's are 4 cm at 48 cm.
+     - Every state is in words: the kicker says "Repair complete", the buttons say More, Less and Start over.
+     - `setResult` and `setReport` keep their signatures, and the Text names the tests read are kept. `RepairManager` is unchanged. The spoken finish line is unchanged.
+   - Checked:
+     - `coach-report`: after a real run the card opens compact, with the tip and the time and none of the list rows. A ray press on More shows every row and the practice line, and the button reads Less. Then the rows as before.
+     - `ui-layout` checks the card in both states. The texts are inside the plate at their minimum x-height (FinishTitle 0.83, FinishTime 0.82, FinishTip 0.59, FinishCause 0.59, FinishTimes 0.57 degrees). The buttons are at least as tall from the eye as the dock's (4.77 and 4.79 degrees compact, 4.50 and 4.52 expanded, the dock's 4.16) and are not under the dock on screen. While the eye looks at the card, the plate is inside the view: at the card pose, compact y 0.100 to 0.505 of the frame, expanded 0.100 to 0.858.
+     - The first version of that view check failed in Sunlit Room. From the level default pose the world-locked card sits 9.9 degrees below the view centre, and the expanded bottom reached y 1.154. The old card was not checked for this. The check now runs while the eye is within 3 degrees of the card, and other poses are logged.
+     - `seat-inflate` and `flat-causes` press More before reading the counts and the cause, and assert those rows show.
+     - Captures at the card pose (Garage room, `coach-report` stay 1: time 0:23, Snakebite, 2 lever misses, 1 mistake): `finish-compact.png` and `finish-more.png`. Every word reads, nothing overlaps, both are inside the frame, and the dock is out of frame to the left.
+   - `tools/export-voice-lines.py` still writes an identical `voice-lines.json` (30 lines). The `[Voice]` and `[Audio]` lines and `jump-to-step`'s parameters are unchanged.
+
+### LEAF on the final code
+
+One scenario per call, `__leaf__log_level=ERROR`, the project saved before every run. Garage room at the start eye looking at the start card (0, -16, -90); Sunlit Room at the default pose.
+
+| Scenario | Garage room, start eye | Sunlit Room, default pose |
+| --- | --- | --- |
+| `start` | PASSED | PASSED |
+| `deflate-loosen` | PASSED | PASSED |
+| `lever-snap` | PASSED | PASSED |
+| `peel-and-pull` | PASSED | PASSED |
+| `inspect-done` | PASSED | PASSED |
+| `step-ticks` | PASSED | PASSED |
+| `scene-dressing` | PASSED | PASSED |
+| `refit-tube` | PASSED | PASSED |
+| `seat-inflate` | PASSED | PASSED |
+| `whats-this` | PASSED | PASSED |
+| `mistakes` | PASSED | PASSED |
+| `flat-causes` | PASSED | PASSED |
+| `progress-idle` | PASSED | PASSED |
+| `watch-mode` | PASSED (53.7 s) | PASSED (54.0 s) |
+| `ask-coach-fallback` | PASSED | PASSED |
+| `floor-path` | PASSED | PASSED |
+| `coach-report` | PASSED | PASSED |
+| `control-bar` | PASSED | PASSED |
+| `floor-level` | PASSED | PASSED |
+| `ui-layout` | PASSED (53.9 s) | PASSED (51.2 s; FAILED before the view check was limited, see item 2) |
+| `voice-coach` | PASSED | PASSED |
+| `jump-to-step` | PASSED | PASSED |
+
+- `ui-layout` is the only scenario changed after the Garage sweep. It was run again in the Garage on the final code (53.9 s; 53.6 s in the sweep).
+- **The eye drift in Sunlit Room came back.** After `inspect-done` the Preview eye was pitched 12 degrees down (348). It was put back at the default pose before `step-ticks`, and it did not move again (checked after `seat-inflate`, after `floor-path` and before `voice-coach`). The cause is one of `start`, `deflate-loosen`, `lever-snap`, `peel-and-pull` and `inspect-done`. In the Garage the pose was checked after `inspect-done`, `floor-path` and `ui-layout`, and it never moved.
+
+### Left over
+
+- **`watch-mode` runs 53.7 to 54.0 s,** 1 s under the 55 s limit (49 s before; the walk and the pull add about 5 s).
+- **`ui-layout` runs 51 to 54 s.**
+- **The expanded Finish card from a level eye** (Sunlit Room's default pose) runs off the bottom of the frame. The card is world-locked 10 degrees below eye level, and the user looks down to read the rest.
+- **The full callout at the far spot in Watch mode** is checked on the capture only. `floor-path` asserts it in normal mode.
+- **The eye drift in Sunlit Room** is narrowed to the first five scenarios but not explained.
+- The near-side capture is two frames, for the reason above.
+- The video is not recorded again in this pass.
+- The commits are on `main` and not pushed.
