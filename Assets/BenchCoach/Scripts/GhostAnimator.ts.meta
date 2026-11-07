@@ -31,6 +31,7 @@
     approachOffsetCm: false
     approachTiltDeg: false
     durationSec: false
+    loopHoldSec: false
     socket: false
   ScriptTypesHidden:
     {}
@@ -45,6 +46,7 @@
       durationSec: 0.800000
       approachOffsetCm: !<float> 8.000000
       approachTiltDeg: !<float> 35.000000
+      loopHoldSec: 0.700000
   ScriptTypes:
     -
       {}
@@ -61,4 +63,5 @@
     - '// @input float durationSec = 0.8 {"hint":"Length of the hooking motion in seconds", "widget":"slider", "min":0.2, "max":3, "step":0.1}'
     - '// @input float approachOffsetCm = 8 {"hint":"How far outward (along the lever) the motion starts, in cm", "widget":"slider", "min":0, "max":20, "step":0.5}'
     - '// @input float approachTiltDeg = 35 {"hint":"Extra tilt toward the user at the start of the motion, in degrees", "widget":"slider", "min":0, "max":80, "step":1}'
+    - '// @input float loopHoldSec = 0.7 {"hint":"Seconds the looping ghost rests in the socket between passes", "widget":"slider", "min":0, "max":3, "step":0.1}'
     - '// @ui {"widget":"group_end"}'

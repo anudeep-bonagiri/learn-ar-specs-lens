@@ -48,6 +48,11 @@ export interface StepDef {
   nearSideLine?: string
   /** True if the step has a dot on the progress rail (the cards 0, 7 and 11 do not). */
   railDot: boolean
+  /**
+   * Pass A: seconds a steady hand takes on the step (repair steps 1..10). AdaptiveCoach
+   * counts a step done within par, with no mistake and no hint, as a clean completion.
+   */
+  parSec?: number
   /** What the user must do to complete the step (Next always works too). */
   action: StepAction
   /** Where the StepMarker sits. */
@@ -309,6 +314,7 @@ export const STEPS: StepDef[] = [
     voiceLine: "Unthread the valve tip, then press it to let the air out.",
     hint: "Pinch the brass valve at the top.",
     railDot: true,
+    parSec: 8,
     action: "valve",
     markerAnchor: "valve",
     markerAngleDeg: 0,
@@ -329,6 +335,7 @@ export const STEPS: StepDef[] = [
     voiceLine: "Push each glowing bead toward the middle of the rim.",
     hint: "Pinch each glowing bead.",
     railDot: true,
+    parSec: 12,
     action: "beads",
     markerAnchor: "bead",
     markerAngleDeg: 22.5,
@@ -350,6 +357,7 @@ export const STEPS: StepDef[] = [
     voiceLine: "Hook the first lever under the bead, on the ghost.",
     hint: "Drag a blue lever onto the ghost.",
     railDot: true,
+    parSec: 15,
     action: "leverA",
     markerAnchor: "socket",
     markerAngleDeg: SOCKET_ANGLE_DEG,
@@ -370,6 +378,7 @@ export const STEPS: StepDef[] = [
     voiceLine: "Hook the second lever, then slide it round to five o'clock.",
     hint: "Hook the second lever on the ghost, then slide it down.",
     railDot: true,
+    parSec: 25,
     action: "leverB",
     markerAnchor: "socket",
     markerAngleDeg: SOCKET_B_ANGLE_DEG,
@@ -392,6 +401,7 @@ export const STEPS: StepDef[] = [
     hint: "Grab the tube end at 6 o'clock. Pull.",
     nearSideLine: "Go round the stand",
     railDot: true,
+    parSec: 20,
     action: "tubePull",
     markerAnchor: "tubeEnd",
     markerAngleDeg: 180,
@@ -414,6 +424,7 @@ export const STEPS: StepDef[] = [
     voiceLine: "Find the cause. Look for a glint on the tire.",
     hint: "Look for a glint on the tire. Pinch it.",
     railDot: true,
+    parSec: 15,
     action: "thorn",
     markerAnchor: "inspect",
     markerAngleDeg: THORN_ANGLE_DEG,
@@ -434,6 +445,7 @@ export const STEPS: StepDef[] = [
     voiceLine: "Halfway. The tube is out and the cause is found.",
     hint: "Pinch Fit the new tube to go on.",
     railDot: false,
+    parSec: 10,
     action: "tryAgain",
     markerAnchor: "none",
     markerAngleDeg: 0,
@@ -454,6 +466,7 @@ export const STEPS: StepDef[] = [
     voiceLine: "Start at the valve, then feed the new tube in.",
     hint: "Drag the brass valve end to the top.",
     railDot: true,
+    parSec: 25,
     action: "tubeFit",
     markerAnchor: "module",
     markerAngleDeg: 0,
@@ -475,6 +488,7 @@ export const STEPS: StepDef[] = [
     voiceLine: "Push the bead back over the rim with your thumbs.",
     hint: "Pinch each glowing bead.",
     railDot: true,
+    parSec: 20,
     action: "seat",
     markerAnchor: "module",
     markerAngleDeg: 22.5,
@@ -496,6 +510,7 @@ export const STEPS: StepDef[] = [
     voiceLine: "Pinch and hold the valve to pump the tire up.",
     hint: "Pinch the valve and keep holding.",
     railDot: true,
+    parSec: 12,
     action: "inflate",
     markerAnchor: "module",
     markerAngleDeg: 0,

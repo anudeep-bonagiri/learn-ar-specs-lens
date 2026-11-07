@@ -11,6 +11,8 @@
  *  - the step's line again on Replay (RepairManager.onReplay);
  *  - pass S2: nothing for a step change while RepairManager.quietStep is set (a Practise
  *    drill's reps 2 and 3, and its return to the Finish card).
+ *  - pass A: no idle-step-NN while quietIdleHint is set (AdaptiveCoach, on a step the user
+ *    has; the hint text still shows). The step lines are never affected.
  * Rules: one line at a time (a new line stops the old one); never the same line twice
  * within repeatGuardSec; nothing starts while ScanReveal sweeps (a queued line waits for
  * the heads to meet); while a line plays BenchCoachAudio ducks hiss, pump and zipper.
@@ -132,6 +134,8 @@ export class VoiceCoach extends BaseScriptComponent {
 
   /** Voice on (the More popover's toggle). */
   enabled: boolean = true
+  /** Pass A: the idle hint is shown but not spoken (AdaptiveCoach, on a mastered step). */
+  quietIdleHint: boolean = false
   /** The line playing now, or "". */
   speaking: string = ""
   /** Every line that started, in order (tests read it). */
@@ -175,7 +179,7 @@ export class VoiceCoach extends BaseScriptComponent {
     this.manager.onReplay.add((s) => this.onReplay(s))
     this.manager.onReset.add(() => this.cut("reset"))
     if (this.feedback) this.feedback.onMistake.add((m) => this.onMistake(m.code))
-    if (this.idleHint) this.idleHint.onHint.add((s) => this.say(`idle-step-${pad2(s)}`, this.hintDelaySec, "idle hint"))
+    if (this.idleHint) this.idleHint.onHint.add((s) => this.onIdleHint(s))
     // The wall clock and the Lens clock together, once: lets a recording's timeline be lined up.
     print(`[Sync] ms=${Date.now()} lensTime=${getTime().toFixed(3)}`)
   }
@@ -221,6 +225,14 @@ export class VoiceCoach extends BaseScriptComponent {
       return
     }
     this.say(id, this.stepDelaySec, `step ${step}`)
+  }
+
+  private onIdleHint(step: number): void {
+    if (this.quietIdleHint) {
+      this.log(`idle-step-${pad2(step)} not spoken: the coach adapts (step ${step} is yours)`)
+      return
+    }
+    this.say(`idle-step-${pad2(step)}`, this.hintDelaySec, "idle hint")
   }
 
   private onReplay(step: number): void {

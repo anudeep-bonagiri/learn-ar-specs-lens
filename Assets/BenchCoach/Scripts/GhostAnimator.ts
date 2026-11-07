@@ -4,6 +4,8 @@
  * Owns: the ghost's transform while playing. play() is called on step entry and Replay.
  * Expects: @input socket = LeverSocket (the target pose); RepairManager retargets it
  * with setSocket() for the second socket.
+ * Pass A: setLoop(true) repeats the motion (with loopHoldSec at the socket between
+ * passes) until the ghost is hidden; AdaptiveCoach sets it on a step the user struggled with.
  */
 @component
 export class GhostAnimator extends BaseScriptComponent {
@@ -33,6 +35,11 @@ export class GhostAnimator extends BaseScriptComponent {
   @hint("Extra tilt toward the user at the start of the motion, in degrees")
   @widget(new SliderWidget(0, 80, 1))
   approachTiltDeg: number = 35
+
+  @input
+  @hint("Seconds the looping ghost rests in the socket between passes")
+  @widget(new SliderWidget(0, 3, 0.1))
+  loopHoldSec: number = 0.7
   @ui.group_end
 
   playCount: number = 0
@@ -40,6 +47,13 @@ export class GhostAnimator extends BaseScriptComponent {
   /** Retarget the ghost (socket A for step 3, socket B for step 4) before play(). */
   setSocket(socket: SceneObject): void {
     this.socket = socket
+  }
+
+  /** Pass A: repeat the motion until the ghost is hidden. */
+  loop: boolean = false
+
+  setLoop(on: boolean): void {
+    this.loop = on
   }
 
   private playing = false
@@ -78,9 +92,12 @@ export class GhostAnimator extends BaseScriptComponent {
   private tick(): void {
     if (!this.playing) return
     this.elapsed += getDeltaTime()
-    const t = Math.min(1, this.elapsed / Math.max(0.01, this.durationSec))
+    const dur = Math.max(0.01, this.durationSec)
+    const t = Math.min(1, this.elapsed / dur)
     this.apply(t)
-    if (t >= 1) this.playing = false
+    if (t < 1) return
+    if (!this.loop) this.playing = false
+    else if (this.elapsed >= dur + this.loopHoldSec) this.elapsed = 0
   }
 
   private apply(t: number): void {

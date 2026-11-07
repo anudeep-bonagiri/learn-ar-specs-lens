@@ -8,6 +8,8 @@
  * Suspended while `suspended` is set (watch mode, pass 10), while `askSuspended` is
  * set (Ask the coach is open, pass 12) or step interactions are paused (What's this?).
  * Owns: the idle timer and the hint counters. Emits onHint(step).
+ * Pass A: setEffectiveDelay() sets the delay for the current step (AdaptiveCoach: 6 s
+ * where the user struggled, 24 s where they have it); 0 or less goes back to idleSec.
  * Must not: change steps. The label goes back to the step label through
  * RepairManager.refreshLabel().
  */
@@ -90,12 +92,24 @@ export class IdleHint extends BaseScriptComponent {
 
   private quietSince = 0
   private fired = false
+  /** Pass A: seconds set by setEffectiveDelay (0 = use idleSec). */
+  private delayOverride = 0
   private lastStep = -1
   private lastSub = -1
 
   onAwake(): void {
     this.quietSince = getTime()
     this.createEvent("UpdateEvent").bind(() => this.tick())
+  }
+
+  /** Pass A: the delay before the hint on this step; 0 or less restores idleSec. */
+  setEffectiveDelay(sec: number): void {
+    this.delayOverride = sec > 0 ? sec : 0
+  }
+
+  /** Pass A: the seconds of quiet the current step waits before its hint. */
+  effectiveDelay(): number {
+    return this.delayOverride > 0 ? this.delayOverride : this.idleSec
   }
 
   /** Something happened: start a new quiet spell (and take a shown hint down). */
@@ -129,7 +143,7 @@ export class IdleHint extends BaseScriptComponent {
       this.quietSince = getTime()
       return
     }
-    if (!this.fired && getTime() - this.quietSince >= this.idleSec) this.fire(state.step)
+    if (!this.fired && getTime() - this.quietSince >= this.effectiveDelay()) this.fire(state.step)
   }
 
   /** Only steps with a visible step label get hints (the cards have their own buttons). */

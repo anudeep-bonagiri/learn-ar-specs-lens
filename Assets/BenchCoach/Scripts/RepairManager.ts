@@ -36,6 +36,8 @@
  * with the run's own record (time, counts, report: the drill's resets clear RunStats, so
  * the record is kept from the run) and the practised line. Mistakes in a drill count
  * toward the drill only.
+ * Pass A: onRepDone(step) fires when a drill rep is completed (AdaptiveCoach scores it
+ * like a step completion; the step machine stays on the step, so onStepChanged does not fire).
  */
 import Event, {PublicApi} from "SpectaclesInteractionKit.lspkg/Utils/Event"
 import {FLAT_CAUSE_IDS, FLAT_CAUSES, LAST_STEP, LOOSEN_BEADS, PRACTISE_NAMES, PRACTISE_REPS, STEPS, SOCKET_B_ANGLE_DEG, STEP_SHORT_NAMES} from "./StepDefinitions"
@@ -322,6 +324,9 @@ export class RepairManager extends BaseScriptComponent {
   /** Replay was asked for on this step (pass V: the voice coach says the step's line again). */
   private _onReplay = new Event<number>()
   onReplay: PublicApi<number> = this._onReplay.publicApi()
+  /** Pass A: a drill rep of this step was completed (the step machine stays on the step). */
+  private _onRepDone = new Event<number>()
+  onRepDone: PublicApi<number> = this._onRepDone.publicApi()
 
   getState(): RepairState {
     return {
@@ -597,6 +602,7 @@ export class RepairManager extends BaseScriptComponent {
     }
     if (this.stepLabel && this.stepLabel.sceneObject.enabled) this.stepLabel.showRepDone(`Rep ${d.times.length} of ${PRACTISE_REPS} done in ${formatMSS(t)}`)
     this.log(`practise rep ${d.times.length} done in ${t.toFixed(2)} s`)
+    this._onRepDone.invoke(d.step)
     const generation = this.drillGeneration
     const delay = this.createEvent("DelayedCallbackEvent")
     delay.bind(() => {
