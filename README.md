@@ -11,7 +11,7 @@
 
 *Step 5 in Lens Studio's Interactive Preview. The next step is on the far side of the wheel: a chime from there, an arrow at the edge of your view, a path on the floor. The wheel is virtual; see [What is real and what is simulated](#what-is-real-and-what-is-simulated).*
 
-Built for [Learn AR with SPECS](https://learn-specs.devpost.com/) on Devpost Learn, Oct 16 to Nov 9, 2026. Planned in a design brief ([devpost/design-brief.md](devpost/design-brief.md)), built by Claude Code through CLAD and the Lens Studio MCP, tested with LEAF.
+Built for [Learn AR with SPECS](https://learn-specs.devpost.com/) on Devpost Learn, Oct 16 to Nov 9, 2026. Project page: [devpost.com/software/1485111](https://devpost.com/software/1485111). Planned in a design brief ([devpost/design-brief.md](devpost/design-brief.md)), built by Claude Code through CLAD and the Lens Studio MCP, tested with LEAF.
 
 ## See it in 30 seconds
 
