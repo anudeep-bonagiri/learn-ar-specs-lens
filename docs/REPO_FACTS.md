@@ -1,12 +1,12 @@
 # Repo facts
 
-Written by scripts/collect_facts.py at 2026-11-07T23:21:48+00:00. Nothing in it is typed by hand; every value is the output of the command beside it.
+Written by scripts/collect_facts.py at 2026-11-07T23:34:16+00:00. Nothing in it is typed by hand; every value is the output of the command beside it.
 
 | Fact | Value | Command |
 | --- | --- | --- |
-| commits | 125 | `git rev-list --count HEAD` |
+| commits | 124 | `git rev-list --count HEAD` |
 | first commit | 2026-10-16T00:31:31Z | `git log --reverse --format=%cI / head -1` |
-| last commit | 2026-11-07T17:17:01-06:00 | `git log -1 --format=%cI` |
+| last commit | 2026-11-07T17:26:58-06:00 | `git log -1 --format=%cI` |
 | authors | 4 | `git shortlog -sn --no-merges HEAD / wc -l / tr -d ' '` |
 | tracked files | 468 | `git ls-files / wc -l / tr -d ' '` |
 | remote | https://github.com/anudeep-bonagiri/learn-ar-specs-lens.git | `git remote get-url origin` |
