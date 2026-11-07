@@ -5,6 +5,7 @@ import {Interactable} from "SpectaclesInteractionKit.lspkg/Components/Interactio
 import {InteractorTriggerType} from "SpectaclesInteractionKit.lspkg/Core/Interactor/Interactor"
 import {findSceneObjectByName} from "Leaf.lspkg/Utils/common/Utils"
 import {RepairManager} from "../Scripts/RepairManager"
+import {AdaptiveCoach} from "../Scripts/AdaptiveCoach"
 
 /**
  * BenchCoach LEAF helpers. `dragTo` steers a grabbed interactable toward a world
@@ -105,6 +106,10 @@ export function getRepairManager(): RepairManager {
   if (!root) throw new Error("BenchCoach root not found")
   const manager = root.getComponent(RepairManager.getTypeName()) as RepairManager
   if (!manager) throw new Error("RepairManager not found on BenchCoach")
+  // Pass A: every scenario starts with a blank coach memory, so the steps earlier scenarios
+  // completed do not change this one's hint delay, ghost or voice (adaptive-coach sets its own).
+  const coach = root.getComponent(AdaptiveCoach.getTypeName()) as AdaptiveCoach
+  if (coach) coach.forget()
   return manager
 }
 
