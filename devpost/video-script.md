@@ -1,7 +1,6 @@
 # Bench Coach, demo video script (2:56 as cut)
 
-Drafted Nov 4 from plan Section 11 (`docs/BENCH_COACH_PLAN.md`) and the judges' rules in
-`docs/INFO_SESSION_OCT29.md`. The table below is the seventh cut (Nov 7 night) as spoken; the draft's rows were replaced once the cut settled.
+Drafted Nov 4 from the team's video plan and the judges' public guidance (the Oct 29 info session). The table below is the seventh cut (Nov 7 night) as spoken; the draft's rows were replaced once the cut settled.
 
 Rules this script is built around:
 - The Lens Studio preview is on screen inside the first 10 seconds (the judges' rule). In the final cut a nine-second clip states the problem first and the Lens is on screen at 0:09.

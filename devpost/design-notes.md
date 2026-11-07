@@ -2,7 +2,7 @@
 
 Dated build log for Bench Coach. One entry per iteration, with the reason for each change.
 
-## 2026-10-23: Section 9 verifications (plan `docs/BENCH_COACH_PLAN.md`)
+## 2026-10-23: Section 9 verifications (the team's build plan)
 
 Environment: Lens Studio 5.23.2, SIK 2.0.0, UIKit 2.0.0, LEAF 2.0.2, preview on SPECS 27 Interactive (Plane scene).
 
@@ -172,7 +172,7 @@ Not changed (coverage gaps the review listed): the Back loop in `inspect-done` b
 
 All six LEAF scenarios pass after the fixes, from the default camera pose.
 
-## 2026-10-24: Pass 7a, richer scene (code and sounds half; plan `docs/PASSES_7_TO_10_PLAN.md`)
+## 2026-10-24: Pass 7a, richer scene (code and sounds half; the team's pass plan)
 
 Branch `Sujeeth-AR-SPECS-WORK`. Built by the CLAD Specs Experience Builder through the Lens Studio MCP. Scope: code and sounds only; no text-to-3D props, bike frame, floor mat, lights or environment (pass 7b). Before building, the live scene was compared with the committed `Assets/Scene.scene` (191 objects, names, enabled flags, transforms and component counts): no unsaved edits from the interrupted run.
 
@@ -208,7 +208,7 @@ Findings and deviations:
 
 Left for 7b: `Environment` (Workbench, Pegboard, Toolbox, FloorMat), `Stand/BikeFrame` and `Saddle`, `StandClamp` move, lights and shadows, metallic Hub and Rim materials, and the `Environment` / `BikeFrame` assertions at the marker in `scene-dressing`.
 
-## 2026-10-24: Pass 7b, richer scene (scene half; plan `docs/PASSES_7_TO_10_PLAN.md`)
+## 2026-10-24: Pass 7b, richer scene (scene half; the team's pass plan)
 
 Branch `Sujeeth-AR-SPECS-WORK`. Built by the CLAD Specs Experience Builder through the Lens Studio MCP, on top of 7a (7e0b75f). Scope: text-to-3D props, the code-built rear triangle and floor mat, layout, lights and shadows, metal materials, and the `scene-dressing` 7b assertions. Not committed.
 
@@ -270,7 +270,7 @@ Review of the default-camera step 1 screenshot: the tire, rim, hub, seatpost and
 
 After (same camera and step): tire 0.54 to 0.74, rim 0.51 to 0.69 with highlights near 1.0, seatpost 0.82 to 0.87, darkest 2 percent of the pegboard tools 0.56 to 0.65. The wheel's shadow on the mat measures about 0.63 against 0.71 for open mat. Stand, spokes, frame, levers, ticks and the marker ring are unchanged or lighter. The ControlBar and ToolTray back plates are unlit UIKit panels and are not affected by lighting. A Lens Studio finding: material and light edits in the editor reset the running Lens, so every screenshot was retaken after `jump-to-step`. All 8 LEAF scenarios pass again, run serially from the default camera pose (camera reset before `peel-and-pull`).
 
-## 2026-10-24: Pass 9, finish the repair (steps 8 to 11; plan `docs/PASSES_7_TO_10_PLAN.md`)
+## 2026-10-24: Pass 9, finish the repair (steps 8 to 11; the team's pass plan)
 
 Branch `Sujeeth-AR-SPECS-WORK`, on top of 585e773. Built by the CLAD Specs Experience Builder through the Lens Studio MCP. 9a and 9b were written together and tested as one pass (the 9a scenarios were run on their own first). Not committed.
 
@@ -325,7 +325,7 @@ Findings:
 
 Left over: delete the project `Cache/` with Lens Studio closed, then re-apply the `BodyFollow` hold-still for the tube handle (discover `TubeFit` under the tray, as drafted in this pass) and re-run `step-ticks` / `inspect-done` from either file name; decide whether to lower the halfway card; a hands-on hand-tracking walk of steps 8 to 10 (the hand simulation cannot pinch the valve).
 
-## 2026-10-24: Pass 8, learning layer, plus pass 9 follow-ups F2 and F3 (plan `docs/PASSES_7_TO_10_PLAN.md`)
+## 2026-10-24: Pass 8, learning layer, plus pass 9 follow-ups F2 and F3 (the team's pass plan)
 
 Branch `Sujeeth-AR-SPECS-WORK`, on top of 9d214f6, after the Lens Studio cache was cleared (F1). Built by the CLAD Specs Experience Builder through the Lens Studio MCP, in two halves (8a, then 8b), each followed by a full scenario run. Not committed.
 
@@ -385,7 +385,7 @@ Findings:
 
 Left over: the bar is now 29.5 cm wide; with the head pitched down 32 degrees from the start pose the What's this? button is at the left edge of the view (a hands-on check should decide whether to shrink the gaps). The idle-hint marker boost is checked by counters, not on a screenshot. A hands-on hand-tracking walk of What's this? and the mistake cases was not done (LEAF `trigger` skips the ray, so ray priority of the info boxes over the levers is reasoned from their sizes, not tested).
 
-## 2026-10-24: Pass 10, watch mode, F4 control bar width, final LEAF sweep (plan `docs/PASSES_7_TO_10_PLAN.md`, `docs/INTEGRATION_PLAN.md` row 1)
+## 2026-10-24: Pass 10, watch mode, F4 control bar width, final LEAF sweep (the team's pass plan and integration list)
 
 Branch `Sujeeth-AR-SPECS-WORK`, on top of 99818e8. Built by the CLAD Specs Experience Builder through the Lens Studio MCP. No voice (dropped). Not committed.
 
@@ -441,9 +441,9 @@ Findings:
 - **`IChatToolRegistry.execute` needs a `Parameters` instance** (`new Parameters(); p.data = {...}`); a plain object fails with "Value is not a native object".
 - A transient "Input manager was not provided for the object BenchCoach" appeared between the VirtualScene Phase A (bare `RepairDirector` component) and Phase B (wiring); gone after the wiring.
 
-Left over: F5 (a hands-on mouse walk) is still open; a hand grab stopping watch mode is reasoned and polled, not tested in LEAF (`watch-mode` stops it with `BtnNext`); a mouse walk should grab a lever mid-watch once. `docs/TEAM_TASKS.md` still lists B4 and F4 as open (not edited in this pass).
+Left over: F5 (a hands-on mouse walk) is still open; a hand grab stopping watch mode is reasoned and polled, not tested in LEAF (`watch-mode` stops it with `BtnNext`); a mouse walk should grab a lever mid-watch once. The team task list still shows B4 and F4 as open (not edited in this pass).
 
-## 2026-10-24: Pass 12, Ask the coach (`docs/INTEGRATION_PLAN.md` row 4, feature A; `docs/DEMO_PARITY_PLAN.md` A)
+## 2026-10-24: Pass 12, Ask the coach (the integration list, feature A)
 
 Branch `Sujeeth-AR-SPECS-WORK`. Built by the CLAD Specs Experience Builder through the Lens Studio MCP. No voice (no ASR, mic, realtime or websocket pieces). Not committed.
 
@@ -521,7 +521,7 @@ Left over:
 - README disclosure: RSG and Google Gemini (`gemini-2.5-flash`) are now called at runtime.
 - `tools/check-no-tokens.sh`, `tools/set-coach-tokens.md` and the two snippets are new and untracked until committed.
 
-## 2026-10-24: Pass 11, floor path and coach-report extras (`docs/INTEGRATION_PLAN.md` row 3, features E and D)
+## 2026-10-24: Pass 11, floor path and coach-report extras (the integration list, features E and D)
 
 Branch `Sujeeth-AR-SPECS-WORK`, on top of 35a1b6b (pass 12). Built by the CLAD Specs Experience Builder through the Lens Studio MCP. The Ask the coach files were not touched; no RSG tokens were set. Not committed.
 
@@ -898,7 +898,7 @@ Left over:
   - 79 world-mesh raycasts every 0.5 s.
 
   Performance was not measured.
-- **Floor figures elsewhere:** the brief's -150.1 for Colorful Home is superseded by about -135. `docs/TEAM_TASKS.md` was not updated.
+- **Floor figures elsewhere:** the brief's -150.1 for Colorful Home is superseded by about -135. The team task list was not updated.
 - **Hands-on walk:** no real-hand walk was done, and the cursor-tap verification is the preview mouse, not a Specs hand ray.
 
 ## 2026-10-29: Pass D2, the UI system
@@ -1160,7 +1160,7 @@ Left over:
   - ray-only buttons still need a device check (pass F).
 - **Extra reset:** once, an agent-hand drag right after a LEAF jump ran on a Lens that had reset about 5 s after the jump (cause not found). Repeating the jump worked.
 
-## 2026-11-01: Pass G, target sizes and spacing (`docs/INFO_SESSION_OCT29.md` section 5.1)
+## 2026-11-01: Pass G, target sizes and spacing (the Oct 29 info session, target sizes)
 
 First pass on Lens Studio 5.24.1. Snap's rule is a target of at least 2 degrees and a gap of at least 1 degree, measured on the collider. The Nov 1 audit listed every target under that; this pass applies the exact values it gave, so no new measuring was done.
 
@@ -1191,7 +1191,7 @@ Left over:
 - **The chips panel grew 4.5 cm taller** (14.9 to 19.4). `AskCoach`'s `maxElevationDeg` placement was not rechecked; `ask-coach-fallback` passes, but the panel's top edge from the start pose needs a look in the B1 check.
 - **Sections 5.2 (show and hide) and 5.3 (color-only signals) of the audit are not started.**
 
-## 2026-11-01: Pass G2, show it only when needed (`docs/INFO_SESSION_OCT29.md` section 5.2)
+## 2026-11-01: Pass G2, show it only when needed (the Oct 29 info session, show it only when needed)
 
 Joe's main Design point: things appear when needed and get out of the way after. The Nov 1 audit named three things that stayed up: the control bar (always on, covering the lowest edge of the tire), the Ask chips (open across steps, no timeout, blocking idle hints) and the Ask answer (no timeout).
 
@@ -1222,7 +1222,7 @@ Left over:
 - **Watch mode and the far-side step were not re-looked-at for the fade.** During watch mode nothing is held and the user watches the wheel, so the bar is faint, which is what we want; untested by eye.
 - **5.3 (colour-only signals) is not started.**
 
-## 2026-11-01: Pass G3, no signal by colour alone (`docs/INFO_SESSION_OCT29.md` section 5.3)
+## 2026-11-01: Pass G3, no signal by colour alone (the Oct 29 info session, no signal by colour alone)
 
 The Nov 1 audit found three states told apart only by colour or brightness. Each now has a shape as well.
 
@@ -1247,7 +1247,7 @@ Left over:
 - **The bar's "on" tint plus the cross is still UIKit's default style;** no contrast check was done against the additive display.
 - **The rail ticks are 1.4 cm at 57 cm (1.4 degrees):** readable in the preview, not measured on glass.
 
-## 2026-11-01: Pass G4, the scanning moment (`docs/INFO_SESSION_OCT29.md` section 6, item 4)
+## 2026-11-01: Pass G4, the scanning moment (the Oct 29 info session, the scanning moment)
 
 The audit's most valuable Design item: make "it sees what you see" visible. The wheel is hidden until Found it (the `start` scenario asserts it), so the moment plays *as* the wheel appears rather than before the pinch, and step 1 runs underneath it from the first frame.
 
@@ -1271,7 +1271,7 @@ Left over:
 - **The sweep is a line, not an outline that traces the wheel.** The audit wrote "an outline sweeps the wheel"; a line crossing it reads as a scan and cost one component. A rim-shaped outline (a TorusArc that draws itself round) is the richer version if there is time.
 - **Hierarchy order:** `ScanReveal` is the last child of `BenchCoach`, after `RepairManager`, so its `OnStart` subscription lands after the manager's; it reacts to step changes only, so order does not matter today.
 
-## 2026-11-01: Pass G5, the three Pass 12 layout bugs (`docs/INFO_SESSION_OCT29.md` B1)
+## 2026-11-01: Pass G5, the three Pass 12 layout bugs (the Oct 29 info session, layout)
 
 Checked from the reset preview camera with `jump-to-step` and the Preview panel screenshot. Each bug had a cause the Pass 12 notes didn't name; none needed the Ask panels resized.
 
@@ -1293,9 +1293,9 @@ Findings:
 Left over:
 
 - **B4, the hands-on mouse walk,** is still untested (LEAF skips the ray).
-- **The Ask panels are the friend's files** (`TEAM_TASKS.md` handoff); passes G, G2 and G5 touched `AskCoach.ts` and `BenchCoachAskChipsUI.ts` per the Nov 1 audit. Sujeeth is telling the friend; the changes are the chip size, the two timeouts, `maxElevationDeg` and the high-case answer spot.
+- **The Ask panels are the friend's files** (the team task list's handoff); passes G, G2 and G5 touched `AskCoach.ts` and `BenchCoachAskChipsUI.ts` per the Nov 1 audit. Sujeeth is telling the friend; the changes are the chip size, the two timeouts, `maxElevationDeg` and the high-case answer spot.
 
-## 2026-11-02: Pass G6, the hands-on mouse walk (`docs/INFO_SESSION_OCT29.md` B4, `TEAM_TASKS.md` F5)
+## 2026-11-02: Pass G6, the hands-on mouse walk (the Oct 29 info session, the hands-on walk)
 
 The whole repair, What's this?, Ask, a mistake and the idle hint, driven through the preview's own mouse ray (SIK's `MouseInteractor`, the same path a person's mouse takes in the Preview panel) instead of LEAF's `trigger()`, which skips the ray. Start card to Finish card in one run from the reset camera, Plane room, SPECS 27: Found it, valve, four beads, lever A from the tray onto the ghost, lever B hooked and slid round to 5 o'clock, tube pulled, cause pinched, Continue, new tube fitted at the valve, four beads seated, valve held to inflate, Finish card, Start over; then Next twice, What's this? on a tray lever, and Ask with a chip. Every step fired through the real colliders. The synthetic SIK hand (`PreviewInteractTool`) could not reach a UIKit button in this project (pinch, poke and hover all time out), so the walk used `InjectPreviewGesture` touch events, which is closer to the mouse anyway.
 
@@ -1367,7 +1367,7 @@ On `main`. `origin/Sujeeth-AR-SPECS-WORK` (passes G to G7, Nov 1 to 4, built on 
 - **Conflicts:** 20 files. The UI files rebuilt in D2 (dock, step callout, cards, ProgressRail, BodyFollow, chips) took D2's side; his intents on them came back as separate commits. `AskCoach` kept D2's slot plus his two timers. `Assets/Icons/close.png` was byte-identical on both sides; main's meta was kept.
 - **`Assets/Scene.scene`:** main's, not hand-merged. His scene changes were re-applied through the Editor API (`VirtualScene`, `scene-graphql`) and saved.
 - **Design notes:** every entry from both sides, in date order (D2's Oct 29 entry, then his Nov 1 to Nov 4 entries).
-- **Docs kept as he wrote them:** `devpost/video-script.md`, his `docs/INFO_SESSION_OCT29.md` and `docs/TEAM_TASKS.md` changes.
+- **Docs kept as he wrote them:** `devpost/video-script.md` and his notes on the Oct 29 session and the team task list.
 - Lens Studio pauses its TypeScript compiler while a git merge is in progress, so the merge was type-checked with the same `lensifyts tsc-only` command against the project's `tsconfig.json` (no emit) before the merge commit.
 
 ### Each G pass on D2
