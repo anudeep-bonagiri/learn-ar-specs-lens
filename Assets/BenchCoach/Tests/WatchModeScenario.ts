@@ -6,23 +6,27 @@ import {RepairDirector} from "../Scripts/RepairDirector"
 import {IdleHint} from "../Scripts/IdleHint"
 import {RunStats} from "../Scripts/RunStats"
 import {LAST_STEP} from "../Scripts/StepDefinitions"
+import {FloorPath} from "../Scripts/FloorPath"
 
 /**
  * Pass 10: watch mode. BtnWatch presses Found it and starts the director (playing,
  * step 1, within 0.5 s); it plays on its own until lever B has peeled Bead_1..3 and
- * the tube is ready to pull (step >= 5, three peeled beads); BtnNext stops it and
- * advances exactly one step; play() resumes and runs to the Finish card with
+ * the tube is ready to pull (step 5, three peeled beads); after the walk and the pull
+ * (pass S1, below) BtnNext stops it and advances exactly one step; play() resumes and runs to the Finish card with
  * IdleHint back on, no lever misses or hints counted, and no fallback next() calls.
  * Every wait is a poll with a hard timeout, so a stall fails an assertion instead of hanging.
- * Pass P: the run had grown to 59.8 s, at the MCP call's limit. After the stop, Next is
- * pressed twice more (step 6, the halfway card) and play() resumes from step 8, the
- * refit module's own demos; the Lens's Watch timings are unchanged. Watch's steps 6 and 7
- * (the glint found, the halfway card continuing) are no longer played by this scenario.
+ * Pass P: the run had grown to 59.8 s, at the MCP call's limit, so play() resumes from
+ * step 8, the refit module's own demos; the Lens's Watch timings are unchanged. Watch's
+ * steps 6 and 7 (the glint found, the halfway card continuing) are not played here.
+ * Pass S1: Watch walks. On step 5 the floor path shows and the pull waits; the eye is
+ * walked to the far spot over 3 s (set every poll, as floor-path does) as soon as step 5
+ * starts, the arrival hides the path and the pull starts within 2 s of it. Next then stops Watch on
+ * step 6 and advances to the halfway card; one more Next reaches step 8.
  */
 @component
 export class WatchModeScenario extends Scenario {
   async run(): Promise<void> {
-    await sleep(500)
+    await sleep(200)
     const manager = getRepairManager()
     const interactor = new BenchCoachLeafInteractor()
     const root = findSceneObjectByName("BenchCoach")
@@ -32,6 +36,8 @@ export class WatchModeScenario extends Scenario {
     expect(director, "RepairDirector on BenchCoach").toBeTruthy()
     expect(idle, "IdleHint on BenchCoach").toBeTruthy()
     expect(stats, "RunStats on BenchCoach").toBeTruthy()
+    const path = findSceneObjectByName("FloorPath").getComponent(FloorPath.getTypeName()) as FloorPath
+    expect(path, "FloorPath").toBeTruthy()
 
     manager.reset()
     await sleep(500)
@@ -50,11 +56,63 @@ export class WatchModeScenario extends Scenario {
     expect(stats.suspended, "RunStats suspended while playing").toBe(true)
 
     // ── Plays on its own to the pull ─────────────────────────────────────────
-    const ready = await this.pollUntil(40, () => manager.getState().step >= 5 && manager.getPeeledBeads().length === 3)
+    const ready = await this.pollUntil(40, () => manager.getState().step >= 5 && manager.getPeeledBeads().length === 3, 100)
     const atReady = manager.getState().step
     print(`[WatchModeScenario] ready after ${(getTime() - t0).toFixed(1)} s: step ${atReady}, peeled ${manager.getPeeledBeads().length}`)
     expect(ready, "watch mode reached step 5 with three peeled beads within 40 s").toBe(true)
+    expect(atReady, "on step 5").toBe(5)
     expect(director.playing, "still playing at the pull").toBe(true)
+
+    // ── Step 5: the path shows and the pull waits for the walk ──────────────
+    expect(path.visible, "Watch, step 5: the floor path shows").toBe(true)
+    expect(director.lastActStep !== 5, "Watch, step 5: the pull has not started").toBe(true)
+    const camTr = findSceneObjectByName("Camera Object").getTransform()
+    const camHome = camTr.getWorldPosition()
+    const camRot = camTr.getWorldRotation()
+    const far = path.farSpotWorld()
+    const goal = new vec3(far.x, camHome.y, far.z)
+    // The preview puts the camera back every frame, so it is set again every poll.
+    const holdAt = async (sec: number, cond: () => boolean): Promise<boolean> => {
+      const end = getTime() + sec
+      while (getTime() < end) {
+        camTr.setWorldPosition(goal)
+        if (cond()) return true
+        await sleep(50)
+      }
+      return cond()
+    }
+    // A walk round the stand's right side over 3 s (the take's walk was 5.6 s): the beat's
+    // own 3.5 s wait and the voice line still run, so an instant jump would only measure them.
+    const side = new vec3(far.x + 45, camHome.y, (camHome.z + far.z) / 2)
+    const walkSec = 3
+    const walkStart = getTime()
+    let pathDuringWalk = true
+    let pullDuringWalk = false
+    while (!path.arrived && getTime() - walkStart < walkSec + 1) {
+      const f = Math.min(1, (getTime() - walkStart) / walkSec)
+      const p = f < 0.5 ? vec3.lerp(camHome, side, f * 2) : vec3.lerp(side, goal, (f - 0.5) * 2)
+      camTr.setWorldPosition(p)
+      if (!path.arrived && !path.visible) pathDuringWalk = false
+      if (director.lastActStep === 5) pullDuringWalk = true
+      await sleep(50)
+    }
+    const arrived = await holdAt(1, () => path.arrived)
+    const tArrive = getTime()
+    expect(pathDuringWalk, "the path shows until the arrival").toBe(true)
+    expect(pullDuringWalk, "no pull while walking").toBe(false)
+    expect(arrived, "the viewer arrives at the far spot").toBe(true)
+    expect(path.visible, "arrival hides the path").toBe(false)
+    expect(manager.getState().step, "arrival does not complete step 5").toBe(5)
+    const pulled = await holdAt(6, () => director.lastActStep === 5)
+    const pullAfter = director.lastActTime - tArrive
+    print(`[WatchModeScenario] arrived ${(tArrive - walkStart).toFixed(1)} s into step 5; pull ${pullAfter.toFixed(2)} s after the arrival (${director.lastWalkEnd})`)
+    expect(pulled, "the pull starts after the arrival").toBe(true)
+    expect(pullAfter <= 2, `the pull starts within 2 s of the arrival (${pullAfter.toFixed(2)} s)`).toBe(true)
+    expect(director.lastWalkEnd, "the beat ended its wait on the arrival").toBe("arrival")
+    const atSix = await holdAt(5, () => manager.getState().step === 6)
+    camTr.setWorldPosition(camHome)
+    camTr.setWorldRotation(camRot)
+    expect(atSix, "the pull completes step 5").toBe(true)
 
     // ── Next stops it and advances once ──────────────────────────────────────
     const before = manager.getState().step
@@ -65,15 +123,13 @@ export class WatchModeScenario extends Scenario {
     expect(director.lastStopReason, "stopped by a press").toBe("stop")
     expect(manager.getState().step, "Next advanced exactly one step").toBe(before + 1)
     expect(idle.suspended, "idle hints back on after the stop").toBe(false)
-    await sleep(1500)
+    await sleep(700)
     expect(manager.getState().step, "nothing advances by itself after the stop").toBe(before + 1)
 
-    // ── Next twice more (the glint step, the halfway card), then resume ─────
-    for (const want of [before + 2, before + 3]) {
-      await interactor.tap("BtnNext")
-      await sleep(300)
-      expect(manager.getState().step, `Next to step ${want}`).toBe(want)
-    }
+    // ── Next once more (the halfway card), then resume ──────────────────────
+    await interactor.tap("BtnNext")
+    await sleep(300)
+    expect(manager.getState().step, `Next to step ${before + 2}`).toBe(before + 2)
     expect(director.playing, "still stopped").toBe(false)
 
     // ── Resume to the Finish card ────────────────────────────────────────────
@@ -102,11 +158,11 @@ export class WatchModeScenario extends Scenario {
   }
 
   /** Poll every 250 ms until `cond` holds or `timeoutSec` passes; returns whether it held. */
-  private async pollUntil(timeoutSec: number, cond: () => boolean): Promise<boolean> {
+  private async pollUntil(timeoutSec: number, cond: () => boolean, everyMs: number = 250): Promise<boolean> {
     const end = getTime() + timeoutSec
     while (getTime() < end) {
       if (cond()) return true
-      await sleep(250)
+      await sleep(everyMs)
     }
     return cond()
   }

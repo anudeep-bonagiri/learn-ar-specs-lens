@@ -43,6 +43,7 @@
     voice: false
     voiceHoldMaxSec: false
     waitScale: false
+    watchWalkMaxSec: false
     wheelTargets: false
   ScriptTypesHidden:
     {}
@@ -68,6 +69,7 @@
       voice: !<MappingBased.AssignableType_13> 00000000-0000-0000-0000-000000000000
       waitScale: !<float> 1.000000
       voiceHoldMaxSec: !<float> 4.000000
+      watchWalkMaxSec: !<float> 12.000000
       debugLogs: true
   ScriptTypes:
     -
@@ -96,5 +98,6 @@
     - '// @ui {"widget":"group_start", "label":"Settings"}'
     - "// @input float waitScale = 1 {\"hint\":\"Multiplies every beat's reading pause (1 = about 60 s end to end)\", \"widget\":\"slider\", \"min\":0.25, \"max\":3, \"step\":0.05}"
     - "// @input float voiceHoldMaxSec = 4 {\"hint\":\"Most extra seconds a beat waits for the voice coach's line\", \"widget\":\"slider\", \"min\":0, \"max\":8, \"step\":0.5}"
+    - "// @input float watchWalkMaxSec = 12 {\"hint\":\"Step 5: most seconds the pull waits for the viewer to walk to the far spot (from the step's start)\", \"widget\":\"slider\", \"min\":0, \"max\":30, \"step\":0.5}"
     - '// @input bool debugLogs = true {"hint":"Print beats to the log"}'
     - '// @ui {"widget":"group_end"}'

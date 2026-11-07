@@ -70,7 +70,7 @@
     - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">References</span>"}'
     - '// @ui {"widget":"group_start", "label":"References"}'
     - '// @input AssignableType_1 manager {"hint":"Step machine (step changes show and hide the path)"}'
-    - '// @input AssignableType_2 director {"hint":"Watch mode: the path stays hidden while it plays"}'
+    - '// @input AssignableType_2 director {"hint":"Watch mode: its step 5 beat waits for the arrival (pass S1)"}'
     - "// @input Component.Camera camera {\"hint\":\"The user's camera (arrival is measured from it on the floor plane)\"}"
     - '// @input Asset.Material arrowMaterial {"hint":"Light cyan unlit material (MarkerMat); each arrow gets its own clone for the wave"}'
     - '// @input AssignableType_3 floorLevel {"hint":"Measured floor height; the arrows lie on the mat top above it"}'

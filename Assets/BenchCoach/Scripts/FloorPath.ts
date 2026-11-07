@@ -7,12 +7,13 @@
  * measured floor height (FloorLevel); the spots' own y is ignored when it is wired. A brightness wave travels along the chain toward the far side.
  * The path hides when the user arrives (camera within arriveRadiusCm of the far
  * spot on the floor plane), on any step change (so also when the pull ends step 5),
- * on Back, and whenever watch mode is playing (watch mode never walks).
+ * and on Back. Pass S1: it shows in watch mode too, and the director's step 5 beat waits
+ * for the arrival (this script registers itself as the director's walkCue).
  * Arrival does not complete the step; the pull still does.
  * Pass V: the far spot is a floor marker in the D2 look, in the path's cyan: a rounded
  * outline, a soft fill and two shoe prints facing the wheel ("stand here"); the chain ends
  * at its edge. It shows with the path, stays after arrival (under the user's feet) and
- * hides on any step change and in watch mode, like the arrows.
+ * hides on any step change, like the arrows.
  * Lives on Environment/FloorPath, so it shows and hides with the environment.
  * Owns: the arrow meshes, their per-arrow material clones, visible / arrived.
  * Expects: @inputs manager, director, camera, arrowMaterial (MarkerMat).
@@ -57,7 +58,7 @@ export class FloorPath extends BaseScriptComponent {
   manager: RepairManager
 
   @input
-  @hint("Watch mode: the path stays hidden while it plays")
+  @hint("Watch mode: its step 5 beat waits for the arrival (pass S1)")
   director: RepairDirector
 
   @input
@@ -148,19 +149,16 @@ export class FloorPath extends BaseScriptComponent {
         print("[FloorPath] ERROR: missing @input refs (manager, camera, arrowMaterial)")
         return
       }
+      if (this.director) this.director.walkCue = this
       this.lastStep = this.manager.getState().step
       this.manager.onStepChanged.add((s) => this.onStep(s))
     })
     this.createEvent("UpdateEvent").bind(() => this.tick())
   }
 
-  /** Show the chain (resets arrival). Kept hidden while watch mode plays. */
+  /** Show the chain (resets arrival); in watch mode too (pass S1). */
   show(): void {
     this.arrived = false
-    if (this.director && this.director.playing) {
-      this.hide()
-      return
-    }
     this.visible = true
     this.showTime = getTime()
     this.setArrowsEnabled(true)
@@ -191,10 +189,6 @@ export class FloorPath extends BaseScriptComponent {
 
   private tick(): void {
     if (!this.visible || !this.camera) return
-    if (this.director && this.director.playing) {
-      this.hide()
-      return
-    }
     const cam = this.camera.getTransform().getWorldPosition()
     const far = this.farSpotWorld()
     const dx = cam.x - far.x

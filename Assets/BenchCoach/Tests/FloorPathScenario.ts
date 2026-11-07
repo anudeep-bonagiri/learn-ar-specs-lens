@@ -17,7 +17,8 @@ import {WheelStand} from "../Scripts/WheelStand"
  * behind the wheel. Moving the camera to the far spot (the Camera Object's world
  * position is set from the scenario and held there; see the log line) sets `arrived`
  * and hides the path without completing the step. Next from step 5 hides it, Back
- * into step 5 keeps it hidden, and watch mode never shows it.
+ * into step 5 keeps it hidden. Pass S1: watch mode shows it on step 5 too, with the
+ * near-side note (watch-mode checks the walk and the pull).
  */
 @component
 export class FloorPathScenario extends Scenario {
@@ -112,25 +113,23 @@ export class FloorPathScenario extends Scenario {
     expect(manager.getState().step, "Back to step 5").toBe(5)
     expect(path.visible, "hidden after Back into step 5").toBe(false)
 
-    // ── Watch mode never shows it ───────────────────────────────────────────
+    // ── Pass S1: watch mode shows it on step 5 ──────────────────────────────
     manager.jumpToStep(4)
     await sleep(500)
     director.play()
-    let everVisible = false
-    let sawStep5 = false
-    const wEnd = getTime() + 40
+    let pathInWatch = false
     let noteInWatch = false
-    while (getTime() < wEnd && manager.getState().step < 6) {
-      if (manager.getState().step === 5) sawStep5 = true
-      if (manager.getState().step === 5 && noteShown()) noteInWatch = true
-      if (path.visible || this.shownArrows(pathObj) > 0) everVisible = true
+    const wEnd = getTime() + 30
+    while (getTime() < wEnd && manager.getState().step < 6 && !(pathInWatch && noteInWatch)) {
+      if (manager.getState().step === 5 && director.playing) {
+        if (path.visible && path.markerVisible && this.shownArrows(pathObj) > 5) pathInWatch = true
+        if (noteShown()) noteInWatch = true
+      }
       await sleep(100)
     }
-    print(`[FloorPathScenario] watch: reached step ${manager.getState().step}, saw step 5 ${sawStep5}, ever visible ${everVisible}, note ${noteInWatch}`)
+    print(`[FloorPathScenario] watch: step ${manager.getState().step}, path ${pathInWatch}, note ${noteInWatch}`)
     director.stop()
-    expect(sawStep5, "watch mode passed through step 5").toBe(true)
-    expect(manager.getState().step >= 6, "watch mode pulled the tube").toBe(true)
-    expect(everVisible, "path never visible in watch mode").toBe(false)
+    expect(pathInWatch, "watch mode, step 5: the floor path and its marker show").toBe(true)
     expect(noteInWatch, "watch mode, step 5 from the near side: the note shows").toBe(true)
 
     manager.reset()
