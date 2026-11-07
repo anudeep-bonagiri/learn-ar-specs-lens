@@ -11,6 +11,7 @@ import {AskCoach} from "../Scripts/AskCoach"
 import {BenchCoachAskAnswerUI} from "../Scripts/BenchCoachAskAnswerUI"
 import {LAST_STEP, STEPS} from "../Scripts/StepDefinitions"
 import {BenchCoachFinishCardUI} from "../Scripts/BenchCoachFinishCardUI"
+import {RunStats} from "../Scripts/RunStats"
 import {MIN_BODY_XHEIGHT_DEG, MIN_TITLE_XHEIGHT_DEG, xHeightDeg} from "../Scripts/UIHelpers"
 
 type Rect = {x0: number; x1: number; y0: number; y1: number}
@@ -19,7 +20,7 @@ type Rect = {x0: number; x1: number; y0: number; y1: number}
 const PANELS = ["StepLabel", "InfoCallout", "AskChipsPanel", "AskAnswerPanel", "StartCard", "DoneCard", "FinishCard", "ControlBar", "MorePopover", "WatchPill", "ToolTrayPanel", "WatchBadgeRoot"]
 
 /** Pass V: body and instruction lines (x-height at least 1.5% of the frame) and titles (2.2%). */
-const BODY_TEXTS = ["LabelText", "HintText", "Subtitle", "DoneNext", "FinishTip", "AskAnswerText", "InfoLine", "TimeText", "DoneCause", "FinishCause", "FinishTimes"]
+const BODY_TEXTS = ["LabelText", "HintText", "Subtitle", "DoneNext", "FinishTip", "AskAnswerText", "InfoLine", "TimeText", "DoneCause", "FinishCause", "FinishTimes", "FinishPractised"]
 const TITLE_TEXTS = ["Title", "DoneText", "FinishTitle", "FinishTime"]
 
 /**
@@ -48,7 +49,10 @@ const TITLE_TEXTS = ["Title", "DoneText", "FinishTitle", "FinishTime"]
  *    eye looks at the card (the card pose; from Sunlit Room's level default pose the card
  *    sits 10 degrees low and is logged only), its texts inside the plate at their minimum
  *    x-height, its buttons at least as tall (in degrees from the eye) as the dock's and
- *    not under the dock on screen.
+ *    not under the dock on screen;
+ *  - pass S2, the Finish card's three buttons (More, Practise, Start over) the same way,
+ *    each also at least as wide as a dock button, compact and with the practised line
+ *    (the longest a drill gives), compact and after More.
  */
 @component
 export class UiLayoutScenario extends Scenario {
@@ -162,6 +166,27 @@ export class UiLayoutScenario extends Scenario {
     expect(finish.expanded, "More expands the Finish card").toBe(true)
     this.checkTexts(LAST_STEP)
     this.checkFinish(camera, dock, finish, "expanded")
+
+    // ── Pass S2: the three-button state, then with the practised line ────────
+    // A mistake on step 10 and Next: the Finish card builds its record with a step to practise.
+    const stats = root.getComponent(RunStats.getTypeName()) as RunStats
+    manager.jumpToStep(LAST_STEP - 1)
+    await sleep(200)
+    stats.noteMistake("leverTooFar")
+    manager.next()
+    await sleep(300)
+    await this.laidOut()
+    expect(finish.practiseText(), "three buttons: Practise lever A shows").toBe("Practise lever A")
+    this.checkTexts(LAST_STEP)
+    this.checkFinish(camera, dock, finish, "compact, three buttons")
+    finish.setPractised("Practised fit tube: 2 of 3 reps, best 0:16, 2 mistakes")
+    await sleep(200)
+    this.checkTexts(LAST_STEP)
+    this.checkFinish(camera, dock, finish, "compact, practised line")
+    await interactor.tap("BtnFinishMore")
+    await sleep(300)
+    this.checkTexts(LAST_STEP)
+    this.checkFinish(camera, dock, finish, "expanded, practised line")
 
     // ── Ask open: the callout and the stack stay off the tire and in view ────
     // Steps 2 and 3 (marker at the top), 5 (far side) and 6 (inspect): Sujeeth's G5 cases.
@@ -360,15 +385,28 @@ export class UiLayoutScenario extends Scenario {
     const dt = dock.sceneObject.getTransform()
     const dr = this.screenRect(camera, dt.getWorldPosition(), dt.right, dock.width, dock.height, dt.up)
     let note = ""
-    for (const name of ["BtnFinishMore", "BtnRestart"]) {
+    const buttons = card.practiseShown ? ["BtnFinishMore", "BtnFinishPractise", "BtnRestart"] : ["BtnFinishMore", "BtnRestart"]
+    const widthDeg = (so: SceneObject): number => {
+      const size = this.sizeOf(so)
+      const ww = size ? size.x * so.getTransform().getWorldScale().x : 0
+      return (2 * Math.atan2(ww / 2, so.getTransform().getWorldPosition().distance(eye)) * 180) / Math.PI
+    }
+    const rects: {name: string; r: typeof dr}[] = []
+    for (const name of buttons) {
       const b = findSceneObjectByName(name)
       const bd = deg(b)
-      note += `, ${name} ${bd.toFixed(2)} deg`
+      const bw = widthDeg(b)
+      note += `, ${name} ${bd.toFixed(2)} x ${bw.toFixed(2)} deg`
+      expect(b.isEnabledInHierarchy, `Finish card ${what}: ${name} shows`).toBe(true)
       expect(bd >= dockDeg * 0.98, `Finish card ${what}: ${name} ${bd.toFixed(2)} deg at least the dock's ${dockDeg.toFixed(2)} deg`).toBe(true)
+      // Pass S2: the dock's buttons are square, so as wide as they are tall.
+      expect(bw >= dockDeg * 0.98, `Finish card ${what}: ${name} ${bw.toFixed(2)} deg wide, at least the dock's ${dockDeg.toFixed(2)} deg`).toBe(true)
       const size = this.sizeOf(b)
       const bt = b.getTransform()
       const br = this.screenRect(camera, bt.getWorldPosition(), bt.right, size ? size.x : 0, size ? size.y : 0, bt.up)
       expect(dock.sceneObject.isEnabledInHierarchy && this.overlaps(br, dr), `Finish card ${what}: ${name} is not under the dock`).toBe(false)
+      for (const other of rects) expect(this.overlaps(br, other.r), `Finish card ${what}: ${name} is clear of ${other.name}`).toBe(false)
+      rects.push({name, r: br})
     }
     print(`[UiLayoutScenario] Finish card ${what}: ${desc}; dock buttons ${dockDeg.toFixed(2)} deg${note}`)
   }
