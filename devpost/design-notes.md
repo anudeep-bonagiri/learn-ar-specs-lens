@@ -2260,3 +2260,20 @@ Same recorder as pass R, App Nap off as in pass R4, the Garage room from the sta
 
 - The three items above.
 - Listening to the cut, the upload, the design brief line in the narration (clip n12c is used once `devpost/design-brief.md` exists), and the Lens Studio window still, which shows the Finish card as it was before pass S1.
+
+## 2026-11-07: Pass W, the design brief and the skill pack paragraph
+
+No change to the Lens. Writing only, after the Nov 5 review said the judges check `devpost/` for the planning documents.
+
+### What was written
+
+- `devpost/design-brief.md`, in the `plan-lens` template, `status: approved`. The answers are the ones written on Oct 22 before the first build (the idea, the one moment, product or overlay, where things live, hands, when things show, five done criteria, out of scope, risks), with the numbers as they were planned and the template's Build notes and After the build sections kept as written. A last section, "What the build changed", dates what grew, moved and was found, against the entries above this one. The brief does not claim an interview in chat took place; the seven questions were answered in writing.
+- The Devpost page: a section "How the Devpost skill pack helped" after "How we built it", one more sentence under "What we learned", the submit list's first item marked done, the test count corrected to 22 scenarios plus the `jump-to-step` helper, and the test run reference moved from pass P to pass S2.
+- `README.md`: the second line names the brief; the "How it was built" bullet on the brief replaces the pending line.
+- `devpost/video-script.md`: the 2:10 row says twenty-two scenarios, as recorded; the note on the brief clause updated.
+- The cut was rendered again with narration clip n12c, which names the design brief, in place of n12d. No segment changed, so the as-cut table above stands.
+
+### Left over
+
+- Anudeep has not reworded the README or the page in his own voice; he chose to keep the drafts.
+- The three Lens flaws under pass R5, the Lens Studio window still, listening to the cut, the upload, the public repo.

@@ -2,7 +2,7 @@
 
 A hands-free coach for fixing a bike flat, for Snap SPECS. Every instruction sits on the part it is about, and the coach says each step out loud.
 
-Built for [Learn AR with SPECS](https://learn-specs.devpost.com/) on Devpost Learn, by an AI coding agent using CLAD and the Lens Studio MCP.
+Built for [Learn AR with SPECS](https://learn-specs.devpost.com/) on Devpost Learn. Planned in a design brief ([devpost/design-brief.md](devpost/design-brief.md)) and built by an AI coding agent using CLAD and the Lens Studio MCP.
 
 ## Demo
 
@@ -80,7 +80,7 @@ You stand at the wheel with a tire lever hooked under the bead. The next step is
 - Spectacles Interaction Kit for hands, grabbing and ray pinch. Spectacles UI Kit for buttons and cards.
 - The wheel, tire, beads and tube are meshes built in code, so they can lift, peel and deflate.
 - Tested with LEAF: one scenario per done criterion, plus a `jump-to-step` helper that puts the Lens on any step for screenshots and video takes.
-- Design brief: _pending_ (`devpost/design-brief.md`, from the `plan-lens` interview).
+- Planned with the hackathon's skill pack. The `plan-lens` questions were answered in writing on Oct 22, before the first build, and the answers are the design brief: [devpost/design-brief.md](devpost/design-brief.md), the one moment, where things live, hands, when things show, five done criteria, and a last section on what the build changed. The brief's preview limits are why the wheel is a stand-in and why every interaction is a pinch, grab, drop or drag. Its done criteria became the first five LEAF tests.
 
 ## Done criteria and test results
 
