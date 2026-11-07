@@ -2294,6 +2294,23 @@ Found. The first render had no captions after the clip. ffmpeg reinitialises its
 
 Where it is said: the clip is labelled on screen, in the README (What is real and what is simulated; Credits) and on the page (What we got wrong; AI tools used; Video). The rubric's G3, G9 and P3 rows now say the Lens is on screen from 0:09.
 
+### Nov 7, evening: the sixth cut, rebuilt against the rubric
+
+Anudeep asked whether this wins first place and said to check the rubric and what the judges want and redo the demo from the beginning. Read again: the judges' public guidance and the team's notes on it. The judges' own words that the fifth cut did not yet honour: "what it feels like" (the coach was ducked under narration for most of the one take), "a real moment from your build tied to a reusable practice" (no such moment in the video), and the brief itself (named, never shown). And the rubric's own order: the person, the app in 10 s, unbroken, the method, the honesty labels.
+
+The sixth cut (`cut/make_edl.py`; the fifth is kept as `make_edl.nov7-fifth.py` and `bench-coach-demo.fifth.mp4`), 2:43:
+1. The problem clip, 0:00 to 0:09 (unchanged).
+2. The reveal and the person, 0:09 to 0:29 (the pull-back shot cut).
+3. One take, no cuts, 46 s at real speed, 0:29 to 1:15. The coach is heard: the start-card segment runs at 1.0x instead of 0.8x, every Lens shot in the take is at full level, and the narrator speaks only the honest note (before the coach starts) and one shorter far-side line (n07d, after the coach's own). The lines that explained what the coach was already saying (n16, n04b, n05b) are out.
+4. The coach: the mistake, the cause, Ask, the refit. What's this? is cut.
+5. What the judges said and what changed: the Finish card recorded on Nov 5 (`t10-report`, the dense one: time, three counters, cause, slowest steps, tip, practice line, button) against the compact one from Nov 7, under "Nov 5, the live review: a website on your face" and "Nov 6: three lines and one tip". The line (n17b) says the judges marked a dense end screen down on Nov 5, ours was one, and what it is now. A first take (n17) said the judges had called our card that; they had not seen ours (the remark was about another project, MWNP, per the rubric's section 6), so that clip is unused and `lines.json` says why. Then the drill (n11b is out; n17b covers the card).
+6. Planned, built, tested: a text card from the brief (file name, status, the one spatial moment, "five done criteria, each one became a LEAF test"), the Lens Studio window (3 s), the 22 tests. n12c as before.
+7. Proven, unproven, title.
+
+Checked: narration laid out with no overlaps (the inspect and Ask lines meet at 0.0 s), -15.1 LUFS, no silence over 2.5 s except two spans under 5 s with Lens audio under them; captions verified by frame in every layout after the colour fix. Two lines generated from one-line files (n07d, n17b; n17 wasted): about 1,665 characters left.
+
+Rubric after this cut: T1 3 (the brief on screen), P4 2 (a human story, but AI-generated and labelled), P1 still 2 (46 s, the judge said a minute; the coach heard now), 238 of 282. Not changed by a video: W2 (the README and the page are still the agent's drafts; the format is learner-led), I5 (the camera), T5 (a live Ask answer needs a token), and the gate items that are a person's: YouTube, the public repo after the history filter, the form.
+
 ### Left over
 
 - Anudeep has not reworded the README or the page in his own voice; he chose to keep the drafts.
