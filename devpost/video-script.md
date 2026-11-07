@@ -38,7 +38,7 @@ The recipe that stood here (Plane room, macOS screen recording, cursor visible) 
 
 | At | On screen | Footage |
 | --- | --- | --- |
-| 0:00 | A flat-repair coach for SPECS | `t04-step4-p` 14.25 to 22.15 s |
+| 0:00 | Nearly half of adults can't fix a flat | `t04-step4-p` 14.25 to 22.15 s |
 | 0:07 | Hook, slide, peel | `t04-wide-right` 22.9 to 27.5 s |
 | 0:12 | A bike, a flat, and no one to ask | `t11-wide-right` 3.9 to 10.4 s |
 | 0:19 | A bike, a flat, and no one to ask | `t11-wide-left` 4.3 to 10.4 s |
@@ -74,6 +74,7 @@ Differences from the plan above:
 - The drill is cut from a run the `practise-step` scenario drives, so its reps are quick; the simulated hand carries the lever past the camera between reps, and those spans are cut out.
 - What's this? shows the Tire card. The Valve card's leader runs behind the step callout from this pose.
 - There is no shot of the design brief itself; the narration names it over the Lens Studio window and the test list.
+- The cold open is a pitch: the title is the Cycling UK figure (47% of adults can't fix a flat) and the first line says it, with what a shop charges, before the product is named. The preview is still on screen from the first frame.
 - The drill is titled "If you want it" and its line says so; the person with a flat wants the tube out, and the Finish card's default is three lines and one tip.
 - Several lines were recorded again shorter or reworded (the honest note, the scan, the far side, the drill, the build line); the captions file carries the words as spoken. On Nov 7 the Nov 5 narration clips were generated again by mistake, so every line is a Nov 7 take; the offsets were checked against the new lengths and nothing overlaps.
 
