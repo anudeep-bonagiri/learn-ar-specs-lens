@@ -21,7 +21,9 @@ Built for [Learn AR with SPECS](https://learn-specs.devpost.com/) on Devpost Lea
 
 ## Who it's for
 
-Anyone with something broken and no one to ask. They put the glasses on, do the repair once with the coach, and get on with their day. The first repair is a bike flat, start to finish.
+A home cyclist with a flat and no one to ask, doing it for the first time. They put the glasses on, do the repair once with the coach, and get on with their day.
+
+**The journey:** the first run is on the virtual wheel in the stand, the trainer, because the preview cannot see a real one. On Specs the same callouts, path and voice are designed to sit on the cyclist's own wheel once the glasses can find it; until then the hand-off is the trainer, then the bike. Bench Coach is a step table and an engine (`Assets/BenchCoach/Scripts/StepDefinitions.ts` holds the ten steps; `RepairManager.ts` runs them), so a second job is a new table and its parts. Lesson two, planned and not built: a jump start, where the next step is on the other car.
 
 The gap is real. In Cycling UK's figures 47% of adults can't fix a flat ([Cycling Plus, 2022](https://www.pressreader.com/australia/cycling-plus/20221028/281724093468028)). A shop charges £15 to £30 or more for the ten minutes ([r/BikeMechanics](https://www.reddit.com/r/BikeMechanics/comments/1glx027/how_much_are_yall_charging_for_punctures/)). U.S. PIRG puts what households could keep by repairing electronics instead of replacing them at about $49.6 billion a year ([Repair Saves Families Big II, 2023](https://pirg.org/edfund/media-center/report-fixing-instead-of-replacing-devices-could-save-americans-nearly-50-billion-a-year/)); that number is about electronics, not bikes, and the habit is the same. The usual fix is a video on a phone propped against a box: someone else's wheel, someone else's angle, a greasy thumb on the scrub bar.
 
@@ -183,7 +185,7 @@ To regenerate the numbers quoted here: `python3 ~/.claude/skills/devpost/scripts
 - **A guess that works in one room is still a guess.** The floor was assumed to be 150 cm below the eye. In one preview room the stand floated over a table. `FloorLevel.ts` now takes the lowest wide level World Query has seen, and a lower level found later moves the stand, the mat and the path together.
 - **The judges' rules are measurable.** "A website on your face" became a line count on the Finish card. "Big buttons" became degrees on the collider in `ui-layout`. "Show it only when needed" became the idle timer and the on-demand menu. Each one is a test now, not an opinion.
 
-**Next:** run it on Specs, find the real wheel, and keep the callouts where they are. Then brake pads.
+**Next:** run it on Specs, find the real wheel, and keep the callouts where they are. Then lesson two, a jump start: the same engine, a new step table, and the walk is between two cars.
 
 ## Credits
 

@@ -15,7 +15,7 @@ You stand at the front of the wheel with a tire lever hooked under the bead. The
 
 ## Why it belongs on glasses
 - Uses: draws in the world (ghost tools and markers sit on the rim, tire and valve at true scale); leaves your body free (both hands stay on the wheel and the levers, eyes on the work); shares your view (in real use the glasses would find your wheel; in the preview a pinch stands in for that).
-- Who it's for: anyone with something broken and no one to ask. The first repair is a bike flat.
+- Who it's for: a home cyclist with a flat and no one to ask, doing it for the first time. (Planned Oct 22 as "home cyclists who fix their own flats"; widened on Nov 7 to anyone with something broken, and narrowed back on Nov 7 evening after a review read the wide line as no audience at all.)
 - Why it's better than the phone or laptop version: a phone is propped on the bench. You scrub a video with a greasy thumb and turn its camera angle into your own wheel in your head. Here the instruction is on your wheel, from your angle, and the next marker makes you walk to where the work is. A screen on the bench cannot follow you round the stand.
 
 ## Product or overlay
