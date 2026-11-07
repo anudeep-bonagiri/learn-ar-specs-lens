@@ -71,6 +71,7 @@ You stand at the wheel with a tire lever hooked under the bead. The next step is
 - **Real:** the Lens itself. Every step, mistake, hint, spoken line and card in the video is the Lens running in Lens Studio's Interactive Preview, and the tests drive that same Lens.
 - **Simulated:** the wheel and the stand are virtual. The Lens Studio preview cannot see a real wheel, so the Found it pinch places one. The design is for your own wheel: the callouts, the path and the coach would sit on the real one once it is found. The virtual wheel is the stand-in.
 - **Simulated:** the garage in the video is a preview room (`preview-room/`). It is not part of the Lens.
+- **Illustration:** the first nine seconds of the video are an AI-generated clip of the problem (a man in a garage with a flat and a repair video on a propped-up phone). It is labelled on screen and is not the Lens. The Lens is on screen from 0:09.
 - **Offline:** no tokens are in this repo, so Ask gives its built-in answers in the tests and in the video, tagged "Offline answer".
 
 ## How it was built
@@ -138,6 +139,7 @@ Last full run: Nov 6, 2026, Lens Studio 5.24.1. All 22 passed in the Garage prev
 
 - Spectacles Interaction Kit, Spectacles UI Kit, LEAF, Remote Service Gateway, Utilities and SnapDecorators packages by Snap, and the Specs Base Template.
 - Coach voice: generated with [ElevenLabs](https://elevenlabs.io), voice "River".
+- Opening clip of the video: AI-generated (a video model, Nov 7, 2026), with its own generated voice.
 - Sound effects and the finish jingle: made with code during the build (CLAD `build-sfx` and `build-music`).
 - Icons: Google Material Symbols.
 - Garage preview room: sources listed in [preview-room/README.md](preview-room/README.md).
