@@ -2323,3 +2323,90 @@ Then Anudeep asked for a README that beats the winners'. A read of the Build Wit
 
 - Anudeep has not reworded the README or the page in his own voice; he chose to keep the drafts.
 - The three Lens flaws under pass R5, the Lens Studio window still, listening to the cut, the upload, the public repo.
+
+## 2026-11-07: Pass A, the coach adapts
+
+On `main`. The coach keeps a score for each repair step and changes how much it helps on that step next time. In code it is `AdaptiveCoach`; on screen it is "coach memory". Built through the CLAD skills (LEAF in preview) and the Lens Studio MCP. Captures are in `scratchpad/shots/pass-a/`, each 1080 px tall and looked at.
+
+### What was built
+
+- **The rule.** Each repair step 1 to 10 has a score from 0 to 1, starting at 0.5. When a step is completed its score moves 40% of the way toward a target: `s = s + 0.4 * (target - s)`.
+  - Target 1.0: no slip and done within par. Target 0.5: one slip, or slower than par. Target 0.0: two or more slips.
+  - A slip is a lever miss, a coached mistake or an idle hint on that step, read from `RunStats` at entry and at completion.
+  - A completion is a forward step change, n to n+1 (Next counts), or a completed Practise rep (`RepairManager.onRepDone`, new: a rep does not change the step).
+  - Back and Replay change nothing. Watch mode changes nothing (`RunStats.suspended`).
+- **Par** is a `parSec` field on each step in `StepDefinitions.ts`: deflate 8, loosen 12, lever A 15, peel 25, tube out 20, inspect 15, halfway card 10, fit tube 25, seat 20, inflate 12 seconds.
+- **Levels.** Mastered at 0.75 or more, struggling at 0.35 or less, normal between. From 0.5, one clean completion gives 0.70 and a second gives 0.82, so a step is mastered after two clean completions. One step with two slips goes from 0.5 to 0.30, struggling.
+- **What a level changes**, on entering the step, and only these three things:
+  - The idle hint delay: struggling 6 s, normal `idleSec` (12 s), mastered 24 s. It goes back to normal when the step is left. `IdleHint.setEffectiveDelay()` and `effectiveDelay()`, new.
+  - The ghost lever: struggling loops its hooking motion (0.7 s rest in the socket) until the lever is placed (`GhostAnimator.setLoop()`, new). Mastered plays once and is hidden 3 s after the step starts; the socket and the snap still work.
+  - The voice: on a mastered step the idle hint shows but is not spoken (`VoiceCoach.quietIdleHint`, new). Step lines always play. `tools/export-voice-lines.py` writes the same `voice-lines.json`, byte for byte (same SHA-1 before and after).
+- **Memory.** The ten scores and the run count go into the persistent store under `bc.adapt.s1` to `bc.adapt.s10` (float) and `bc.adapt.runs` (int) on every change, and are loaded in `onAwake`. If the store is missing, a static map keeps them for the session and one line says so. The run count goes up once per run, when the Finish card is reached, and not when a drill returns to it. `forget()` sets everything back.
+- **The start card, from run 2.** One line under the floor line, display only: "Run 2. I'll go quiet on the steps you've got and help sooner where you struggled." In body type it needs three lines, so it is one role smaller (secondary) and takes two. The plate keeps its width and grows by the line, about 6% of the frame height at the start eye. It stays clear of Found it and Watch first. With no line the card is exactly as before.
+- **The Finish card, More view only.** The last line reads "Coach memory: " and `summary()`, for example "Coach memory: lever A needs help; deflate and loosen are yours." It uses the Practise names from `StepDefinitions.ts`; with nothing mastered or struggling it reads "Coach memory: nothing stands out yet." The compact card does not change.
+- **Files.** `AdaptiveCoach.ts` (new, 249 lines, on the BenchCoach object with seven references). `StepDefinitions.ts`, `IdleHint.ts`, `GhostAnimator.ts`, `VoiceCoach.ts`, `RepairManager.ts`, `BenchCoachStartCardUI.ts`, `BenchCoachFinishCardUI.ts`. Tests: `AdaptiveCoachScenario.ts` (new), `LeafIndex.ts`, `BenchCoachLeafInteractor.ts`.
+- **Every scenario starts with a blank coach memory.** `getRepairManager()` in the LEAF helpers calls `forget()`. Without it, the steps one scenario completes would change the next scenario's hint delay or ghost.
+
+### Found on the way
+
+- **The run line at the column's centre.** `ui-layout` watches every frame for texts that overlap on a plate. It saw the run line over the subtitle for two frames after a reset. UIKit's FlexItem is not placed by a layout pass until its own start has run, and a holder turned off at Lens start had not started. A first fix (laying the column out in the same frame) was not enough. The line now stays on, out of the layout at zero scale, and is shown right after a layout pass places it. The layout does not scale a Text item, so the first version of that fix never showed the line at all; `adaptive-coach` caught it by checking the line's scale.
+
+### How it was checked
+
+- **`adaptive-coach`** (new, 30 to 32 s):
+  - `forget()` and a reset. Run 1: steps 1 and 2 cleanly with the same taps as `deflate-loosen` (0.5 s and 2.7 s), Back twice, then again (0.70, then 0.82, mastered). Back leaves the score at 0.70.
+  - Step 3: two drops of lever A 10 cm off the ghost, then the snap (12.1 s, two slips, 0.30, struggling). `jumpToStep` to the Finish card: run count 1, and the More view reads "Coach memory: lever A needs help; deflate and loosen are yours."
+  - A reset without `forget()`: the start card's line starts "Run 2." and is shown at full scale. Step 1 waits 24 s and its hint is not spoken. Step 3 waits 6 s, its hint is not muted, and the ghost is still playing 4 s in.
+  - `forget()` and a reset: no run line, and step 1 waits 12 s.
+  - Parameter `stay` (1 to 4) stops on the More view, the run 2 start card, run 2's step 3 once its hint shows, or run 2's step 1 after 15 s quiet, for captures.
+- **The store in the Preview.** The persistent store is there. The scores survive a reset, and they survive a Preview restart: after `stay=1` and a refresh, the load line read "runs 1, scores 0.82 0.82 0.30 0.50 ...", and the start card showed the Run 2 line.
+- **Captures** (Garage room, start eye):
+  - `start-run2.png`: after a Preview restart, the start card with "Floor found" and the two-line Run 2 line above Found it and Watch first.
+  - `step3-struggling-hint.png`: run 2's step 3 at 6.5 s, the hint "Drag a blue lever onto the ghost." on the callout and the ghost lever in its loop at the socket.
+  - `step1-mastered.png`: run 2's step 1 after 15 s, the step line and no hint.
+  - `finish-more-memory.png`: the More view with "Coach memory: lever A needs help; deflate and loosen are yours." as the last line above Less and Start over. The card reads 0:00 and no counts there because the scenario jumps to the Finish card, and a jump resets the run's counts.
+
+### LEAF on the final code
+
+One scenario per call, `__leaf__log_level=ERROR`, the project saved before every run, the Garage room at the start eye. Times are from the plugin's "Running scenario" line to its result line.
+
+| Scenario | Garage room, start eye |
+| --- | --- |
+| `start` | PASSED (9.9 s) |
+| `deflate-loosen` | PASSED (8.4 s) |
+| `lever-snap` | PASSED (15.6 s) |
+| `peel-and-pull` | PASSED (51.0 s) |
+| `inspect-done` | PASSED (43.2 s) |
+| `step-ticks` | PASSED (11.0 s) |
+| `scene-dressing` | PASSED (11.6 s) |
+| `refit-tube` | PASSED (17.4 s) |
+| `seat-inflate` | PASSED (12.9 s) |
+| `whats-this` | PASSED (15.7 s) |
+| `mistakes` | PASSED (34.0 s) |
+| `flat-causes` | PASSED (22.8 s) |
+| `progress-idle` | PASSED (10.2 s) |
+| `watch-mode` | PASSED (56.4 s) |
+| `ask-coach-fallback` | PASSED on its second run (28.1 s); the first hung |
+| `floor-path` | PASSED (18.2 s) |
+| `coach-report` | PASSED (35.2 s) |
+| `control-bar` | PASSED (15.8 s) |
+| `floor-level` | PASSED (11.4 s) |
+| `ui-layout` | PASSED (57.6 s) |
+| `voice-coach` | PASSED (22.1 s) |
+| `practise-step` | PASSED (45.1 s) |
+| `adaptive-coach` | PASSED (32.0 s) |
+| `jump-to-step` | PASSED (6.5 s) |
+
+- 24 scenarios: the 23 from pass S2 and `adaptive-coach`.
+- **`ask-coach-fallback`'s first run hung** on its first tap (Ask, in the dock's More popover). The step 5 hint came at 12 s, so Ask never opened. During it FloorLevel found the floor at -165 cm and rebuilt the stand. A Preview refresh ended it, and the second run passed. The scenario does not touch anything this pass changed.
+- **The Mac.** One earlier sweep stopped when the Mac went into dark wake with the screen locked (`pmset -g systemstate`: CPU Network, no Graphics or Audio): `start` hung until LEAF's 600 s timeout. `caffeinate -u` brought it back to full wake, and `caffeinate -dis` kept it there for the rest of the pass. Load average 5 to 7 throughout.
+
+### Left over
+
+- **`ui-layout` runs 57 to 61 s and `watch-mode` 56 s.** The MCP call gives up at about 58 s: twice in this pass `ui-layout` passed in the Lens (0 overlaps) after the call had already timed out. They ran 53 to 56 s in pass S2.
+- **A mastered step's ghost is hidden after 3 s, so Replay there chimes from the marker** instead of showing the ghost.
+- **The halfway card (step 7) has a score** with a 10 s par, so the store holds ten. It has no hint, no ghost and no Practise name, so its level changes nothing and the summary leaves it out.
+- **Next counts as a completion**, as the rule says: a step skipped with Next quickly and without slips counts as clean.
+- Only lever A's struggling ghost and step 1's mastered hint are run in LEAF. Step 4's ghost (socket B) uses the same path and was not tried.
+- The video is not recorded again in this pass.
+- The commits are on `main` and not pushed.
