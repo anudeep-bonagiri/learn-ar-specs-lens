@@ -62,6 +62,7 @@ You stand at the wheel with a tire lever hooked under the bead. The next step is
 - Watch first: the Lens plays the whole repair by itself.
 - The flat has one of three causes (thorn, glass, pinch), and the Finish card names it.
 - The Finish card shows your time and one tip for next time. More opens the rest: the cause, lever misses, mistakes, hints, slowest steps and one thing to practise.
+- Practise it now: a button on the Finish card names one step, for example "Practise lever A". It is the step where you made the most mistakes, or your slowest step if you made none. Press it and the Lens sets up that step three times in a row. The coach says the step once. Afterwards the Finish card shows your reps, your best time and your mistakes.
 
 **Stand-ins used in preview:** see the next section.
 
@@ -83,7 +84,7 @@ You stand at the wheel with a tire lever hooked under the bead. The next step is
 
 ## Done criteria and test results
 
-Last full run: Nov 6, 2026, Lens Studio 5.24.1. All 21 passed in the Garage preview room and in Sunlit Room.
+Last full run: Nov 6, 2026, Lens Studio 5.24.1. All 22 passed in the Garage preview room and in Sunlit Room.
 
 | # | Done criterion | LEAF test | Status |
 |---|---|---|---|
@@ -108,6 +109,7 @@ Last full run: Nov 6, 2026, Lens Studio 5.24.1. All 21 passed in the Garage prev
 | 19 | The floor is the lowest wide level; a lower level found later moves the stand, mat and path down together | `floor-level` | Passed |
 | 20 | No text crosses its plate, no callout covers the tire or another callout, and text is at least 0.55 degrees tall | `ui-layout` | Passed |
 | 21 | The coach speaks on each step, a mistake cuts in, no line repeats within 6 s, and Voice off is silent | `voice-coach` | Passed |
+| 22 | The Finish card's Practise button drills the step of the most frequent mistake three times and reports the reps and the best time | `practise-step` | Passed |
 
 ## Logic proven vs. feel unproven
 

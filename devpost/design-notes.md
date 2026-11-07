@@ -2116,3 +2116,106 @@ One scenario per call, `__leaf__log_level=ERROR`, the project saved before every
 - The near-side capture is two frames, for the reason above.
 - The video is not recorded again in this pass.
 - The commits are on `main` and not pushed.
+
+## 2026-11-07: Pass S2, Practise it now
+
+On `main`. At the live review on Nov 5 the judges said a coach that "remembers where you got stuck and tells you the better path next time" is what makes it additive. The Finish card already named one thing to practise. This pass makes that a drill. Built through the CLAD skills (LEAF in preview) and the Lens Studio MCP. Captures are in `scratchpad/shots/pass-s2/`, each scaled to 1080 px tall and looked at.
+
+### What was built
+
+- **The button.** The Finish card has a third button, Practise <step> (`BtnFinishPractise`), between More and Start over, for example "Practise lever A". Pressing it drills that one step three times, then the Finish card comes back with the result.
+- **The drill.**
+  - Each rep is `jumpToStep(step)`, the same path the tests use. The run's flat cause is kept.
+  - The step callout's kicker reads "Practise, rep 1 of 3" instead of "Step 3 of 10", over the step's own instruction.
+  - The coach says the step's line on rep 1 only. Reps 2 and 3 and the return to the Finish card set `quietStep`, and `VoiceCoach` says nothing for those step changes. No new spoken lines.
+  - Completing the step does not move on. `goTo` catches the forward completion of the drilled step: the rep's time is kept, the tick plays from the marker, the step's dim tick shows on its part, and the kicker turns green: "Rep 1 of 3 done in 0:04". After `drillHoldSec` (a new `@input` on `RepairManager`, 0.8 s) the next rep starts. On step 6 the find itself ends the rep, without the 2.5 s wait for the halfway card.
+  - Mistakes are coached as on any step and counted toward the drill.
+  - Each rep is timed from its reset to its completion. "Best" is the fastest rep.
+  - After rep 3, `jumpToStep(LAST_STEP)` brings the Finish card back, compact, with one more line under the tip: "Practised lever A: 3 reps, best 0:04, 1 mistake". When the line needs two lines it breaks after the step name. The button then reads "Practise again" and runs the same drill.
+  - Next or Back during a drill ends it and returns to the Finish card with the reps done so far ("Practised lever A: 0 of 3 reps, no mistakes").
+  - The progress rail keeps the step's dot lit, because the step machine stays on the step. The idle hint, What's this? and Ask work as on any step. Watch is only offered on the start card, so it is not offered in a drill.
+- **The run's record.** Each rep resets the step machine, and the reset clears `RunStats`. So the Finish card's values (time, counts, cause, slowest steps, practice line, the step to practise) are now kept in a record in `RepairManager` when the card first opens. A drill and its return use the record. Start over, or any reset from outside the drill, clears it.
+- **The buttons.** The three buttons are placed by hand in one row: each in its own one-item row, so a hidden Practise button leaves no gap. Each is at least `minButtonDeg` tall (4.8 degrees) and at least as wide as it is tall: More is square, Practise is sized for "Practise fit tube", Start over keeps its icon. A run with no button (Watch from the start card) shows More and Start over, centred.
+- **Files.**
+  - `StepDefinitions.ts`: `MISTAKE_STEPS` (each mistake kind to its step), `PRACTISE_NAMES` (short display names: deflate, loosen, lever A, peel, tube out, inspect, fit tube, seat, inflate), `PRACTISE_REPS` (3). Display only, never spoken.
+  - `RunStats.ts`: `practiseStep()`.
+  - `RepairManager.ts`: `practise()`, the drill state, the catch in `goTo`, Next and Back, the Finish record, `practisedLine()`, `quietStep`, `drillHoldSec`.
+  - `BenchCoachFinishCardUI.ts`: the button, the practised line (`FinishPractised`), the hand-placed row, `setPractise()`, `setPractised()`, `onPractise`.
+  - `BenchCoachStepLabelUI.ts`: `setKickerLine()` and `showRepDone()`.
+  - `VoiceCoach.ts`: the `quietStep` check. `UIBindings.ts`: the press.
+  - Tests: `PractiseStepScenario.ts` (new), `LeafIndex.ts`, `UiLayoutScenario.ts`.
+- `tools/export-voice-lines.py` still writes an identical `voice-lines.json` (30 lines). The `[Voice]` and `[Audio]` lines and `jump-to-step`'s parameters are unchanged.
+
+### How the step is chosen
+
+- The step of the run's most frequent mistake (`RunStats.topMistake()`, lever codes included). `MISTAKE_STEPS` maps beadBeforeDeflate to 1, valveAlreadyDeflated to 2, leverBBeforeA and leverTooFar to 3, tubeBeforePeel to 4, tubeFitMiss to 8, inflateBeforeSeat to 9. leverTooFar also happens with lever B on step 4, but it is first and most often lever A.
+- If the run had no mistakes, the slowest timed step from the coach report.
+- If nothing was timed (a Watch run from the start card), no button.
+
+### How it was checked
+
+- **`practise-step`** (criterion 22, new, 42.5 to 42.8 s):
+  - The run is set up as `coach-report` does it: a bead before deflating, then two real lever A drops 10 cm off the ghost, so leverTooFar is the most frequent mistake. Lever A snaps, and Next runs to the Finish card.
+  - The button reads "Practise lever A". A ray press shows rep 1: the kicker "Practise, rep 1 of 3", step 3's instruction, lever A back in the tray and not locked, the Finish card away.
+  - Lever A is snapped with the simulated hand three times, with one drop too far in rep 2. Each rep shows "Rep n of 3 done in 0:0x". Reps 2 and 3 show their kickers with lever A back in the tray, and the coach says no step line on them.
+  - Then the Finish card: compact, the run's own time and lever misses, the line "Practised lever A: 3 reps, best 0:0x, 1 mistake", best under 10 s, the button "Practise again".
+  - A second press starts rep 1 again, and Next ends it with "0 of 3 reps, no mistakes".
+  - Rep times in the sweeps: 4.1 to 4.2, 7.8 (with the drop) and 3.8 s in both rooms. One `step-03` line, on rep 1.
+  - Parameter `stay` (1, 2 or 3) stops on the Finish card before the press, on rep 1, or on the Finish card after the drill, for captures.
+- **`ui-layout`** checks the Finish card's three-button state. A leverTooFar on step 10, then Next, makes the card build a record with a step to practise. It checks the card compact with three buttons, compact with the longest practised line ("Practised fit tube: 2 of 3 reps, best 0:16, 2 mistakes"), and expanded with that line.
+  - Every button is at least as tall and as wide in degrees as a dock button (4.16). Compact: More 4.75 x 4.75, Practise 4.81 x 9.04, Start over 4.76 x 7.63 degrees.
+  - The buttons are clear of each other and of the dock.
+  - FinishPractised reads 0.59 degrees (body minimum 0.55).
+  - At the card pose (Garage) the plate is inside the view in every state: compact with three buttons y 0.100 to 0.505, with the practised line 0.044 to 0.555, expanded with it 0.044 to 0.904.
+- `coach-report`, `seat-inflate` and `flat-causes` pass unchanged.
+- **Captures** (Garage room, card pose unless noted):
+  - `finish-practise-button.png`: after a run with mistakes, compact, More, Practise lever A and Start over in one row.
+  - `drill-rep1.png`: rep 1 at step 3's recording pose (lookAt (4, -8, -90)): "Practise, rep 1 of 3", the instruction, the ghost lever and the ring.
+  - `finish-practised.png`: "Practised lever A:" and "3 reps, best 0:04, 1 mistake" under the tip, and Practise again.
+  - The first version of the practised line wrapped as "...best 0:04, 1" and "mistake". The break after the step name was added for that.
+  - Every word reads, nothing overlaps, and all three are inside the frame.
+  - Made with `panel.tryScreenshot`, not window capture. `setTimeout` does not fire in an editor snippet, so the capture waits with `setInterval` (`scratchpad/rec/s2/still.ts`).
+
+### LEAF on the final code
+
+One scenario per call, `__leaf__log_level=ERROR`, the project saved before every run. Garage room at the start eye looking at the start card (0, -16, -90); Sunlit Room at the default pose. Times are from the plugin's "Running scenario" line to its result line.
+
+| Scenario | Garage room, start eye | Sunlit Room, default pose |
+| --- | --- | --- |
+| `start` | PASSED | PASSED |
+| `deflate-loosen` | PASSED | PASSED |
+| `lever-snap` | PASSED | PASSED |
+| `peel-and-pull` | PASSED | PASSED |
+| `inspect-done` | PASSED | PASSED |
+| `step-ticks` | PASSED | PASSED |
+| `scene-dressing` | PASSED | PASSED |
+| `refit-tube` | PASSED | PASSED |
+| `seat-inflate` | PASSED | PASSED |
+| `whats-this` | PASSED | PASSED |
+| `mistakes` | PASSED | PASSED |
+| `flat-causes` | PASSED | PASSED |
+| `progress-idle` | PASSED | PASSED |
+| `watch-mode` | PASSED (54.6 s) | PASSED (55.0 s) |
+| `ask-coach-fallback` | PASSED | PASSED |
+| `floor-path` | PASSED | PASSED |
+| `coach-report` | PASSED | PASSED |
+| `control-bar` | PASSED | PASSED |
+| `floor-level` | PASSED | PASSED |
+| `ui-layout` | PASSED (55.9 s) | PASSED (53.4 s) |
+| `voice-coach` | PASSED | PASSED |
+| `practise-step` | PASSED (42.8 s) | PASSED (42.5 s) |
+| `jump-to-step` | PASSED | PASSED |
+
+- Every scenario passed on its first run in both rooms.
+- **Sunlit Room's eye.** After the room switch the Preview eye was pitched 12 degrees down. It was set level at the default pose before the sweep, and it was still level after `inspect-done`.
+
+### Left over
+
+- **`ui-layout` runs 53 to 56 s** (51 to 54 s before; the three-button checks add about 2 s). **`watch-mode` runs 54.6 to 55.0 s.** Both are at the 55 s mark.
+- **Only lever A's drill is run in LEAF.** The other steps use the same path (`jumpToStep` and the catch in `goTo`; step 6 its own catch at the find). The step 5 drill means staying on the far side, and the refit steps (8 to 10) replay their entry each rep. None of those were tried in the Preview.
+- **The compact card's top edge moves up** by half the practised line's height when the line appears, because the expanded card stays centred where the card is authored.
+- **The expanded Finish card from a level eye** (Sunlit Room's default pose) still runs off the bottom of the frame (y 1.207 with the practised line). As in pass S1, the frame is checked only while the eye looks at the card.
+- **Back from the Finish card after a drill, then Next,** shows the kept record. The extra time is not added.
+- Hints during a drill are not counted anywhere. Drill mistakes count only on the practised line.
+- The video is not recorded again in this pass.
+- The commits are on `main` and not pushed.
