@@ -1,0 +1,145 @@
+{
+  "asOf": "2026-11-07T20:57:27+00:00",
+  "facts": [
+    {
+      "fact": "commits",
+      "value": "115",
+      "command": "git rev-list --count HEAD"
+    },
+    {
+      "fact": "first commit",
+      "value": "2026-10-16T00:31:31Z",
+      "command": "git log --reverse --format=%cI | head -1"
+    },
+    {
+      "fact": "last commit",
+      "value": "2026-11-07T14:57:06-06:00",
+      "command": "git log -1 --format=%cI"
+    },
+    {
+      "fact": "authors",
+      "value": "4",
+      "command": "git shortlog -sn --no-merges HEAD | wc -l | tr -d ' '"
+    },
+    {
+      "fact": "tracked files",
+      "value": "461",
+      "command": "git ls-files | wc -l | tr -d ' '"
+    },
+    {
+      "fact": "remote",
+      "value": "https://github.com/anudeep-bonagiri/learn-ar-specs-lens.git",
+      "command": "git remote get-url origin"
+    },
+    {
+      "fact": "lines of .glsl",
+      "value": "73551",
+      "command": "git ls-files '*.glsl' | xargs wc -l"
+    },
+    {
+      "fact": "lines of .metal",
+      "value": "54465",
+      "command": "git ls-files '*.metal' | xargs wc -l"
+    },
+    {
+      "fact": "lines of .mesh",
+      "value": "39373",
+      "command": "git ls-files '*.mesh' | xargs wc -l"
+    },
+    {
+      "fact": "lines of .pvr",
+      "value": "37270",
+      "command": "git ls-files '*.pvr' | xargs wc -l"
+    },
+    {
+      "fact": "lines of .ts",
+      "value": "17168",
+      "command": "git ls-files '*.ts' | xargs wc -l"
+    },
+    {
+      "fact": "lines of .lspkg",
+      "value": "13645",
+      "command": "git ls-files '*.lspkg' | xargs wc -l"
+    },
+    {
+      "fact": "LEAF scenarios registered",
+      "value": "23",
+      "command": "grep -c \"typename:\" Assets/BenchCoach/Tests/LeafIndex.ts"
+    },
+    {
+      "fact": "LEAF criterion scenarios (without the jump-to-step helper)",
+      "value": "22",
+      "command": "grep \"id:\" Assets/BenchCoach/Tests/LeafIndex.ts | grep -vc jump-to-step"
+    },
+    {
+      "fact": "Lens script files (own TypeScript)",
+      "value": "49",
+      "command": "ls Assets/BenchCoach/Scripts/*.ts | wc -l | tr -d ' '"
+    },
+    {
+      "fact": "lines of own Lens TypeScript",
+      "value": "13381",
+      "command": "cat Assets/BenchCoach/Scripts/*.ts | wc -l | tr -d ' '"
+    },
+    {
+      "fact": "lines of LEAF test TypeScript",
+      "value": "3729",
+      "command": "cat Assets/BenchCoach/Tests/*.ts | wc -l | tr -d ' '"
+    },
+    {
+      "fact": "repair steps with a spoken line",
+      "value": "10",
+      "command": "grep -c '\"id\": \"step-' Assets/BenchCoach/Voice/voice-lines.json"
+    },
+    {
+      "fact": "mistake kinds with a spoken reason",
+      "value": "7",
+      "command": "grep -c '\"id\": \"mistake-' Assets/BenchCoach/Voice/voice-lines.json"
+    },
+    {
+      "fact": "voice lines",
+      "value": "30",
+      "command": "grep -c '\"id\":' Assets/BenchCoach/Voice/voice-lines.json"
+    },
+    {
+      "fact": "voice clips",
+      "value": "30",
+      "command": "ls Assets/BenchCoach/Voice/*.mp3 | wc -l | tr -d ' '"
+    },
+    {
+      "fact": "sound cue files",
+      "value": "9",
+      "command": "ls Assets/GeneratedSFX/*.wav | wc -l | tr -d ' '"
+    },
+    {
+      "fact": "build passes written up in the design notes",
+      "value": "35",
+      "command": "grep -c \"^## 20\" devpost/design-notes.md"
+    },
+    {
+      "fact": "lines of design notes",
+      "value": "2325",
+      "command": "wc -l < devpost/design-notes.md | tr -d ' '"
+    },
+    {
+      "fact": "garage preview room size in MB",
+      "value": "23",
+      "command": "du -sm preview-room/Garage | cut -f1"
+    },
+    {
+      "fact": "build sessions on this machine (build log)",
+      "value": "21",
+      "command": "grep \"^| build sessions\" devpost/build-log.md | awk -F'|' '{print $3}' | tr -d ' '"
+    },
+    {
+      "fact": "Lens Studio MCP calls in those sessions (build log)",
+      "value": "3189",
+      "command": "grep \"^| Lens Studio MCP calls\" devpost/build-log.md | awk -F'|' '{print $3}' | tr -d ' '"
+    },
+    {
+      "fact": "LEAF scenario runs through the MCP (build log)",
+      "value": "908",
+      "command": "grep \"^| LEAF scenario runs\" devpost/build-log.md | awk -F'|' '{print $3}' | tr -d ' '"
+    }
+  ]
+}

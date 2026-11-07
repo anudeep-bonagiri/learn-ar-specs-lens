@@ -38,3 +38,9 @@ leaf_plugin_settings.json
 
 # Added by CLAD VirtualScene tool (scene snapshot)
 .virtual-scene.json
+
+# Private planning and research notes stay out of the public repo; only the facts file is tracked
+docs/*
+!docs/REPO_FACTS.md
+!docs/REPO_FACTS.json
+AGENT_BRIEF.md
