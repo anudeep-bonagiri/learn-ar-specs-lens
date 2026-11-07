@@ -186,7 +186,7 @@ export class AdaptiveCoach extends BaseScriptComponent {
     if (this.voice) this.voice.quietIdleHint = level === "mastered"
     if (this.ghost) this.ghost.setLoop(level === "struggling" && def.showGhost)
     this.hideGhostAt = level === "mastered" && def.showGhost ? getTime() + MASTERED_GHOST_SEC : 0
-    if (step >= FIRST && step <= LAST) print(`[AdaptiveCoach] step ${step} is ${level} (score ${this.scoreOf(step).toFixed(2)})`)
+    if (level !== "normal") print(`[AdaptiveCoach] step ${step} is ${level} (score ${this.scoreOf(step).toFixed(2)})`)
   }
 
   private pushRunLine(): void {

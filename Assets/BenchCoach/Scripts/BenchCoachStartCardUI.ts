@@ -85,8 +85,11 @@ export class BenchCoachStartCardUI extends BaseScriptComponent {
   private card: Card | null = null
   private col: SceneObject | null = null
   private runText: Text | null = null
-  private runShown = false
-  private awaitingInit = false
+  /** Pass A: the run line is in the layout and visible. */
+  runLineShown: boolean = false
+  /** The plate height for the current run line; the line waits to be shown until the layout can place it. */
+  private targetH = 0
+  private pendingReveal = false
   private innerW = 0
 
   /**
@@ -102,9 +105,10 @@ export class BenchCoachStartCardUI extends BaseScriptComponent {
     const d = this.viewDistanceCm
     let extra = 0
     if (!text) {
-      if (this.runShown) flex.removeItems([item])
-      holder.enabled = false
-      this.runShown = false
+      if (this.runLineShown) flex.removeItems([item])
+      holder.getTransform().setLocalScale(vec3.zero())
+      this.runLineShown = false
+      this.pendingReveal = false
       this.runRole = ""
     } else {
       const role: UIRole = linesFor(text, "body", this.innerW, d) <= 2 ? "body" : "secondary"
@@ -116,29 +120,46 @@ export class BenchCoachStartCardUI extends BaseScriptComponent {
       item.overrideHeight = h
       this.runRole = role
       extra = h + grid(d).gap
-      if (!this.runShown) {
-        holder.enabled = true
+      if (!this.runLineShown) {
+        // Under the floor line, above the buttons (the last item); revealed once placed.
         flex.addItems([item])
-        // Under the floor line, above the buttons (the last item).
         const order = flex.items.filter((it) => it !== item)
         order.splice(order.length - 1, 0, item)
         flex.reorderItems(order)
-        this.runShown = true
+        this.runLineShown = true
+        this.pendingReveal = true
       }
     }
-    const h = this.card.height + extra
-    this.card.plate.setHeight(h)
-    flex.height = h
-    const colItem = this.col.getComponent(FlexItem.getTypeName()) as FlexItem
-    if (colItem) colItem.overrideHeight = h
-    // In this frame, not the next LateUpdate: otherwise the line shows for a frame at the
-    // column's centre, over the subtitle, and the buttons outside the new plate.
+    this.targetH = this.card.height + extra
+    this.card.plate.setHeight(this.targetH)
+    this.applyColumn(flex)
+    this.reveal()
+  }
+
+  /** The column at the plate's height, laid out now when it can be (not in the next LateUpdate). */
+  private applyColumn(flex: FlexLayout): void {
+    flex.height = this.targetH
+    const colItem = (this.col as SceneObject).getComponent(FlexItem.getTypeName()) as FlexItem
+    if (colItem) colItem.overrideHeight = this.targetH
     if (flex["_initialized"]) flex.forceLayout()
-    else if (!this.awaitingInit) {
-      // The flex's own first setup puts its authored height back: apply the line again after it.
-      this.awaitingInit = true
-      flex.onInitialized.add(() => this.setRunLine(this.runLine))
-    }
+  }
+
+  /**
+   * Shows a new run line once the column and the line's own FlexItem are set up, right after
+   * a layout pass placed it (the layout does not scale a Text item, so it stays at zero until
+   * here). Called from setRunLine and every LateUpdate while one waits; never shown at the
+   * column's centre over the subtitle.
+   */
+  private reveal(): void {
+    if (!this.pendingReveal || !this.col || !this.runText) return
+    const flex = this.col.getComponent(FlexLayout.getTypeName()) as FlexLayout
+    const holder = this.runText.getSceneObject()
+    const item = holder.getComponent(FlexItem.getTypeName()) as FlexItem
+    if (!flex["_initialized"] || !item.initialized) return
+    // The flex's own first setup puts its authored height back: apply ours again.
+    this.applyColumn(flex)
+    holder.getTransform().setLocalScale(vec3.one())
+    this.pendingReveal = false
   }
 
   /** The floor line: pending (grey), found (green) or fallback (amber). */
@@ -168,7 +189,10 @@ export class BenchCoachStartCardUI extends BaseScriptComponent {
     })
     this.floorLine = card.texts["FloorStatus"]
     this.setFloorStatus(this.floorStatus)
-    // Pass A: the run line, built hidden (setRunLine shows it).
+    // Pass A: the run line, built hidden (setRunLine shows it). It stays enabled, out of the
+    // layout and at zero scale: a FlexItem that was off at Lens start is not placed by the
+    // layout in the frame it is turned on, so it would show a frame at the column's centre.
+    // The column is set up once (the flex's own first setup), then always laid out at once.
     this.card = card
     this.col = card.plate.content.getChild(0)
     this.innerW = card.width - 2 * grid(d).pad * 1.3
@@ -176,8 +200,9 @@ export class BenchCoachStartCardUI extends BaseScriptComponent {
     this.runText.verticalAlignment = VerticalAlignment.Top
     const flex = this.col.getComponent(FlexLayout.getTypeName()) as FlexLayout
     flex.removeItems([this.runText.getSceneObject().getComponent(FlexItem.getTypeName()) as FlexItem])
-    this.runText.getSceneObject().enabled = false
+    this.runText.getSceneObject().getTransform().setLocalScale(vec3.zero())
     if (this.runLine) this.setRunLine(this.runLine)
+    this.createEvent("LateUpdateEvent").bind(() => this.reveal())
     print("[StartCard] preview stand-in: Found it places the wheel (on Specs this is where the real wheel is recognised)")
   }
 }
