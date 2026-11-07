@@ -2309,6 +2309,8 @@ The sixth cut (`cut/make_edl.py`; the fifth is kept as `make_edl.nov7-fifth.py` 
 
 Checked: narration laid out with no overlaps (the inspect and Ask lines meet at 0.0 s), -15.1 LUFS, no silence over 2.5 s except two spans under 5 s with Lens audio under them; captions verified by frame in every layout after the colour fix. Two lines generated from one-line files (n07d, n17b; n17 wasted): about 1,665 characters left.
 
+Then Anudeep asked whether there was a better way to show it than "one side that and the other with AI looking stuff": the title column read as a slide deck. The composer gained a `cinema` layout and it is now the default: the preview render at full height in the centre on a blurred, darkened copy of its own frame, a small title (46 px at most) and a one-line honesty label in the left margin ("2.6x speed.", "The built-in offline answer. Live answers need internet.", "From a test run with mistakes.", "Our Finish card, recorded Nov 5."), captions under them, no header, no chapter rail, no notes. The render is the same size as before (869 by 1080 against 844 by 1050); what changed is that nothing competes with it. The same edit renders in either layout (`CINEMA=0` for the split one); the sixth cut in the split layout is kept as `bench-coach-demo.split.mp4`.
+
 Rubric after this cut: T1 3 (the brief on screen), P4 2 (a human story, but AI-generated and labelled), P1 still 2 (46 s, the judge said a minute; the coach heard now), 238 of 282. Not changed by a video: W2 (the README and the page are still the agent's drafts; the format is learner-led), I5 (the camera), T5 (a live Ask answer needs a token), and the gate items that are a person's: YouTube, the public repo after the history filter, the form.
 
 ### Left over
