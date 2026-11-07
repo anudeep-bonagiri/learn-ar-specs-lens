@@ -2292,11 +2292,11 @@ Done. The clip is `takes/t00-intro.mp4`, shown full frame by a new `full` layout
 
 Found. The first render had no captions after the clip. ffmpeg reinitialises its filter graph when a segment's pixel format or colour tags change at a join (the clip is tv-range bt709, the Lens takes are full-range yuvj420p), and the caption images are single-frame inputs that have been consumed by then, so nothing is drawn from the join on. The composer now converts every segment to one format and one set of tags (`NORM` and `setparams`) and tags the final pass the same; a Lens frame before and after has the same mean brightness (29.9 against 28.6). It also measures each built segment, because the 24 fps clip comes out two frames short of the planned length, and lays the timeline on the built lengths.
 
-Where it is said: the clip is labelled on screen, in the README (What is real and what is simulated; Credits) and on the page (What we got wrong; AI tools used; Video). The rubric's G3, G9 and P3 rows now say the Lens is on screen from 0:09.
+Where it is said: the clip is labelled on screen, in the README (What is real and what is simulated; Credits) and on the page (What we got wrong; AI tools used; Video). The submission checklist now says the Lens is on screen from 0:09.
 
-### Nov 7, evening: the sixth cut, rebuilt against the rubric
+### Nov 7, evening: the sixth cut, rebuilt against the judges' guidance
 
-Anudeep asked whether this wins first place and said to check the rubric and what the judges want and redo the demo from the beginning. Read again: the judges' public guidance and the team's notes on it. The judges' own words that the fifth cut did not yet honour: "what it feels like" (the coach was ducked under narration for most of the one take), "a real moment from your build tied to a reusable practice" (no such moment in the video), and the brief itself (named, never shown). And the rubric's own order: the person, the app in 10 s, unbroken, the method, the honesty labels.
+Anudeep asked whether the video was as strong as it could be and said to redo it from the beginning against what the judges have said in public. Read again: the notes from the Oct 29 info session and the Nov 5 live review. The judges' own words that the fifth cut did not yet honour: "what it feels like" (the coach was ducked under narration for most of the one take), "a real moment from your build tied to a reusable practice" (no such moment in the video), and the brief itself (named, never shown). And the order the judges' guidance implies: the person, the app in 10 s, unbroken, the method, the honesty labels.
 
 The sixth cut (`cut/make_edl.py`; the fifth is kept as `make_edl.nov7-fifth.py` and `bench-coach-demo.fifth.mp4`), 2:43:
 1. The problem clip, 0:00 to 0:09 (unchanged).
@@ -2311,7 +2311,7 @@ Checked: narration laid out with no overlaps (the inspect and Ask lines meet at 
 
 Then Anudeep asked whether there was a better way to show it than "one side that and the other with AI looking stuff": the title column read as a slide deck. The composer gained a `cinema` layout and it is now the default: the preview render at full height in the centre on a blurred, darkened copy of its own frame, a small title (46 px at most) and a one-line honesty label in the left margin ("2.6x speed.", "The built-in offline answer. Live answers need internet.", "From a test run with mistakes.", "Our Finish card, recorded Nov 5."), captions under them, no header, no chapter rail, no notes. The render is the same size as before (869 by 1080 against 844 by 1050); what changed is that nothing competes with it. The same edit renders in either layout (`CINEMA=0` for the split one); the sixth cut in the split layout is kept as `bench-coach-demo.split.mp4`.
 
-Rubric after this cut: T1 3 (the brief on screen), P4 2 (a human story, but AI-generated and labelled), P1 still 2 (46 s, the judge said a minute; the coach heard now), 238 of 282. Not changed by a video: W2 (the README and the page are still the agent's drafts; the format is learner-led), I5 (the camera), T5 (a live Ask answer needs a token), and the gate items that are a person's: YouTube, the public repo after the history filter, the form.
+Still open after this cut and not changed by a video: the README and the page are the agent's drafts and the format is learner-led; the camera is not used; a live Ask answer needs a token; and the steps that are a person's: YouTube, the public repo, the form.
 
 ### Nov 7, evening: the upload, and the README and page rebuilt on the winners' pattern
 
