@@ -15,6 +15,9 @@
  * line under the tip (FinishPractised: "Practised lever A: 3 reps, best 0:06, 1 mistake")
  * and the button reads "Practise again". The buttons are placed by hand in one row, each
  * at least minButtonDeg tall and as wide as it is tall.
+ * Pass A: the More view ends with one line from AdaptiveCoach, "Coach memory: lever A needs
+ * help; deflate and loosen are yours." (FinishMemory, setMemory()). The compact card
+ * does not change.
  * Owns: only its view and its compact / expanded state. setResult() pushes time, stats,
  * cause and tip in; setReport() the slowest steps and the practice line; setPractise() and
  * setPractised() the drill's button and line. Emits onRestart and onPractise.
@@ -113,6 +116,9 @@ export class BenchCoachFinishCardUI extends BaseScriptComponent {
   private practised: SceneObject | null = null
   private practisedText: Text | null = null
   private practisedH = 0
+  private memory: SceneObject | null = null
+  private memoryText: Text | null = null
+  private memoryH = 0
   private lineH = 0
   private innerW = 0
   /** Pass S2: the Practise button shows (setPractise got a label). */
@@ -151,6 +157,21 @@ export class BenchCoachFinishCardUI extends BaseScriptComponent {
     this.practisedText.text = lines > 1 && colon > 0 ? `${line.substring(0, colon + 1)}\n${line.substring(colon + 2)}` : line
     this.practisedH = lines * this.lineH
     this.practisedText.layoutRect = Rect.create(-this.innerW / 2, this.innerW / 2, -this.practisedH / 2, this.practisedH / 2)
+    this.layout()
+  }
+
+  /** Pass A: the coach memory line under the More view's list, as given ("" for none); tests read it. */
+  memoryLine: string = ""
+
+  /** Pass A: the More view's last line ("Coach memory: ..."); "" for none. Up to two lines. */
+  setMemory(line: string): void {
+    this.memoryLine = line
+    if (!this.memoryText) return
+    const d = this.viewDistanceCm
+    const lines = line ? Math.min(2, linesFor(line, "secondary", this.innerW, d)) : 0
+    this.memoryText.text = line
+    this.memoryH = lines * lineCm("secondary", d)
+    this.memoryText.layoutRect = Rect.create(-this.innerW / 2, this.innerW / 2, -this.memoryH / 2, this.memoryH / 2)
     this.layout()
   }
 
@@ -275,6 +296,14 @@ export class BenchCoachFinishCardUI extends BaseScriptComponent {
     this.texts["FinishPractised"] = this.practisedText
     this.practised.enabled = false
 
+    // ── Pass A: the coach memory line, last in the More view ──
+    this.memory = obj(this.plate.content, "Memory")
+    liftInZ(this.memory, 2 * LAYOUT_Z_LIFT)
+    this.memoryText = uiTextOn(obj(this.memory, "FinishMemory"), "", "secondary", innerW, lineCm("secondary", d), d, {wrap: true})
+    this.memoryText.verticalAlignment = VerticalAlignment.Top
+    this.texts["FinishMemory"] = this.memoryText
+    this.memory.enabled = false
+
     // ── Buttons: More / Less, Practise <step> and Start over, in one row ──
     // Each holder is its own one-item row, so a hidden Practise button leaves no gap.
     this.buttons = obj(this.plate.content, "Buttons")
@@ -301,11 +330,12 @@ export class BenchCoachFinishCardUI extends BaseScriptComponent {
    * head, the practised line (after a drill), the details (expanded), the buttons.
    */
   private layout(): void {
-    if (!this.plate || !this.head || !this.details || !this.buttons || !this.practised) return
+    if (!this.plate || !this.head || !this.details || !this.buttons || !this.practised || !this.memory) return
     const g = this.gap
     const extra = this.practisedH > 0 ? this.practisedH + g : 0
+    const memExtra = this.memoryH > 0 ? this.memoryH + g : 0
     this.compactHeight = 2 * this.pad + this.headH + extra + 2 * g + this.buttonHeight
-    this.expandedHeight = this.compactHeight + this.detailsH + 2 * g
+    this.expandedHeight = this.compactHeight + this.detailsH + 2 * g + memExtra
     const h = this.expanded ? this.expandedHeight : this.compactHeight
     this.plate.setHeight(h)
     const top = h / 2 - this.pad
@@ -314,6 +344,9 @@ export class BenchCoachFinishCardUI extends BaseScriptComponent {
     this.practised.getTransform().setLocalPosition(new vec3(0, top - this.headH - g - this.practisedH / 2, 2 * LAYOUT_Z_LIFT))
     this.details.getTransform().setLocalPosition(new vec3(0, top - this.headH - extra - 2 * g - this.detailsH / 2, 0))
     if (this.details.enabled !== this.expanded) this.details.enabled = this.expanded
+    const memOn = this.expanded && this.memoryH > 0
+    this.memory.getTransform().setLocalPosition(new vec3(0, top - this.headH - extra - 2 * g - this.detailsH - g - this.memoryH / 2, 2 * LAYOUT_Z_LIFT))
+    if (this.memory.enabled !== memOn) this.memory.enabled = memOn
     this.buttons.getTransform().setLocalPosition(new vec3(0, -h / 2 + this.pad + this.buttonHeight / 2, 0))
     // The row: More, Practise (when shown), Start over, centred.
     const shown = [0, 1, 2].filter((i) => i !== 1 || this.practiseShown)
