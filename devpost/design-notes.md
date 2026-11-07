@@ -2219,3 +2219,44 @@ One scenario per call, `__leaf__log_level=ERROR`, the project saved before every
 - Hints during a drill are not counted anywhere. Drill mistakes count only on the practised line.
 - The video is not recorded again in this pass.
 - The commits are on `main` and not pushed.
+
+## 2026-11-07: Pass R5, the unbroken take and the third cut
+
+No change to the Lens. Three recording sessions through the Lens Studio MCP after passes S1 and S2, then the cut was rebuilt around one take.
+
+### Why
+
+At the Nov 5 live review the judges said the demo videos were "clips edited and stitched together" and asked for "literally no cuts, unbroken, what the experience feels like, for like a minute straight". They also called a dense end screen "a website on your face". Pass S1 made Watch mode walk at step 5 and the Finish card compact, pass S2 added the drill, and this pass recorded them.
+
+### The takes
+
+Same recorder as pass R, App Nap off as in pass R4, the Garage room from the start eye.
+
+| Take | What it is | Driven by | Used span |
+| --- | --- | --- | --- |
+| `t13-unbroken-c` | The minute with no cuts: floor found, the start card, Watch first, steps 1 to 4, step 5's note and arrow and path, the walk, the pull on the far side | One real tap on Watch first; three camera players armed before the reset (the card tilt, the ease to the wheel pose, the walk track) | 32.6 to 78.6 s |
+| `t14-finish` | The compact Finish card, More pressed, the expanded card | `practise-step` with `stay=1`, then real taps | 23.8 to 31.8 s |
+| `t15-practise-b` | The drill: Practise lever A pressed, rep 1 snaps, rep 3 snaps, the practised line on the card | The `practise-step` scenario with its simulated hand | 26.4 to 45.45 s in three pieces |
+
+- **Timing the walk.** Watch reaches step 5 a fixed 22.83 s after the tap. A log watcher wrote the real tap's time to a file; the walk player read it and started the walk track at tap plus 22.83 s plus a chosen lead. Step 5 came within 0.1 s of the prediction in every attempt.
+- **The recorder's gaps.** The recorder misses about 0.25 s every 3.004 s, locked to the Lens reset. A gap inside a camera move shows as a jump. The first attempt (`t13-unbroken`) had gaps inside the card tilt, the walk's tilt and the look-up, and the Preview's cursor sat on the step 3 text. The second parked the cursor but put a 0.37 s gap in the look-up: a card hold of exactly 11 s always lands a move on a gap. The third and fourth planned the tap from the measured tap latency (1.78 to 1.89 s) and let the walk player choose its tilt anywhere from 0.8 to 2.8 s into step 5 so that both the tilt and the look-up clear a gap by at least 0.15 s. The third attempt is the one used: no gap inside any move, the cursor parked at the frame's edge, the card held 11.3 s, every voice line within 0.5 s of its step.
+- **The drill.** A first drill take used real press-and-hold input; tool latency made the reps slow (best 0:25) and a stray grab cost a mistake. The take in the cut is the scenario-driven run: reps of 0:04, 0:08 and 0:04, "Practised lever A: 3 reps, best 0:04, 1 mistake".
+
+### The cut
+
+- 2:37 long (157.1 s), 1920 x 1080, -16.0 LUFS. The Nov 5 and Nov 6 cuts are kept beside it with their edit lists.
+- The middle act, from the start card to the tube coming out, is one take: 42 s of footage with no edit, run under six titles (the start card, step 1, step 2, step 3, step 4, step 5). The start card hold plays at 0.8 speed so the honest note fits over it.
+- New narration lines: "one take, no cuts" at the start card; the honest note now says the design is for your own wheel and the virtual one is the stand-in; the far-side line is re-timed to the walk; a line for the drill; the build line says twenty-two scenarios.
+- After the one-take act: the mistake, inspect, What's this?, Ask, the refit, the compact Finish card with More, the drill, the Lens Studio window, the 22 scenarios, proven and unproven, the title card.
+- Checked on frames from the rendered file at every change of shot and across the one-take act; the level scanned second by second (no stretch of silence over 2 s). Nobody has listened to it yet.
+
+### What the takes showed about the Lens
+
+- From the far side, the step 6 callout and the found card sit partly behind the stand's clamp. The cut ends the one-take act 0.2 s after step 6 starts.
+- In the drill, at a leaning camera pose, "Rep n of 3 done" can sit at the bottom edge of the frame.
+- A lever being dragged when a rep resets is grabbed again by the new rep.
+
+### Left over
+
+- The three items above.
+- Listening to the cut, the upload, the design brief line in the narration (clip n12c is used once `devpost/design-brief.md` exists), and the Lens Studio window still, which shows the Finish card as it was before pass S1.

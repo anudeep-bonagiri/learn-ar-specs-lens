@@ -1,37 +1,37 @@
 # Build log
 
-Written by `tools/build-log.py` at 2026-11-07T01:15:15+00:00 from the Claude Code session transcripts on one machine. Nothing in it is typed by hand. Sessions run on teammates' machines are not in it.
+Written by `tools/build-log.py` at 2026-11-07T03:36:02+00:00 from the Claude Code session transcripts on one machine. Nothing in it is typed by hand. Sessions run on teammates' machines are not in it.
 
 | Fact | Value |
 | --- | --- |
-| build sessions | 18 |
+| build sessions | 21 |
 | first session | 2026-10-18 |
 | last session | 2026-11-07 |
-| assistant turns | 9397 |
-| tool calls, all tools | 5335 |
-| Lens Studio MCP calls | 2750 |
-| LEAF scenario runs through the MCP | 792 |
-| TypeScript recompiles through the MCP | 118 |
-| preview captures through the MCP | 356 |
+| assistant turns | 10905 |
+| tool calls, all tools | 6189 |
+| Lens Studio MCP calls | 3189 |
+| LEAF scenario runs through the MCP | 908 |
+| TypeScript recompiles through the MCP | 130 |
+| preview captures through the MCP | 363 |
 
 ## Lens Studio MCP calls by tool
 
 | Tool | Calls |
 | --- | --- |
-| `run_leaf_scenario` | 792 |
-| `MovePreviewCamera` | 476 |
-| `ExecuteEditorCode` | 398 |
-| `CapturePanelScreenshotTool` | 356 |
-| `PreviewPanelTool` | 142 |
-| `RecompileTypeScriptTool` | 118 |
-| `QueryRuntimeSceneTool` | 113 |
-| `InjectPreviewGesture` | 98 |
+| `run_leaf_scenario` | 908 |
+| `ExecuteEditorCode` | 599 |
+| `MovePreviewCamera` | 500 |
+| `CapturePanelScreenshotTool` | 363 |
+| `PreviewPanelTool` | 163 |
+| `InjectPreviewGesture` | 134 |
+| `RecompileTypeScriptTool` | 130 |
+| `QueryRuntimeSceneTool` | 129 |
 | `PreviewInteractTool` | 88 |
-| `RunAndCollectLogsTool` | 55 |
+| `RunAndCollectLogsTool` | 58 |
 | `asset-graphql` | 31 |
 | `scene-graphql` | 20 |
-| `open_leaf_panel` | 14 |
-| `list_leaf_scenarios` | 12 |
+| `open_leaf_panel` | 16 |
+| `list_leaf_scenarios` | 13 |
 | `ListAllPanels` | 8 |
 | `GetBoundingBox` | 6 |
 | `GenerateTexture` | 6 |
@@ -64,6 +64,9 @@ Written by `tools/build-log.py` at 2026-11-07T01:15:15+00:00 from the Claude Cod
 | 2026-11-06 | Pass P, last part | 40 | 6 |
 | 2026-11-06 | Pass P, last part | 425 | 172 |
 | 2026-11-06 | Pickup takes after pass P. You are the recording | 306 | 54 |
-| 2026-11-07 | Pass S1 | 47 | 2 |
+| 2026-11-07 | Pass S1 | 469 | 161 |
+| 2026-11-07 | Pass S2 | 345 | 125 |
+| 2026-11-07 | Pass R5 | 598 | 130 |
+| 2026-11-07 | Pass R5c | 143 | 25 |
 
 Regenerate: `tools/build-log.py ~/.claude/projects/<project transcript folders>`.
