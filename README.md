@@ -1,33 +1,42 @@
 # Bench Coach
 
-A hands-free coach for fixing a bike flat, for Snap SPECS. Every instruction sits on the part it is about, and the coach says each step out loud.
+**A hands-free coach for fixing a bike flat, on Snap Specs. Every step sits on the part it is about, the coach says it out loud, and when the next step is behind the wheel, it makes you walk there.**
 
-Built for [Learn AR with SPECS](https://learn-specs.devpost.com/) on Devpost Learn. Planned in a design brief ([devpost/design-brief.md](devpost/design-brief.md)) and built by an AI coding agent using CLAD and the Lens Studio MCP.
+[![Demo video, 2:43](https://img.shields.io/badge/demo%20video-2%3A43-red)](https://youtu.be/TJmcKnGiFw4)
+[![LEAF 22 of 22 passing](https://img.shields.io/badge/LEAF%20scenarios-22%20of%2022%20passing-2dd4e0)](#tests-and-evidence)
+[![Lens Studio 5.24.1](https://img.shields.io/badge/Lens%20Studio-5.24.1-lightgrey)](#run-it)
+[![Status: preview prototype](https://img.shields.io/badge/status-preview%20prototype%2C%20never%20run%20on%20Specs-orange)](#what-is-real-and-what-is-simulated)
 
-## Demo
+![Step 5: the next step is behind the wheel. A chime, an arrow at the edge of view and a path on the floor take you round the stand.](devpost/gallery/far-side.gif)
 
-- Video (YouTube, under 3 minutes): _link_
-- Devpost project page: _link_
+*Step 5 in Lens Studio's Interactive Preview. The next step is on the far side of the wheel: a chime from there, an arrow at the edge of your view, a path on the floor. The wheel is virtual; see [What is real and what is simulated](#what-is-real-and-what-is-simulated).*
 
-## The spatial moment
+Built for [Learn AR with SPECS](https://learn-specs.devpost.com/) on Devpost Learn, Oct 16 to Nov 9, 2026. Planned in a design brief ([devpost/design-brief.md](devpost/design-brief.md)), built by Claude Code through CLAD and the Lens Studio MCP, tested with LEAF.
 
-You stand at the wheel with a tire lever hooked under the bead. The next step is on the far side. A chime sounds from there, an arrow points off the edge of your view, and a path on the floor leads you round the stand to where the tube comes out.
+## See it in 30 seconds
 
-## Problem and audience
+- **Video:** [youtu.be/TJmcKnGiFw4](https://youtu.be/TJmcKnGiFw4). The Lens is on screen from 0:09. 0:29 to 1:15 is one unbroken take at real speed: Found it, Watch first, the far side, the tube out. Captions are on.
+- **In Lens Studio:** open the project, pick the Specs device and Interactive Preview, look down until the start card says "Floor found", click **Watch first**. The Lens plays steps 1 to 4 itself. At step 5 it shows the path and waits for you to walk round the stand (W, A, S, D) before it pulls the tube.
+- **The moment to judge:** step 5. A screen on the bench cannot follow you round the stand.
 
-- **Problem:** fixing a flat is easy once someone has shown you. Learning it from a paused video, with greasy hands, is not. In Cycling UK's figures 47% of adults can't fix a flat ([Cycling Plus, 2022](https://www.pressreader.com/australia/cycling-plus/20221028/281724093468028)); a shop charges £15 to £30 or more for the ten minutes ([r/BikeMechanics](https://www.reddit.com/r/BikeMechanics/comments/1glx027/how_much_are_yall_charging_for_punctures/)); and U.S. PIRG puts what American households could keep by repairing electronics instead of replacing them at about $49.6 billion a year ([Repair Saves Families Big II, 2023](https://pirg.org/edfund/media-center/report-fixing-instead-of-replacing-devices-could-save-americans-nearly-50-billion-a-year/)). That last number is about electronics, not bikes; the habit is the same.
-- **Who it's for:** anyone with something broken and no one to ask. They put the glasses on, do the repair once with the coach, and get on with their day. The first repair is a bike flat, start to finish.
-- **Why glasses:** both hands stay on the wheel and the levers. Each instruction is on the part, seen from your own angle. The next marker makes you walk to where the work is. A phone propped on the bench cannot follow you round the stand.
+## Who it's for
+
+Anyone with something broken and no one to ask. They put the glasses on, do the repair once with the coach, and get on with their day. The first repair is a bike flat, start to finish.
+
+The gap is real. In Cycling UK's figures 47% of adults can't fix a flat ([Cycling Plus, 2022](https://www.pressreader.com/australia/cycling-plus/20221028/281724093468028)). A shop charges £15 to £30 or more for the ten minutes ([r/BikeMechanics](https://www.reddit.com/r/BikeMechanics/comments/1glx027/how_much_are_yall_charging_for_punctures/)). U.S. PIRG puts what households could keep by repairing electronics instead of replacing them at about $49.6 billion a year ([Repair Saves Families Big II, 2023](https://pirg.org/edfund/media-center/report-fixing-instead-of-replacing-devices-could-save-americans-nearly-50-billion-a-year/)); that number is about electronics, not bikes, and the habit is the same. The usual fix is a video on a phone propped against a box: someone else's wheel, someone else's angle, a greasy thumb on the scrub bar.
+
+**Why glasses:** both hands stay on the wheel and the levers. Each instruction is on the part, from your own angle. The next marker makes you walk to where the work is.
 
 ## How it works
 
+**The Lens decides every step. The AI only answers questions, next to the part, and cannot move the repair.** The step order, what counts as done, every mistake and every spoken line are plain TypeScript in `Assets/BenchCoach/Scripts/`. Gemini is asked one question at a time, through Snap's Remote Service Gateway, and its answer is text beside the part. Offline, or without a token, a built-in answer is shown and tagged "Offline answer".
+
 **Where things live**
 
-- A repair stand with a 70 cm wheel stands on the floor in front of you. The Lens finds the floor first (World Query), then places the stand on it.
+- A repair stand with a 70 cm wheel on the floor in front of you. The Lens finds the floor first (World Query), then places the stand on it.
 - The current step has one ring on its part and one callout next to it, joined by a line. Finished steps leave a small tick.
-- A tool tray sits low on the right when a lever or the new tube is needed.
-- A dock sits low in front: Back, Replay, Next, More. More holds What's this?, Ask and Voice.
-- Cards (start, halfway, finish) appear in front of the wheel.
+- A tool tray sits low on the right only when a lever or the new tube is needed.
+- A dock sits low in front: Back, Replay, Next, More. More holds What's this?, Ask and Voice. Buttons answer a ray pinch only, so a hand passing through cannot press them.
 - On step 5 an arrow at the edge of the view and a path of arrows on the floor lead to a stand-here marker behind the wheel.
 
 **The ten steps**
@@ -43,49 +52,26 @@ You stand at the wheel with a tire lever hooked under the bead. The next step is
 9. Push the bead back over the rim with your thumbs.
 10. Pinch and hold the valve to pump the tire up.
 
-**Interactions**
+**Interactions:** pinch (the valve, the beads, the glint, any part in What's this?); grab and drop (a lever from the tray onto its ghost: on the ghost it snaps in, too far away it goes back to the tray); drag (the second lever round the rim, the old tube end out, the new tube end to the valve hole); pinch and hold (the valve, to pump); walk (round the stand on step 5).
 
-- Pinch: the valve, the beads, the glint, any part in What's this?.
-- Grab and drop: a lever from the tray onto its ghost. On the ghost it snaps in. Too far away it goes back to the tray.
-- Drag: the second lever round the rim, the old tube end out of the tire, the new tube end to the valve hole.
-- Pinch and hold: the valve, to pump.
-- Walk: round the stand on step 5.
-- Buttons answer a ray pinch only, so a hand passing through cannot press them.
+**What the coach does:** speaks every step, every mistake and every hint (30 recorded lines; Voice can be turned off). Explains seven kinds of mistake on the callout and aloud, for example the second lever before the first. Gives a hint when a step sits idle. Names any part you pinch (What's this?). Answers three questions per step next to the part (Ask). Plays the whole repair by itself (Watch first), and at step 5 waits for you to walk round. Names the cause of the flat (thorn, glass or pinch) on the Finish card with your time and one tip for next time; More opens the rest, and one button drills the step you got wrong three times.
 
-**What the coach does**
+| What | Where it is decided |
+| --- | --- |
+| The step order and what counts as done | `Assets/BenchCoach/Scripts/RepairManager.ts`, `Assets/BenchCoach/Scripts/StepDefinitions.ts` |
+| The wheel, tire, beads and tube, built in code so they lift, peel and deflate | `Assets/BenchCoach/Scripts/WheelParts.ts`, `Assets/BenchCoach/Scripts/MeshKit.ts` |
+| Lever snap, the rim drag, the tube pull | `Assets/BenchCoach/Scripts/LeverPlacement.ts`, `Assets/BenchCoach/Scripts/RimDrag.ts`, `Assets/BenchCoach/Scripts/TubePull.ts` |
+| The far-side cue: edge arrow, floor path, stand-here marker | `Assets/BenchCoach/Scripts/EdgeHint.ts`, `Assets/BenchCoach/Scripts/FloorPath.ts` |
+| The floor, found with World Query and settled | `Assets/BenchCoach/Scripts/FloorLevel.ts` |
+| Mistakes and their reasons | `Assets/BenchCoach/Scripts/CoachFeedback.ts` |
+| The coach's voice (30 clips, one per line) | `Assets/BenchCoach/Scripts/VoiceCoach.ts`, `Assets/BenchCoach/Voice/` |
+| Ask: Gemini through Remote Service Gateway, 6 s timeout, offline fallback | `Assets/BenchCoach/Scripts/AskCoach.ts` |
+| Watch first | `Assets/BenchCoach/Scripts/RepairDirector.ts`, `Assets/BenchCoach/Scripts/WatchPlan.ts` |
+| The Finish card's counts, slowest steps and tip | `Assets/BenchCoach/Scripts/RunStats.ts`, `Assets/BenchCoach/Scripts/BenchCoachFinishCardUI.ts` |
 
-- Speaks every step, every mistake and every hint (30 recorded lines). Voice can be turned off.
-- Explains seven kinds of mistake on the callout and aloud, for example the second lever before the first.
-- Gives a hint when a step sits idle.
-- What's this?: pinch a part to get its name and one fact.
-- Ask: three questions per step, answered next to the part. Live answers come from Gemini through Snap's Remote Service Gateway and need internet. Offline, or without tokens, built-in answers are used and tagged "Offline answer".
-- Watch first: the Lens plays the whole repair by itself. At step 5 it shows the floor path and waits for you to walk round before it pulls the tube.
-- The flat has one of three causes (thorn, glass, pinch), and the Finish card names it.
-- The Finish card shows your time and one tip for next time. More opens the rest: the cause, lever misses, mistakes, hints, slowest steps and one thing to practise.
-- Practise it now, if you want it: a button on the Finish card names one step, for example "Practise lever A". It is the step where you made the most mistakes, or your slowest step if you made none. Press it and the Lens sets up that step three times in a row. The coach says the step once. Afterwards the Finish card shows your reps, your best time and your mistakes. Most people will read the Next time tip and leave; the drill is there for the ones who want the step in their hands before the next flat.
+## Tests and evidence
 
-**Stand-ins used in preview:** see the next section.
-
-## What is real and what is simulated
-
-- **Real:** the Lens itself. Every step, mistake, hint, spoken line and card in the video is the Lens running in Lens Studio's Interactive Preview, and the tests drive that same Lens.
-- **Simulated:** the wheel and the stand are virtual. The Lens Studio preview cannot see a real wheel, so the Found it pinch places one. The design is for your own wheel: the callouts, the path and the coach would sit on the real one once it is found. The virtual wheel is the stand-in.
-- **Simulated:** the garage in the video is a preview room (`preview-room/`). It is not part of the Lens.
-- **Illustration:** the first nine seconds of the video are an AI-generated clip of the problem (a man in a garage with a flat and a repair video on a propped-up phone). It is labelled on screen and is not the Lens. The Lens is on screen from 0:09.
-- **Offline:** no tokens are in this repo, so Ask gives its built-in answers in the tests and in the video, tagged "Offline answer".
-
-## How it was built
-
-- Lens Studio 5.24.1, starting from the Specs Base Template.
-- Built by Claude Code working in Lens Studio through the Lens Studio MCP, with the CLAD plugin's skills. The work went in passes. Each pass is written up in [devpost/design-notes.md](devpost/design-notes.md): what changed, what was checked, what was left over.
-- Spectacles Interaction Kit for hands, grabbing and ray pinch. Spectacles UI Kit for buttons and cards.
-- The wheel, tire, beads and tube are meshes built in code, so they can lift, peel and deflate.
-- Tested with LEAF: one scenario per done criterion, plus a `jump-to-step` helper that puts the Lens on any step for screenshots and video takes.
-- Planned with the hackathon's skill pack. The `plan-lens` questions were answered in writing on Oct 22, before the first build, and the answers are the design brief: [devpost/design-brief.md](devpost/design-brief.md), the one moment, where things live, hands, when things show, five done criteria, and a last section on what the build changed. The brief's preview limits are why the wheel is a stand-in and why every interaction is a pinch, grab, drop or drag. Its done criteria became the first five LEAF tests.
-
-## Done criteria and test results
-
-Last full run: Nov 6, 2026, Lens Studio 5.24.1. All 22 passed in the Garage preview room and in Sunlit Room.
+22 LEAF scenarios drive the Lens in the preview, one per done criterion, plus a `jump-to-step` helper that puts the Lens on any step for screenshots and video takes. Last full run: Nov 6, 2026, Lens Studio 5.24.1. All 22 passed in the Garage preview room and in Sunlit Room. Every number in this README comes from a command in [docs/REPO_FACTS.md](docs/REPO_FACTS.md) or from the source linked beside it.
 
 | # | Done criterion | LEAF test | Status |
 |---|---|---|---|
@@ -112,18 +98,46 @@ Last full run: Nov 6, 2026, Lens Studio 5.24.1. All 22 passed in the Garage prev
 | 21 | The coach speaks on each step, a mistake cuts in, no line repeats within 6 s, and Voice off is silent | `voice-coach` | Passed |
 | 22 | The Finish card's Practise button drills the step of the most frequent mistake three times and reports the reps and the best time | `practise-step` | Passed |
 
-## Logic proven vs. feel unproven
+The first five are the design brief's done criteria. The scenarios are in `Assets/BenchCoach/Tests/`, registered in `Assets/BenchCoach/Tests/LeafIndex.ts`. The build itself is on record: 35 dated passes in [devpost/design-notes.md](devpost/design-notes.md), each with what changed, what was checked and what was left over, and a generated [devpost/build-log.md](devpost/build-log.md) with 21 sessions, 3189 Lens Studio MCP calls and 908 LEAF runs.
 
-- **Logic proven** (tests and preview): the step order, the lever snap, the bead peel, the tube pull and refit, inflation, every mistake, the far-side cue and floor path, what shows when, when the coach speaks, text size and overlap, floor finding in the Garage room.
-- **Not used:** the camera. The preview cannot see a real wheel, so nothing is recognised. The Lens draws, speaks and listens for pinches.
-- **Known gap:** in Sunlit Room, from the default pose, the floor finder can settle on the sofa seat instead of the floor.
-- **Feel unproven** (needs real glasses): the Lens has not run on Specs. Lining the virtual wheel up with a real one, how a lever feels in the hand, whether a ghost tool reads against a real tire, voice volume in a real workshop, text size on the real display.
+## What is real and what is simulated
+
+1. **Real:** the Lens. Every step, mistake, hint, spoken line and card in the video is the Lens running in Lens Studio's Interactive Preview, and the tests drive that same Lens.
+2. **Simulated:** the wheel and the stand are virtual. The preview cannot see a real wheel, so the Found it pinch places one. The design is for your own wheel; the virtual one is the stand-in until the glasses can find a real one.
+3. **Simulated:** the garage in the video is a preview room (`preview-room/`). It is not part of the Lens.
+4. **Not the Lens:** the first nine seconds of the video are an AI-generated clip of the problem (a man in a garage with a flat and a video on a propped-up phone). It is labelled on screen. The Lens is on screen from 0:09.
+5. **Offline:** no tokens are in this repo, so Ask gives its built-in answers in the tests and in the video, tagged "Offline answer". Live answers need a Remote Service Gateway token and internet.
+6. **Not used:** the camera. Nothing is recognised. The Lens draws, speaks and listens for pinches.
+7. **Logic proven** (tests and preview): the step order, the lever snap, the bead peel, the tube pull and refit, inflation, every mistake, the far-side cue and floor path, what shows when, when the coach speaks, text size and overlap, floor finding in the Garage room.
+8. **Feel unproven** (needs real glasses): the Lens has never run on Specs. Lining the virtual wheel up with a real one, how a lever feels in the hand, whether a ghost tool reads against a real tire, voice volume in a real workshop, text size on the real display.
+9. **Known gap:** in Sunlit Room, from the default pose, the floor finder can settle on the sofa seat instead of the floor.
 
 ## Not built
 
 - Running on Specs hardware. Everything here is the Lens Studio preview.
 - Finding and lining up with a real wheel.
 - Any repair other than a flat. The halfway card names brake pads as the next skill, and it is only a name.
+- Custom or two-hand gestures, hand pose, voice input, memory across sessions, two people in one Lens.
+
+## Design
+
+The brief came first: [devpost/design-brief.md](devpost/design-brief.md), written on Oct 22 as answers to the `plan-lens` questions (the one spatial moment, why glasses, product or overlay, where things live in centimetres, hands, when things show, five done criteria), and it ends with what the build changed. The rules it follows are the ones the judges gave on Oct 29 and Nov 5, and Snap's own numbers.
+
+| Rule | What Bench Coach does |
+| --- | --- |
+| Don't put a website in front of your face | One callout at a time, on the part. The Finish card is three lines and one tip; the rest is behind More |
+| Show only what needs to be displayed | The tray appears on lever steps only. Hints appear after 12 idle seconds. What's this? and Ask are on demand |
+| Big buttons, few of them | Four dock buttons, each at or above Snap's minimum target size for its distance, ray pinch only |
+| Draw things that exist in that world | Every instruction sits on its part with a leader. The ghost lever is at the exact target pose. The path is on the floor |
+| Keep content in the centre cone, a little below eye level | The wheel at 90 cm, hub 100 cm off the floor; callouts inside the frustum at the working pose (`ui-layout` checks it) |
+| The display is additive | Mid grey wheel, light type and outlines, no signal by colour alone: ticks, badges and words go with every colour |
+
+<p>
+<img src="devpost/gallery/01-second-lever.png" alt="Step 4: the second lever on the rim with its callout" width="48%">
+<img src="devpost/gallery/10-finish-card.png" alt="The Finish card: time, one tip, More, Practise, Start over" width="48%">
+</p>
+
+More captures, each labelled: [devpost/gallery/](devpost/gallery/).
 
 ## Run it
 
@@ -131,19 +145,56 @@ Last full run: Nov 6, 2026, Lens Studio 5.24.1. All 22 passed in the Garage prev
 2. Open `Specs Base Template.esproj`.
 3. In the Preview panel pick the Specs device and Interactive Preview. Any built-in room works. To use the garage from the video, see [preview-room/README.md](preview-room/README.md).
 4. Look down at the floor until the start card says "Floor found" (about 5 s looking straight down, up to 12 s otherwise), then click Found it, or Watch first to see the whole repair.
-5. Move with WASD, Q and E for down and up, right-drag or Shift to look. A click acts as a pinch.
-6. To run the tests, open the LEAF panel and run the scenarios one at a time.
-7. Ask works offline as is. For live answers follow [tools/set-coach-tokens.md](tools/set-coach-tokens.md). Never commit tokens; `tools/check-no-tokens.sh` checks.
+5. Move with W, A, S and D, Q and E for down and up, right-drag or Shift to look. A click acts as a pinch.
+6. Ask works offline as is. For live answers follow [tools/set-coach-tokens.md](tools/set-coach-tokens.md). Never commit tokens; `tools/check-no-tokens.sh` checks.
+
+## Test it
+
+The tests run inside Lens Studio against the live preview; there is no command-line runner.
+
+1. Open the project and the Preview panel as above. The LEAF package is already installed and `Assets/BenchCoach/Tests/LeafIndex.ts` is attached in the scene.
+2. Open the LEAF panel. It lists the 22 scenarios and `jump-to-step`.
+3. Run scenarios one at a time. Each resets the Lens, drives it with simulated pinches, grabs and drags, and reports pass or fail with its assertions in the Logger panel.
+4. Three to run first if you have two minutes: `start` (the wheel appears and step 1's ring is on the valve), `lever-snap` (a lever dropped 10 cm off the ghost goes back to the tray), `floor-path` (the arrows and the stand-here marker on step 5).
+5. To put the Lens on any step by hand, run `jump-to-step` and set its `step` input (0 to 11) and `watch` (1 to let Watch first continue from there).
+
+To regenerate the numbers quoted here: `python3 ~/.claude/skills/devpost/scripts/collect_facts.py . --no-tests` writes [docs/REPO_FACTS.md](docs/REPO_FACTS.md) with the command beside every value.
+
+## Project layout
+
+| Path | What it is |
+| --- | --- |
+| `Specs Base Template.esproj` | The Lens Studio project. Open this |
+| `Assets/BenchCoach/Scripts/` | The Lens: 49 TypeScript files, 13,381 lines |
+| `Assets/BenchCoach/Tests/` | 22 LEAF scenarios, the `jump-to-step` helper and `LeafIndex.ts` |
+| `Assets/BenchCoach/Voice/` | The coach's 30 recorded lines and `voice-lines.json` |
+| `Assets/GeneratedSFX/` | Nine sound cues made with code during the build |
+| `devpost/design-brief.md` | The plan, written before the first build, with what the build changed |
+| `devpost/design-notes.md` | 35 dated build passes: what changed, what was checked, what was left |
+| `devpost/build-log.md` | Generated from the session logs: sessions, MCP calls, LEAF runs |
+| `devpost/video-script.md` | The video as cut, shot by shot, with what is sped up or simulated |
+| `devpost/gallery/` | Captures and the GIF above, each labelled |
+| `preview-room/` | The garage preview room used in the video |
+| `tools/` | The token check, the token setters and the build-log generator |
+
+## What we learned
+
+- **Plan in centimetres, then let the tests hold the plan.** The brief's five done criteria became the first five LEAF scenarios, and every later feature had to add its own before it counted as built. The suite is what let a floor change on Oct 28 and a UI rewrite on Nov 1 land without breaking the repair.
+- **A guess that works in one room is still a guess.** The floor was assumed to be 150 cm below the eye. In one preview room the stand floated over a table. `FloorLevel.ts` now takes the lowest wide level World Query has seen, and a lower level found later moves the stand, the mat and the path together.
+- **The judges' rules are measurable.** "A website on your face" became a line count on the Finish card. "Big buttons" became degrees on the collider in `ui-layout`. "Show it only when needed" became the idle timer and the on-demand menu. Each one is a test now, not an opinion.
+
+**Next:** run it on Specs, find the real wheel, and keep the callouts where they are. Then brake pads.
 
 ## Credits
 
 - Spectacles Interaction Kit, Spectacles UI Kit, LEAF, Remote Service Gateway, Utilities and SnapDecorators packages by Snap, and the Specs Base Template.
-- Coach voice: generated with [ElevenLabs](https://elevenlabs.io), voice "River".
+- Coach voice: generated with [ElevenLabs](https://elevenlabs.io), voice "River". Video narration: ElevenLabs, voice "Chris".
 - Opening clip of the video: AI-generated (a video model, Nov 7, 2026), with its own generated voice.
 - Sound effects and the finish jingle: made with code during the build (CLAD `build-sfx` and `build-music`).
 - Icons: Google Material Symbols.
 - Garage preview room: sources listed in [preview-room/README.md](preview-room/README.md).
 - Repair procedure based on Park Tool's "Tire and Tube Removal and Installation".
+- Built by Anudeep Bonagiri, Sujeeth Thatiparthi and Sudeep, with Claude Code (planning, every build pass through CLAD and the Lens Studio MCP, the tests, the notes). No pre-existing code beyond the Snap packages and the template.
 
 ## License
 
