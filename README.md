@@ -68,7 +68,7 @@ You stand at the wheel with a tire lever hooked under the bead. The next step is
 ## What is real and what is simulated
 
 - **Real:** the Lens itself. Every step, mistake, hint, spoken line and card in the video is the Lens running in Lens Studio's Interactive Preview, and the tests drive that same Lens.
-- **Simulated:** the wheel and the stand are virtual. The Lens Studio preview cannot see a real wheel, so the Found it pinch places one.
+- **Simulated:** the wheel and the stand are virtual. The Lens Studio preview cannot see a real wheel, so the Found it pinch places one. The design is for your own wheel: the callouts, the path and the coach would sit on the real one once it is found. The virtual wheel is the stand-in.
 - **Simulated:** the garage in the video is a preview room (`preview-room/`). It is not part of the Lens.
 - **Offline:** no tokens are in this repo, so Ask gives its built-in answers in the tests and in the video, tagged "Offline answer".
 
