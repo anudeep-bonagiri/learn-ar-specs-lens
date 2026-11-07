@@ -9,8 +9,8 @@ import {BenchCoachAudio} from "../Scripts/BenchCoachAudio"
  * Pass 9, steps 9 to 11: on step 9 Bead_0..3 glow; pinching each seats it
  * (offset back to 0) and the four enter step 10. Pinching and holding the valve
  * for 3 s plays the pump loop and inflates Tire to scale 1.00, which enters step
- * 11: the Finish card with the time and a stats line, and the Finish cue (the
- * halfway Done cue does not play again). Restart returns to step 0.
+ * 11: the Finish card with the time, the counts behind More (pass S1), and the Finish
+ * cue (the halfway Done cue does not play again). Restart returns to step 0.
  */
 @component
 export class SeatInflateScenario extends Scenario {
@@ -64,11 +64,15 @@ export class SeatInflateScenario extends Scenario {
     // ── Step 11: Finish card ───────────────────────────────────────────────
     expect(finishCard.enabled, "FinishCard enabled").toBe(true)
     expect(findSceneObjectByName("DoneCard").enabled, "halfway card hidden").toBe(false)
-    // Pass V: the time and counts are big numbers with captions (FinishLeverMissesLabel is a caption).
+    // Pass S1: the counts are behind More (the card opens compact; the time is on the title row).
+    expect(findSceneObjectByName("FinishLeverMissesRow").isEnabledInHierarchy, "compact: the counts are hidden").toBe(false)
+    await interactor.tap("BtnFinishMore")
+    await sleep(300)
+    expect(findSceneObjectByName("FinishLeverMissesRow").isEnabledInHierarchy, "More shows the counts").toBe(true)
     const stats = findSceneObjectByName("FinishLeverMissesLabel").getComponent("Component.Text") as Text
     const time = findSceneObjectByName("FinishTime").getComponent("Component.Text") as Text
     print(`[SeatInflateScenario] finish card: "${time.text}" / "${stats.text}"`)
-    expect(stats.text.indexOf("misses") >= 0, "stats list names the misses").toBe(true)
+    expect(stats.text.indexOf("misses") >= 0, "the list names the misses").toBe(true)
     expect(time.text.indexOf(":") >= 0, "time on the Finish card").toBe(true)
     expect(audio.finishPlays, "Finish cue once").toBe(finishBefore + 1)
     expect(audio.donePlays, "no halfway Done cue on the Finish").toBe(doneBefore)

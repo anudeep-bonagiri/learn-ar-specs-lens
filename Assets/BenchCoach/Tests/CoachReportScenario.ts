@@ -7,6 +7,10 @@ import {BenchCoachLeafInteractor, getRepairManager} from "./BenchCoachLeafIntera
 import {LeverPlacement} from "../Scripts/LeverPlacement"
 import {PRACTICE_CLEAN, RunStats} from "../Scripts/RunStats"
 import {LAST_STEP, MISTAKE_TIPS, STEPS} from "../Scripts/StepDefinitions"
+import {BenchCoachFinishCardUI} from "../Scripts/BenchCoachFinishCardUI"
+
+/** Pass S1: the list rows behind More. */
+const LIST_ROWS = ["FinishCauseRow", "FinishLeverMissesRow", "FinishMistakesRow", "FinishHintsRow", "FinishTimesRow", "FinishPractice"]
 
 /**
  * Pass 11 (feature D): the coach report on the Finish card. A real run with one
@@ -18,6 +22,8 @@ import {LAST_STEP, MISTAKE_TIPS, STEPS} from "../Scripts/StepDefinitions"
  * lever drops) is the slowest, and jumpToStep records nothing. Then the two
  * fallbacks: no mistakes gives the slowest-step line, nothing at all the clean line.
  * Parameter `stay` = 1 stops after the Finish card checks and leaves the card up (screenshots).
+ * Pass S1: the card opens compact (the time and the tip, none of the list rows); a ray
+ * press on BtnFinishMore shows the list and the practice line, and the button reads Less.
  */
 @component
 export class CoachReportScenario extends Scenario {
@@ -79,6 +85,20 @@ export class CoachReportScenario extends Scenario {
     }
     await sleep(500)
     expect(manager.getState().step, "on the Finish card").toBe(LAST_STEP)
+    // ── Pass S1: compact first, then More ────────────────────────────────────
+    const card = findSceneObjectByName("FinishCard").getComponent(BenchCoachFinishCardUI.getTypeName()) as BenchCoachFinishCardUI
+    const shown = (name: string) => findSceneObjectByName(name).isEnabledInHierarchy
+    expect(card.expanded, "the Finish card opens compact").toBe(false)
+    expect(shown("FinishTip") && this.text("FinishTip").indexOf("Next time:") === 0, "compact: the tip shows").toBe(true)
+    expect(shown("FinishTime") && /^\d+:\d\d$/.test(this.text("FinishTime")), `compact: the time shows ("${this.text("FinishTime")}")`).toBe(true)
+    for (const row of LIST_ROWS) expect(shown(row), `compact: ${row} hidden`).toBe(false)
+    expect(this.text("BtnFinishMore"), "the button reads More").toBe("More")
+    await interactor.tap("BtnFinishMore")
+    await sleep(300)
+    print(`[CoachReportScenario] after More: expanded ${card.expanded}, button "${this.text("BtnFinishMore")}"`)
+    expect(card.expanded, "More expands the card").toBe(true)
+    for (const row of LIST_ROWS) expect(shown(row), `expanded: ${row} shows`).toBe(true)
+    expect(this.text("BtnFinishMore"), "the button reads Less").toBe("Less")
     const times = this.text("FinishTimes")
     const practice = this.text("FinishPractice")
     print(`[CoachReportScenario] FinishTimes "${times}"`)
@@ -124,10 +144,21 @@ export class CoachReportScenario extends Scenario {
     await sleep(300)
   }
 
+  /** The first Text on or under `name` (a button's label too). */
   private text(name: string): string {
     const so = findSceneObjectByName(name)
     if (!so) throw new Error(`${name} not found`)
-    const t = so.getComponent("Component.Text") as Text
+    const t = firstText(so)
     return t ? t.text : ""
   }
+}
+
+function firstText(so: SceneObject): Text | null {
+  const t = so.getComponent("Component.Text") as Text
+  if (t) return t
+  for (let i = 0; i < so.getChildrenCount(); i++) {
+    const found = firstText(so.getChild(i))
+    if (found) return found
+  }
+  return null
 }

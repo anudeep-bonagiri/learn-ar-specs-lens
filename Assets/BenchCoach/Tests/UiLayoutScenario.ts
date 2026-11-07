@@ -10,6 +10,7 @@ import {EdgeHint} from "../Scripts/EdgeHint"
 import {AskCoach} from "../Scripts/AskCoach"
 import {BenchCoachAskAnswerUI} from "../Scripts/BenchCoachAskAnswerUI"
 import {LAST_STEP, STEPS} from "../Scripts/StepDefinitions"
+import {BenchCoachFinishCardUI} from "../Scripts/BenchCoachFinishCardUI"
 import {MIN_BODY_XHEIGHT_DEG, MIN_TITLE_XHEIGHT_DEG, xHeightDeg} from "../Scripts/UIHelpers"
 
 type Rect = {x0: number; x1: number; y0: number; y1: number}
@@ -42,7 +43,10 @@ const TITLE_TEXTS = ["Title", "DoneText", "FinishTitle", "FinishTime"]
  *    on every step and every sub-target (step 2's and step 9's beads);
  *  - pass P, no doubled text: on every frame of the run (an UpdateEvent sees what the
  *    last frame drew), no two visible Texts of one panel overlap. The first show of a
- *    panel after the reset used to draw every child at the column's centre for a frame.
+ *    panel after the reset used to draw every child at the column's centre for a frame;
+ *  - pass S1, the Finish card compact and after More: the plate inside the view, its
+ *    texts inside the plate at their minimum x-height, its buttons at least as tall (in
+ *    degrees from the eye) as the dock's and not under the dock on screen.
  */
 @component
 export class UiLayoutScenario extends Scenario {
@@ -146,6 +150,16 @@ export class UiLayoutScenario extends Scenario {
       await this.laidOut()
       this.checkTexts(step)
     }
+    // ── Pass S1: the Finish card, compact and after More ─────────────────────
+    const finish = findSceneObjectByName("FinishCard").getComponent(BenchCoachFinishCardUI.getTypeName()) as BenchCoachFinishCardUI
+    expect(finish.expanded, "the Finish card opens compact").toBe(false)
+    this.checkFinish(camera, dock, finish, "compact")
+    await interactor.tap("BtnFinishMore")
+    await sleep(300)
+    await this.laidOut()
+    expect(finish.expanded, "More expands the Finish card").toBe(true)
+    this.checkTexts(LAST_STEP)
+    this.checkFinish(camera, dock, finish, "expanded")
 
     // ── Ask open: the callout and the stack stay off the tire and in view ────
     // Steps 2 and 3 (marker at the top), 5 (far side) and 6 (inspect): Sujeeth's G5 cases.
@@ -312,6 +326,50 @@ export class UiLayoutScenario extends Scenario {
     const desc = `x ${r.x0.toFixed(3)}..${r.x1.toFixed(3)}, y ${r.y0.toFixed(3)}..${r.y1.toFixed(3)}`
     expect(ok, `step ${step}${what}: the callout is fully inside the view (${desc})`).toBe(true)
     return `, in frame (${desc})`
+  }
+
+  /**
+   * Pass S1: the Finish card's plate is inside the view (1% margin), and each of its buttons
+   * is at least as tall in degrees as the dock's buttons and off the dock on screen.
+   */
+  private checkFinish(camera: Camera, dock: BenchCoachControlBarUI, card: BenchCoachFinishCardUI, what: string): void {
+    const tr = card.sceneObject.getTransform()
+    const k = tr.getWorldScale().x
+    const h = (card.expanded ? card.expandedHeight : card.compactHeight) * k
+    const r = this.screenRect(camera, tr.getWorldPosition(), tr.right, card.width * k, h, tr.up)
+    const desc = `x ${r.x0.toFixed(3)}..${r.x1.toFixed(3)}, y ${r.y0.toFixed(3)}..${r.y1.toFixed(3)}`
+    expect(r.x0 >= 0.01 && r.x1 <= 0.99 && r.y0 >= 0.01 && r.y1 <= 0.99, `Finish card ${what}: inside the view (${desc})`).toBe(true)
+    const eye = camera.getTransform().getWorldPosition()
+    const deg = (so: SceneObject): number => {
+      const size = this.sizeOf(so)
+      const hh = size ? size.y * so.getTransform().getWorldScale().y : 0
+      return (2 * Math.atan2(hh / 2, so.getTransform().getWorldPosition().distance(eye)) * 180) / Math.PI
+    }
+    const dockDeg = deg(findSceneObjectByName("BtnBack"))
+    expect(dockDeg > 1, `the dock's button size is read (${dockDeg.toFixed(2)} deg)`).toBe(true)
+    const dt = dock.sceneObject.getTransform()
+    const dr = this.screenRect(camera, dt.getWorldPosition(), dt.right, dock.width, dock.height, dt.up)
+    let note = ""
+    for (const name of ["BtnFinishMore", "BtnRestart"]) {
+      const b = findSceneObjectByName(name)
+      const bd = deg(b)
+      note += `, ${name} ${bd.toFixed(2)} deg`
+      expect(bd >= dockDeg * 0.98, `Finish card ${what}: ${name} ${bd.toFixed(2)} deg at least the dock's ${dockDeg.toFixed(2)} deg`).toBe(true)
+      const size = this.sizeOf(b)
+      const bt = b.getTransform()
+      const br = this.screenRect(camera, bt.getWorldPosition(), bt.right, size ? size.x : 0, size ? size.y : 0, bt.up)
+      expect(dock.sceneObject.isEnabledInHierarchy && this.overlaps(br, dr), `Finish card ${what}: ${name} is not under the dock`).toBe(false)
+    }
+    print(`[UiLayoutScenario] Finish card ${what}: ${desc}; dock buttons ${dockDeg.toFixed(2)} deg${note}`)
+  }
+
+  /** A UIKit element's size (cm, the `size` of a script component on it), or null. */
+  private sizeOf(so: SceneObject): vec3 | null {
+    for (const c of so.getComponents("Component.ScriptComponent")) {
+      const s = (c as any).size
+      if (s && typeof s.x === "number" && typeof s.y === "number") return new vec3(s.x, s.y, 0)
+    }
+    return null
   }
 
   /**

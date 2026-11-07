@@ -58,6 +58,10 @@ export class FlatCausesScenario extends Scenario {
 
         manager.jumpToStep(LAST_STEP)
         await sleep(400)
+        // Pass S1: the cause is in the list behind More.
+        await interactor.tap("BtnFinishMore")
+        await sleep(200)
+        expect(findSceneObjectByName("FinishCause").isEnabledInHierarchy, `${id}: the cause shows after More`).toBe(true)
         const causeText = (findSceneObjectByName("FinishCause").getComponent("Component.Text") as Text).text
         const tipText = (findSceneObjectByName("FinishTip").getComponent("Component.Text") as Text).text
         print(`[FlatCausesScenario] ${id}: finish "${causeText}" / "${tipText}"`)

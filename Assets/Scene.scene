@@ -5342,6 +5342,7 @@
   ScriptAsset: !<reference> 0e2bda00-97be-443d-a091-f8b693738e1c
   ScriptInputsDefault:
     restartLabel: true
+    minButtonDeg: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
@@ -5350,6 +5351,7 @@
       viewDistanceCm: !<float> 80.000000
       titleText: Flat fixed
       restartLabel: Start over
+      minButtonDeg: 4.800000
   ScriptTypes:
     "":
       {}

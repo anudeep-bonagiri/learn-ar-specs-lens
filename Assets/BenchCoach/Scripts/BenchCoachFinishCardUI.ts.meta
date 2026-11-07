@@ -28,6 +28,7 @@
   ExportUid: 00000000-0000-0000-0000-000000000000
   PackagePolicy: CanBeUnpacked
   ScriptInputsHidden:
+    minButtonDeg: false
     panelWidth: false
     restartLabel: false
     titleText: false
@@ -45,6 +46,7 @@
       viewDistanceCm: !<float> 90.000000
       titleText: Flat fixed.
       restartLabel: Start over
+      minButtonDeg: 4.800000
   ScriptTypes:
     -
       {}
@@ -57,4 +59,5 @@
     - '// @input float viewDistanceCm = 82 {"hint":"Viewing distance in cm; scales the type and the spacing grid", "widget":"slider", "min":40, "max":160, "step":1}'
     - '// @input string titleText = "Flat fixed" {"hint":"Headline"}'
     - '// @input string restartLabel = "Start over" {"hint":"Label on the restart button"}'
+    - "// @input float minButtonDeg = 4.8 {\"hint\":\"Smallest button height in degrees at the viewing distance (the dock's buttons are about 4.8)\", \"widget\":\"slider\", \"min\":2, \"max\":8, \"step\":0.1}"
     - '// @ui {"widget":"group_end"}'
