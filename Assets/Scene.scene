@@ -2892,6 +2892,28 @@
     []
   Components:
     - !<own> 09e0e022-a197-4213-98a5-3e0654d766b2
+- !<ScriptComponent/640d0807-25e0-4666-a5ad-5cb4bfa91645>
+  PrefabRemaps:
+    []
+  Name: AdaptiveCoach
+  Enabled: true
+  ScriptAsset: !<reference> 1f227e6f-391b-4dea-a96d-9f3978106d5f
+  ScriptInputsDefault:
+    {}
+  ScriptTypesDefault:
+    {}
+  ScriptInputs:
+    "":
+      manager: !<MappingBased.AssignableType_1> 622db2cb-d0c7-4791-92af-926fab500a02
+      stats: !<MappingBased.AssignableType_2> 7dc2f119-941e-4f70-bb4a-86205c919c86
+      idleHint: !<MappingBased.AssignableType_3> 68bc2d07-3d0b-4c20-a0de-646d168ada8e
+      ghost: !<MappingBased.AssignableType_4> e96e1501-5868-4f3b-be46-c0f7fa4544a9
+      voice: !<MappingBased.AssignableType_5> 62d7e2ff-77f5-4751-b627-7af7ffa06729
+      startCard: !<MappingBased.AssignableType_6> caa8fc4f-6d45-4119-a6dd-457dd4b1ae9d
+      finishCard: !<MappingBased.AssignableType_7> b9d8bd0a-08a3-4dfe-8246-79e007a87cef
+  ScriptTypes:
+    "":
+      {}
 - !<SceneObject/64cc5c22-d19c-46ca-adf7-d810ced8e765>
   PrefabRemaps:
     []
@@ -3932,6 +3954,7 @@
     - !<own> 69f574fb-b122-40c7-a041-afce199bf43c
     - !<own> 28a8d074-10e5-4ebd-a5a2-c31e87bc65c7
     - !<own> 62d7e2ff-77f5-4751-b627-7af7ffa06729
+    - !<own> 640d0807-25e0-4666-a5ad-5cb4bfa91645
 - !<SceneObject/8363e9a6-cd83-4889-abd4-6521e394f244>
   PrefabRemaps:
     []
@@ -6440,6 +6463,7 @@
     durationSec: true
     approachOffsetCm: true
     approachTiltDeg: true
+    loopHoldSec: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
@@ -6448,6 +6472,7 @@
       durationSec: 0.800000
       approachOffsetCm: !<float> 8.000000
       approachTiltDeg: !<float> 35.000000
+      loopHoldSec: 0.700000
   ScriptTypes:
     "":
       {}
