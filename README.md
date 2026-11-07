@@ -114,6 +114,7 @@ Last full run: Nov 6, 2026, Lens Studio 5.24.1. All 22 passed in the Garage prev
 ## Logic proven vs. feel unproven
 
 - **Logic proven** (tests and preview): the step order, the lever snap, the bead peel, the tube pull and refit, inflation, every mistake, the far-side cue and floor path, what shows when, when the coach speaks, text size and overlap, floor finding in the Garage room.
+- **Not used:** the camera. The preview cannot see a real wheel, so nothing is recognised. The Lens draws, speaks and listens for pinches.
 - **Known gap:** in Sunlit Room, from the default pose, the floor finder can settle on the sofa seat instead of the floor.
 - **Feel unproven** (needs real glasses): the Lens has not run on Specs. Lining the virtual wheel up with a real one, how a lever feels in the hand, whether a ghost tool reads against a real tire, voice volume in a real workshop, text size on the real display.
 
