@@ -55,9 +55,9 @@ The recipe that stood here (Plane room, macOS screen recording, cursor visible) 
 | 1:32 | A question, answered next to the part | `t06-ask` 5.8 to 13 s |
 | 1:39 | New tube in, bead on, pump | `t09-refit-p` 14.74 to 31.02 s, 2.6x speed |
 | 1:45 | A report, and one thing to practise | `t14-finish` 23.8 to 31.8 s |
-| 1:53 | Drill the step you got wrong | `t15-practise-b` 26.4 to 27.5 s |
-| 1:54 | Drill the step you got wrong | `t15-practise-b` 28.9 to 31.6 s |
-| 1:57 | Drill the step you got wrong | `t15-practise-b` 41.9 to 45.45 s, last frame held 1.5 s |
+| 1:53 | Practise the step you got wrong | `t15-practise-b` 26.4 to 27.5 s |
+| 1:54 | Practise the step you got wrong | `t15-practise-b` 28.9 to 31.6 s |
+| 1:57 | Practise the step you got wrong | `t15-practise-b` 41.9 to 45.45 s, last frame held 1.5 s |
 | 2:02 | Built in Lens Studio | still of the Lens Studio window |
 | 2:07 | 22 of 22 scenarios pass | `t12-tests` 10.4 to 13.15 s |
 | 2:10 | 22 of 22 scenarios pass | `t12-tests` 14.5 to 19.4 s |
@@ -74,6 +74,8 @@ Differences from the plan above:
 - The drill is cut from a run the `practise-step` scenario drives, so its reps are quick; the simulated hand carries the lever past the camera between reps, and those spans are cut out.
 - What's this? shows the Tire card. The Valve card's leader runs behind the step callout from this pose.
 - There is no shot of the design brief itself; the narration names it over the Lens Studio window and the test list.
+- The drill is titled "If you want it" and its line says so; the person with a flat wants the tube out, and the Finish card's default is three lines and one tip.
+- Several lines were recorded again shorter or reworded (the honest note, the scan, the far side, the drill, the build line); the captions file carries the words as spoken. On Nov 7 the Nov 5 narration clips were generated again by mistake, so every line is a Nov 7 take; the offsets were checked against the new lengths and nothing overlaps.
 
 ## Checks before upload
 

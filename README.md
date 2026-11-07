@@ -16,7 +16,7 @@ You stand at the wheel with a tire lever hooked under the bead. The next step is
 ## Problem and audience
 
 - **Problem:** fixing a flat is easy once someone has shown you. Learning it from a paused video, with greasy hands, is not.
-- **Who it's for:** anyone with a bike, a flat, and no one to ask.
+- **Who it's for:** anyone with something broken and no one to ask. They put the glasses on, do the repair once with the coach, and get on with their day. The first repair is a bike flat, start to finish.
 - **Why glasses:** both hands stay on the wheel and the levers. Each instruction is on the part, seen from your own angle. The next marker makes you walk to where the work is. A phone propped on the bench cannot follow you round the stand.
 
 ## How it works
@@ -62,7 +62,7 @@ You stand at the wheel with a tire lever hooked under the bead. The next step is
 - Watch first: the Lens plays the whole repair by itself. At step 5 it shows the floor path and waits for you to walk round before it pulls the tube.
 - The flat has one of three causes (thorn, glass, pinch), and the Finish card names it.
 - The Finish card shows your time and one tip for next time. More opens the rest: the cause, lever misses, mistakes, hints, slowest steps and one thing to practise.
-- Practise it now: a button on the Finish card names one step, for example "Practise lever A". It is the step where you made the most mistakes, or your slowest step if you made none. Press it and the Lens sets up that step three times in a row. The coach says the step once. Afterwards the Finish card shows your reps, your best time and your mistakes.
+- Practise it now, if you want it: a button on the Finish card names one step, for example "Practise lever A". It is the step where you made the most mistakes, or your slowest step if you made none. Press it and the Lens sets up that step three times in a row. The coach says the step once. Afterwards the Finish card shows your reps, your best time and your mistakes. Most people will read the Next time tip and leave; the drill is there for the ones who want the step in their hands before the next flat.
 
 **Stand-ins used in preview:** see the next section.
 

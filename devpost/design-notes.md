@@ -2273,6 +2273,13 @@ No change to the Lens. Writing only, after the Nov 5 review said the judges chec
 - `devpost/video-script.md`: the 2:10 row says twenty-two scenarios, as recorded; the note on the brief clause updated.
 - The cut was rendered again with narration clip n12c, which names the design brief, in place of n12d. No segment changed, so the as-cut table above stands.
 
+### Nov 7 morning: who it is for, and the drill
+
+Anudeep read the judges' six takeaways ("know who it's for") and asked why a user would want practice reps when people are lazy. His answer on the audience: end-to-end users, anyone with something broken; they use Bench Coach and fix it. So the audience line now says that everywhere (README, the page, the brief, the video's note), with the flat as the first repair, and the drill is marked optional on the page and on screen: the Finish card's default is three lines and one tip for next time, and the drill is one button for the few who want the step in their hands. No Lens change; that was already how the card was built in pass S1.
+
+- Video: the drill's titles read "If you want it" and its line was recorded again to say so (n15b). The Who it's for note names anything broken.
+- Mistake, recorded here so it is not repeated: `tools/gen_voice.py` was run on the whole lines file to make one clip, and its manifest did not know the Nov 5 clips, so it generated all 19 of them again (about 2,300 characters; 2,482 left on the free tier). The old clips are gone. The new ones were laid on the timeline and checked: no overlap anywhere, no leading silence, the longest change was the lever A line at 1.5 s longer, replaced by a shorter wording (n05b). Generate one clip at a time from a one-line file.
+
 ### Left over
 
 - Anudeep has not reworded the README or the page in his own voice; he chose to keep the drafts.
