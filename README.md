@@ -15,10 +15,10 @@ Built for [Learn AR with SPECS](https://learn-specs.devpost.com/) on Devpost Lea
 
 ## See it in 30 seconds
 
-- **Video:** [youtu.be/uKSuHM_GGzU](https://youtu.be/uKSuHM_GGzU). The Lens is on screen from 0:09. 0:27 to 1:18 is one take with no cuts, done by hand with the cursor visible: Found it, the valve, the beads, lever A from the tray onto the ghost (real preview input, shown at 1.25x). 1:24 is the far side, Watch first driving the walk at real speed. At 2:13 the coach adapts. Captions are on.
+- **Video:** [youtu.be/uKSuHM_GGzU](https://youtu.be/uKSuHM_GGzU). The Lens is on screen from 0:09. 0:27 to 1:18 is one take with no cuts: real input to the preview, sent through the Lens Studio MCP's gesture tool with the cursor dot visible (not a person at the mouse), shown at 1.25x: Found it, the valve, the beads, lever A from the tray onto the ghost. 1:24 is the far side, Watch first driving the walk at real speed. At 2:13 the coach adapts. Captions are on.
 - **In Lens Studio:** open the project, pick the Specs device and Interactive Preview, look down until the start card says "Floor found", click **Watch first**. The Lens plays steps 1 to 4 itself. At step 5 it shows the path and waits for you to walk round the stand (W, A, S, D) before it pulls the tube.
 - **The moment to judge:** step 5. A screen on the bench cannot follow you round the stand.
-- **What is a human and what is the Lens driving:** the one take at 0:27 and the mistake at 1:36 are real preview input with the cursor dot visible; the walk at 1:24 is Watch first; the Finish card and the coach-adapts shots are test runs. Every shot says which on screen.
+- **What drives each shot:** the one take at 0:27 and the mistake at 1:36 are real input to the preview sent through the gesture tool, cursor visible; the walk at 1:24 is Watch first; the Finish card and the coach-adapts shots are test runs. No shot is a person at the mouse. Every shot says which on screen.
 
 ## Who it's for
 
@@ -115,11 +115,12 @@ The first five are the design brief's done criteria. The scenarios are in `Asset
 2. **Simulated:** the wheel and the stand are virtual. The preview cannot see a real wheel, so the Found it pinch places one, and the start card says so in the preview ("In this preview, Found it stands a wheel in for yours"). The design is for your own wheel; the virtual one is the stand-in until the glasses can find a real one.
 3. **Simulated:** the garage in the video is a preview room (`preview-room/`). It is not part of the Lens.
 4. **Not the Lens:** the first nine seconds of the video are an AI-generated clip of the problem (a man in a garage with a flat and a video on a propped-up phone). It is labelled on screen. The Lens is on screen from 0:09.
-5. **Offline:** no tokens are in this repo, so Ask gives its built-in answers in the tests and in the video, tagged "Offline answer". Live answers need a Remote Service Gateway token and internet.
-6. **The glasses' sensing, used once:** World Query (the depth the glasses see) finds the floor, and the stand goes on it. Nothing is recognised: no wheel, no hand pose, no object. The Lens draws, speaks and listens for pinches.
-7. **Logic proven** (tests and preview): the step order, the lever snap, the bead peel, the tube pull and refit, inflation, every mistake, the far-side cue and floor path, what shows when, when the coach speaks, text size and overlap, floor finding in the Garage room, the scores the coach keeps and what they change.
-8. **Feel unproven** (needs real glasses): the Lens has never run on Specs. Lining the virtual wheel up with a real one, how a lever feels in the hand, whether a ghost tool reads against a real tire, voice volume in a real workshop, text size on the real display.
-9. **Known gap:** in Sunlit Room, from the default pose, the floor finder can settle on the sofa seat instead of the floor.
+5. **How the video was made:** the preview was captured frame by frame through Lens Studio's own screenshot call (the Mac's screen was locked), so the frames are silent; every take's sound is rebuilt from the Lens's log and its own audio files, lined up by timestamp. The input in the one take and the mistake shot was sent through the Lens Studio MCP's gesture tool, with the cursor dot visible; Watch first drives the walk; the test scenarios drive the Finish card and the coach-adapts shots. Every shot says so on screen.
+6. **Offline:** no tokens are in this repo, so Ask gives its built-in answers in the tests and in the video, tagged "Offline answer". Live answers need a Remote Service Gateway token and internet.
+7. **The glasses' sensing, used once:** World Query (the depth the glasses see) finds the floor, and the stand goes on it. Nothing is recognised: no wheel, no hand pose, no object. The Lens draws, speaks and listens for pinches.
+8. **Logic proven** (tests and preview): the step order, the lever snap, the bead peel, the tube pull and refit, inflation, every mistake, the far-side cue and floor path, what shows when, when the coach speaks, text size and overlap, floor finding in the Garage room, the scores the coach keeps and what they change.
+9. **Feel unproven** (needs real glasses): the Lens has never run on Specs. Lining the virtual wheel up with a real one, how a lever feels in the hand, whether a ghost tool reads against a real tire, voice volume in a real workshop, text size on the real display.
+10. **Known gap:** in Sunlit Room, from the default pose, the floor finder can settle on the sofa seat instead of the floor.
 
 ## Not built
 
