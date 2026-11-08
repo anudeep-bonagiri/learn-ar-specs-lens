@@ -97,7 +97,7 @@
     - '// @input float brakeTrackCm = 1.1 {"hint":"Box section: braking track height on each sidewall, measured in from the outer edge, in cm"}'
     - '// @input Asset.Material bandMaterial {"hint":"Optional second material for the sidewall band (tire gumwall); empty = one material"}'
     - '// @input float bandBelowCos = 0.38 {"hint":"Faces whose radial normal is below this go to the band (0.38 keeps about 135 degrees of tread)"}'
-    - '// @input Asset.Material stripeMaterial {"hint":"Optional third material: a thin line round each sidewall (pass V); empty = none"}'
+    - '// @input Asset.Material stripeMaterial {"hint":"Optional third material: a thin line round each sidewall; empty = none"}'
     - '// @input float stripeFromCos = 0.1 {"hint":"Sidewall line: faces whose radial normal is at least this go to the line"}'
     - '// @input float stripeToCos = 0.3 {"hint":"Sidewall line: faces whose radial normal is at most this go to the line"}'
     - '// @input bool stripeMirror {"hint":"Sidewall line: also the mirrored faces (radial normal between -to and -from), a second line by the rim"}'

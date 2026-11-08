@@ -72,7 +72,7 @@
     -
       {}
   InputLines:
-    - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">VoiceCoach – the spoken lines (pass V)</span>"}'
+    - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">VoiceCoach – the spoken lines</span>"}'
     - '// @ui {"widget":"separator"}'
     - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">References</span>"}'
     - '// @ui {"widget":"group_start", "label":"References"}'

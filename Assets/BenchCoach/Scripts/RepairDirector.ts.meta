@@ -91,7 +91,7 @@
     - '// @input AssignableType_10 idle {"hint":"Idle hints: suspended while playing"}'
     - '// @input AssignableType_11 stats {"hint":"Run counters: suspended while playing"}'
     - "// @input AssignableType_12 partInfo {\"hint\":\"What's this? mode: turned off when watch mode starts\"}"
-    - '// @input AssignableType_13 voice {"hint":"Voice coach: each beat waits for its line to finish (pass V)"}'
+    - '// @input AssignableType_13 voice {"hint":"Voice coach: each beat waits for its line to finish"}'
     - '// @ui {"widget":"group_end"}'
     - '// @ui {"widget":"separator"}'
     - '// @ui {"widget":"label", "label":"<span style=\"color: #60A5FA;\">Settings</span>"}'
