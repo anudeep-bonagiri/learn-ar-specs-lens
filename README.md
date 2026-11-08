@@ -145,6 +145,8 @@ The brief came first: [devpost/design-brief.md](devpost/design-brief.md), writte
 <p>
 <img src="devpost/gallery/01-second-lever.png" alt="Step 4: the second lever on the rim with its callout" width="48%">
 <img src="devpost/gallery/10-finish-card.png" alt="The Finish card: time, one tip, More, Practise, Start over" width="48%">
+<img src="devpost/gallery/14-dock.png" alt="The dock: three buttons, Back, Next, More" width="48%">
+<img src="devpost/gallery/05-ask.png" alt="Ask: the answer in the step callout's place" width="48%">
 </p>
 
 More captures, each labelled: [devpost/gallery/](devpost/gallery/).
