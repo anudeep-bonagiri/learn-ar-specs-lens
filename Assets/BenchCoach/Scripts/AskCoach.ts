@@ -11,9 +11,14 @@
  * slot (their idle clock restarts then). It also closes
  * when watch mode plays, and when What's this? turns on (UIBindings keeps the two
  * exclusive). IdleHint is suspended while it is open (IdleHint.askSuspended).
- * Pass D2: the chips and the answer take turns in one slot hung under the step
- * callout (BenchCoachStepLabelUI.setStack), so they never lie over the wheel; the
- * answer's close button brings the chips back, the chips' close button closes Ask.
+ * Pass D2: the chips and the answer take turns in one slot, so they never lie over the
+ * wheel; the answer's close button brings the chips back, the chips' close button
+ * closes Ask. Pass B: that slot is the step callout's own (BenchCoachStepLabelUI.setSlot):
+ * while Ask is open the callout's plate hides, its ring and leader stay, and the chips or
+ * the answer stand where the plate stood, so one plate is on the part at a time.
+ * Pass B: the system prompt is built from the live state for each question (who and
+ * where the user is, the step, the part, how the run is going, the rules) and printed
+ * once per question at "[AskCoach] prompt:".
  * Owns: open, busy, lastAnswer, lastSource, the request in flight, panel placement.
  * Emits onOpenChanged(on), onAnswer({step, index, text, source}).
  * Must not: change steps or author UI (the two panels are passive views).
@@ -30,6 +35,20 @@ import {BenchCoachAskAnswerUI} from "./BenchCoachAskAnswerUI"
 import {RepairDirector} from "./RepairDirector"
 import {IdleHint} from "./IdleHint"
 import {BenchCoachAudio} from "./BenchCoachAudio"
+import {RunStats} from "./RunStats"
+
+/** Pass B: the part each repair step is about, in the words the prompt uses. */
+const STEP_PARTS: {[step: number]: string} = {
+  1: "the Presta valve at the top of the wheel",
+  2: "the tire bead, pushed into the rim's center channel",
+  3: "the first plastic tire lever and the bead next to the valve",
+  4: "the second tire lever and the bead it slides under",
+  5: "the inner tube, pulled out at the bottom of the wheel",
+  6: "the inside of the tire, where the cause of the flat is",
+  8: "the new inner tube and its valve",
+  9: "the tire bead going back over the rim",
+  10: "the valve and the air going in",
+}
 
 export interface CoachAnswer {
   step: number
@@ -97,15 +116,6 @@ export class AskCoach extends BaseScriptComponent {
   model: string = "gemini-2.5-flash"
 
   @input
-  @hint("System prompt; {step} becomes the step name and label")
-  systemPrompt: string = "You are a calm bike mechanic. Answer in at most 2 short sentences, specific to this step: {step}."
-
-  @input
-  @hint("Gap between the step callout and the Ask panel hung under it, in cm")
-  @widget(new SliderWidget(0, 4, 0.1))
-  panelGapCm: number = 0.5
-
-  @input
   @hint("Seconds a shown answer stays up before it hides on its own (0 = until the step changes); Nov 1 audit: show it only when needed")
   @widget(new SliderWidget(0, 30, 0.5))
   answerSec: number = 8
@@ -126,6 +136,8 @@ export class AskCoach extends BaseScriptComponent {
   lastSource: string = ""
   /** Why the last canned answer was used ("forced", "offline", "no token", "timeout", "error", "empty"). */
   lastFallbackReason: string = ""
+  /** Pass B: the system prompt built for the last question ("" = none yet); tests read it. */
+  lastPrompt: string = ""
   /** Milliseconds the last live answer took (0 = none). */
   lastLatencyMs: number = 0
   askCount: number = 0
@@ -145,6 +157,10 @@ export class AskCoach extends BaseScriptComponent {
   private chipsCloseAt = Number.POSITIVE_INFINITY
   /** The sub-step the shown answer belongs to (a new sub-step hides it). */
   private answerSub = -1
+  /** Pass B: run counters for the prompt (RunStats sits on this SceneObject). */
+  private stats: RunStats | null = null
+  /** Pass B: getTime() when the current step began, for the prompt. */
+  private stepEnteredAt = 0
 
   onAwake(): void {
     this.createEvent("OnStartEvent").bind(() => {
@@ -152,6 +168,8 @@ export class AskCoach extends BaseScriptComponent {
         print("[AskCoach] ERROR: missing @input refs")
         return
       }
+      this.stats = this.sceneObject.getComponent(RunStats.getTypeName()) as RunStats
+      this.stepEnteredAt = getTime()
       this.chips.onChip.add((i) => {
         if (this.audio) this.audio.playTickAt(this.chips.sceneObject.getTransform().getWorldPosition())
         if (this.idle) this.idle.touch()
@@ -200,6 +218,9 @@ export class AskCoach extends BaseScriptComponent {
     const qa = list[index]
     this.askCount += 1
     this.cancel()
+    const sys = this.buildPrompt(step)
+    this.lastPrompt = sys
+    print(`[AskCoach] prompt: ${sys}`)
     const reason = this.cannedReason()
     if (reason) {
       this.finish(step, index, qa.a, "canned", reason)
@@ -215,8 +236,6 @@ export class AskCoach extends BaseScriptComponent {
       this.finish(step, index, qa.a, "canned", "timeout")
     })
     timer.reset(this.timeoutSec)
-    const def = STEPS[step]
-    const sys = this.systemPrompt.replace("{step}", `${def.name}, "${def.label}"`)
     Gemini.models({
       model: this.model,
       type: "generateContent",
@@ -242,6 +261,24 @@ export class AskCoach extends BaseScriptComponent {
         print(`[AskCoach] live error: ${("" + e).substring(0, 120)}`)
         this.finish(step, index, qa.a, "canned", "error")
       })
+  }
+
+  /** Pass B: the system prompt for a question on `step`, from the live state. */
+  private buildPrompt(step: number): string {
+    const def = STEPS[step]
+    const part = STEP_PARTS[step] ?? "the wheel"
+    const s = this.stats
+    const run = s ? `${s.mistakes} mistakes, ${s.leverMisses} lever misses and ${s.hintsUsed} hints so far this run` : "no record of this run"
+    const seconds = Math.max(0, Math.round(getTime() - this.stepEnteredAt))
+    return (
+      `You are a calm bike mechanic coaching someone who is fixing a flat tire on Specs AR glasses. ` +
+      `Their hands are busy on the wheel, and you speak beside the part they are working on. ` +
+      `They are on step ${step} of 10, ${def.name}. The instruction on screen says: "${def.label}" ` +
+      `This step is about ${part}. They have had ${run}, and have been on this step for ${seconds} seconds. ` +
+      `Answer in at most two short sentences, specific to this step and this part. ` +
+      `Name the part and the hand motion. Plain text only, no lists and no markdown. ` +
+      `If the question is not about this repair, say so in one sentence.`
+    )
   }
 
   private cannedReason(): string {
@@ -298,6 +335,7 @@ export class AskCoach extends BaseScriptComponent {
   /** A new step: Ask closes (pass G2 / M); the next step brings its own questions when reopened. */
   private stepChanged(): void {
     this.cancel()
+    this.stepEnteredAt = getTime()
     this.lastSource = ""
     if (this.open) {
       print("[AskCoach] Ask closed on a step change")
@@ -344,23 +382,24 @@ export class AskCoach extends BaseScriptComponent {
   }
 
   /**
-   * The chips, or the answer in their place, hang under the step callout (its slot);
-   * the callout keeps the slot clear of the wheel (top or bottom zone).
+   * Pass B: the chips, or the answer in their place, stand in the step callout's slot
+   * (its anchor and width; the callout hides its plate); the callout keeps the slot clear
+   * of the wheel (inside the rim, or the top or bottom zone).
    */
   private place(): void {
     if (!this.stepLabel) return
     if (!this.open) {
       // Give the slot back once (What's this? may own it next).
-      if (this.ownsSlot) this.stepLabel.setStack(0)
+      if (this.ownsSlot) this.stepLabel.setSlot(0)
       this.ownsSlot = false
       return
     }
     this.ownsSlot = true
     const h = this.answerShown ? this.answerPanel.panelHeight : this.chips.height
-    this.stepLabel.setStack(h + this.panelGapCm)
-    // Same scale as the callout, so the two read as one.
+    this.stepLabel.setSlot(h)
+    // Same place and scale as the callout's plate would have.
     const k = this.stepLabel.scale
-    const at = this.stepLabel.stackTop(this.panelGapCm).add(new vec3(0, (-h / 2) * k, 0))
+    const at = this.stepLabel.sceneObject.getTransform().getWorldPosition()
     const panel = this.answerShown ? this.answerPanel.sceneObject : this.chips.sceneObject
     panel.getTransform().setWorldPosition(at)
     panel.getTransform().setLocalScale(new vec3(k, k, k))

@@ -20,6 +20,9 @@
  *    the callout goes above the tire (marker in the upper half; shifted to the side away
  *    from the marker, clear of any lever handle) or below it (lower half), with the
  *    stack between it and the tire / under it.
+ *  - Pass B, Ask takes the slot (setSlot): while Ask is open its chips or answer stand where
+ *   the plate stands, same width and anchor, so there is one plate on the part. The plate
+ *   hides (setSlot), the ring and the leader stay, and the box placed is the Ask panel's.
  * It keeps its apparent size: closer than viewDistanceCm it scales down (to minScale),
  * so from step 5's far side (about 35 cm away) it still fits in the view.
  * The plate stands off the wheel toward the user (or the far side on step 5). From the
@@ -128,6 +131,11 @@ export class BenchCoachStepLabelUI extends BaseScriptComponent {
   private leader: LeaderLine | null = null
   private anchor: CalloutAnchor | null = null
   private stackH = 0
+  /** Pass B: height of the Ask panel standing in the plate's place (0 = the plate shows). */
+  private slotH = 0
+  /** Pass B: the plate is hidden because Ask took its slot; tests read it. */
+  plateHidden: boolean = false
+  private shownHide = false
   private step = 0
   private pulse = false
   private badge: SceneObject | null = null
@@ -242,6 +250,17 @@ export class BenchCoachStepLabelUI extends BaseScriptComponent {
     this.place()
   }
 
+  /**
+   * Pass B: while Ask is open, its panel (chips or answer, heightCm tall) stands in the
+   * plate's place: the plate and its text hide, the leader stays. 0 gives the plate back.
+   */
+  setSlot(heightCm: number): void {
+    this.slotH = Math.max(0, heightCm)
+    this.plateHidden = this.slotH > 0
+    this.applyPlateVisible()
+    this.place()
+  }
+
   /** World point at the top center of the stack slot under the plate (gap and plate at the current scale). */
   stackTop(gapCm: number): vec3 {
     const c = this.sceneObject.getTransform().getWorldPosition()
@@ -268,8 +287,9 @@ export class BenchCoachStepLabelUI extends BaseScriptComponent {
     return this.panelWidth * this.scale
   }
 
+  /** Height of the box the callout occupies: the plate, or the Ask panel standing in for it. */
   scaledHeight(): number {
-    return this.panelHeight * this.scale
+    return (this.slotH > 0 ? this.slotH : this.panelHeight) * this.scale
   }
 
   onAwake(): void {
@@ -400,7 +420,7 @@ export class BenchCoachStepLabelUI extends BaseScriptComponent {
     const a = this.anchor
     if (!a) return
     const w = this.panelWidth * this.scale
-    const h = this.panelHeight * this.scale
+    const h = this.scaledHeight()
     const tireOuter = a.radius + 3.2
     const gap = this.tireGapCm
     let dx = 0
@@ -416,12 +436,14 @@ export class BenchCoachStepLabelUI extends BaseScriptComponent {
     // inside the rim together when they fit, as one box, clear of the ring. Above the tire
     // the stack's top sat 24 to 27 degrees above the eye, past Specs' top edge (about 18.5);
     // inside the rim it is near eye level and covers only spokes and hub, never worked.
-    const stackIn = this.stackH > 0 ? this.insideSpot(a, dx, dy, w, h + this.stackH * this.scale) : null
+    // Pass B: the Ask panel standing in the plate's place is placed the same way, with nothing under it.
+    const boxed = this.stackH > 0 || this.slotH > 0
+    const stackIn = boxed ? this.insideSpot(a, dx, dy, w, h + this.stackH * this.scale) : null
     if (stackIn) {
       cx = stackIn.x
       cy = stackIn.y + (this.stackH * this.scale) / 2
-    } else if (this.stackH > 0) {
-      const stack = this.stackH * this.scale + gap
+    } else if (boxed) {
+      const stack = this.stackH > 0 ? this.stackH * this.scale + gap : 0
       if (dy >= -a.radius * 0.5) {
         zone = "top"
         // Away from the marker's side, so lever handles above the tire stay clear.
@@ -440,7 +462,7 @@ export class BenchCoachStepLabelUI extends BaseScriptComponent {
     }
     this.zone = zone
     let pos = a.hub.add(new vec3(cx, cy, a.side * a.standOff))
-    const through = a.side < 0 && this.stackH === 0 && this.seenThroughWheel(pos, a, w)
+    const through = a.side < 0 && !boxed && this.seenThroughWheel(pos, a, w)
     // Pass P: the near-side note in the normal and hint states (a mistake or "found" keeps its text).
     const note = through && !!this.nearLine && (this.mode === "normal" || this.mode === "hint")
     this.setThroughWheel(through, note)
@@ -619,15 +641,23 @@ export class BenchCoachStepLabelUI extends BaseScriptComponent {
     this.throughWheel = on
     const wasNote = this.nearNote
     this.nearNote = note
-    const hide = on && !note
-    this.plate.content.enabled = !hide
-    for (const r of this.sceneObject.getComponents("Component.RenderMeshVisual") as RenderMeshVisual[]) r.enabled = !hide
+    this.applyPlateVisible()
     if (note !== wasNote) {
       if (this.label) this.label.text = keepTogether(note ? this.nearLine : this.labelText)
       // The idle hint's line waits for the full callout.
       if (note && this.hintText) this.setHintLine(null)
       else if (!note && this.mode === "hint" && this.hintWanted) this.setHintLine(this.hintWanted)
     }
+  }
+
+  /** The plate shows unless the far-side callout would be read through the wheel or Ask has its slot. */
+  private applyPlateVisible(): void {
+    if (!this.plate) return
+    const hide = (this.throughWheel && !this.nearNote) || this.plateHidden
+    if (hide === this.shownHide) return
+    this.shownHide = hide
+    this.plate.content.enabled = !hide
+    for (const r of this.sceneObject.getComponents("Component.RenderMeshVisual") as RenderMeshVisual[]) r.enabled = !hide
   }
 
   private drawLeader(c: vec3, target: vec3 | null): void {

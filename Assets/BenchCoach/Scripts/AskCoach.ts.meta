@@ -38,9 +38,7 @@
     idle: false
     manager: false
     model: false
-    panelGapCm: false
     stepLabel: false
-    systemPrompt: false
     timeoutSec: false
     useLive: false
   ScriptTypesHidden:
@@ -63,8 +61,6 @@
       forceCanned: false
       timeoutSec: !<float> 6.000000
       model: gemini-2.5-flash
-      systemPrompt: "You are a calm bike mechanic. Answer in at most 2 short sentences, specific to this step: {step}."
-      panelGapCm: 0.500000
       answerSec: !<float> 8.000000
       chipsIdleSec: !<float> 10.000000
   ScriptTypes:
@@ -90,8 +86,6 @@
     - '// @input bool forceCanned {"hint":"Tests: always use the canned answer, never the network"}'
     - '// @input float timeoutSec = 6 {"hint":"Seconds to wait for a live answer before using the canned one", "widget":"slider", "min":1, "max":15, "step":0.5}'
     - '// @input string model = "gemini-2.5-flash" {"hint":"Gemini model id through the Remote Service Gateway"}'
-    - '// @input string systemPrompt = "You are a calm bike mechanic. Answer in at most 2 short sentences, specific to this step: {step}." {"hint":"System prompt; {step} becomes the step name and label"}'
-    - '// @input float panelGapCm = 0.5 {"hint":"Gap between the step callout and the Ask panel hung under it, in cm", "widget":"slider", "min":0, "max":4, "step":0.1}'
     - '// @input float answerSec = 8 {"hint":"Seconds a shown answer stays up before it hides on its own (0 = until the step changes); Nov 1 audit: show it only when needed", "widget":"slider", "min":0, "max":30, "step":0.5}'
     - '// @input float chipsIdleSec = 10 {"hint":"Seconds the chips stay open after the last chip press or answer before Ask closes on its own (0 = never)", "widget":"slider", "min":0, "max":60, "step":0.5}'
     - '// @ui {"widget":"group_end"}'
