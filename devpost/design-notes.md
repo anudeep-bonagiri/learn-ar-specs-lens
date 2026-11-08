@@ -2426,3 +2426,47 @@ Left over:
 - A More view with real counts and the memory line would need a scenario that plays a whole run with slips instead of jumping; `coach-report` with the adaptive coach now counting could be that take. Not recorded.
 - `t19-quiet` (step 1 with no hint for 24 s) is not in the cut; the Run 2 card says it.
 - Only Anudeep can write "What we learned" in his own words, tick the rules box, press Submit, and set the video to Public.
+
+## 2026-11-08: Pass B, less on screen
+
+Why: three of the judges' rules read against the Lens as it stood. "Only display what needs to be displayed": the progress rail repeated the callout's "Step 4 of 10", the Watching badge sat in frame for a whole Watch run, and the Ask answer stacked under the step callout over the tire, two plates on the part at once. "Make the buttons big, and fewer of them": four dock buttons plus a three-item menu. And the start card said "Put your wheel in the stand" in a preview where a virtual wheel appears, a small lie. The Ask prompt was two sentences with no idea of where the user was.
+
+What changed:
+
+- **Ask never stacks.** While Ask is open, the step callout's plate hides and its ring and leader stay on the part; the chips and the answer stand in the plate's slot, same width, same anchor. The plate comes back when Ask closes. One plate on the part at a time. `BenchCoachStepLabelUI.ts` (`setSlot`), `AskCoach.ts`.
+- **Replay moved into More.** The dock is Back, Next, More, each the size it was, recentred. Replay is the popover's first row and closes it. `BenchCoachControlBarUI.ts`, `UIBindings.ts`.
+- **The Watching badge is brief.** 3 s when Watch starts, 2 s on each step change, then gone. Next still stops Watch; the badge's Stop works while it shows. The dock's "Watching the coach" pill is unchanged. `BenchCoachWatchBadgeUI.ts`.
+- **The rail only on the cards.** Hidden on the repair steps and the start card; on the halfway card and the Finish card it still lights the done segments. `ProgressRail.ts`.
+- **The start card says what the preview does.** One secondary line, in the editor only (`deviceInfoSystem.isEditor()`): "In this preview, Found it stands a wheel in for yours." It fits beside the Run 2 line. Nothing spoken. `BenchCoachStartCardUI.ts`.
+- **The Ask prompt knows where you are.** Built per question from the live state: who the user is and where, the step number and name, the instruction on screen, the part, mistakes and hints so far, seconds into the step; then the rules (two short sentences, name the part and the hand motion, plain text, say so if the question is off the repair). Printed once per question at `[AskCoach] prompt:`. The 6 s timeout, the canned fallback and the "Offline answer" tag are as they were. `AskCoach.ts`.
+- **Tests that fit the MCP call.** `ui-layout` 57 to 61 s and `watch-mode` 56 s are now 45.8 s and 44.9 s, no assertion dropped. `ask-coach-fallback` waits for the More popover before its first tap and taps once more if the chips are not up.
+
+What was checked: every scenario in the Garage room at the start eye, `__leaf__log_level=ERROR`, one per call.
+
+| Scenario | Result | Scenario | Result |
+| --- | --- | --- | --- |
+| `start` | PASSED (7.3 s) | `watch-mode` | PASSED (44.9 s) |
+| `deflate-loosen` | PASSED (5.2 s) | `ask-coach-fallback` | PASSED (25.1 s) |
+| `lever-snap` | PASSED (12.3 s) | `floor-path` | PASSED (15.0 s) |
+| `peel-and-pull` | PASSED (47.7 s) | `coach-report` | PASSED (30.9 s) |
+| `inspect-done` | PASSED (45.7 s) | `control-bar` | PASSED (12.0 s), after a test fix |
+| `step-ticks` | PASSED (6.7 s) | `floor-level` | PASSED (12.3 s) |
+| `scene-dressing` | PASSED (12.4 s) | `ui-layout` | PASSED (45.8 s) |
+| `refit-tube` | PASSED (13.7 s) | `voice-coach` | PASSED (17.9 s) |
+| `seat-inflate` | PASSED (9.8 s) | `practise-step` | PASSED (40.8 s) |
+| `whats-this` | PASSED (12.5 s) | `adaptive-coach` | PASSED (28.2 s) |
+| `mistakes` | PASSED (31.0 s) | `jump-to-step` | PASSED (2.2 s) |
+| `flat-causes` | PASSED (18.0 s) | | |
+| `progress-idle` | PASSED (8.1 s) | | |
+
+- `control-bar` failed once on the test's own new size threshold (3.9 cm against the scene's 3.6 cm buttons); the threshold was corrected and it passed. That fix and a `more` parameter on `jump-to-step` (for a capture) were the only edits during the sweep; nothing in `Scripts/` changed after the sweep started.
+- Tests changed: `control-bar` (three buttons, Replay inside More), `inspect-done` (opens More before each Replay), `progress-idle` and `start` (new asserts), `ask-coach-fallback` (plate hidden, prompt present, "stands in the slot" within 0.5 cm), `ui-layout` (geometry follows the slot, shorter sleeps), `watch-mode` (badge asserts, the resume leg at `waitScale` 0.25).
+- The pass stopped before its last capture: the Mac went into dark wake with the screen locked and two MCP calls in a row timed out. The code and the sweep were complete; the commits and this entry were made from the pass's report after the files and the sweep log were checked.
+
+Left over:
+
+- The dock's "Watching the coach" pill still shows for the whole Watch run; only the in-frame badge is brief.
+- A mistake made while Ask is open has no plate to show its reason on; the coach still says it. Not tested.
+- From the dock pose the edge arrow can touch the Ask button in the More popover.
+- The live Gemini path was not run (no token in the repo).
+- The video still shows the four-button dock in a few frames and the old Ask layout; those shots are re-recorded in pass R7.
