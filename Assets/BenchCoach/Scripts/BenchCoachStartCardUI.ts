@@ -10,6 +10,9 @@
  * (AdaptiveCoach: "Run 2. I'll go quiet on ..."), display only. Body type if it fits on
  * two lines, else one role smaller (secondary). The plate keeps its width and grows by
  * the line; with no line the card is exactly as before.
+ * Pass B: in the editor only, one more line under the floor line says what Found it does
+ * there (PreviewNote: the preview has no real wheel to recognise). Display only, nothing
+ * spoken; on Specs the row is not built, so the card is as before.
  * Owns: only its view. Emits onFoundIt, onWatch. Holds no repair state.
  * Expects: to sit on the StartCard SceneObject facing the user at about 85 cm.
  */
@@ -20,6 +23,9 @@ import {COLOR, Card, UIRole, addUIText, buildCard, grid, lineCm, linesFor, uiSiz
 
 const ICON_CHECK: Texture = requireAsset("../../Icons/check.png") as Texture
 const ICON_PLAY: Texture = requireAsset("../../Icons/play_arrow.png") as Texture
+
+/** Pass B: the honest line, editor only. */
+export const PREVIEW_NOTE = "In this preview, Found it stands a wheel in for yours."
 
 export type FloorStatus = "pending" | "found" | "fallback"
 
@@ -181,6 +187,7 @@ export class BenchCoachStartCardUI extends BaseScriptComponent {
       rows: [
         {name: "Subtitle", text: this.subtitle, role: "body"},
         {name: "FloorStatus", text: this.floorPendingText, role: "secondary"},
+        ...(global.deviceInfoSystem.isEditor() ? [{name: "PreviewNote", text: PREVIEW_NOTE, role: "secondary" as UIRole}] : []),
       ],
       buttons: [
         {name: "BtnFoundIt", label: this.buttonLabel, icon: ICON_CHECK, kind: "primary", width: 11.2, onClick: () => this._onFoundIt.invoke()},

@@ -11,6 +11,8 @@
  * while watch mode plays (its Stop is a press like any other), closes the More popover
  * on a step change, and keeps the start card's floor line in step with FloorLevel
  * ("Look down at your work spot" until it decides, then found or fallback).
+ * Pass B: Replay is in the More popover (a choice there closes it), and each step change
+ * while Watch plays shows the in-frame Watching badge again for a moment.
  * Expects: @inputs manager, startCard, controlBar, doneCard, finishCard, audio (wired in the scene).
  */
 import {RepairManager} from "./RepairManager"
@@ -123,7 +125,10 @@ export class UIBindings extends BaseScriptComponent {
       }
       this.controlBar.onBack.add(() => this.press(this.controlBar, "BtnBack", () => this.manager.back()))
       this.controlBar.onNext.add(() => this.press(this.controlBar, "BtnNext", () => this.manager.next()))
-      this.controlBar.onReplay.add(() => this.press(this.controlBar, "BtnReplay", () => this.manager.replay()))
+      this.controlBar.onReplay.add(() => {
+        this.press(this.controlBar, "BtnReplay", () => this.manager.replay())
+        this.closeMore() // Pass B: Replay lives in the More popover.
+      })
       this.doneCard.onTryAgain.add(() => this.press(this.doneCard, "BtnTryAgain", () => this.manager.reset()))
       this.doneCard.onContinue.add(() => this.press(this.doneCard, "BtnContinue", () => this.manager.next()))
       if (this.idle && this.stats) this.idle.onHint.add(() => this.stats.noteHint())
@@ -184,6 +189,8 @@ export class UIBindings extends BaseScriptComponent {
       this.manager.onStepChanged.add((step) => {
         this.controlBar.setProgress(step)
         if (this.controlBar.moreOpen) this.controlBar.setMoreOpen(false)
+        // Pass B: the Watching badge is brief; each new step brings it back for a moment.
+        if (this.watchBadge && this.director && this.director.playing) this.watchBadge.showForStep()
       })
       this.createEvent("UpdateEvent").bind(() => this.tick())
     })

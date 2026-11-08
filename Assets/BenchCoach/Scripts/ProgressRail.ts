@@ -4,12 +4,15 @@
  * and 11 have none). Done segments are the accent, the current one glows brighter and
  * breathes, segments ahead use a dim copy of the marker material (dim cyan, never dark
  * on the additive display). The dock sets the bar's length (setLength) and position.
+ * Pass B: the callout's "Step 4 of 10" already says where you are, so the bar is hidden on
+ * the repair steps and the start card and shows only on the halfway and Finish cards
+ * (`barShown`); the segments keep lighting underneath, so the card shows the done ones.
  * Owns: the segment children of this SceneObject. Reads the step from RepairManager.
  * Must not: change steps. Lives on ControlBar/ProgressRail, so it body-follows with the dock.
  * Expects: @inputs manager, dotMesh (unit sphere, squashed into a segment), material (MarkerMat).
  */
 import {RepairManager} from "./RepairManager"
-import {railSteps} from "./StepDefinitions"
+import {HALFWAY_STEP, LAST_STEP, railSteps} from "./StepDefinitions"
 
 @component
 export class ProgressRail extends BaseScriptComponent {
@@ -67,6 +70,8 @@ export class ProgressRail extends BaseScriptComponent {
   currentIndex: number = -1
   /** Segment length in cm (from lengthCm). */
   segmentCm: number = 0
+  /** Pass B: the bar shows (only on the halfway card and the Finish card). */
+  barShown: boolean = false
 
   private dots: SceneObject[] = []
   private visuals: RenderMeshVisual[] = []
@@ -96,6 +101,7 @@ export class ProgressRail extends BaseScriptComponent {
     }
     this.layout()
     this.dotCount = n
+    this.showBar(false)
     this.createEvent("OnStartEvent").bind(() => {
       if (this.manager) this.manager.onStepChanged.add((s) => this.setStep(s))
     })
@@ -127,6 +133,7 @@ export class ProgressRail extends BaseScriptComponent {
   /** Light the segments of the steps before `step`, pulse the one of `step`, dim the rest. */
   setStep(step: number): void {
     this.lastStep = step
+    this.showBar(step === HALFWAY_STEP || step === LAST_STEP)
     let lit = 0
     this.currentIndex = -1
     for (let i = 0; i < this.steps.length; i++) {
@@ -137,6 +144,11 @@ export class ProgressRail extends BaseScriptComponent {
       this.dots[i].getTransform().setLocalScale(this.segmentScale(1))
     }
     this.litCount = lit
+  }
+
+  private showBar(on: boolean): void {
+    this.barShown = on
+    for (const d of this.dots) if (d.enabled !== on) d.enabled = on
   }
 
   private tick(): void {

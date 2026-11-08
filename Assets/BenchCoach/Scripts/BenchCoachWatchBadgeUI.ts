@@ -6,7 +6,10 @@
  * recording pose, away from the lever handles that stand up on steps 3 and 4), with its
  * own Stop. Same plate as the dock's pill: a cyan-edged pill, a play icon, "Watching" in
  * the button role, and BtnBadgeStop, an icon button (ray-only, 2.2 degrees at its distance).
- * Owns: only its view. Emits onStop; setWatching(on) shows and hides it. Follows the
+ * Pass B: the badge is brief. It shows for startSec when Watch starts and for stepSec on
+ * each step change while watching (showForStep), then hides; BtnBadgeStop works whenever it
+ * shows. `watching` is still the whole Watch run, `showing` is the badge on screen now.
+ * Owns: only its view. Emits onStop; setWatching(on) starts and ends it. Follows the
  * wheel every frame (so a re-anchor carries it) and turns to face the user.
  */
 import Event, {PublicApi} from "SpectaclesInteractionKit.lspkg/Utils/Event"
@@ -55,10 +58,22 @@ export class BenchCoachWatchBadgeUI extends BaseScriptComponent {
   @input
   @hint("Label")
   label: string = "Watching"
+
+  @input
+  @hint("Pass B: seconds the badge shows when Watch starts")
+  @widget(new SliderWidget(0.5, 10, 0.5))
+  startSec: number = 3
+
+  @input
+  @hint("Pass B: seconds the badge shows on each step change while watching")
+  @widget(new SliderWidget(0.5, 10, 0.5))
+  stepSec: number = 2
   @ui.group_end
 
-  /** The badge is showing. */
+  /** Watch mode is playing (the whole run). */
   watching: boolean = false
+  /** Pass B: the badge is on screen now (brief: at the start and on each step change). */
+  showing: boolean = false
   /** Plate size in cm (tests read it). */
   width: number = 0
   height: number = 0
@@ -71,10 +86,29 @@ export class BenchCoachWatchBadgeUI extends BaseScriptComponent {
   private stopBtn: Button | null = null
   private hiddenOnce = false
 
+  /** getTime() at which the badge hides. */
+  private hideAt = 0
+
   setWatching(on: boolean): void {
     this.watching = on
+    if (on) this.showFor(this.startSec)
+    else this.setShowing(false)
+  }
+
+  /** Pass B: Watch moved on to a new step. */
+  showForStep(): void {
+    if (this.watching) this.showFor(this.stepSec)
+  }
+
+  private showFor(sec: number): void {
+    this.hideAt = getTime() + sec
+    this.setShowing(true)
+    this.follow()
+  }
+
+  private setShowing(on: boolean): void {
+    this.showing = on
     if (this.root && this.hiddenOnce) this.root.enabled = on
-    if (on) this.follow()
   }
 
   onAwake(): void {
@@ -111,10 +145,12 @@ export class BenchCoachWatchBadgeUI extends BaseScriptComponent {
       if (++frames < 5) return
       init.enabled = false
       this.hiddenOnce = true
-      if (this.root) this.root.enabled = this.watching
+      if (this.root) this.root.enabled = this.showing
     })
     this.createEvent("LateUpdateEvent").bind(() => {
-      if (this.watching) this.follow()
+      if (!this.showing) return
+      if (getTime() >= this.hideAt) this.setShowing(false)
+      else this.follow()
     })
   }
 
