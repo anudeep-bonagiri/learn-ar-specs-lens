@@ -2482,3 +2482,9 @@ Left over:
 
 - The take shows the preview note on the start card and the three-button dock is out of frame; the cold open and the wide shot still show the earlier dock and badge (recorded Nov 6).
 - A dock shot after pass B was not recorded.
+
+### Nov 8, afternoon: the ninth cut, said plainly
+
+A third reading of the entry made one fair point: the eighth cut said "by hand", which implies a person at the mouse; the gestures were sent by the recording agent through the Lens Studio MCP's gesture tool. The cut, the README, the page and the YouTube description now say exactly that ("real preview input through the gesture tool, cursor visible, 1.25x"), and that no shot is a person at the mouse. The same reading asked for one short label per shot (done), for the opener and the wide shot to show the current build (pass R8: `t23-cold`, lever B hooking and sliding in Watch mode with the brief badge and no rail; `t24-wide`, the set from the front-right corner; `t22-dock`, the three-button dock, used in the gallery), for the Finish-card line not to quote the judges' phrase (done), and for the build-pass archaeology to come out of the source comments (done: 220 comment and hint lines, no code line changed). The floor open is trimmed by a second. Uploaded unlisted as https://youtu.be/9j9sVmyRFLY (2:56). Gallery: the Ask image regenerated on the new layout, a dock image added.
+
+Left over: the Ask feature has only ever been shown offline (a live answer needs a Remote Service Gateway token, which stays out of the repo); the "What we learned" text is still the agent's draft; the video stays unlisted until Anudeep flips it.
