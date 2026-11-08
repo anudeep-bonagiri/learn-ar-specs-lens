@@ -34,6 +34,7 @@ import {AskCoach} from "../Scripts/AskCoach"
  * Pass 12: `ask` = open taps BtnAsk; `ask` = 0..2 also pinches that chip and waits
  * (up to 8 s) for the answer; `canned` = 1 forces the offline answer. Screenshots only;
  * the live path needs tokens set in memory (tools/set-coach-tokens.md).
+ * Pass B: `more` = 1 opens the dock's More popover and leaves it open, for screenshots.
  */
 @component
 export class JumpToStepScenario extends Scenario {
@@ -51,6 +52,7 @@ export class JumpToStepScenario extends Scenario {
     const until = config?.get("until") ?? ""
     const askArg = config?.get("ask") ?? ""
     const canned = config?.getNumber("canned") ?? 0
+    const more = config?.getNumber("more") ?? 0
     await sleep(500)
     const manager = getRepairManager()
     const root = findSceneObjectByName("BenchCoach")
@@ -130,6 +132,11 @@ export class JumpToStepScenario extends Scenario {
       await sleep(300)
       await interactor.tap(`InfoHit_${part}`)
       print(`[JumpToStep] What's this? ${info.lastText}`)
+    }
+    if (more > 0) {
+      await interactor.tap("BtnMore")
+      await sleep(400)
+      print("[JumpToStep] the More popover is open")
     }
     if (askArg) {
       const ask = root.getComponent(AskCoach.getTypeName()) as AskCoach

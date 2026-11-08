@@ -32,10 +32,10 @@ const TITLE_TEXTS = ["Title", "DoneText", "FinishTitle", "FinishTime"]
  *    tire, the beads, the valve and lever handles);
  *  - the edge arrow, when it shows, is not on the step callout or the dock;
  *  - no Text's rectangle crosses its plate's edge (every panel, on the step it shows);
- *  - with Ask open the callout and the chips (or the answer) sit inside the rim together,
- *    every corner in the clear circle, or above or below the tire; never over the tire,
- *    and their top at most 14 degrees above the eye (pass M: Sujeeth's G5, Specs' top
- *    edge is about 18.5 degrees);
+ *  - with Ask open the chips (or the answer), standing in the callout's slot (pass B: its
+ *    plate hidden), sit inside the rim, every corner in the clear circle, or above or
+ *    below the tire; never over the tire, and their top at most 14 degrees above the eye
+ *    (pass M: Sujeeth's G5, Specs' top edge is about 18.5 degrees);
  *  - the What's this? info callout does not overlap the step callout on screen;
  *  - pass V, the type scale for video: from the live eye every body and instruction line
  *    has an x-height of at least MIN_BODY_XHEIGHT_DEG (1.5% of the 36.6-degree frame) and
@@ -82,7 +82,7 @@ export class UiLayoutScenario extends Scenario {
     for (let step = 1; step < LAST_STEP; step++) {
       if (STEPS[step].markerAnchor === "none") continue
       manager.jumpToStep(step)
-      await sleep(500)
+      await sleep(300)
       const c = labelObj.getTransform().getWorldPosition()
       const w = callout.scaledWidth()
       const h = callout.scaledHeight()
@@ -144,7 +144,7 @@ export class UiLayoutScenario extends Scenario {
       const subBeads = step === 2 ? [0, 2, 4] : step === 9 ? [0, 1, 2] : []
       for (const b of subBeads) {
         await interactor.tap(`Bead_${b}`)
-        await sleep(400)
+        await sleep(200)
         print(`[UiLayoutScenario] step ${step} after Bead_${b}:${this.checkInFrame(camera, step, ` after Bead_${b}`)}`)
       }
     }
@@ -152,7 +152,7 @@ export class UiLayoutScenario extends Scenario {
     // ── Cards: texts inside their plates ─────────────────────────────────────
     for (const step of [0, 7, LAST_STEP]) {
       manager.jumpToStep(step)
-      await sleep(500)
+      await sleep(300)
       await this.laidOut()
       this.checkTexts(step)
     }
@@ -195,8 +195,10 @@ export class UiLayoutScenario extends Scenario {
       const tireOuter = 33.4 * tire.getTransform().getLocalScale().x + 3.2
       const hy = hub().y
       const k = callout.scale
-      const top = c.y + callout.scaledHeight() / 2
-      const bottom = c.y - callout.scaledHeight() / 2 - (ask.panelGapCm + panelH) * k
+      // Pass B: the panel stands in the callout's slot, so its box is the callout's box.
+      expect(callout.plateHidden, `Ask on step ${step} (${what}): one plate on the part (the callout's is hidden)`).toBe(true)
+      const top = c.y + (panelH * k) / 2
+      const bottom = c.y - (panelH * k) / 2
       const eye = camera.getTransform().getWorldPosition()
       const flat = Math.sqrt((c.x - eye.x) * (c.x - eye.x) + (c.z - eye.z) * (c.z - eye.z))
       const elev = (Math.atan2(top - eye.y, Math.max(1, flat)) * 180) / Math.PI
@@ -217,20 +219,20 @@ export class UiLayoutScenario extends Scenario {
     }
     for (const step of [2, 3, 5, 6]) {
       manager.jumpToStep(step)
-      await sleep(400)
+      await sleep(250)
       ask.forceCanned = true
       await interactor.tap("BtnAsk")
-      await sleep(400)
+      await sleep(250)
       checkStack(step, ask.chips.height, "chips")
       await this.laidOut()
       this.checkTexts(step)
       await interactor.tap("AskChip_0")
-      await sleep(400)
+      await sleep(250)
       checkStack(step, (findSceneObjectByName("AskAnswerPanel").getComponent(BenchCoachAskAnswerUI.getTypeName()) as BenchCoachAskAnswerUI).panelHeight, "answer")
       await this.laidOut()
       this.checkTexts(step)
       await interactor.tap("BtnAsk")
-      await sleep(300)
+      await sleep(150)
       ask.forceCanned = false
     }
 
@@ -239,9 +241,9 @@ export class UiLayoutScenario extends Scenario {
     // ring, and inside the view, for every part that can be pinched (steps 1, 4 and 5).
     for (const step of [1, 4, 5]) {
       manager.jumpToStep(step)
-      await sleep(400)
+      await sleep(250)
       await interactor.tap("BtnWhatsThis")
-      await sleep(300)
+      await sleep(200)
       const hits = findSceneObjectByName("InfoHits")
       const parts: string[] = []
       for (let i = 0; i < hits.getChildrenCount(); i++) {
@@ -250,7 +252,7 @@ export class UiLayoutScenario extends Scenario {
       }
       for (const part of parts) {
         await interactor.tap(`InfoHit_${part}`)
-        await sleep(300)
+        await sleep(200)
         const ic = info.sceneObject.getTransform().getWorldPosition()
         const k = info.sceneObject.getTransform().getWorldScale().x
         const ir = this.screenRect(camera, ic, this.flatRight(ic), info.panelWidth * k, info.panelHeight * k)
@@ -286,7 +288,7 @@ export class UiLayoutScenario extends Scenario {
         this.checkTexts(step)
       }
       await interactor.tap("BtnWhatsThis")
-      await sleep(300)
+      await sleep(150)
     }
     manager.reset()
     await sleep(300)

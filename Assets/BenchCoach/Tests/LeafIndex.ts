@@ -127,7 +127,7 @@ export class LeafIndex extends BaseScriptComponent {
     {
       id: "jump-to-step",
       typename: JumpToStepScenario.getTypeName(),
-      parameters: {step: "5", pullCm: "0", fit: "0", inflate: "0", cause: "", find: "0", part: "", mistake: "", idle: "0", watch: "0", until: "", ask: "", canned: "0"},
+      parameters: {step: "5", pullCm: "0", fit: "0", inflate: "0", cause: "", find: "0", part: "", mistake: "", idle: "0", watch: "0", until: "", ask: "", canned: "0", more: "0"},
     },
   ]
 }

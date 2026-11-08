@@ -13,7 +13,7 @@ import {VoiceCoach} from "../Scripts/VoiceCoach"
 /**
  * Pass F: the control bar's hit boxes and targeting.
  * - Every bar button's live collider is as wide as its visual and none overlaps
- *   its neighbor (pass D2: the dock row Back, Replay, Next, More and the More popover).
+ *   its neighbor (pass B: the dock row Back, Next, More; the More popover Replay first).
  * - Every initialized UIKit button answers only a ray pinch (TargetingMode.Indirect),
  *   so a hand passing through cannot poke it; the grabbable tools and wheel parts
  *   keep direct targeting.
@@ -39,9 +39,16 @@ export class ControlBarScenario extends Scenario {
 
     // ── Hit boxes ─────────────────────────────────────────────────────────
     for (let i = 0; i < 50 && bar.hitBoxes.length === 0; i++) await sleep(100)
-    // Pass D2: the dock row (Back, Replay, Next, More) and the More popover (What's this?, Ask);
+    // Pass B: the dock row (Back, Next, More), the More popover (Replay; What's this?, Ask);
     // pass V: the Voice toggle on its own popover row.
-    expect(bar.hitBoxes.length, "seven hit boxes measured (dock row, More popover, Voice row)").toBe(7)
+    expect(bar.hitBoxes.length, "seven hit boxes measured (three dock buttons, Replay row, More popover, Voice row)").toBe(7)
+    const dockRow = bar.hitBoxes.filter((h) => h.row === "dock")
+    expect(dockRow.map((h) => h.name).join(","), "the dock is Back, Next, More").toBe("BtnBack,BtnNext,BtnMore")
+    // Pass B: at least as big as with four buttons (the scene's 3.6 cm squares and 6.6 cm Next).
+    for (const h of dockRow) expect(h.visualWidth, `${h.name} at least as big as before`).toBeGreaterThan(h.name === "BtnNext" ? 6.55 : 3.55)
+    const rowMid = (dockRow[0].left + dockRow[dockRow.length - 1].right) / 2
+    expect(Math.abs(rowMid), "the row is centred on the dock").toBeLessThan(0.1)
+    expect(bar.hitBoxes.filter((h) => h.row === "replay").map((h) => h.name).join(","), "Replay is its own row in the popover").toBe("BtnReplay")
     for (let i = 0; i < bar.hitBoxes.length; i++) {
       const h = bar.hitBoxes[i]
       const w = h.right - h.left
@@ -80,7 +87,14 @@ export class ControlBarScenario extends Scenario {
     manager.jumpToStep(4)
     await sleep(300)
     expect(manager.getState().step, "on step 4").toBe(4)
+    // Pass B: Replay is in the More popover: open it, then tap Replay; a choice closes the popover.
+    await interactor.tap("BtnMore")
+    expect(bar.moreOpen, "More opens the popover").toBe(true)
+    const replayObj = findSceneObjectByName("BtnReplay")
+    const askObj = findSceneObjectByName("BtnWhatsThis")
+    expect(replayObj.getTransform().getWorldPosition().y, "Replay is the popover's first (top) row").toBeGreaterThan(askObj.getTransform().getWorldPosition().y)
     await interactor.tap("BtnReplay")
+    expect(bar.moreOpen, "Replay closes the popover").toBe(false)
     print(`[ControlBarScenario] Replay on step 4: ${manager.lastReplay} (count ${manager.replayCount})`)
     expect(manager.getState().step, "Replay keeps step 4").toBe(4)
     expect(manager.replayCount, "Replay acted once").toBe(1)

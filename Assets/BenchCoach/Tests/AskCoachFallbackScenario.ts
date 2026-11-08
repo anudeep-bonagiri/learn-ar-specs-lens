@@ -1,13 +1,14 @@
 import {Scenario} from "Leaf.lspkg/Scenarios/scenario/Scenario"
 import {expect} from "Leaf.lspkg/Utils/common/Expect"
 import {findSceneObjectByName, sleep} from "Leaf.lspkg/Utils/common/Utils"
+import {Button} from "SpectaclesUIKit.lspkg/Scripts/Components/Button/Button"
 import {BenchCoachLeafInteractor, getRepairManager} from "./BenchCoachLeafInteractor"
 import {AskCoach} from "../Scripts/AskCoach"
 import {PartInfo} from "../Scripts/PartInfo"
 import {IdleHint} from "../Scripts/IdleHint"
 import {BenchCoachControlBarUI} from "../Scripts/BenchCoachControlBarUI"
 import {BenchCoachStepLabelUI} from "../Scripts/BenchCoachStepLabelUI"
-import {COACH_QUESTIONS} from "../Scripts/StepDefinitions"
+import {COACH_QUESTIONS, STEPS} from "../Scripts/StepDefinitions"
 
 /**
  * Pass 12, Ask the coach, offline path (never the network): with forceCanned set,
@@ -17,6 +18,11 @@ import {COACH_QUESTIONS} from "../Scripts/StepDefinitions"
  * other; BtnAsk closes it. Pass G2 on D2 (pass M): Next closes Ask; the answer hides
  * after answerSec (the chips come back) and at the next sub-step; the chips close Ask
  * after chipsIdleSec with no chip press (both timers shortened for the test).
+ * Pass B: while Ask is open the callout's plate is hidden (its leader stays) and the
+ * chips or the answer stand where it stood; closing Ask brings the plate back.
+ * Pass B: the prompt built for a question is checked (never sent: forceCanned).
+ * Pass B: the first Ask tap (hung once in pass A) waits for the popover and taps once
+ * more if the chips are not up 1.5 s later; which of the two happened is logged.
  */
 @component
 export class AskCoachFallbackScenario extends Scenario {
@@ -45,9 +51,26 @@ export class AskCoachFallbackScenario extends Scenario {
     expect(answerPanel.enabled, "answer hidden at first").toBe(false)
 
     // ── Toggle on: chips with step 5's questions ───────────────────────────
-    await interactor.tap("BtnAsk")
+    // Pass B: the first tap, after the popover is enabled and its button is up and laid out.
+    await interactor.tap("BtnMore")
+    const askButton = findSceneObjectByName("BtnAsk").getComponent(Button.getTypeName()) as Button
+    const popover = findSceneObjectByName("MorePopover")
+    for (let i = 0; i < 40 && !(bar.moreOpen && popover.isEnabledInHierarchy && askButton.initialized && askButton.getTransform().getWorldScale().x > 1e-3); i++) await sleep(50)
+    await sleep(200)
+    // The tap waits on the interactable's trigger events, so it is raced against the 1.5 s.
+    await Promise.race([interactor.tap("BtnAsk"), sleep(1500)])
+    for (let i = 0; i < 30 && !ask.open; i++) await sleep(50)
+    if (ask.open) {
+      print("[AskCoachFallbackScenario] first Ask tap opened the chips")
+    } else {
+      print("[AskCoachFallbackScenario] first Ask tap did nothing; tapping once more")
+      await new BenchCoachLeafInteractor().tap("BtnAsk")
+    }
     await sleep(300)
     expect(ask.open, "Ask on").toBe(true)
+    expect(callout.plateHidden, "the callout's plate is hidden while the chips show").toBe(true)
+    expect(findSceneObjectByName("StepKicker").isEnabledInHierarchy, "the plate's text is hidden while the chips show").toBe(false)
+    expect(callout.leaderFrom !== null, "the leader stays while the chips show").toBe(true)
     expect(bar.askOn, "Ask toggle latched").toBe(true)
     expect(chipsPanel.enabled, "chips shown").toBe(true)
     expect(idle.askSuspended, "IdleHint suspended while Ask is open").toBe(true)
@@ -55,6 +78,9 @@ export class AskCoachFallbackScenario extends Scenario {
     const q = COACH_QUESTIONS[5]
     expect(ask.chips.questions.length, "three questions on step 5").toBe(q.length)
     expect(ask.chips.questions[0], "first chip is step 5's first question").toBe(q[0].q)
+
+    const wc = ask.chips.sceneObject.getTransform().getWorldScale().x * ask.chips.panelWidth
+    expect(Math.abs(wc - callout.scaledWidth()), "the chips are the callout's width").toBeLessThan(0.2)
 
     // ── First chip: canned answer within 2 s ───────────────────────────────
     const t0 = getTime()
@@ -68,13 +94,19 @@ export class AskCoachFallbackScenario extends Scenario {
     expect(answerText.text, "answer label shows the canned answer").toBe(q[0].a)
     expect(tagText.text, "source tag").toBe("Offline answer")
     expect(answerPanel.enabled, "answer panel shown").toBe(true)
+    expect(callout.plateHidden, "the callout's plate is hidden while the answer shows").toBe(true)
+    expect(findSceneObjectByName("StepKicker").isEnabledInHierarchy, "the plate's text is hidden while the answer shows").toBe(false)
+    // Pass B: the prompt is built for the question (logged at "[AskCoach] prompt:"), never sent here.
+    expect(ask.lastPrompt.indexOf(STEPS[5].label) >= 0, "the prompt holds the step's instruction").toBe(true)
+    expect(ask.lastPrompt.indexOf("step 5 of 10") >= 0, "the prompt holds the step number").toBe(true)
+    expect(ask.lastPrompt.indexOf("at most two short sentences") >= 0, "the prompt holds the rules").toBe(true)
     // Pass D2: the answer takes the chips' slot under the step callout.
     expect(chipsPanel.enabled, "chips give way to the answer").toBe(false)
     const lp = labelObj.getTransform().getWorldPosition()
     const ap = answerPanel.getTransform().getWorldPosition()
-    print(`[AskCoachFallbackScenario] answer panel ${ap.distance(lp).toFixed(1)} cm from the step callout, ${(lp.y - ap.y).toFixed(1)} cm below it`)
-    expect(ap.distance(lp), "answer hangs from the step callout").toBeLessThan(14)
-    expect(lp.y - ap.y > 0, "answer under the callout").toBe(true)
+    print(`[AskCoachFallbackScenario] answer panel ${ap.distance(lp).toFixed(1)} cm from the step callout`)
+    // Pass B (replaces "hangs under the callout"): the answer stands in the callout's slot.
+    expect(ap.distance(lp), "answer stands in the callout's slot").toBeLessThan(0.5)
     expect(["inside", "top", "bottom"].indexOf(callout.zone) >= 0, "with Ask open the callout and stack sit inside the rim or above / below the tire (ui-layout checks the fit)").toBe(true)
     expect(manager.getState().step, "still step 5").toBe(5)
 
@@ -88,6 +120,8 @@ export class AskCoachFallbackScenario extends Scenario {
     await sleep(300)
     expect(ask.open, "chips close button closes Ask").toBe(false)
     expect(bar.askOn, "Ask toggle released by the close button").toBe(false)
+    expect(callout.plateHidden, "the plate is back after Ask closes").toBe(false)
+    expect(findSceneObjectByName("StepKicker").isEnabledInHierarchy, "the plate's text is back after Ask closes").toBe(true)
     await interactor.tap("BtnAsk")
     await sleep(300)
     await interactor.tap("AskChip_0")
@@ -119,6 +153,8 @@ export class AskCoachFallbackScenario extends Scenario {
     expect(ask.lastAnswer, "answer cleared").toBe("")
     expect(bar.askOn, "Ask toggle released by the step change").toBe(false)
     expect(idle.askSuspended, "IdleHint back on").toBe(false)
+    expect(callout.plateHidden, "the plate is back after the step change").toBe(false)
+    expect(findSceneObjectByName("StepKicker").isEnabledInHierarchy, "the plate's text is back after the step change").toBe(true)
 
     // ── Reopen on step 6: its own questions; toggle off ────────────────────
     await interactor.tap("BtnAsk")
@@ -128,6 +164,7 @@ export class AskCoachFallbackScenario extends Scenario {
     await interactor.tap("BtnAsk")
     await sleep(300)
     expect(ask.open, "Ask off").toBe(false)
+    expect(callout.plateHidden, "the plate is back after the Ask toggle closes").toBe(false)
     expect(chipsPanel.enabled, "chips hidden").toBe(false)
     expect(bar.askOn, "Ask toggle released").toBe(false)
     expect(idle.askSuspended, "IdleHint back on").toBe(false)

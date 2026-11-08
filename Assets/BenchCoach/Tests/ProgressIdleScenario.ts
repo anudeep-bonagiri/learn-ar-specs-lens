@@ -8,7 +8,7 @@ import {BenchCoachStepLabelUI} from "../Scripts/BenchCoachStepLabelUI"
 import {IdleHint} from "../Scripts/IdleHint"
 import {StepMarker} from "../Scripts/StepMarker"
 import {RunStats} from "../Scripts/RunStats"
-import {LAST_STEP, STEPS} from "../Scripts/StepDefinitions"
+import {HALFWAY_STEP, LAST_STEP, STEPS} from "../Scripts/StepDefinitions"
 
 /**
  * Pass 8: the progress rail has one dot per railDot step (9), lights the dots of
@@ -16,6 +16,8 @@ import {LAST_STEP, STEPS} from "../Scripts/StepDefinitions"
  * Finish card). With idleSec at 1 s, a quiet step shows its hint on the label once
  * (hintCount + 1, marker pulse boosted, RunStats hints + 1); Next takes the hint
  * down and shows the next step's label.
+ * Pass B: the rail is hidden on the repair steps (the callout already counts them) and
+ * shows only on the halfway and Finish cards, with the done segments lit.
  */
 @component
 export class ProgressIdleScenario extends Scenario {
@@ -55,6 +57,22 @@ export class ProgressIdleScenario extends Scenario {
     await sleep(300)
     expect(rail.litCount, "all dots lit on the Finish card").toBe(9)
     expect(rail.currentIndex, "no pulsing dot on the Finish card").toBe(-1)
+    expect(rail.barShown, "the rail shows on the Finish card").toBe(true)
+    expect(findSceneObjectByName("RailDot_0").isEnabledInHierarchy, "a rail segment is visible on the Finish card").toBe(true)
+
+    // Pass B: the rail leaves the steps; only the two cards show it.
+    for (const s of [1, 2]) {
+      manager.jumpToStep(s)
+      await sleep(300)
+      expect(rail.barShown, `the rail is hidden on step ${s}`).toBe(false)
+      expect(findSceneObjectByName("RailDot_0").isEnabledInHierarchy, `no rail segment shows on step ${s}`).toBe(false)
+    }
+    manager.jumpToStep(HALFWAY_STEP)
+    await sleep(300)
+    print(`[ProgressIdleScenario] halfway card: rail shown ${rail.barShown}, lit ${rail.litCount}`)
+    expect(rail.barShown, "the rail shows on the halfway card").toBe(true)
+    expect(findSceneObjectByName("RailDot_0").isEnabledInHierarchy, "a rail segment is visible on the halfway card").toBe(true)
+    expect(rail.litCount, "segments 1 to 6 are done on the halfway card").toBe(6)
 
     // ── Idle hint ───────────────────────────────────────────────────────────
     const savedIdle = idle.idleSec

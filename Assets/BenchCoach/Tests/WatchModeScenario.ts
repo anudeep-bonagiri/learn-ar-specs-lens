@@ -7,6 +7,7 @@ import {IdleHint} from "../Scripts/IdleHint"
 import {RunStats} from "../Scripts/RunStats"
 import {LAST_STEP} from "../Scripts/StepDefinitions"
 import {FloorPath} from "../Scripts/FloorPath"
+import {BenchCoachWatchBadgeUI} from "../Scripts/BenchCoachWatchBadgeUI"
 
 /**
  * Pass 10: watch mode. BtnWatch presses Found it and starts the director (playing,
@@ -22,6 +23,11 @@ import {FloorPath} from "../Scripts/FloorPath"
  * walked to the far spot over 3 s (set every poll, as floor-path does) as soon as step 5
  * starts, the arrival hides the path and the pull starts within 2 s of it. Next then stops Watch on
  * step 6 and advances to the halfway card; one more Next reaches step 8.
+ * Pass B: the Watching badge is brief: sampled during the normal run (no extra waiting),
+ * visible 1 s after Watch starts, hidden 3 s on (at 4 s, or just before the first step
+ * change if that comes sooner), visible again within 0.5 s of the next step change and
+ * hidden 2.5 s later. The resume leg from step 8 keeps its beats but shortens their
+ * reading pauses (waitScale 0.25, no voice hold), so the run fits the MCP call.
  */
 @component
 export class WatchModeScenario extends Scenario {
@@ -39,8 +45,11 @@ export class WatchModeScenario extends Scenario {
     const path = findSceneObjectByName("FloorPath").getComponent(FloorPath.getTypeName()) as FloorPath
     expect(path, "FloorPath").toBeTruthy()
 
+    const badge = findSceneObjectByName("WatchBadgeRoot").getParent().getComponent(BenchCoachWatchBadgeUI.getTypeName()) as BenchCoachWatchBadgeUI
+    expect(badge, "the Watching badge").toBeTruthy()
+
     manager.reset()
-    await sleep(500)
+    await sleep(300)
     expect(manager.getState().step, "start card").toBe(0)
     const fallbacksBefore = director.fallbacks
     const t0 = getTime()
@@ -55,10 +64,47 @@ export class WatchModeScenario extends Scenario {
     expect(idle.suspended, "idle hints suspended while playing").toBe(true)
     expect(stats.suspended, "RunStats suspended while playing").toBe(true)
 
-    // ── Plays on its own to the pull ─────────────────────────────────────────
-    const ready = await this.pollUntil(40, () => manager.getState().step >= 5 && manager.getPeeledBeads().length === 3, 100)
+    // ── Plays on its own to the pull (pass B: the badge is sampled every poll) ──
+    const playStart = director.lastPlayTime
+    let sawOne = false
+    let visibleAt1 = false
+    let hiddenLate: boolean | null = null
+    let hiddenAt4: boolean | null = null
+    let stepChangeAt = -1
+    let shownAfterStep = false
+    let hiddenAfterStep: boolean | null = null
+    const sampleBadge = () => {
+      const now = getTime()
+      const el = now - playStart
+      const st = manager.getState().step
+      if (!sawOne && el >= 1) {
+        sawOne = true
+        visibleAt1 = badge.showing
+      }
+      if (st === 1 && el >= 3.3) hiddenLate = !badge.showing
+      if (st === 1 && el >= 4 && hiddenAt4 === null) hiddenAt4 = !badge.showing
+      if (st === 2 && stepChangeAt < 0) {
+        stepChangeAt = now
+        shownAfterStep = badge.showing
+      }
+      if (stepChangeAt > 0 && hiddenAfterStep === null && now - stepChangeAt >= 2.5 && st === 2) hiddenAfterStep = !badge.showing
+    }
+    const ready = await this.pollUntil(
+      40,
+      () => {
+        sampleBadge()
+        return manager.getState().step >= 5 && manager.getPeeledBeads().length === 3
+      },
+      100
+    )
     const atReady = manager.getState().step
     print(`[WatchModeScenario] ready after ${(getTime() - t0).toFixed(1)} s: step ${atReady}, peeled ${manager.getPeeledBeads().length}`)
+    print(`[WatchModeScenario] badge: visible at 1 s ${visibleAt1}; hidden at 4 s ${hiddenAt4} (just before step 2 ${hiddenLate}); step 2 at ${(stepChangeAt - playStart).toFixed(1)} s, shown then ${shownAfterStep}, hidden 2.5 s later ${hiddenAfterStep}`)
+    expect(visibleAt1, "the badge shows 1 s after Watch starts").toBe(true)
+    expect(hiddenAt4 ?? hiddenLate, "the badge is hidden at 4 s").toBe(true)
+    expect(stepChangeAt > 0, "the next step change was seen").toBe(true)
+    expect(shownAfterStep, "the badge shows again within 0.5 s of the step change").toBe(true)
+    expect(hiddenAfterStep, "the badge is hidden 2.5 s after the step change").toBe(true)
     expect(ready, "watch mode reached step 5 with three peeled beads within 40 s").toBe(true)
     expect(atReady, "on step 5").toBe(5)
     expect(director.playing, "still playing at the pull").toBe(true)
@@ -134,9 +180,19 @@ export class WatchModeScenario extends Scenario {
 
     // ── Resume to the Finish card ────────────────────────────────────────────
     const t1 = getTime()
+    const savedWait = director.waitScale
+    const savedHold = director.voiceHoldMaxSec
+    director.waitScale = 0.25
+    director.voiceHoldMaxSec = 0
     director.play()
     expect(director.playing, "play() resumes").toBe(true)
-    const finished = await this.pollUntil(90, () => manager.getState().step === LAST_STEP && !director.playing)
+    let finished = false
+    try {
+      finished = await this.pollUntil(90, () => manager.getState().step === LAST_STEP && !director.playing)
+    } finally {
+      director.waitScale = savedWait
+      director.voiceHoldMaxSec = savedHold
+    }
     const finishCard = findSceneObjectByName("FinishCard")
     print(
       `[WatchModeScenario] resume: ${(getTime() - t1).toFixed(1)} s to step ${manager.getState().step}; ` +

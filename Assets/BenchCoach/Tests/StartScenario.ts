@@ -3,6 +3,7 @@ import {expect} from "Leaf.lspkg/Utils/common/Expect"
 import {findSceneObjectByName, sleep} from "Leaf.lspkg/Utils/common/Utils"
 import {BenchCoachLeafInteractor, countEnabledByName, getRepairManager} from "./BenchCoachLeafInteractor"
 import {ScanReveal} from "../Scripts/ScanReveal"
+import {PREVIEW_NOTE} from "../Scripts/BenchCoachStartCardUI"
 
 /**
  * Criterion 1: pinching Found it places the wheel in the stand and step 1's
@@ -37,6 +38,16 @@ export class StartScenario extends Scenario {
       "floor line shows the floor status"
     ).toBe(true)
 
+    // Pass B: in the editor the card says what Found it does there; on Specs the row is not built.
+    const previewNote = findSceneObjectByName("PreviewNote")
+    if (global.deviceInfoSystem.isEditor()) {
+      expect(previewNote && previewNote.isEnabledInHierarchy, "the preview line shows in the editor").toBe(true)
+      const noteText = (previewNote.getComponent("Component.Text") as Text).text
+      print(`[StartScenario] preview line: "${noteText}"`)
+      expect(noteText, "the preview line's text").toBe(PREVIEW_NOTE)
+    } else {
+      expect(previewNote, "no preview line on device").toBeFalsy()
+    }
     expect(manager.getState().step, "starts at step 0").toBe(0)
     expect(wheel.enabled, "Wheel hidden before Found it").toBe(false)
     expect(stand.enabled, "Stand hidden before Found it").toBe(false)

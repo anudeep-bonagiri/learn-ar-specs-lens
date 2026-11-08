@@ -95,6 +95,7 @@ export class InspectFinishScenario extends Scenario {
       expect(target.enabled, `${name} takes no pinches on the inspect step`).toBe(false)
     }
     const flashesBefore = thorn.flashCount
+    await interactor.tap("BtnMore") // Pass B: Replay is inside the More popover.
     await interactor.tap("BtnReplay")
     expect(thorn.flashCount, "Replay flashes the glint").toBe(flashesBefore + 1)
 
@@ -160,6 +161,7 @@ export class InspectFinishScenario extends Scenario {
       // 1.6 s in: let them finish so only Replay's own tick is counted.
       for (let i = 0; i < 40 && scan.playing && scan.labelsShown < 3; i++) await sleep(50)
       const ghostBefore = ghost.playCount
+      await interactor.tap("BtnMore") // Pass B: open the popover first; its own tick is not Replay's.
       const ticksBefore = audio.tickPlays
       await interactor.tap("BtnReplay")
       print(`[InspectFinishScenario] Replay on ${n}: replayCount ${manager.replayCount}, ghost +${ghost.playCount - ghostBefore}`)
