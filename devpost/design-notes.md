@@ -2470,3 +2470,15 @@ Left over:
 - From the dock pose the edge arrow can touch the Ask button in the More popover.
 - The live Gemini path was not run (no token in the repo).
 - The video still shows the four-button dock in a few frames and the old Ask layout; those shots are re-recorded in pass R7.
+
+### Nov 8: pass R7, the repair by hand, and the eighth cut
+
+Why: the same reviewer said the video's unbroken take was the Lens playing itself (Watch first) with no cursor, so a viewer could not tell input from autopilot and did not get what it feels like to do the repair by hand. True. Pass R7 recorded the repair done by hand.
+
+- **`t20-hands`** (132 s, one attempt): from the start card to step 5 with real preview input only, through the Lens Studio MCP's gesture tool, the cursor dot visible, no Watch first and no LEAF. Found it, the valve, the four beads (the camera moves to the hub to reach the ones off frame), lever A grabbed from a raised eye over the tray and dropped on the ghost (snapped 0.2 cm off), lever B hooked (0.5 cm off) and slid round the rim in 49 moves until the bead peeled to 5 o'clock. No rejects, no mistakes. The tool lands each gesture 1.3 to 1.7 s after it is sent, so the take has pauses; the idle hints came during three of them, which is the coach doing its job. `t21-ask`: the Ask answer in the callout's slot after pass B. `t22-dock` failed on a setup error (the Lens reset from the dock pose) and is not used. About $9 and 20 minutes.
+- **The eighth cut, 2:54** (`bench-coach-demo.mp4`; the seventh kept as `bench-coach-demo.seventh.mp4`): the by-hand take is the unbroken act, from the start card to the snap, 51 s at 1.25x (the pauses add up at real speed; the coach's lines keep their pitch), labelled on screen as real input, cursor visible, 1.25x, no cuts to the snap. Then the same take's slide and peel at 1.5x, then Watch first for the walk only, at real speed, labelled as such. The Ask shot is the new layout. For time: the drill beat, the second wide shot and the Lens Studio window still are out; the refit runs at 3.5x. The cards and callout shots are zoomed 1.25x in the frame so the Lens type reads on a laptop. Two narration lines generated (157 characters; about 700 left). Uploaded unlisted as https://youtu.be/uKSuHM_GGzU with captions and the thumbnail.
+
+Left over:
+
+- The by-hand take shows the preview note on the start card and the three-button dock is out of frame; the cold open and the wide shot still show the earlier dock and badge (recorded Nov 6).
+- A dock shot after pass B was not recorded.

@@ -1,12 +1,12 @@
 # Repo facts
 
-Written by scripts/collect_facts.py at 2026-11-08T19:23:40+00:00. Nothing in it is typed by hand; every value is the output of the command beside it.
+Written by scripts/collect_facts.py at 2026-11-08T19:53:28+00:00. Nothing in it is typed by hand; every value is the output of the command beside it.
 
 | Fact | Value | Command |
 | --- | --- | --- |
-| commits | 130 | `git rev-list --count HEAD` |
+| commits | 131 | `git rev-list --count HEAD` |
 | first commit | 2026-10-16T00:31:31Z | `git log --reverse --format=%cI / head -1` |
-| last commit | 2026-11-08T13:02:27-06:00 | `git log -1 --format=%cI` |
+| last commit | 2026-11-08T13:23:55-06:00 | `git log -1 --format=%cI` |
 | authors | 4 | `git shortlog -sn --no-merges HEAD / wc -l / tr -d ' '` |
 | tracked files | 468 | `git ls-files / wc -l / tr -d ' '` |
 | remote | https://github.com/anudeep-bonagiri/learn-ar-specs-lens.git | `git remote get-url origin` |
@@ -27,7 +27,7 @@ Written by scripts/collect_facts.py at 2026-11-08T19:23:40+00:00. Nothing in it 
 | voice clips | 30 | `ls Assets/BenchCoach/Voice/*.mp3 / wc -l / tr -d ' '` |
 | sound cue files | 9 | `ls Assets/GeneratedSFX/*.wav / wc -l / tr -d ' '` |
 | build passes written up in the design notes | 37 | `grep -c "^## 20" devpost/design-notes.md` |
-| lines of design notes | 2472 | `wc -l < devpost/design-notes.md / tr -d ' '` |
+| lines of design notes | 2484 | `wc -l < devpost/design-notes.md / tr -d ' '` |
 | garage preview room size in MB | 23 | `du -sm preview-room/Garage / cut -f1` |
 | build sessions on this machine (build log) | 22 | `grep "^/ build sessions" devpost/build-log.md / awk -F'/' '{print $3}' / tr -d ' '` |
 | Lens Studio MCP calls in those sessions (build log) | 3406 | `grep "^/ Lens Studio MCP calls" devpost/build-log.md / awk -F'/' '{print $3}' / tr -d ' '` |

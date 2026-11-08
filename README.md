@@ -2,7 +2,7 @@
 
 **A hands-free coach for fixing a bike flat, on Snap Specs. Every step sits on the part it is about, the coach says it out loud, and when the next step is behind the wheel, it makes you walk there.**
 
-[![Demo video, 2:55](https://img.shields.io/badge/demo%20video-2%3A55-red)](https://youtu.be/U3a3BOZxtdQ)
+[![Demo video, 2:54](https://img.shields.io/badge/demo%20video-2%3A54-red)](https://youtu.be/uKSuHM_GGzU)
 [![LEAF 23 of 23 passing](https://img.shields.io/badge/LEAF%20scenarios-23%20of%2023%20passing-2dd4e0)](#tests-and-evidence)
 [![Lens Studio 5.24.1](https://img.shields.io/badge/Lens%20Studio-5.24.1-lightgrey)](#run-it)
 [![Status: preview prototype](https://img.shields.io/badge/status-preview%20prototype%2C%20never%20run%20on%20Specs-orange)](#what-is-real-and-what-is-simulated)
@@ -15,9 +15,10 @@ Built for [Learn AR with SPECS](https://learn-specs.devpost.com/) on Devpost Lea
 
 ## See it in 30 seconds
 
-- **Video:** [youtu.be/U3a3BOZxtdQ](https://youtu.be/U3a3BOZxtdQ). The Lens is on screen from 0:09. 0:26 to 1:18 is one unbroken take at real speed: the floor found, Found it, Watch first, the far side, the tube out. At 2:07 the coach adapts: run 1's slip, run 2's start card, the early hint. Captions are on.
+- **Video:** [youtu.be/uKSuHM_GGzU](https://youtu.be/uKSuHM_GGzU). The Lens is on screen from 0:09. 0:27 to 1:18 is one take with no cuts, done by hand with the cursor visible: Found it, the valve, the beads, lever A from the tray onto the ghost (real preview input, shown at 1.25x). 1:24 is the far side, Watch first driving the walk at real speed. At 2:13 the coach adapts. Captions are on.
 - **In Lens Studio:** open the project, pick the Specs device and Interactive Preview, look down until the start card says "Floor found", click **Watch first**. The Lens plays steps 1 to 4 itself. At step 5 it shows the path and waits for you to walk round the stand (W, A, S, D) before it pulls the tube.
 - **The moment to judge:** step 5. A screen on the bench cannot follow you round the stand.
+- **What is a human and what is the Lens driving:** the one take at 0:27 and the mistake at 1:36 are real preview input with the cursor dot visible; the walk at 1:24 is Watch first; the Finish card and the coach-adapts shots are test runs. Every shot says which on screen.
 
 ## Who it's for
 
