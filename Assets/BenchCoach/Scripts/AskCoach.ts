@@ -5,18 +5,18 @@
  * answer about this step, shown on the answer panel next to the part with a source
  * tag. Falls back to the step's canned answer on an error, a missing token, no
  * internet, a timeout (timeoutSec) or when forceCanned / !useLive.
- * Show it only when needed (pass G2, carried onto D2 in pass M): Ask closes on a step
+ * Show it only when needed (carried onto D2): Ask closes on a step
  * change, on reset, and after chipsIdleSec with the chips up and no chip press; a shown
  * answer hides after answerSec or at the next sub-step, and the chips come back in its
  * slot (their idle clock restarts then). It also closes
  * when watch mode plays, and when What's this? turns on (UIBindings keeps the two
  * exclusive). IdleHint is suspended while it is open (IdleHint.askSuspended).
- * Pass D2: the chips and the answer take turns in one slot, so they never lie over the
+ * The chips and the answer take turns in one slot, so they never lie over the
  * wheel; the answer's close button brings the chips back, the chips' close button
- * closes Ask. Pass B: that slot is the step callout's own (BenchCoachStepLabelUI.setSlot):
+ * closes Ask. That slot is the step callout's own (BenchCoachStepLabelUI.setSlot):
  * while Ask is open the callout's plate hides, its ring and leader stay, and the chips or
  * the answer stand where the plate stood, so one plate is on the part at a time.
- * Pass B: the system prompt is built from the live state for each question (who and
+ * The system prompt is built from the live state for each question (who and
  * where the user is, the step, the part, how the run is going, the rules) and printed
  * once per question at "[AskCoach] prompt:".
  * Owns: open, busy, lastAnswer, lastSource, the request in flight, panel placement.
@@ -37,7 +37,7 @@ import {IdleHint} from "./IdleHint"
 import {BenchCoachAudio} from "./BenchCoachAudio"
 import {RunStats} from "./RunStats"
 
-/** Pass B: the part each repair step is about, in the words the prompt uses. */
+/** The part each repair step is about, in the words the prompt uses. */
 const STEP_PARTS: {[step: number]: string} = {
   1: "the Presta valve at the top of the wheel",
   2: "the tire bead, pushed into the rim's center channel",
@@ -136,7 +136,7 @@ export class AskCoach extends BaseScriptComponent {
   lastSource: string = ""
   /** Why the last canned answer was used ("forced", "offline", "no token", "timeout", "error", "empty"). */
   lastFallbackReason: string = ""
-  /** Pass B: the system prompt built for the last question ("" = none yet); tests read it. */
+  /** The system prompt built for the last question ("" = none yet); tests read it. */
   lastPrompt: string = ""
   /** Milliseconds the last live answer took (0 = none). */
   lastLatencyMs: number = 0
@@ -157,9 +157,9 @@ export class AskCoach extends BaseScriptComponent {
   private chipsCloseAt = Number.POSITIVE_INFINITY
   /** The sub-step the shown answer belongs to (a new sub-step hides it). */
   private answerSub = -1
-  /** Pass B: run counters for the prompt (RunStats sits on this SceneObject). */
+  /** Run counters for the prompt (RunStats sits on this SceneObject). */
   private stats: RunStats | null = null
-  /** Pass B: getTime() when the current step began, for the prompt. */
+  /** GetTime() when the current step began, for the prompt. */
   private stepEnteredAt = 0
 
   onAwake(): void {
@@ -263,7 +263,7 @@ export class AskCoach extends BaseScriptComponent {
       })
   }
 
-  /** Pass B: the system prompt for a question on `step`, from the live state. */
+  /** The system prompt for a question on `step`, from the live state. */
   private buildPrompt(step: number): string {
     const def = STEPS[step]
     const part = STEP_PARTS[step] ?? "the wheel"
@@ -332,7 +332,7 @@ export class AskCoach extends BaseScriptComponent {
     }
   }
 
-  /** A new step: Ask closes (pass G2 / M); the next step brings its own questions when reopened. */
+  /** A new step: Ask closes; the next step brings its own questions when reopened. */
   private stepChanged(): void {
     this.cancel()
     this.stepEnteredAt = getTime()
@@ -382,7 +382,7 @@ export class AskCoach extends BaseScriptComponent {
   }
 
   /**
-   * Pass B: the chips, or the answer in their place, stand in the step callout's slot
+   * The chips, or the answer in their place, stand in the step callout's slot
    * (its anchor and width; the callout hides its plate); the callout keeps the slot clear
    * of the wheel (inside the rim, or the top or bottom zone).
    */

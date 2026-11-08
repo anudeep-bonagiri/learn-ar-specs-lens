@@ -1,5 +1,5 @@
 /**
- * BenchCoachToolTrayUI — the tool tray panel (pass D2: the shared plate) with a small
+ * BenchCoachToolTrayUI — the tool tray panel (The shared plate) with a small
  * "Tools" label in its top-left corner.
  * Owns: only the panel surface and the label. The levers and the new tube coil are
  * sibling SceneObjects (LeverA, LeverB, NewTube) authored under ToolTray, not children

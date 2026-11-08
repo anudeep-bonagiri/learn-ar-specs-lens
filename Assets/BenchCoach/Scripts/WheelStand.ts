@@ -106,7 +106,7 @@ export class WheelStand extends BaseScriptComponent {
   }
 
   /**
-   * Pass P: while the floor eases, the built stand follows without a rebuild: the root
+   * While the floor eases, the built stand follows without a rebuild: the root
    * (base) goes to the shown floor, the post stretches between floor and hub, the clamp
    * stays at the hub. The rebuild at the end of the ease makes it exact.
    */

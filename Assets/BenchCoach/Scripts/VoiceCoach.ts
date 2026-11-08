@@ -1,5 +1,5 @@
 /**
- * VoiceCoach — the coach's spoken lines (pass V). Thirty pre-generated clips, one per id
+ * VoiceCoach — the coach's spoken lines. Thirty pre-generated clips, one per id
  * in StepDefinitions.voiceLines() (Assets/BenchCoach/Voice/<id>.mp3, ElevenLabs voice
  * "River"), played from one non-spatial AudioComponent: the coach in your ear.
  * When it speaks:
@@ -9,9 +9,9 @@
  *  - idle-step-NN when IdleHint shows the step's hint;
  *  - floor-found once, when the start card's floor line turns to "Floor found";
  *  - the step's line again on Replay (RepairManager.onReplay);
- *  - pass S2: nothing for a step change while RepairManager.quietStep is set (a Practise
+ *  - nothing for a step change while RepairManager.quietStep is set (a Practise
  *    drill's reps 2 and 3, and its return to the Finish card).
- *  - pass A: no idle-step-NN while quietIdleHint is set (AdaptiveCoach, on a step the user
+ *  - no idle-step-NN while quietIdleHint is set (AdaptiveCoach, on a step the user
  *    has; the hint text still shows). The step lines are never affected.
  * Rules: one line at a time (a new line stops the old one); never the same line twice
  * within repeatGuardSec; nothing starts while ScanReveal sweeps (a queued line waits for
@@ -52,7 +52,7 @@ function pad2(n: number): string {
 
 @component
 export class VoiceCoach extends BaseScriptComponent {
-  @ui.label('<span style="color: #60A5FA;">VoiceCoach – the spoken lines (pass V)</span>')
+  @ui.label('<span style="color: #60A5FA;">VoiceCoach – the spoken lines</span>')
   @ui.separator
   @ui.label('<span style="color: #60A5FA;">References</span>')
   @ui.group_start("References")
@@ -134,7 +134,7 @@ export class VoiceCoach extends BaseScriptComponent {
 
   /** Voice on (the More popover's toggle). */
   enabled: boolean = true
-  /** Pass A: the idle hint is shown but not spoken (AdaptiveCoach, on a mastered step). */
+  /** The idle hint is shown but not spoken (AdaptiveCoach, on a mastered step). */
   quietIdleHint: boolean = false
   /** The line playing now, or "". */
   speaking: string = ""
@@ -218,7 +218,7 @@ export class VoiceCoach extends BaseScriptComponent {
 
   private onStep(step: number): void {
     const id = this.lineForStep(step)
-    // Pass S2: a Practise drill speaks the step's line on rep 1 only (and not on its way back to the Finish card).
+    // A Practise drill speaks the step's line on rep 1 only (and not on its way back to the Finish card).
     if (!id || this.manager.quietStep) {
       // Back on the start card: nothing to say; drop a queued line.
       this.pending = null
@@ -269,7 +269,7 @@ export class VoiceCoach extends BaseScriptComponent {
       this.pending = null
       this.start(p.id, p.why)
     }
-    // Pass P: never in the frame a line started (the audio engine is busy with play()).
+    // Never in the frame a line started (the audio engine is busy with play()).
     if (!(this.speaking && this.startedAt === getTime())) this.setDuck(this.speaking !== "")
   }
 
@@ -310,7 +310,7 @@ export class VoiceCoach extends BaseScriptComponent {
     this.stops.push(id)
     print(`[Voice] stop ${id} ms=${Date.now()}`)
     this.log(`stopped ${id}: ${why}`)
-    // Pass P: the duck is lifted by tick() on the next update, never from here (cut() can
+    // The duck is lifted by tick() on the next update, never from here (cut() can
     // run inside another script's callback; under load the volume call timed out there).
   }
 

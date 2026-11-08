@@ -1,9 +1,9 @@
 /**
- * BenchCoachInfoCalloutUI — the What's this? info callout (pass D2). A small card with
+ * BenchCoachInfoCalloutUI — the What's this? info callout. A small card with
  * the part's name and one line, on the design-system plate, turned to the user, with a
  * light grey leader line to the part. It never rewrites the step callout.
  * showPart(title, line, part, keepClear): placed beside the part, a little nearer the
- * user. Pass P: the spot is searched in 12 directions round the part (the one toward the
+ * user. The spot is searched in 12 directions round the part (the one toward the
  * middle of the view first) and at growing distances; it must stay inside the view and,
  * on screen, keep off the part's own pinch box, the step marker ring, the step callout
  * and (if any spot allows it) the neighbouring parts in keepClear, such as a hooked
@@ -70,7 +70,7 @@ export class BenchCoachInfoCalloutUI extends BaseScriptComponent {
   /** The spot in use, as an offset from the part (null: search again), and how many soft rects it covers. */
   private pick: vec3 | null = null
   private pickSoft = 0
-  /** Pass P, for tests: the card keeps off its part and the step callout / off the marker ring. */
+  /** for tests: the card keeps off its part and the step callout / off the marker ring. */
   clearOfPart: boolean = true
   clearOfRing: boolean = true
   private hiddenOnce = false
@@ -109,7 +109,7 @@ export class BenchCoachInfoCalloutUI extends BaseScriptComponent {
   onAwake(): void {
     this.sceneObject.createComponent(Billboard.getTypeName())
     const d = this.viewDistanceCm
-    // Pass V: the plate grows with the type scale (UIHelpers.plateCm).
+    // The plate grows with the type scale (UIHelpers.plateCm).
     this.panelWidth = plateCm(this.panelWidth, d)
     const titleH = lineCm("instruction", d)
     const lineH = lineCm("body", d) * 2
@@ -170,7 +170,7 @@ export class BenchCoachInfoCalloutUI extends BaseScriptComponent {
   }
 
   /**
-   * Beside the part, nearer the user (pass P). Before, the candidates were toward the
+   * Beside the part, nearer the user. Before, the candidates were toward the
    * view centre, up, down and the diagonals, and intoView() slid each one back toward
    * the centre: with the valve at the top of the frame "up" came back down onto the
    * valve and lever A, and nothing checked the part itself. Now every spot is checked
@@ -211,7 +211,7 @@ export class BenchCoachInfoCalloutUI extends BaseScriptComponent {
       if (rects === must && (r[0] < 0.01 || r[1] > 0.99 || r[2] < 0.01 || r[3] > 0.99)) n++
       return n
     }
-    // Pass P: a spot so far from the eye that the line reads under the body minimum ranks
+    // A spot so far from the eye that the line reads under the body minimum ranks
     // below every readable one (on step 5 the near-side note pushed the card down and away).
     const far = (c: vec3): number => (this.line && xHeightDeg(this.line, c.distance(eye)) < MIN_BODY_XHEIGHT_DEG * 1.02 ? 10 : 0)
     // The spot in use stays while it is still as good as when it was picked.
@@ -252,7 +252,7 @@ export class BenchCoachInfoCalloutUI extends BaseScriptComponent {
     return c
   }
 
-  /** Pass P: on screen, the line from the card's centre to the part crosses the step callout's rectangle. */
+  /** On screen, the line from the card's centre to the part crosses the step callout's rectangle. */
   private leaderCrosses(camera: Camera, c: vec3, p: vec3, r: number[]): boolean {
     const a = camera.worldSpaceToScreenSpace(c)
     const b = camera.worldSpaceToScreenSpace(p)
@@ -265,7 +265,7 @@ export class BenchCoachInfoCalloutUI extends BaseScriptComponent {
     return false
   }
 
-  /** Pass P: no nearer the wheel than the step callout's plane (the axle end poked through the card). */
+  /** No nearer the wheel than the step callout's plane (the axle end poked through the card). */
   private inFront(c: vec3): vec3 {
     const z = this.stepCallout ? this.stepCallout.frontZ() : null
     return z !== null && c.z < z ? new vec3(c.x, c.y, z) : c

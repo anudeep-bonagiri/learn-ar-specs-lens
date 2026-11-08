@@ -1,6 +1,5 @@
 /**
- * ScanReveal — the "sees what you see" moment (Nov 1 audit, section 6 item 4; pass G4 by
- * Sujeeth, rebuilt on the D2 design system in pass M).
+ * ScanReveal — the "sees what you see" moment.
  * When Found it brings the wheel in (step 0 to 1) an outline traces the tire: two bright
  * heads leave 6 o'clock, run up both sides hugging the tread and meet at the valve,
  * where step 1's marker is. The trail stays as a thin accent ring, flashes once as the

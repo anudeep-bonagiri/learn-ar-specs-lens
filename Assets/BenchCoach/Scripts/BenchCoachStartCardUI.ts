@@ -1,16 +1,16 @@
 /**
- * BenchCoachStartCardUI — the step 0 card (pass D2: the shared card component): the
+ * BenchCoachStartCardUI — the step 0 card (The shared card component): the
  * "Fix a flat" title, one instruction line, a floor status line and two big buttons,
  * BtnFoundIt (primary; the preview stand-in for recognising the real wheel in the
  * stand) and BtnWatch ("Watch first", pass 10: auto-plays the whole repair).
  * setFloorStatus() shows "Look down at your work spot" until FloorLevel decides from
  * real hits, then "Floor found" (green), or "Using a standard floor height" (amber)
  * on the fallback. The stand-in note is logged, never shown.
- * Pass A: from the second run on, setRunLine() shows one more line under the floor line
+ * From the second run on, setRunLine() shows one more line under the floor line
  * (AdaptiveCoach: "Run 2. I'll go quiet on ..."), display only. Body type if it fits on
  * two lines, else one role smaller (secondary). The plate keeps its width and grows by
  * the line; with no line the card is exactly as before.
- * Pass B: in the editor only, one more line under the floor line says what Found it does
+ * In the editor only, one more line under the floor line says what Found it does
  * there (PreviewNote: the preview has no real wheel to recognise). Display only, nothing
  * spoken; on Specs the row is not built, so the card is as before.
  * Owns: only its view. Emits onFoundIt, onWatch. Holds no repair state.
@@ -24,7 +24,7 @@ import {COLOR, Card, UIRole, addUIText, buildCard, grid, lineCm, linesFor, uiSiz
 const ICON_CHECK: Texture = requireAsset("../../Icons/check.png") as Texture
 const ICON_PLAY: Texture = requireAsset("../../Icons/play_arrow.png") as Texture
 
-/** Pass B: the honest line, editor only. */
+/** The honest line, editor only. */
 export const PREVIEW_NOTE = "In this preview, Found it stands a wheel in for yours."
 
 export type FloorStatus = "pending" | "found" | "fallback"
@@ -84,14 +84,14 @@ export class BenchCoachStartCardUI extends BaseScriptComponent {
   floorText: string = ""
 
   private floorLine: Text | null = null
-  /** Pass A: the run line as given ("" for none); tests read it. */
+  /** The run line as given ("" for none); tests read it. */
   runLine: string = ""
-  /** Pass A: the role the run line is shown in ("" while hidden). */
+  /** The role the run line is shown in ("" while hidden). */
   runRole: UIRole | "" = ""
   private card: Card | null = null
   private col: SceneObject | null = null
   private runText: Text | null = null
-  /** Pass A: the run line is in the layout and visible. */
+  /** The run line is in the layout and visible. */
   runLineShown: boolean = false
   /** The plate height for the current run line; the line waits to be shown until the layout can place it. */
   private targetH = 0
@@ -99,7 +99,7 @@ export class BenchCoachStartCardUI extends BaseScriptComponent {
   private innerW = 0
 
   /**
-   * Pass A: the line under the floor line from the second run on ("" hides it). The
+   * The line under the floor line from the second run on ("" hides it). The
    * plate grows by the line's height (and the gap above it) and shrinks back without it.
    */
   setRunLine(text: string): void {
@@ -196,7 +196,7 @@ export class BenchCoachStartCardUI extends BaseScriptComponent {
     })
     this.floorLine = card.texts["FloorStatus"]
     this.setFloorStatus(this.floorStatus)
-    // Pass A: the run line, built hidden (setRunLine shows it). It stays enabled, out of the
+    // The run line, built hidden (setRunLine shows it). It stays enabled, out of the
     // layout and at zero scale: a FlexItem that was off at Lens start is not placed by the
     // layout in the frame it is turned on, so it would show a frame at the column's centre.
     // The column is set up once (the flex's own first setup), then always laid out at once.

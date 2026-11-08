@@ -7,10 +7,10 @@
  * measured floor height (FloorLevel); the spots' own y is ignored when it is wired. A brightness wave travels along the chain toward the far side.
  * The path hides when the user arrives (camera within arriveRadiusCm of the far
  * spot on the floor plane), on any step change (so also when the pull ends step 5),
- * and on Back. Pass S1: it shows in watch mode too, and the director's step 5 beat waits
+ * and on Back. It shows in watch mode too, and the director's step 5 beat waits
  * for the arrival (this script registers itself as the director's walkCue).
  * Arrival does not complete the step; the pull still does.
- * Pass V: the far spot is a floor marker in the D2 look, in the path's cyan: a rounded
+ * The far spot is a floor marker in the D2 look, in the path's cyan: a rounded
  * outline, a soft fill and two shoe prints facing the wheel ("stand here"); the chain ends
  * at its edge. It shows with the path, stays after arrival (under the user's feet) and
  * hides on any step change, like the arrows.
@@ -37,7 +37,7 @@ const FLOOR_LIFT_CM = 0.3
 /** Arrow colors: the wave's low and high points, both light (no dark on the additive display). */
 const LOW_TINT = new vec3(0.5, 0.92, 1.0)
 const HIGH_TINT = new vec3(0.92, 1.0, 1.0)
-/** Pass V, the far-spot marker: size on the floor (x across, z toward the wheel), outline width, corner radius (cm). */
+/** the far-spot marker: size on the floor (x across, z toward the wheel), outline width, corner radius (cm). */
 const SPOT_W_CM = 34
 const SPOT_D_CM = 30
 const SPOT_LINE_CM = 1.1
@@ -58,7 +58,7 @@ export class FloorPath extends BaseScriptComponent {
   manager: RepairManager
 
   @input
-  @hint("Watch mode: its step 5 beat waits for the arrival (pass S1)")
+  @hint("Watch mode: its step 5 beat waits for the arrival")
   director: RepairDirector
 
   @input
@@ -123,7 +123,7 @@ export class FloorPath extends BaseScriptComponent {
   private _onArrived = new Event<void>()
   onArrived: PublicApi<void> = this._onArrived.publicApi()
 
-  /** The far-spot marker (pass V); shown with the path, kept after arrival. */
+  /** The far-spot marker; shown with the path, kept after arrival. */
   private marker: SceneObject | null = null
   /** True while the far-spot marker shows (tests read it). */
   markerVisible: boolean = false
@@ -156,7 +156,7 @@ export class FloorPath extends BaseScriptComponent {
     this.createEvent("UpdateEvent").bind(() => this.tick())
   }
 
-  /** Show the chain (resets arrival); in watch mode too (pass S1). */
+  /** Show the chain (resets arrival); in watch mode too. */
   show(): void {
     this.arrived = false
     this.visible = true
@@ -271,7 +271,7 @@ export class FloorPath extends BaseScriptComponent {
     const acc: number[] = [0]
     for (let i = 0; i <= samples; i++) pts.push(this.curve(i / samples))
     for (let i = 1; i <= samples; i++) acc.push(acc[i - 1] + pts[i].distance(pts[i - 1]))
-    // Pass V: the chain ends where it meets the far-spot marker (the last tip about 4 cm off its edge).
+    // The chain ends where it meets the far-spot marker (the last tip about 4 cm off its edge).
     const far = this.farSpotWorld()
     const mx = far.x
     const mz = far.z + SPOT_AHEAD_CM
@@ -313,7 +313,7 @@ export class FloorPath extends BaseScriptComponent {
   }
 
   /**
-   * Pass V: the far-spot floor marker (outline, soft fill, two footprints toward the
+   * The far-spot floor marker (outline, soft fill, two footprints toward the
    * wheel), flat in the XZ plane facing +Y. The wheel is at +Z from the far spot.
    */
   private buildMarker(parentInv: mat4): void {

@@ -34,7 +34,7 @@ export interface StepDef {
   /** The instruction on the step callout: one short sentence (step 0 and 7 show their card instead). */
   label: string
   /**
-   * Pass D2: the coach's spoken line for the step (at most 12 words, plain and calm,
+   * The coach's spoken line for the step (at most 12 words, plain and calm,
    * the same meaning as the label). Exported to Assets/BenchCoach/Voice/voice-lines.json
    * as step-NN for the pre-generated clips.
    */
@@ -42,14 +42,14 @@ export interface StepDef {
   /** Idle hint (IdleHint shows it on the label after idleSec without progress). */
   hint: string
   /**
-   * Pass P: display only, never spoken. Step 5's callout faces the far side; while it
+   * Display only, never spoken. Step 5's callout faces the far side; while it
    * would be read through the spokes the near side shows this short note instead.
    */
   nearSideLine?: string
   /** True if the step has a dot on the progress rail (the cards 0, 7 and 11 do not). */
   railDot: boolean
   /**
-   * Pass A: seconds a steady hand takes on the step (repair steps 1..10). AdaptiveCoach
+   * Seconds a steady hand takes on the step (repair steps 1..10). AdaptiveCoach
    * counts a step done within par, with no mistake and no hint, as a clean completion.
    */
   parSec?: number
@@ -216,7 +216,7 @@ export const STEP_SHORT_NAMES: {[step: number]: string} = {
 }
 
 /**
- * Pass S2, Practise it now: the step each mistake kind belongs to. The Finish card's
+ * Practise it now: the step each mistake kind belongs to. The Finish card's
  * Practise button drills the step of the run's most frequent mistake
  * (RunStats.practiseStep()). Display only: nothing here is spoken. leverTooFar also
  * happens with lever B on step 4, but it is first and most often lever A, on step 3.
@@ -232,7 +232,7 @@ export const MISTAKE_STEPS: {[code: string]: number} = {
 }
 
 /**
- * Pass S2: short step names for the Practise button and the practised line on the
+ * Short step names for the Practise button and the practised line on the
  * Finish card ("Practise lever A", "Practised lever A: 3 reps"). Display only, never
  * spoken. Repair steps only (the rail-dot steps).
  */
@@ -248,7 +248,7 @@ export const PRACTISE_NAMES: {[step: number]: string} = {
   10: "inflate",
 }
 
-/** Pass S2: reps in one drill. */
+/** Reps in one drill. */
 export const PRACTISE_REPS = 3
 
 /**
@@ -407,7 +407,7 @@ export const STEPS: StepDef[] = [
     markerAngleDeg: 180,
     showStartCard: false,
     showWheel: true,
-    // Pass D2: both levers are in the wheel by now, so the empty tray would only sit in the
+    // Both levers are in the wheel by now, so the empty tray would only sit in the
     // downward gaze along the floor path (Back to step 4 shows it again).
     showTray: false,
     showGhost: false,
@@ -617,7 +617,7 @@ export function coachQuestions(step: number): CoachQuestion[] {
 }
 
 /**
- * Pass D2, voice-ready text: the lines the voice coach will speak (pre-generated clips,
+ * voice-ready text: the lines the voice coach will speak (pre-generated clips,
  * next pass). Plain and calm, at most 12 words each. Steps speak their `voiceLine`, a
  * mistake its MISTAKES reason, an idle hint the step's `hint`; these are the rest.
  */

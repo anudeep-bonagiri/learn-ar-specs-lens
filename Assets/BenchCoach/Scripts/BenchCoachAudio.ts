@@ -5,7 +5,7 @@
  * Must not: decide when a cue fires — RepairManager / EdgeHint / UIBindings call it.
  * Pump is the one loop: startPumpAt() loops it while the valve is held, stopPump() ends it.
  * Expects: @inputs zipper, chime, tick, click, nope, done, hiss, pump, finish (AudioComponents on child objects).
- * Pass V: every cue start prints `[Audio] <cue> ms=<Date.now()> vol=<volume>` (the pump loop
+ * Every cue start prints `[Audio] <cue> ms=<Date.now()> vol=<volume>` (the pump loop
  * also `[Audio] pump stop ms=...`), so a silent screen recording's soundtrack can be rebuilt;
  * setDuck(f) scales hiss, pump and zipper by f while the voice coach speaks.
  */
@@ -114,9 +114,9 @@ export class BenchCoachAudio extends BaseScriptComponent {
   pumping: boolean = false
   /** Volume factor on hiss, pump and zipper (1, or the voice coach's duck while it speaks). */
   duck: number = 1
-  /** Pass P: volume writes setDuck made (only on cues that were playing); tests read it. */
+  /** Volume writes setDuck made (only on cues that were playing); tests read it. */
   duckWrites: number = 0
-  /** Pass P: when each long cue (hiss, zipper) stops playing, by our own clock, so the duck makes no isPlaying() calls. */
+  /** When each long cue (hiss, zipper) stops playing, by our own clock, so the duck makes no isPlaying() calls. */
   private playingUntil = new Map<AudioComponent, number>()
   private durations = new Map<AudioComponent, number>()
 
@@ -193,7 +193,7 @@ export class BenchCoachAudio extends BaseScriptComponent {
   }
 
   /**
-   * Scale the long cues (hiss, pump, zipper) by `factor`; 1 restores them. Pass P: as
+   * Scale the long cues (hiss, pump, zipper) by `factor`; 1 restores them. As
    * cheap as it can be (a Lens freeze under load was a timed-out volume call from here):
    * only a cue that is playing now (by our own record, no AudioComponent query) is
    * touched, and never to the value it already has; a cue that starts later gets the duck
@@ -209,7 +209,7 @@ export class BenchCoachAudio extends BaseScriptComponent {
   }
 
   /**
-   * Pass P, a second freeze under load: a TimeoutError in setDuck again, now in the
+   * a second freeze under load: a TimeoutError in setDuck again, now in the
    * isPlaying() calls, in the frame a voice line had just started. Whether a long cue is
    * playing is now our own record (the pump's flag; hiss and zipper by their duration).
    */

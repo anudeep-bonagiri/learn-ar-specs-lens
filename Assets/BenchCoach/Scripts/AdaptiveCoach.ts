@@ -1,7 +1,7 @@
 /**
  * AdaptiveCoach — when a step is completed its score moves 40% of the way toward a reward target (1 clean, 0.5 one slip or slow, 0 two or more slips), and the score's level sets how much the coach helps on that step next time.
  *
- * Pass A. Scores for repair steps 1..10 start at 0.5. A completion is a forward step change
+ * Scores for repair steps 1..10 start at 0.5. A completion is a forward step change
  * n -> n+1 (Next included) or a Practise rep (onRepDone). Slips are RunStats' lever misses,
  * mistakes and hints on the step; slow is past STEPS[n].parSec. Back, Replay and Watch mode
  * change nothing. Mastered at s >= 0.75, struggling at s <= 0.35. On entering a step:

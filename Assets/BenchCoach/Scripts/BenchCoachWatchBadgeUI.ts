@@ -1,12 +1,12 @@
 /**
- * BenchCoachWatchBadgeUI — pass V: "Watching" in frame while watch mode plays. The dock's
+ * BenchCoachWatchBadgeUI — "Watching" in frame while watch mode plays. The dock's
  * watch pill sits low on the left, out of frame from the recording pose; this small pill
  * floats just above the tire and left of the valve (badgeAboveHubCm over the hub,
  * badgeSideCm to the side: the clear dark strip under the top edge of the frame at the
  * recording pose, away from the lever handles that stand up on steps 3 and 4), with its
  * own Stop. Same plate as the dock's pill: a cyan-edged pill, a play icon, "Watching" in
  * the button role, and BtnBadgeStop, an icon button (ray-only, 2.2 degrees at its distance).
- * Pass B: the badge is brief. It shows for startSec when Watch starts and for stepSec on
+ * The badge is brief. It shows for startSec when Watch starts and for stepSec on
  * each step change while watching (showForStep), then hides; BtnBadgeStop works whenever it
  * shows. `watching` is still the whole Watch run, `showing` is the badge on screen now.
  * Owns: only its view. Emits onStop; setWatching(on) starts and ends it. Follows the
@@ -60,19 +60,19 @@ export class BenchCoachWatchBadgeUI extends BaseScriptComponent {
   label: string = "Watching"
 
   @input
-  @hint("Pass B: seconds the badge shows when Watch starts")
+  @hint("Seconds the badge shows when Watch starts")
   @widget(new SliderWidget(0.5, 10, 0.5))
   startSec: number = 3
 
   @input
-  @hint("Pass B: seconds the badge shows on each step change while watching")
+  @hint("Seconds the badge shows on each step change while watching")
   @widget(new SliderWidget(0.5, 10, 0.5))
   stepSec: number = 2
   @ui.group_end
 
   /** Watch mode is playing (the whole run). */
   watching: boolean = false
-  /** Pass B: the badge is on screen now (brief: at the start and on each step change). */
+  /** The badge is on screen now (brief: at the start and on each step change). */
   showing: boolean = false
   /** Plate size in cm (tests read it). */
   width: number = 0
@@ -95,7 +95,7 @@ export class BenchCoachWatchBadgeUI extends BaseScriptComponent {
     else this.setShowing(false)
   }
 
-  /** Pass B: Watch moved on to a new step. */
+  /** Watch moved on to a new step. */
   showForStep(): void {
     if (this.watching) this.showFor(this.stepSec)
   }
@@ -114,7 +114,7 @@ export class BenchCoachWatchBadgeUI extends BaseScriptComponent {
   onAwake(): void {
     const d = this.viewDistanceCm
     const g = grid(d)
-    // Stop is at least a 2-degree target (Snap's rule, pass G / M).
+    // Stop is at least a 2-degree target (Snap's rule).
     const bh = Math.max(targetCm(d, 2.2), lineCm("button", d) * 1.9)
     const h = bh + 2 * g.pad * 0.6
     const iconW = lineCm("button", d) * 0.9

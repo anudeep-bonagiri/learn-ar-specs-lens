@@ -1,10 +1,10 @@
 /**
- * ProgressRail — the dock's thin progress bar (pass D2; it was a row of dots): one
+ * ProgressRail — the dock's thin progress bar (it was a row of dots): one
  * flat rounded segment per step that has `railDot` in StepDefinitions (the cards 0, 7
  * and 11 have none). Done segments are the accent, the current one glows brighter and
  * breathes, segments ahead use a dim copy of the marker material (dim cyan, never dark
  * on the additive display). The dock sets the bar's length (setLength) and position.
- * Pass B: the callout's "Step 4 of 10" already says where you are, so the bar is hidden on
+ * The callout's "Step 4 of 10" already says where you are, so the bar is hidden on
  * the repair steps and the start card and shows only on the halfway and Finish cards
  * (`barShown`); the segments keep lighting underneath, so the card shows the done ones.
  * Owns: the segment children of this SceneObject. Reads the step from RepairManager.
@@ -70,7 +70,7 @@ export class ProgressRail extends BaseScriptComponent {
   currentIndex: number = -1
   /** Segment length in cm (from lengthCm). */
   segmentCm: number = 0
-  /** Pass B: the bar shows (only on the halfway card and the Finish card). */
+  /** The bar shows (only on the halfway card and the Finish card). */
   barShown: boolean = false
 
   private dots: SceneObject[] = []

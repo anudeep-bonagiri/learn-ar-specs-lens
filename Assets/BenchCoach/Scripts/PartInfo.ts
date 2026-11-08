@@ -3,7 +3,7 @@
  * (RepairManager.setInteractionsPaused) and turns on one pinch box per
  * StepDefinitions.PART_FACTS entry (InfoHit_<id>, under BenchCoach/InfoHits, each
  * following its part every frame and a little larger than any collider it encloses,
- * so it takes the ray first). Pass D2: the prompt shows on the info callout in the slot
+ * so it takes the ray first). The prompt shows on the info callout in the slot
  * under the step callout; a pinch shows the part's name and fact on the info callout
  * beside the part, with a leader line. The step callout is never rewritten.
  * setActive(false) hides the boxes and the info callout and gives the step back. A reset (Start over,
@@ -209,7 +209,7 @@ export class PartInfo extends BaseScriptComponent {
     if (this.stepLabel) this.stepLabel.setStack(0)
     if (this.infoCallout) {
       this.infoCallout.sceneObject.getTransform().setLocalScale(vec3.one())
-      // Pass P: the parts around it stay visible too when a spot allows it: the valve and the
+      // The parts around it stay visible too when a spot allows it: the valve and the
       // levers within 40 cm (the card used to cover them), any other part within 18 cm.
       const here = hit.so.getTransform().getWorldPosition()
       const near = this.hits

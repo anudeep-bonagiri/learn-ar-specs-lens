@@ -14,7 +14,7 @@
  * Sidewall band (the tire): with a bandMaterial, the cross-section faces whose
  * radial normal is below bandBelowCos (the sides and the bead, not the tread) go
  * into a second RenderMeshVisual on this SceneObject, so the tire is two-tone.
- * Sidewall line (pass V, the tire): with a stripeMaterial, the faces whose radial normal
+ * Sidewall line (the tire): with a stripeMaterial, the faces whose radial normal
  * lies between stripeFromCos and stripeToCos (one face ring on each sidewall) go into a
  * third RenderMeshVisual: a thin light line round the sidewall that gives the tire its
  * form on the additive display, and moves with the bead (lift, peel, deflate). With
@@ -87,7 +87,7 @@ export class TorusArc extends BaseScriptComponent {
 
   @input
   @allowUndefined
-  @hint("Optional third material: a thin line round each sidewall (pass V); empty = none")
+  @hint("Optional third material: a thin line round each sidewall; empty = none")
   stripeMaterial: Material
 
   @input

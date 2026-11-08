@@ -117,17 +117,17 @@ export class TubePull extends BaseScriptComponent {
   refitFromCm: number = 4
 
   @input
-  @hint("Pass P, refit: each segment stops this far in front of the tire (cm) until all are in; then they seat together")
+  @hint("Refit: each segment stops this far in front of the tire (cm) until all are in; then they seat together")
   @widget(new SliderWidget(0, 5, 0.1))
   refitProudCm: number = 1.5
 
   @input
-  @hint("Pass P, refit: seconds the whole new tube takes to press into the tire (the seated moment)")
+  @hint("Refit: seconds the whole new tube takes to press into the tire (the seated moment)")
   @widget(new SliderWidget(0.05, 1, 0.05))
   refitSeatSec: number = 0.3
 
   @input("vec4", "{1.0, 0.78, 0.45, 1}")
-  @hint("Pass P, refit: the new tube's tone while it feeds in (lighter than the tire); it fades back as it seats")
+  @hint("Refit: the new tube's tone while it feeds in (lighter than the tire); it fades back as it seats")
   @widget(new ColorWidget())
   refitTint: vec4 = new vec4(1.0, 0.78, 0.45, 1)
 
@@ -165,7 +165,7 @@ export class TubePull extends BaseScriptComponent {
   private demoSec = 1.6
   private refitElapsed = 0
   private valveRefitFrom = vec3.zero()
-  /** Pass P: the feed-in tone (a clone of the tube's material), and the originals it replaced. */
+  /** The feed-in tone (a clone of the tube's material), and the originals it replaced. */
   private feedMat: Material | null = null
   private feedBase = new vec4(1, 1, 1, 1)
   private feedOriginals: {rmv: RenderMeshVisual; mat: Material}[] = []
@@ -343,7 +343,7 @@ export class TubePull extends BaseScriptComponent {
   }
 
   /**
-   * Pass P (step 8 was hard to see: the segments flashed in for 0.3 s each and vanished
+   * (Step 8 was hard to see: the segments flashed in for 0.3 s each and vanished
    * inside the tire): while the new tube feeds in, its segments wear a lighter tone
    * (refitTint, blend k); k = 0 puts the tube's own materials back.
    */
@@ -441,7 +441,7 @@ export class TubePull extends BaseScriptComponent {
     const vt = Math.max(0, Math.min(1, this.refitElapsed / Math.max(0.01, this.valveTweenSec)))
     if (this.valve) this.valve.getTransform().setLocalPosition(vec3.lerp(this.valveRefitFrom, this.valveHome, this.ease(vt)))
     const segStart = this.valveTweenSec
-    // Pass P: each segment slides from refitFromCm to refitProudCm in front of the tire,
+    // Each segment slides from refitFromCm to refitProudCm in front of the tire,
     // so a light ring builds round the wheel from the valve both ways; once all are in,
     // the whole tube presses into the tire together over refitSeatSec while its tone
     // fades back (the seated moment).

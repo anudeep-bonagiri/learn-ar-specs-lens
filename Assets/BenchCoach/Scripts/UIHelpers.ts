@@ -1,5 +1,5 @@
 /**
- * UIHelpers — the Bench Coach design system (pass D2) and the shared UIKit
+ * UIHelpers — the Bench Coach design system and the shared UIKit
  * composition helpers for every BenchCoach*UI module.
  * Owns: the colour tokens (COLOR: one meaning each), the text roles (UIRole on top
  * of the type scale), the spacing grid (grid(d), scaled by viewing distance so every
@@ -39,7 +39,7 @@ export const PANEL_CONTENT_Z = 0.6
 const imageMaterial = requireAsset("../Materials/ImageMaterial.mat") as Material
 const markerMaterial = requireAsset("../Materials/MarkerMat.mat") as Material
 
-// ── Colour tokens (pass D2): one meaning each, nothing else in the UI ─────────
+// ── Colour tokens: one meaning each, nothing else in the UI ─────────
 // The display is additive (black is transparent), so every token is light.
 export const COLOR = {
   /** "Do it here": markers, the step leader line, the primary button, latched toggles. */
@@ -103,7 +103,7 @@ export function applyTextRole(t: Text, role: TextRole, distanceCm: number = 110)
 
 /**
  * Text roles of the design system, one size each: card titles, instructions, body
- * lines (answers, card values), secondary lines (grey), button labels, and (pass V)
+ * lines (answers, card values), secondary lines (grey), button labels, and
  * display, the big numbers on the Finish card.
  */
 export type UIRole = "title" | "instruction" | "body" | "secondary" | "button" | "display"
@@ -118,7 +118,7 @@ const UI_ROLES: Record<UIRole, TextRole> = {
 }
 
 /**
- * Pass V, the type scale for video and the glasses: Text.size of each role at 110 cm
+ * the type scale for video and the glasses: Text.size of each role at 110 cm
  * (it scales with the viewing distance, so every panel has the same angular size).
  * D2 used the UIKit scale (title 93, instruction 48, body 39, secondary 38, button 41);
  * in the Garage captures from the recording pose that gave body lines an x-height of
@@ -139,7 +139,7 @@ export function uiSize(role: UIRole, distanceCm: number): number {
   return UI_ROLE_SIZE[role] * FONT_SIZE_SCALE * (distanceCm / 110)
 }
 
-/** x-height of the UI font as a fraction of Text.size's em (measured on captures, pass V: 0.40 to 0.44 depending on the role; 0.42 keeps the check on the safe side). */
+/** x-height of the UI font as a fraction of Text.size's em (measured on captures, 0.40 to 0.44 depending on the role; 0.42 keeps the check on the safe side). */
 export const FONT_XHEIGHT_EM = 0.42
 /** The preview frame is about 36.6 degrees tall; 1.5% of it, the smallest body x-height. */
 export const MIN_BODY_XHEIGHT_DEG = 0.55
@@ -154,7 +154,7 @@ export function xHeightDeg(t: Text, distanceCm: number): number {
 }
 
 /**
- * Pass V: plates grow with the text. A panel's D2 width (its panelWidth input) times
+ * Plates grow with the text. A panel's D2 width (its panelWidth input) times
  * PLATE_GROW, but never wider than MAX_PLATE_DEG at its viewing distance (the recording
  * frame is about 30 degrees wide), so lines carry fewer words instead of leaving the frame.
  */
@@ -167,7 +167,7 @@ export function plateCm(baseCm: number, distanceCm: number): number {
 }
 
 /**
- * Pass V: keeps a clock position on one line ("5 o'clock" never breaks after the 5): the
+ * Keeps a clock position on one line ("5 o'clock" never breaks after the 5): the
  * space becomes a no-break space at display time, so the step texts (and the voice
  * lines exported from them) stay as written.
  */
@@ -216,8 +216,8 @@ export function grid(distanceCm: number): Grid {
 }
 
 /**
- * Size in cm that spans `deg` degrees at a viewing distance. Snap's target rule (pass G,
- * carried onto D2 in pass M): a hit box at least 2 degrees, neighbours at least 1 degree apart.
+ * Size in cm that spans `deg` degrees at a viewing distance. Snap's target rule (
+ * carried onto D2): a hit box at least 2 degrees, neighbours at least 1 degree apart.
  */
 export function targetCm(distanceCm: number, deg: number = 2): number {
   return distanceCm * Math.tan((deg * Math.PI) / 180)
@@ -280,11 +280,11 @@ export function makeFlex(
 }
 
 /**
- * Pass P: UIKit's FlexLayout runs its first layout from OnStartEvent, in the next
+ * UIKit's FlexLayout runs its first layout from OnStartEvent, in the next
  * LateUpdate. A panel that is off at Lens start (the step callout, the cards, What's
  * this?, Ask) starts on the frame it first shows, so for that one frame every child sat
  * at the column's centre: the kicker "Step 2 of 10" was drawn over the instruction (the
- * "doubled text" in the pass R footage). The container stays at zero scale until its
+ * "doubled text" in the Nov 5 footage). The container stays at zero scale until its
  * first layout is done. Only when no parent flex owns its scale (a FlexItem's scale is
  * set by the parent's layout pass).
  */
@@ -453,7 +453,7 @@ function logTrigger(name: string, e: InteractorEvent): void {
 }
 
 /**
- * Pass F: a UI button answers only a deliberate ray pinch. UIKit's Element.initialize()
+ * A UI button answers only a deliberate ray pinch. UIKit's Element.initialize()
  * sets TargetingMode.All (Direct + Indirect + Poke), so a hand passing through the
  * body-locked control bar on its way to the wheel poked its buttons. Grabbable tools
  * and wheel parts keep their own targeting.
@@ -478,7 +478,7 @@ export function imageOn(so: SceneObject, texture: Texture, sizeCM: number): Imag
 
 /**
  * Swap the leading icon of a button built by addLabelButton / addIconButton (its "Icon"
- * child's Image). Pass G3 on D2: a toggle that is on shows a different shape, not only a tint.
+ * child's Image). A toggle that is on shows a different shape, not only a tint.
  */
 export function setButtonIcon(button: Button | null, texture: Texture): boolean {
   if (!button) return false
@@ -566,7 +566,7 @@ function buttonStates(kind: ButtonKind, edgeCm: number): Partial<Record<StateNam
   }
 }
 
-/** A UIKit Button with the design-system look, ray-only (pass F), on `so`. */
+/** A UIKit Button with the design-system look, ray-only, on `so`. */
 function styledButton(so: SceneObject, kind: ButtonKind, w: number, h: number, distanceCm: number): Button {
   const btn = so.createComponent(Button.getTypeName()) as Button
   rayOnly(btn)
@@ -708,7 +708,7 @@ export class Plate {
     })
   }
 
-  /** Pass P: a new plate height in cm (the step callout grows by its hint line). */
+  /** A new plate height in cm (the step callout grows by its hint line). */
   setHeight(h: number): void {
     if (Math.abs(h - this.height) < 1e-3) return
     this.height = h
@@ -841,7 +841,7 @@ export interface CardButton {
   onClick: () => void
 }
 
-/** Pass V: a big number with its caption under it (the Finish card's time and counts). */
+/** A big number with its caption under it (the Finish card's time and counts). */
 export interface CardStat {
   /** Name of the number Text (tests find it); the caption Text is `${name}Label`. */
   name: string
@@ -852,12 +852,12 @@ export interface CardStat {
 }
 
 export interface CardSpec {
-  /** The D2 width; the card grows it with plateCm (pass V). */
+  /** The D2 width; the card grows it with plateCm. */
   width: number
   distanceCm: number
   title: {name: string; text: string; kicker?: {name: string; text: string; color: vec4}}
   rows: CardRow[]
-  /** Pass V: a row of big numbers with captions, under the title. */
+  /** A row of big numbers with captions, under the title. */
   stats?: CardStat[]
   pairs?: CardPair[]
   rowsAfter?: CardRow[]
@@ -882,7 +882,7 @@ export function buildCard(root: SceneObject, spec: CardSpec): Card {
   const width = plateCm(spec.width, d)
   const innerW = width - 2 * g.pad * 1.3
   const btnH = Math.max(4.4 * (d / 80), lineCm("button", d) * 2.6)
-  // Pass V: a row holds as many lines as its text needs at this width (never fewer than asked).
+  // A row holds as many lines as its text needs at this width (never fewer than asked).
   const lines = (r: CardRow) => Math.max(r.lines ?? 1, linesFor(r.text, r.role, innerW, d))
   const rowH = (r: CardRow) => lineCm(r.role, d) * lines(r)
   const pairs = spec.pairs ?? []
@@ -914,7 +914,7 @@ export function buildCard(root: SceneObject, spec: CardSpec): Card {
   const texts: {[name: string]: Text} = {}
   const row = (r: CardRow) => {
     texts[r.name] = addUIText(col, r.name, r.text, r.role, innerW, rowH(r), d, {color: r.color, wrap: lines(r) > 1})
-    // Pass V: a wrapped row starts at its top, so a shorter text leaves no gap above it.
+    // A wrapped row starts at its top, so a shorter text leaves no gap above it.
     if (lines(r) > 1) texts[r.name].verticalAlignment = VerticalAlignment.Top
   }
   if (spec.title.kicker) {
@@ -924,7 +924,7 @@ export function buildCard(root: SceneObject, spec: CardSpec): Card {
   texts[spec.title.name] = addUIText(col, spec.title.name, spec.title.text, "title", innerW, lineCm("title", d), d)
   for (const r of spec.rows) row(r)
   if (stats.length > 0) {
-    // Pass V: the numbers in the display role, each with its caption under it.
+    // The numbers in the display role, each with its caption under it.
     const total = stats.reduce((a, st) => a + (st.weight ?? 1), 0)
     const cellsW = innerW - (stats.length - 1) * g.gap
     flexChild(col, {w: innerW, h: statH, name: "Stats"}, (holder) => {
@@ -957,13 +957,13 @@ export function buildCard(root: SceneObject, spec: CardSpec): Card {
   for (const r of spec.rowsAfter ?? []) row(r)
   const btnRowW = innerW
   flexChild(col, {w: btnRowW, h: btnH + g.gap, name: "Buttons"}, (holder) => {
-    // At least 1 degree between the buttons (pass G: 1.6 cm at 86 cm).
+    // At least 1 degree between the buttons (1.6 cm at 86 cm).
     const btnGap = Math.max(g.gap * 1.5, targetCm(d, 1))
     const r = flexRow(holder, btnRowW, btnH, {gap: btnGap, justify: FlexJustify.Center, align: FlexAlign.Center})
     // The extra gap goes above the buttons, between the last line and the row.
     const rp = r.getTransform().getLocalPosition()
     r.getTransform().setLocalPosition(new vec3(rp.x, rp.y - g.gap / 2, rp.z))
-    // Pass V: buttons grow with the plate, but the row always fits inside it.
+    // Buttons grow with the plate, but the row always fits inside it.
     const sum = spec.buttons.reduce((a, b) => a + b.width, 0)
     const grow = Math.min(PLATE_GROW, (btnRowW - (spec.buttons.length - 1) * btnGap) / Math.max(1, sum))
     for (const b of spec.buttons) addLabelButton(r, b.name, b.label, b.icon, b.width * grow, btnH, d, b.onClick, b.kind)

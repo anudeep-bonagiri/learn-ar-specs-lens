@@ -1,10 +1,10 @@
 /**
- * BenchCoachStepLabelUI — the step callout (pass D2; replaces the floating step label).
+ * BenchCoachStepLabelUI — the step callout (replaces the floating step label).
  * A small kicker line ("Step 4 of 10"), then the instruction (LabelText, up to two
  * lines), on the design-system plate, turned to the user (yaw only), with a thin
  * accent leader line from the plate edge to the marker.
  * States: normal (setText), found (setFound: green kicker), mistake (showMistake: amber
- * edge and kicker), idle hint (showHint: the edge pulses in the accent). Pass P: the
+ * edge and kicker), idle hint (showHint: the edge pulses in the accent). The
  * hint no longer replaces the instruction (someone who looked away could not read what
  * the step is): the plate grows by a "Hint" kicker and the hint line under it. Only where
  * the hint already states the whole step (WHOLE_STEP_HINTS) does it replace the line.
@@ -15,12 +15,12 @@
  *    handle (handles stand up out of the tire), and stays near eye level.
  *  - With something attached underneath (setStack: Ask chips or answer, the What's this?
  *    prompt) callout and stack go inside the rim together when they fit as one box (same
- *    search, every corner in the clear circle; pass M, Sujeeth's G5: above the tire the
+ *    search, every corner in the clear circle; Sujeeth's G5: above the tire the
  *    stack's top sat 24 to 27 degrees above the eye, past Specs' top edge). Otherwise
  *    the callout goes above the tire (marker in the upper half; shifted to the side away
  *    from the marker, clear of any lever handle) or below it (lower half), with the
  *    stack between it and the tire / under it.
- *  - Pass B, Ask takes the slot (setSlot): while Ask is open its chips or answer stand where
+ *  - Ask takes the slot (setSlot): while Ask is open its chips or answer stand where
  *   the plate stands, same width and anchor, so there is one plate on the part. The plate
  *   hides (setSlot), the ring and the leader stay, and the box placed is the Ask panel's.
  * It keeps its apparent size: closer than viewDistanceCm it scales down (to minScale),
@@ -36,17 +36,17 @@ import WorldCameraFinderProvider from "SpectaclesInteractionKit.lspkg/Providers/
 import {FlexAlign, FlexJustify} from "SpectaclesUIKit.lspkg/Scripts/Components/Layout2D/Flex/FlexTypes"
 import {COLOR, LAYOUT_Z_LIFT, LeaderLine, Plate, addUIText, flexColumn, imageOn, lineCm, linesFor, makePlate, plateEdgePoint, plateCm, keepTogether, uiTextOn} from "./UIHelpers"
 
-/** Pass G3 (Sujeeth), on D2's amber state: a mistake carries a warning badge, not only amber. */
+/** A mistake carries a warning badge, not only amber. */
 const ICON_WARNING: Texture = requireAsset("../../Icons/warning.png") as Texture
 
 /**
- * Pass P: steps whose idle hint already states the whole step, so it replaces the
+ * Steps whose idle hint already states the whole step, so it replaces the
  * instruction as before: 4 ("Hook the second lever on the ghost, then slide it down."),
  * 6 ("Look for a glint on the tire. Pinch it.") and 10 ("Pinch the valve and keep holding.").
  */
 export const WHOLE_STEP_HINTS = [4, 6, 10]
 
-/** Pass P: screen margin (fraction of the frame) a callout keeps inside the view. */
+/** Screen margin (fraction of the frame) a callout keeps inside the view. */
 export const VIEW_MARGIN = 0.02
 
 /** Where the callout hangs: the marker (or null), the wheel and which side the user works from. */
@@ -131,9 +131,9 @@ export class BenchCoachStepLabelUI extends BaseScriptComponent {
   private leader: LeaderLine | null = null
   private anchor: CalloutAnchor | null = null
   private stackH = 0
-  /** Pass B: height of the Ask panel standing in the plate's place (0 = the plate shows). */
+  /** Height of the Ask panel standing in the plate's place (0 = the plate shows). */
   private slotH = 0
-  /** Pass B: the plate is hidden because Ask took its slot; tests read it. */
+  /** The plate is hidden because Ask took its slot; tests read it. */
   plateHidden: boolean = false
   private shownHide = false
   private step = 0
@@ -141,10 +141,10 @@ export class BenchCoachStepLabelUI extends BaseScriptComponent {
   private badge: SceneObject | null = null
   private bb: Billboard | null = null
   private pitchFollow = false
-  /** The mistake state shows its warning badge (pass G3 / M); tests read it. */
+  /** The mistake state shows its warning badge; tests read it. */
   warning: boolean = false
   /**
-   * Pass P: step 5 from the near side. The far-side callout would be read through the
+   * Step 5 from the near side. The far-side callout would be read through the
    * spokes, so while the line from the eye to it crosses the wheel disc the plate turns
    * into the near-side note (nearNote: "Step 5 of 10" and the step's nearSideLine, on the
    * near side, no leader) beside the edge arrow and the floor path; the full callout comes
@@ -152,16 +152,16 @@ export class BenchCoachStepLabelUI extends BaseScriptComponent {
    * behind the wheel. Not while something hangs under it (Ask, What's this?).
    */
   throughWheel: boolean = false
-  /** Pass P: while throughWheel, the plate shows the near-side note (kicker and nearSideLine, no leader) on the near side. */
+  /** While throughWheel, the plate shows the near-side note (kicker and nearSideLine, no leader) on the near side. */
   nearNote: boolean = false
   private nearLine = ""
-  /** Pass S2: the drill's kicker ("" outside a drill). */
+  /** The drill's kicker ("" outside a drill). */
   private kickerLine = ""
   /** What the current mode puts on LabelText (the note replaces it while nearNote). */
   private labelText = ""
   /** The idle hint line the hint mode wants (shown once the full callout is back). */
   private hintWanted: string | null = null
-  /** Pass P: the hint line under the instruction ("" while none shows); tests read it. */
+  /** The hint line under the instruction ("" while none shows); tests read it. */
   hintText: string = ""
   private baseHeight = 0
   private column: SceneObject | null = null
@@ -178,7 +178,7 @@ export class BenchCoachStepLabelUI extends BaseScriptComponent {
     this.setLabel(msg)
   }
 
-  /** Pass P: the step's near-side note line ("" for none); RepairManager pushes it with the step. */
+  /** The step's near-side note line ("" for none); RepairManager pushes it with the step. */
   setNearSideLine(line: string): void {
     this.nearLine = line
     if (!line && this.nearNote) this.setThroughWheel(false, false)
@@ -190,7 +190,7 @@ export class BenchCoachStepLabelUI extends BaseScriptComponent {
   }
 
   /**
-   * Pass S2: during a Practise drill the kicker reads `line` ("Practise, rep 1 of 3")
+   * During a Practise drill the kicker reads `line` ("Practise, rep 1 of 3")
    * instead of "Step N of 10"; "" gives the step count back. Shown on the next setText.
    */
   setKickerLine(line: string): void {
@@ -198,7 +198,7 @@ export class BenchCoachStepLabelUI extends BaseScriptComponent {
     if (this.mode === "normal" && this.kicker) this.kicker.text = this.stepLine()
   }
 
-  /** Pass S2: a drill rep is done (green kicker, "Rep 1 of 3 done in 0:06"); the instruction stays. */
+  /** A drill rep is done (green kicker, "Rep 1 of 3 done in 0:06"); the instruction stays. */
   showRepDone(kicker: string): void {
     this.setMode("found", kicker, COLOR.green, COLOR.edge)
     this.setLabel(this.labelText)
@@ -217,7 +217,7 @@ export class BenchCoachStepLabelUI extends BaseScriptComponent {
   }
 
   /**
-   * The idle hint: the edge pulses gently in the accent. Pass P: the instruction stays and
+   * The idle hint: the edge pulses gently in the accent. The instruction stays and
    * the hint goes under it with its "Hint" kicker; on a WHOLE_STEP_HINTS step the hint
    * replaces the line ("Hint" kicker), as before.
    */
@@ -251,7 +251,7 @@ export class BenchCoachStepLabelUI extends BaseScriptComponent {
   }
 
   /**
-   * Pass B: while Ask is open, its panel (chips or answer, heightCm tall) stands in the
+   * While Ask is open, its panel (chips or answer, heightCm tall) stands in the
    * plate's place: the plate and its text hide, the leader stays. 0 gives the plate back.
    */
   setSlot(heightCm: number): void {
@@ -268,7 +268,7 @@ export class BenchCoachStepLabelUI extends BaseScriptComponent {
   }
 
   /**
-   * Pass P: the world z of the callout's plane (the wheel plane plus its stand-off toward
+   * The world z of the callout's plane (the wheel plane plus its stand-off toward
    * the user), or null; the info card keeps at least this far out so the axle end and the
    * hub never poke through it.
    */
@@ -277,7 +277,7 @@ export class BenchCoachStepLabelUI extends BaseScriptComponent {
     return a && a.side > 0 ? a.hub.z + a.standOff : null
   }
 
-  /** Pass P: the marker ring's centre while the leader points at it (null when there is none). */
+  /** The marker ring's centre while the leader points at it (null when there is none). */
   markerAt(): vec3 | null {
     return this.leaderTo && this.anchor && this.anchor.target ? this.anchor.target : null
   }
@@ -295,7 +295,7 @@ export class BenchCoachStepLabelUI extends BaseScriptComponent {
   onAwake(): void {
     if (this.billboard) this.bb = this.sceneObject.createComponent(Billboard.getTypeName()) as Billboard
     const d = this.viewDistanceCm
-    // Pass V: the plate grows with the type scale (UIHelpers.plateCm).
+    // The plate grows with the type scale (UIHelpers.plateCm).
     this.panelWidth = plateCm(this.panelWidth, d)
     const w = this.panelWidth
     const kickerH = lineCm("secondary", d)
@@ -314,7 +314,7 @@ export class BenchCoachStepLabelUI extends BaseScriptComponent {
     })
     this.kicker = addUIText(col, "StepKicker", this.stepLine(), "secondary", innerW, kickerH, d)
     this.label = addUIText(col, "LabelText", "", "instruction", innerW, 2 * lineH, d, {wrap: true})
-    // Pass P: the hint block under the instruction, placed by hand (setHintLine), off until a hint shows.
+    // The hint block under the instruction, placed by hand (setHintLine), off until a hint shows.
     this.baseHeight = probe.h
     this.column = col
     this.kickerH = kickerH
@@ -331,7 +331,7 @@ export class BenchCoachStepLabelUI extends BaseScriptComponent {
     this.hintLabel = uiTextOn(hl, "", "body", innerW, 2 * lineH, d, {wrap: true})
     this.hintRoot.enabled = false
     this.leader = new LeaderLine(this.sceneObject, "StepLeader", this.leaderCm, null)
-    // Warning badge (pass G3 on D2): sits on the plate's left edge, centred on the kicker
+    // Warning badge: sits on the plate's left edge, centred on the kicker
     // line, like a tab on the amber edge. Half of it is inside the padding, so it never
     // touches the text; it shows only in the mistake state.
     const badgeCm = Math.min(g.pad * 1.8, kickerH * 1.5)
@@ -345,7 +345,7 @@ export class BenchCoachStepLabelUI extends BaseScriptComponent {
   }
 
   /**
-   * Pass V: on the far side (step 5) the eye looks steeply down at the callout, so a
+   * On the far side (step 5) the eye looks steeply down at the callout, so a
    * yaw-only plate was seen edge-on and its type shrank to about 60% of its height in the
    * video frame. There the billboard also follows pitch; in front it is upright again.
    */
@@ -362,7 +362,7 @@ export class BenchCoachStepLabelUI extends BaseScriptComponent {
   }
 
   /**
-   * Pass P: shows `text` under the instruction (null hides it). The plate grows downward
+   * Shows `text` under the instruction (null hides it). The plate grows downward
    * by the hint's kicker and its one or two lines; the instruction block keeps its place
    * at the plate's top, and the placement reads the new panelHeight.
    */
@@ -432,11 +432,11 @@ export class BenchCoachStepLabelUI extends BaseScriptComponent {
     let cx = 0
     let cy = 0
     let zone: CalloutZone = "inside"
-    // Pass M (Sujeeth's G5 on D2): with a stack hung under the callout, callout and stack go
+    // With a stack hung under the callout, callout and stack go
     // inside the rim together when they fit, as one box, clear of the ring. Above the tire
     // the stack's top sat 24 to 27 degrees above the eye, past Specs' top edge (about 18.5);
     // inside the rim it is near eye level and covers only spokes and hub, never worked.
-    // Pass B: the Ask panel standing in the plate's place is placed the same way, with nothing under it.
+    // The Ask panel standing in the plate's place is placed the same way, with nothing under it.
     const boxed = this.stackH > 0 || this.slotH > 0
     const stackIn = boxed ? this.insideSpot(a, dx, dy, w, h + this.stackH * this.scale) : null
     if (stackIn) {
@@ -463,7 +463,7 @@ export class BenchCoachStepLabelUI extends BaseScriptComponent {
     this.zone = zone
     let pos = a.hub.add(new vec3(cx, cy, a.side * a.standOff))
     const through = a.side < 0 && !boxed && this.seenThroughWheel(pos, a, w)
-    // Pass P: the near-side note in the normal and hint states (a mistake or "found" keeps its text).
+    // The near-side note in the normal and hint states (a mistake or "found" keeps its text).
     const note = through && !!this.nearLine && (this.mode === "normal" || this.mode === "hint")
     this.setThroughWheel(through, note)
     if (note) pos = this.nearSpot(a, w, h)
@@ -483,7 +483,7 @@ export class BenchCoachStepLabelUI extends BaseScriptComponent {
   }
 
   /**
-   * Pass P: where the near-side note goes: on the near side of the wheel, at the first spot
+   * Where the near-side note goes: on the near side of the wheel, at the first spot
    * straight above (then below) the hub with every corner inside the clear circle and in
    * the view. No marker on this side, so no leader and no ring to keep clear.
    */
@@ -526,7 +526,7 @@ export class BenchCoachStepLabelUI extends BaseScriptComponent {
     let fits = false
     let cx = 0
     let cy = 0
-    // Pass P: a spot that clears the ring but leaves the view (step 2 on beads 3 and 4 at
+    // A spot that clears the ring but leaves the view (step 2 on beads 3 and 4 at
     // the wheel pose ran off the frame's bottom edge) is kept only as a fallback; the search
     // goes on toward the hub for one that is fully in view.
     let clearOfRing: vec2 | null = null
@@ -544,7 +544,7 @@ export class BenchCoachStepLabelUI extends BaseScriptComponent {
       }
       t += 0.5
     }
-    // Second pass (pass P): none of those is in view (from Sunlit Room's default pose the
+    // Second pass: none of those is in view (from Sunlit Room's default pose the
     // hub sits at the frame's bottom edge), so try straight above and below the hub, inside
     // the clear circle and clear of the ring.
     if (clearOfRing) {
@@ -563,7 +563,7 @@ export class BenchCoachStepLabelUI extends BaseScriptComponent {
   }
 
   /**
-   * Pass P: from the live eye, every corner of a w x h plate centered at `c` is inside the
+   * From the live eye, every corner of a w x h plate centered at `c` is inside the
    * view with VIEW_MARGIN to spare. Only while the hub is in view, i.e. the user looks at
    * the wheel (when they look elsewhere the callout does not chase the frame edge). The
    * marker itself may be out of view (step 2's beads 3 and 4 at the wheel pose).

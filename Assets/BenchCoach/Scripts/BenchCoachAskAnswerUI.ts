@@ -1,5 +1,5 @@
 /**
- * BenchCoachAskAnswerUI — the coach's answer (pass D2: the shared plate, in the same
+ * BenchCoachAskAnswerUI — the coach's answer (The shared plate, in the same
  * slot under the step callout as the chips): a header row with the source tag ("Coach"
  * for a live answer, "Offline answer" for a canned one) and BtnAnswerClose, then the
  * answer (wrapped; it shrinks to fit rather than cross the plate edge). Billboarded.
@@ -72,10 +72,10 @@ export class BenchCoachAskAnswerUI extends BaseScriptComponent {
   onAwake(): void {
     this.sceneObject.createComponent(Billboard.getTypeName())
     const d = this.viewDistanceCm
-    // Pass V: the plate grows with the type scale (UIHelpers.plateCm).
+    // The plate grows with the type scale (UIHelpers.plateCm).
     this.panelWidth = plateCm(this.panelWidth, d)
     const g = grid(d)
-    // The header row holds BtnAnswerClose, so it is at least a 2-degree target (pass M).
+    // The header row holds BtnAnswerClose, so it is at least a 2-degree target.
     const headerH = Math.max(lineCm("secondary", d), targetCm(d))
     const answerH = lineCm("body", d) * this.answerLines
     const h = 2 * g.pad * 0.8 + headerH + g.gap + answerH

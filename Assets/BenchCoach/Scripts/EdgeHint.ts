@@ -4,7 +4,7 @@
  * user) it shows EdgeArrow — a 3 cm cyan chevron parented to the camera, placed at
  * the view edge and aimed at the marker — and plays the chime once per step from
  * the marker's world position. Inside the safe rectangle the arrow hides.
- * Pass D2: the arrow never draws over a panel (the dock, the step callout, the info
+ * The arrow never draws over a panel (the dock, the step callout, the info
  * callout): when its spot falls on one's screen rectangle it slides along the view
  * edge past it.
  * Owns: EdgeArrow's mesh and pose, the once-per-step chime flag.

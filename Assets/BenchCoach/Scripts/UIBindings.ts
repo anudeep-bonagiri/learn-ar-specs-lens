@@ -7,11 +7,11 @@
  * first stops watch mode (RepairDirector.stop()); the start card's Watch button
  * presses Found it and then starts watch mode. Pass 12: BtnAsk toggles AskCoach;
  * Ask and What's this? are mutually exclusive (turning one on turns the other off).
- * Pass D2: pushes the dock's progress ("4 / 10") on every step, shows the watch pill
+ * Pushes the dock's progress ("4 / 10") on every step, shows the watch pill
  * while watch mode plays (its Stop is a press like any other), closes the More popover
  * on a step change, and keeps the start card's floor line in step with FloorLevel
  * ("Look down at your work spot" until it decides, then found or fallback).
- * Pass B: Replay is in the More popover (a choice there closes it), and each step change
+ * Replay is in the More popover (a choice there closes it), and each step change
  * while Watch plays shows the in-frame Watching badge again for a moment.
  * Expects: @inputs manager, startCard, controlBar, doneCard, finishCard, audio (wired in the scene).
  */
@@ -99,12 +99,12 @@ export class UIBindings extends BaseScriptComponent {
 
   @input
   @allowUndefined
-  @hint("Voice coach: BtnVoice in the More popover turns it on and off (pass V)")
+  @hint("Voice coach: BtnVoice in the More popover turns it on and off")
   voice: VoiceCoach
 
   @input
   @allowUndefined
-  @hint("Pass V: the in-frame 'Watching' badge above the wheel (its Stop is a press like the pill's)")
+  @hint("The in-frame 'Watching' badge above the wheel (its Stop is a press like the pill's)")
   watchBadge: BenchCoachWatchBadgeUI
   @ui.group_end
 
@@ -127,7 +127,7 @@ export class UIBindings extends BaseScriptComponent {
       this.controlBar.onNext.add(() => this.press(this.controlBar, "BtnNext", () => this.manager.next()))
       this.controlBar.onReplay.add(() => {
         this.press(this.controlBar, "BtnReplay", () => this.manager.replay())
-        this.closeMore() // Pass B: Replay lives in the More popover.
+        this.closeMore() // Replay lives in the More popover.
       })
       this.doneCard.onTryAgain.add(() => this.press(this.doneCard, "BtnTryAgain", () => this.manager.reset()))
       this.doneCard.onContinue.add(() => this.press(this.doneCard, "BtnContinue", () => this.manager.next()))
@@ -172,10 +172,10 @@ export class UIBindings extends BaseScriptComponent {
       }
       if (this.finishCard) {
         this.finishCard.onRestart.add(() => this.press(this.finishCard, "BtnRestart", () => this.manager.reset()))
-        // Pass S2: Practise <step> drills that step three times.
+        // Practise <step> drills that step three times.
         this.finishCard.onPractise.add(() => this.press(this.finishCard, "BtnFinishPractise", () => this.manager.practise()))
       }
-      // Pass D2: the dock's progress, the watch pill's Stop, the floor line.
+      // The dock's progress, the watch pill's Stop, the floor line.
       this.controlBar.onMore.add((on) => this.press(this.controlBar, `BtnMore (${on ? "open" : "closed"})`, () => {}))
       if (this.askCoach) {
         this.askCoach.chips.onClose.add(() => this.press(this.askCoach.chips, "BtnAskClose", () => {}))
@@ -189,7 +189,7 @@ export class UIBindings extends BaseScriptComponent {
       this.manager.onStepChanged.add((step) => {
         this.controlBar.setProgress(step)
         if (this.controlBar.moreOpen) this.controlBar.setMoreOpen(false)
-        // Pass B: the Watching badge is brief; each new step brings it back for a moment.
+        // The Watching badge is brief; each new step brings it back for a moment.
         if (this.watchBadge && this.director && this.director.playing) this.watchBadge.showForStep()
       })
       this.createEvent("UpdateEvent").bind(() => this.tick())
@@ -214,14 +214,14 @@ export class UIBindings extends BaseScriptComponent {
   }
 
   /**
-   * Pass V: a choice in the More popover closes it (the taller popover reached into the
+   * A choice in the More popover closes it (the taller popover reached into the
    * recording frame from the dock while Ask was open). The toggles keep their state.
    */
   private closeMore(): void {
     if (this.controlBar.moreOpen) this.controlBar.setMoreOpen(false)
   }
 
-  /** Every button press goes through here; the log line names the button (pass F). */
+  /** Every button press goes through here; the log line names the button. */
   private press(panel: BaseScriptComponent, name: string, action: () => void): void {
     print(`[UIBindings] press ${name}`)
     if (this.audio) this.audio.playTickAt(panel.sceneObject.getTransform().getWorldPosition())

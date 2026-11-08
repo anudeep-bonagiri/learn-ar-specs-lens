@@ -1,5 +1,5 @@
 /**
- * BenchCoachDoneCardUI — the step 7 halfway card (pass D2: the shared card component):
+ * BenchCoachDoneCardUI — the step 7 halfway card (The shared card component):
  * a green "Halfway" kicker, the title, the next step, a two-column list (time, cause),
  * the next-skill teaser, and BtnContinue ("Fit the new tube", primary) with BtnTryAgain
  * (labeled "Start over"; the object name stays for the tests).

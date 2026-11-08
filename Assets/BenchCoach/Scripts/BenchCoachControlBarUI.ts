@@ -1,13 +1,13 @@
 /**
- * BenchCoachControlBarUI — the dock (pass D2; replaces the control-bar slab and the
+ * BenchCoachControlBarUI — the dock (replaces the control-bar slab and the
  * progress dots). One slim plate, body-followed low on the user's left (out of the
  * right hand's path to the wheel and the tool tray, never over the work):
- *  - pass B, a row of three: BtnBack, BtnNext (the accent primary, with its label), BtnMore;
+ *  - a row of three: BtnBack, BtnNext (the accent primary, with its label), BtnMore;
  *  - under it the progress: "4 / 10" and a thin bar (ControlBar/ProgressRail, on the two
- *    cards only since pass B).
- * BtnMore toggles a small popover on top of the dock: BtnReplay first (pass B: rarely
+ *    cards only).
+ * BtnMore toggles a small popover on top of the dock: BtnReplay first (Rarely
  * used, so out of the dock), then the two learning tools, BtnWhatsThis and BtnAsk (UIKit
- * toggles: latched in the accent while the mode is on), and under them BtnVoice (pass V:
+ * toggles: latched in the accent while the mode is on), and under them BtnVoice (
  * the voice coach, on by default; a speaker icon while on, a crossed-out speaker while
  * off, so the state is never colour alone).
  * While watch mode plays, a pill on top of the dock says "Watching the coach" with
@@ -15,7 +15,7 @@
  * Owns: only its view. Emits onBack / onNext / onReplay / onWhatsThis(on) / onAsk(on) /
  * onStopWatch. setWhatsThisLatched() / setAskLatched() sync the toggle looks;
  * setProgress(step) and setWatching(on) push state in. Holds no repair state.
- * Pass F: once every button is up, logs each row's hit boxes against their visuals
+ * Once every button is up, logs each row's hit boxes against their visuals
  * and flags any overlap (`hitBoxes` keeps the numbers for tests).
  */
 import Event, {PublicApi} from "SpectaclesInteractionKit.lspkg/Utils/Event"
@@ -46,9 +46,9 @@ const ICON_ASK: Texture = requireAsset("../../Icons/help.png") as Texture
 const ICON_MORE: Texture = requireAsset("../../Icons/more_horiz.png") as Texture
 const ICON_PLAY: Texture = requireAsset("../../Icons/play_arrow.png") as Texture
 const ICON_STOP: Texture = requireAsset("../../Icons/stop.png") as Texture
-/** Pass G3 (Sujeeth), on D2's popover: a toggle that is on shows a close cross, not only the accent tint. */
+/** A toggle that is on shows a close cross, not only the accent tint. */
 const ICON_CLOSE: Texture = requireAsset("../../Icons/close.png") as Texture
-/** Pass V: the Voice toggle's two states. */
+/** The Voice toggle's two states. */
 const ICON_VOICE_ON: Texture = requireAsset("../../Icons/volume_up.png") as Texture
 const ICON_VOICE_OFF: Texture = requireAsset("../../Icons/volume_off.png") as Texture
 
@@ -74,7 +74,7 @@ export class BenchCoachControlBarUI extends BaseScriptComponent {
   nextWidth: number = 7
 
   @input
-  @hint("Gap between buttons in cm (0.85 is 1 degree at 48 cm: Snap's spacing rule, pass G / M)")
+  @hint("Gap between buttons in cm (0.85 is 1 degree at 48 cm: Snap's spacing rule)")
   @widget(new SliderWidget(0.2, 2, 0.05))
   gap: number = 0.85
 
@@ -209,7 +209,7 @@ export class BenchCoachControlBarUI extends BaseScriptComponent {
     const s = this.buttonSize
     const rowW = 2 * s + this.nextWidth + 2 * this.gap
     const w = rowW + 2 * g.pad
-    // Pass B: the dock lost Replay, but the popover and the pill keep the width they had,
+    // The dock lost Replay, but the popover and the pill keep the width they had,
     // so their labels do not shrink.
     const wideW = rowW + s + this.gap + 2 * g.pad
     const progH = lineCm("body", d)
@@ -283,7 +283,7 @@ export class BenchCoachControlBarUI extends BaseScriptComponent {
     const rowW = w - 2 * g.pad
     const bw = (rowW - this.gap) / 2
     const rowStep = bh + this.gap
-    // Pass B: Replay, the first row (it left the dock; a choice here closes the popover).
+    // Replay, the first row (it left the dock; a choice here closes the popover).
     const replayHolder = obj(plate.content, "ReplayRow", new vec3(0, rowStep, 0))
     const replayRow = flexRow(replayHolder, rowW, bh, {gap: this.gap, justify: FlexJustify.Start, align: FlexAlign.Center})
     const replayBtn = addLabelButton(replayRow, "BtnReplay", "Replay", ICON_REPLAY, bw, bh, d, () => this._onReplay.invoke())
@@ -306,7 +306,7 @@ export class BenchCoachControlBarUI extends BaseScriptComponent {
       this._onAsk.invoke(this.askOn)
     })
     this.ask = askBtn
-    // Pass V: the Voice toggle, under What's this? (on by default).
+    // The Voice toggle, under What's this? (on by default).
     const voiceHolder = obj(plate.content, "VoiceRow", new vec3(0, -rowStep, 0))
     const voiceRow = flexRow(voiceHolder, rowW, bh, {gap: this.gap, justify: FlexJustify.Start, align: FlexAlign.Center})
     const voiceBtn = addLabelButton(voiceRow, "BtnVoice", "Voice", ICON_VOICE_ON, bw, bh, d, () => {})
@@ -382,7 +382,7 @@ export class BenchCoachControlBarUI extends BaseScriptComponent {
         const half = ((b.collider.shape as BoxShape).size.x * tr.getWorldScale().x) / 2
         const c = tr.getWorldPosition().sub(origin).dot(right)
         const name = b.getSceneObject().name
-        // Replay (pass B) and the Voice toggle (pass V) have their own rows in the popover.
+        // Replay and the Voice toggle have their own rows in the popover.
         const own = name === "BtnVoice" ? "voice" : name === "BtnReplay" ? "replay" : rowName
         return {name, row: own, left: c - half, right: c + half, visualWidth: b.size.x}
       })

@@ -307,7 +307,7 @@ export class RefitSteps extends BaseScriptComponent implements StepModule {
     if (step === FIT_STEP) {
       if (this.fitted || !this.tubeFit) return 0
       this.tubeFit.playFit(1.0)
-      // Pass P: the refit's own timing (the feed is slower and ends with the seated moment).
+      // The refit's own timing (the feed is slower and ends with the seated moment).
       const tp = this.tubePull
       return 1.0 + tp.valveTweenSec + 7 * tp.refitStaggerSec + tp.refitTweenSec + tp.refitSeatSec
     }

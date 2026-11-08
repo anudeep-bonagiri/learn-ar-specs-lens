@@ -4,7 +4,7 @@
  * origin facing -Z); each frame the target is that offset carried by the
  * camera's position and yaw. The panel stays put until the user walks or turns
  * past a threshold, then glides to the target, so it never chases small head motion.
- * Pass D2: the thresholds compare the camera with where it was when the panel last
+ * The thresholds compare the camera with where it was when the panel last
  * settled (walked moveThresholdCm, or turned turnThresholdDeg), not the panel with
  * its moving target: turning the head toward a panel 30 degrees off to the side
  * moved the target past 20 cm, so the dock glided away as you looked at it.

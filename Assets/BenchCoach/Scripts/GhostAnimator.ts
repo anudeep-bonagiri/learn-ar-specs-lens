@@ -4,7 +4,7 @@
  * Owns: the ghost's transform while playing. play() is called on step entry and Replay.
  * Expects: @input socket = LeverSocket (the target pose); RepairManager retargets it
  * with setSocket() for the second socket.
- * Pass A: setLoop(true) repeats the motion (with loopHoldSec at the socket between
+ * SetLoop(true) repeats the motion (with loopHoldSec at the socket between
  * passes) until the ghost is hidden; AdaptiveCoach sets it on a step the user struggled with.
  */
 @component
@@ -49,7 +49,7 @@ export class GhostAnimator extends BaseScriptComponent {
     this.socket = socket
   }
 
-  /** Pass A: repeat the motion until the ghost is hidden. */
+  /** Repeat the motion until the ghost is hidden. */
   loop: boolean = false
 
   setLoop(on: boolean): void {

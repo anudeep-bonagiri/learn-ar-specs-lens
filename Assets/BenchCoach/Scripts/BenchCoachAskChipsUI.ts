@@ -1,5 +1,5 @@
 /**
- * BenchCoachAskChipsUI — "Ask the coach" chips (pass D2: the shared plate, attached
+ * BenchCoachAskChipsUI — "Ask the coach" chips (The shared plate, attached
  * under the step callout by AskCoach): a header row ("Ask the coach" and BtnAskClose)
  * and three chips (AskChip_0..2) with the current step's preset questions, billboarded.
  * Owns: only its view. setQuestions() pushes the step's questions in ([] shows the
@@ -79,12 +79,12 @@ export class BenchCoachAskChipsUI extends BaseScriptComponent {
   onAwake(): void {
     this.sceneObject.createComponent(Billboard.getTypeName())
     const d = this.viewDistanceCm
-    // Pass V: the plate grows with the type scale (UIHelpers.plateCm).
+    // The plate grows with the type scale (UIHelpers.plateCm).
     this.panelWidth = plateCm(this.panelWidth, d)
     const g = grid(d)
-    // The header row holds BtnAskClose, so it is at least a 2-degree target (pass M).
+    // The header row holds BtnAskClose, so it is at least a 2-degree target.
     const headerH = Math.max(lineCm("secondary", d), targetCm(d))
-    // Chips 3.6 cm with 1.6 cm between them (pass G: 2.3 and 1.0 degrees at 90 cm); the
+    // Chips 3.6 cm with 1.6 cm between them (2.3 and 1.0 degrees at 90 cm); the
     // header keeps the grid gap.
     const chipsH = ASK_CHIP_COUNT * this.chipHeight + (ASK_CHIP_COUNT - 1) * this.gap
     const h = 2 * g.pad * 0.8 + headerH + g.gap + chipsH

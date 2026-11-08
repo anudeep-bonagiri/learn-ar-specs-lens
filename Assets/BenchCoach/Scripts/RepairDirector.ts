@@ -12,9 +12,9 @@
  * suspended and What's this? is turned off.
  * Owns: the beat cursor and timers. Must not: author UI or change step state directly.
  * Expects: @inputs as listed (all on BenchCoach and the wheel parts).
- * Pass V: a beat's wait also lasts until the voice coach has said its line (at most
+ * A beat's wait also lasts until the voice coach has said its line (at most
  * voiceHoldMaxSec more), so watch mode, the video's main take, never cuts a line off.
- * Pass S1: Watch walks. On step 5 the floor path shows in Watch mode as in normal mode,
+ * Watch walks. On step 5 the floor path shows in Watch mode as in normal mode,
  * and the pull beat also waits until the viewer arrives at the far spot (FloorPath
  * registers itself as walkCue), at most watchWalkMaxSec from the step's start.
  * Known limit: a tube pull or lever flight already under way finishes after stop()
@@ -47,7 +47,7 @@ import {VoiceCoach} from "./VoiceCoach"
 type Phase = "wait" | "act"
 
 /**
- * Pass S1: what the step 5 beat reads to wait for the walk. FloorPath sets itself here
+ * What the step 5 beat reads to wait for the walk. FloorPath sets itself here
  * (it already imports this script, so no import loops back).
  */
 export interface WalkCue {
@@ -116,7 +116,7 @@ export class RepairDirector extends BaseScriptComponent {
 
   @input
   @allowUndefined
-  @hint("Voice coach: each beat waits for its line to finish (pass V)")
+  @hint("Voice coach: each beat waits for its line to finish")
   voice: VoiceCoach
   @ui.group_end
 
@@ -155,12 +155,12 @@ export class RepairDirector extends BaseScriptComponent {
   stopCount: number = 0
   /** Why the last run ended: "finished", "stop", "grab". */
   lastStopReason: string = ""
-  /** Pass S1: the step whose action ran last, and when (getTime()); tests read them. */
+  /** The step whose action ran last, and when (getTime()); tests read them. */
   lastActStep: number = -1
   lastActTime: number = 0
-  /** Pass S1: how the last walk beat ended its wait: "arrival", "timeout" or "" (no walk). */
+  /** How the last walk beat ended its wait: "arrival", "timeout" or "" (no walk). */
   lastWalkEnd: string = ""
-  /** Pass S1: FloorPath, set by FloorPath at start. */
+  /** FloorPath, set by FloorPath at start. */
   walkCue: WalkCue | null = null
 
   private _onFinished = new Event<void>()
@@ -283,7 +283,7 @@ export class RepairDirector extends BaseScriptComponent {
     this.beadQueue = []
     this.sweepStarted = false
     const beat = WATCH_BEATS[this.beatIndex]
-    // Pass S1: the pull beat waits for the walk when the path shows at the beat's start.
+    // The pull beat waits for the walk when the path shows at the beat's start.
     this.walkBeat = this.walking(beat)
     if (this.walkBeat) this.lastWalkEnd = ""
     // The search step: the glint flashes while the label is read, then it is found.
@@ -292,7 +292,7 @@ export class RepairDirector extends BaseScriptComponent {
     else this.log(`beat ${this.beatIndex}: ${beat.action} after ${(beat.waitSec * this.waitScale).toFixed(1)} s`)
   }
 
-  /** Pass S1: the pull beat while the floor path shows and the viewer has not arrived. */
+  /** The pull beat while the floor path shows and the viewer has not arrived. */
   private walking(beat: WatchBeat): boolean {
     return beat.action === "pull" && !!this.walkCue && this.walkCue.visible && !this.walkCue.arrived
   }

@@ -27,7 +27,7 @@
  * a mistake reason or a part fact.
  * Pass 11: goTo reports each step change to RunStats.noteStep (step times), and
  * the Finish card also gets the slowest-steps row and RunStats.practiceTip().
- * Pass S2, Practise it now: practise() drills one step (RunStats.practiseStep(), kept in
+ * Practise it now: practise() drills one step (RunStats.practiseStep(), kept in
  * the Finish record) three times. Each rep is jumpToStep(step), the same path the tests
  * use; the callout's kicker reads "Practise, rep n of 3"; the step's line is spoken on
  * rep 1 only (quietStep). A forward completion of the drilled step is caught in goTo:
@@ -36,7 +36,7 @@
  * with the run's own record (time, counts, report: the drill's resets clear RunStats, so
  * the record is kept from the run) and the practised line. Mistakes in a drill count
  * toward the drill only.
- * Pass A: onRepDone(step) fires when a drill rep is completed (AdaptiveCoach scores it
+ * OnRepDone(step) fires when a drill rep is completed (AdaptiveCoach scores it
  * like a step completion; the step machine stays on the step, so onStepChanged does not fire).
  */
 import Event, {PublicApi} from "SpectaclesInteractionKit.lspkg/Utils/Event"
@@ -60,7 +60,7 @@ import {CoachFeedback} from "./CoachFeedback"
 
 const ALL_BEADS = [0, 1, 2, 3, 4, 5, 6, 7]
 
-/** Pass S2: what the Finish card shows for a run, kept while the run's drills reset the step machine. */
+/** What the Finish card shows for a run, kept while the run's drills reset the step machine. */
 interface FinishRecord {
   elapsed: number
   stats: {leverMisses: number; hintsUsed: number; mistakes: number}
@@ -71,7 +71,7 @@ interface FinishRecord {
   practiseStep: number
 }
 
-/** Pass S2: a drill in progress. */
+/** A drill in progress. */
 export interface DrillState {
   step: number
   /** The rep under way, 1-based. */
@@ -84,7 +84,7 @@ export interface DrillState {
   holding: boolean
 }
 
-/** Pass S2: the last drill's result, for the practised line. */
+/** The last drill's result, for the practised line. */
 export interface DrillResult {
   step: number
   reps: number
@@ -238,7 +238,7 @@ export class RepairManager extends BaseScriptComponent {
   markerStandoffCm: number = 1.5
 
   @input
-  @hint("How far the step callout stands off the wheel toward the user, in cm (pass D2)")
+  @hint("How far the step callout stands off the wheel toward the user, in cm")
   @widget(new SliderWidget(4, 30, 0.5))
   labelOffsetCm: number = 10
 
@@ -271,7 +271,7 @@ export class RepairManager extends BaseScriptComponent {
   forceCause: string = ""
 
   @input
-  @hint("Pass S2: seconds a completed drill rep holds its result before the next rep")
+  @hint("Seconds a completed drill rep holds its result before the next rep")
   @widget(new SliderWidget(0, 3, 0.1))
   drillHoldSec: number = 0.8
 
@@ -302,14 +302,14 @@ export class RepairManager extends BaseScriptComponent {
 
   /** Times Replay did something on the current step (ghost, chime or glint flash). */
   replayCount: number = 0
-  /** What the last Replay showed (pass F; logged and read by tests), or "nothing". */
+  /** What the last Replay showed (logged and read by tests), or "nothing". */
   lastReplay: string = ""
 
-  /** Pass S2: the drill under way, or null. */
+  /** The drill under way, or null. */
   drill: DrillState | null = null
-  /** Pass S2: the last drill's result since the run ended (null until one ran). */
+  /** The last drill's result since the run ended (null until one ran). */
   lastDrill: DrillResult | null = null
-  /** Pass S2: VoiceCoach says nothing for a step change while this is set (drill reps 2 and 3, the return). */
+  /** VoiceCoach says nothing for a step change while this is set (drill reps 2 and 3, the return). */
   quietStep: boolean = false
   private finish: FinishRecord | null = null
   /** True while the drill itself jumps (a rep reset, the return): reset() keeps the drill and the record. */
@@ -321,10 +321,10 @@ export class RepairManager extends BaseScriptComponent {
   /** reset() finished (Start over, Restart, jumpToStep): What's this? turns itself off. */
   private _onReset = new Event<void>()
   onReset: PublicApi<void> = this._onReset.publicApi()
-  /** Replay was asked for on this step (pass V: the voice coach says the step's line again). */
+  /** Replay was asked for on this step (The voice coach says the step's line again). */
   private _onReplay = new Event<number>()
   onReplay: PublicApi<number> = this._onReplay.publicApi()
-  /** Pass A: a drill rep of this step was completed (the step machine stays on the step). */
+  /** A drill rep of this step was completed (the step machine stays on the step). */
   private _onRepDone = new Event<number>()
   onRepDone: PublicApi<number> = this._onRepDone.publicApi()
 
@@ -401,7 +401,7 @@ export class RepairManager extends BaseScriptComponent {
     })
     if (this.feedback) {
       this.feedback.restoreLabel = () => this.refreshLabel()
-      // Pass S2: mistakes in a drill count toward the drill (they are coached as always).
+      // Mistakes in a drill count toward the drill (they are coached as always).
       this.feedback.onMistake.add(() => {
         if (this.drill && !this.drill.holding) this.drill.mistakes += 1
       })
@@ -520,7 +520,7 @@ export class RepairManager extends BaseScriptComponent {
     const wasInstant = this.instant
     this.instant = true
     for (let s = LAST_STEP; s >= 0; s--) this.undoStep(s)
-    // Pass S2: a reset from outside the drill (Start over, a test's jump) ends any drill and forgets the run.
+    // A reset from outside the drill (Start over, a test's jump) ends any drill and forgets the run.
     if (!this.drillJumping) {
       this.drillGeneration += 1
       this.drill = null
@@ -546,7 +546,7 @@ export class RepairManager extends BaseScriptComponent {
     this.instant = false
   }
 
-  // ── Pass S2: Practise it now ──────────────────────────────────────────────
+  // ── Practise it now ──────────────────────────────────────────────
   /** The step the Finish card's Practise button drills (-1: no button). */
   practiseStep(): number {
     return this.finish ? this.finish.practiseStep : -1
@@ -641,7 +641,7 @@ export class RepairManager extends BaseScriptComponent {
   refreshLabel(): void {
     const def = STEPS[this.step]
     if (!this.stepLabel || def.markerAnchor === "none" || this.interactionsPaused) return
-    // A mistake reason owns the callout for its showSec (pass G7, Sujeeth; on D2 in pass M):
+    // A mistake reason owns the callout for its showSec (Sujeeth; on D2):
     // the idle hint's touch() on the same release used to rewrite the step line over the
     // amber state in the same frame. The reason's own timer clears `showing` and then
     // restores the line through this method; a step change cancels it.
@@ -765,7 +765,7 @@ export class RepairManager extends BaseScriptComponent {
     this.stepLabel.setFound(this.causeDef().foundLabel)
     this.placeMarkerAndLabel()
     this.log("thorn found")
-    // Pass S2: in a drill the find is the rep's completion (no wait for the halfway card).
+    // In a drill the find is the rep's completion (no wait for the halfway card).
     if (this.drill && this.drill.step === 6) {
       this.repDone()
       return
@@ -855,7 +855,7 @@ export class RepairManager extends BaseScriptComponent {
   // ── Step transitions ───────────────────────────────────────────────────────
   private goTo(step: number): void {
     const from = this.step
-    // Pass S2: in a drill, completing the drilled step ends the rep instead of moving on.
+    // In a drill, completing the drilled step ends the rep instead of moving on.
     if (this.drill && !this.drillJumping && from === this.drill.step && step === from + 1) {
       this.repDone()
       return
@@ -988,7 +988,7 @@ export class RepairManager extends BaseScriptComponent {
     const cause = FLAT_CAUSES[f.cause] ? FLAT_CAUSES[f.cause] : FLAT_CAUSES["thorn"]
     this.finishCard.setResult(f.elapsed, f.stats, cause.label, cause.tip)
     if (this.stats) this.finishCard.setReport(f.slowest, f.practiceTip)
-    // Pass S2: the Practise button and, after a drill, the practised line.
+    // The Practise button and, after a drill, the practised line.
     const name = f.practiseStep >= 1 ? PRACTISE_NAMES[f.practiseStep] ?? STEPS[f.practiseStep].name : ""
     this.finishCard.setPractise(!name ? "" : this.lastDrill ? "Practise again" : `Practise ${name}`)
     this.finishCard.setPractised(this.practisedLine())
@@ -1037,7 +1037,7 @@ export class RepairManager extends BaseScriptComponent {
     const anchor = this.markerAnchorFor(this.step, true)
     this.stepMarker.getTransform().setWorldPosition(anchor.pos)
 
-    // The callout hangs off the marker (pass D2: BenchCoachStepLabelUI picks the zone and
+    // The callout hangs off the marker (BenchCoachStepLabelUI picks the zone and
     // draws the leader). Searching: no marker yet, so it sits above the wheel with no leader.
     const searching = def.markerAnchor === "inspect" && !this.thornFound
     this.stepLabel.setAnchor({

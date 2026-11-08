@@ -1,6 +1,6 @@
 /**
  * BenchCoachFinishCardUI — the final card (step 11).
- * Pass S1, progressive disclosure. By default the card is compact: a green "Repair
+ * progressive disclosure. By default the card is compact: a green "Repair
  * complete" kicker, "Flat fixed" with the time on the same row, the "Next time" tip, and
  * two buttons, More (BtnFinishMore) and Start over (BtnRestart). More grows the same card
  * downward (its top edge stays put) to show the list (cause, lever misses, mistakes,
@@ -9,13 +9,13 @@
  * card is authored, so both states stay in the view. Every show starts compact.
  * Buttons are at least minButtonDeg tall at the viewing distance (the dock's buttons are
  * 4 cm at 48 cm, about 4.8 degrees).
- * Pass S2, Practise it now: a third button, Practise <step> (BtnFinishPractise, between
+ * Practise it now: a third button, Practise <step> (BtnFinishPractise, between
  * More and Start over), drills one step three times (RepairManager.practise()). It shows
  * only when setPractise() gets a label. After a drill the compact card has one more
  * line under the tip (FinishPractised: "Practised lever A: 3 reps, best 0:06, 1 mistake")
  * and the button reads "Practise again". The buttons are placed by hand in one row, each
  * at least minButtonDeg tall and as wide as it is tall.
- * Pass A: the More view ends with one line from AdaptiveCoach, "Coach memory: lever A needs
+ * The More view ends with one line from AdaptiveCoach, "Coach memory: lever A needs
  * help; deflate and loosen are yours." (FinishMemory, setMemory()). The compact card
  * does not change.
  * Owns: only its view and its compact / expanded state. setResult() pushes time, stats,
@@ -93,7 +93,7 @@ export class BenchCoachFinishCardUI extends BaseScriptComponent {
   minButtonDeg: number = 4.8
   @ui.group_end
 
-  /** Pass S1: true while the list and the practice line show (More pressed). */
+  /** True while the list and the practice line show (More pressed). */
   expanded: boolean = false
   /** Plate width and the height of each state, in cm (tests read them). */
   width: number = 0
@@ -121,7 +121,7 @@ export class BenchCoachFinishCardUI extends BaseScriptComponent {
   private memoryH = 0
   private lineH = 0
   private innerW = 0
-  /** Pass S2: the Practise button shows (setPractise got a label). */
+  /** The Practise button shows (setPractise got a label). */
   practiseShown: boolean = false
   private basePos: vec3 = vec3.zero()
   private pad = 0
@@ -131,21 +131,21 @@ export class BenchCoachFinishCardUI extends BaseScriptComponent {
   private _onRestart = new Event<void>()
   onRestart: PublicApi<void> = this._onRestart.publicApi()
   private _onPractise = new Event<void>()
-  /** Pass S2: the Practise button was pressed. */
+  /** The Practise button was pressed. */
   onPractise: PublicApi<void> = this._onPractise.publicApi()
 
-  /** Pass S2: the Practise button's label ("Practise lever A", "Practise again"); "" hides it. */
+  /** The Practise button's label ("Practise lever A", "Practise again"); "" hides it. */
   setPractise(label: string): void {
     this.practiseShown = label.length > 0
     if (this.practiseLabel && label) this.practiseLabel.text = label
     this.layout()
   }
 
-  /** Pass S2: the line under the tip after a drill, as given ("" for none); tests read it. */
+  /** The line under the tip after a drill, as given ("" for none); tests read it. */
   practisedLine: string = ""
 
   /**
-   * Pass S2: the line under the tip after a drill ("" for none). When it needs two lines it
+   * The line under the tip after a drill ("" for none). When it needs two lines it
    * breaks after the step name ("Practised lever A:" / "3 reps, best 0:06, 1 mistake"), so
    * the numbers stay together.
    */
@@ -160,10 +160,10 @@ export class BenchCoachFinishCardUI extends BaseScriptComponent {
     this.layout()
   }
 
-  /** Pass A: the coach memory line under the More view's list, as given ("" for none); tests read it. */
+  /** The coach memory line under the More view's list, as given ("" for none); tests read it. */
   memoryLine: string = ""
 
-  /** Pass A: the More view's last line ("Coach memory: ..."); "" for none. Up to two lines. */
+  /** The More view's last line ("Coach memory: ..."); "" for none. Up to two lines. */
   setMemory(line: string): void {
     this.memoryLine = line
     if (!this.memoryText) return
@@ -175,7 +175,7 @@ export class BenchCoachFinishCardUI extends BaseScriptComponent {
     this.layout()
   }
 
-  /** Pass S2: the Practise button's label ("" while hidden), for tests. */
+  /** The Practise button's label ("" while hidden), for tests. */
   practiseText(): string {
     return this.practiseShown && this.practiseLabel ? this.practiseLabel.text : ""
   }
@@ -204,7 +204,7 @@ export class BenchCoachFinishCardUI extends BaseScriptComponent {
     return this.texts[name] ? this.texts[name].text : ""
   }
 
-  /** Pass S1: show (true) or hide the list and the practice line. */
+  /** Show (true) or hide the list and the practice line. */
   setExpanded(on: boolean): void {
     this.expanded = on
     this.layout()
@@ -287,7 +287,7 @@ export class BenchCoachFinishCardUI extends BaseScriptComponent {
     practice.verticalAlignment = VerticalAlignment.Top
     this.texts["FinishPractice"] = practice
 
-    // ── Pass S2: the practised line, under the tip (shown after a drill) ──
+    // ── the practised line, under the tip (shown after a drill) ──
     this.practised = obj(this.plate.content, "Practised")
     liftInZ(this.practised, 2 * LAYOUT_Z_LIFT)
     const pt = obj(this.practised, "FinishPractised")
@@ -296,7 +296,7 @@ export class BenchCoachFinishCardUI extends BaseScriptComponent {
     this.texts["FinishPractised"] = this.practisedText
     this.practised.enabled = false
 
-    // ── Pass A: the coach memory line, last in the More view ──
+    // ── the coach memory line, last in the More view ──
     this.memory = obj(this.plate.content, "Memory")
     liftInZ(this.memory, 2 * LAYOUT_Z_LIFT)
     this.memoryText = uiTextOn(obj(this.memory, "FinishMemory"), "", "secondary", innerW, lineCm("secondary", d), d, {wrap: true})

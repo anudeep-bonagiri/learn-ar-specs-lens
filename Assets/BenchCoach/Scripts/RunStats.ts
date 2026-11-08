@@ -136,7 +136,7 @@ export class RunStats extends BaseScriptComponent {
   }
 
   /**
-   * Pass S2: the step the Finish card's Practise button drills. The step of the most
+   * The step the Finish card's Practise button drills. The step of the most
    * frequent mistake (MISTAKE_STEPS), else the slowest timed step, else -1 (nothing
    * was timed, as in a Watch run from the start card: no button).
    */
