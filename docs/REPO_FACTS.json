@@ -1,9 +1,9 @@
 {
-  "asOf": "2026-11-07T23:34:16+00:00",
+  "asOf": "2026-11-08T19:23:40+00:00",
   "facts": [
     {
       "fact": "commits",
-      "value": "124",
+      "value": "130",
       "command": "git rev-list --count HEAD"
     },
     {
@@ -13,7 +13,7 @@
     },
     {
       "fact": "last commit",
-      "value": "2026-11-07T17:26:58-06:00",
+      "value": "2026-11-08T13:02:27-06:00",
       "command": "git log -1 --format=%cI"
     },
     {
@@ -53,7 +53,7 @@
     },
     {
       "fact": "lines of .ts",
-      "value": "17769",
+      "value": "18057",
       "command": "git ls-files '*.ts' | xargs wc -l"
     },
     {
@@ -78,12 +78,12 @@
     },
     {
       "fact": "lines of own Lens TypeScript",
-      "value": "13830",
+      "value": "13971",
       "command": "cat Assets/BenchCoach/Scripts/*.ts | wc -l | tr -d ' '"
     },
     {
       "fact": "lines of LEAF test TypeScript",
-      "value": "3881",
+      "value": "4028",
       "command": "cat Assets/BenchCoach/Tests/*.ts | wc -l | tr -d ' '"
     },
     {
@@ -113,12 +113,12 @@
     },
     {
       "fact": "build passes written up in the design notes",
-      "value": "36",
+      "value": "37",
       "command": "grep -c \"^## 20\" devpost/design-notes.md"
     },
     {
       "fact": "lines of design notes",
-      "value": "2428",
+      "value": "2472",
       "command": "wc -l < devpost/design-notes.md | tr -d ' '"
     },
     {
